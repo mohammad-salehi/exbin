@@ -16,6 +16,15 @@ const config: Config = {
         titleText: {
           DEFAULT: "#606060", // رنگ متن عمومی
         },
+        redError: {
+          DEFAULT: "#ff0000", // رنگ متن عمومی
+        },
+        bgColor:{
+          DEFAULT:'#FBFAFA'
+        },
+        boxColor:{
+          DEFAULT:'#FFFFFF'
+        }
       },
       fontFamily: {
         iranSans: ["IRANSansXFaNum", "sans-serif"], // اضافه کردن فونت
