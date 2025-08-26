@@ -89,7 +89,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
                     }
                 )}
             >
-                <div className="flex items-center p-4 border-b dark:border-[#333]">
+                <div className="flex items-center p-4 border-b dark:border-[#666]">
                     <img src='images/pantaLogo.png' className="w-8" />
                     <span className="text-lg font-bold mr-4 text-titleText dark:text-titleText-dark">پنتا</span>
                 </div>
