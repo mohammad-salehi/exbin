@@ -13,6 +13,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
 
     const navItems = [
         {
+            link: "dashboard",
             label: "داشبورد",
             icon: (
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -24,6 +25,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
             ),
         },
         {
+            link: "exchanges-list",
             label: "لیست صرافی‌ها",
             icon: (
                 <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -32,6 +34,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
             )
         },
         {
+            link: "",
             label: "افزودن صرافی جدید",
             icon: (
                 <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -41,6 +44,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
             )
         },
         {
+            link: "",
             label: "پنل ادمین",
             icon: (
                 <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,6 +53,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
             )
         },
         {
+            link: "",
             label: "تیکت‌گذاری",
             icon: (
                 <svg fill="currentColor" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -90,7 +95,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
                 )}
             >
                 <div className="flex items-center p-4 border-b dark:border-[#666]">
-                    <img src='images/pantaLogo.png' className="w-8" />
+                    <img src='../images/pantaLogo.png' className="w-8" />
                     <span className="text-lg font-bold mr-4 text-titleText dark:text-titleText-dark">پنتا</span>
                 </div>
                 <nav className="p-2 space-y-4 mt-12">

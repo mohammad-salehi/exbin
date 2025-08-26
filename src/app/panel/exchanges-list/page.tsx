@@ -1,0 +1,11 @@
+import React from 'react'
+
+const page = () => {
+  return (
+    <div>
+      exchanges-list
+    </div>
+  )
+}
+
+export default page
