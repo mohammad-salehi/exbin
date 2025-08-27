@@ -1,6 +1,8 @@
 'use client';
 
 import clsx from "clsx";
+import { usePathname } from 'next/navigation';
+import { useEffect, useState } from "react";
 
 type NavbarProps = {
     isOpen: boolean;
@@ -10,6 +12,18 @@ type NavbarProps = {
 };
 
 const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProps) => {
+
+    const [pathName, SetPathName] = useState('')
+
+    const pathname = usePathname();
+
+    useEffect(() => {
+        const pathParts = pathname.split('/').filter(part => part !== '');
+        const secondPart = pathParts[1];
+        SetPathName(secondPart)
+
+
+    }, [])
 
     const navItems = [
         {
@@ -34,7 +48,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
             )
         },
         {
-            link: "",
+            link: "add-new-exchange",
             label: "افزودن صرافی جدید",
             icon: (
                 <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -44,7 +58,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
             )
         },
         {
-            link: "",
+            link: "admin-panel",
             label: "پنل ادمین",
             icon: (
                 <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -53,7 +67,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
             )
         },
         {
-            link: "",
+            link: "ticket",
             label: "تیکت‌گذاری",
             icon: (
                 <svg fill="currentColor" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -95,18 +109,21 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
                 )}
             >
                 <div className="flex items-center p-4 border-b dark:border-[#666]">
-                    <img src='../images/pantaLogo.png' className="w-8" />
-                    <span className="text-lg font-bold mr-4 text-titleText dark:text-titleText-dark">پنتا</span>
+                    <img src='../images/pantaLogo.png' className="w-12" />
+                    <span className="text-sm font-bold mr-4 text-titleText dark:text-titleText-dark">سامانه نظارت بر صرافی‌ها</span>
                 </div>
                 <nav className="p-2 space-y-4 mt-12">
                     {navItems.map((item) => (
-                        <button
-                            key={item.label}
-                            className="flex items-center space-x-2 w-full px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition"
-                        >
-                            <span className="text-xl ml-2 dark:text-gray-200">{item.icon}</span>
-                            <span className="text-titleText dark:text-titleText-dark">{item.label}</span>
-                        </button>
+                        <a href={`/panel/${item.link}`} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }} key={item.label}>
+                            <button
+                                
+                                className={`flex items-center space-x-2 w-full px-4 py-2 rounded-md ${item.link === pathName ? "bg-BgPrimary text-primary dark:bg-BgPrimary-dark dark:text-primary-dark" : "hover:bg-gray-200 dark:hover:bg-gray-600"}  transition`}
+                            >
+                                <span className={`text-xl ml-2 ${item.link === pathName ? " text-primary dark:text-primary-dark" : ""} `}>{item.icon}</span>
+                                <span className={` ${item.link === pathName ? " text-primary dark:text-primary-dark" : "text-titleText dark:text-titleText-dark"} `}>{item.label}</span>
+                            </button>
+                        </a>
+
                     ))}
                     <div className="mt-auto pt-12">
                         <button

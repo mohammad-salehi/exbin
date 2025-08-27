@@ -14,24 +14,28 @@ const config: Config = {
     extend: {
       colors: {
         primary: {
-          DEFAULT: "#2fa2dc", // رنگ اصلی برند در لایت مود
-          dark: "#1e88b4", // رنگ اصلی برند در دارک مود
+          DEFAULT: "#2fa2dc", 
+          dark: "#4fc2fc",
+        },
+        BgPrimary: {
+          DEFAULT: "#EAF6FC", 
+          dark: "#5e5e5e",
         },
         titleText: {
-          DEFAULT: "#606060", // رنگ متن عمومی در لایت مود
-          dark: "#dcdcdc", // رنگ متن عمومی در دارک مود
+          DEFAULT: "#606060", 
+          dark: "#dcdcdc", 
         },
         redError: {
-          DEFAULT: "#ff0000", // رنگ ارور در لایت مود
-          dark: "#ff4d4d", // رنگ ارور در دارک مود
+          DEFAULT: "#ff0000", 
+          dark: "#ff4d4d",
         },
         bgColor: {
-          DEFAULT: "#FBFAFA", // پس‌زمینه لایت مود
-          dark: "#181818", // پس‌زمینه دارک مود
+          DEFAULT: "#FBFAFA",
+          dark: "#181818",
         },
         boxColor: {
-          DEFAULT: "#FFFFFF", // رنگ جعبه‌ها در لایت مود
-          dark: "#2c2c2c", // رنگ جعبه‌ها در دارک مود
+          DEFAULT: "#FFFFFF",
+          dark: "#2c2c2c",
         },
       },
       fontFamily: {
