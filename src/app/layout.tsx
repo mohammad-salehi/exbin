@@ -10,7 +10,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fa" dir="rtl">
-      <body>
+      <body className="bg-bgColor dark:bg-bgColor-dark">
         <ThemeProvider theme={moonDesignLight}>
           {children}
         </ThemeProvider>
