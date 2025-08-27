@@ -137,7 +137,7 @@ export default function Home() {
           </div>
 
           <div className="text-right">
-            <a href="#" className="text-sm text-blue-600 hover:underline text-primary">
+            <a href="/recovery" className="text-sm text-blue-600 hover:underline text-primary">
               رمز عبور خود را فراموش کرده‌اید؟
             </a>
           </div>
