@@ -3,7 +3,6 @@
 import { Button } from "@heathmont/moon-core-tw";
 import { useState } from "react";
 import { Alert } from "@heathmont/moon-core-tw";
-import { OtherFrame } from "@heathmont/moon-icons-tw";
 import { ControlsClose } from '@heathmont/moon-icons-tw';
 import { Loader } from "@heathmont/moon-core-tw";
 
