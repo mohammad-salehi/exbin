@@ -8,7 +8,7 @@ export default function page() {
   const [ChartData, SetChartData] = useState([
     { name: "ثبت شده", value: 60 },
     { name: "ثبت نشده", value: 40, color: "#E4E4E4" },
-  ]);
+  ])
   const [ExAssetsValue, SetExAssetsValue] = useState([
     { name: "ثبت شده", value: 10 },
     { name: "ثبت نشده", value: 20 },
@@ -40,11 +40,11 @@ export default function page() {
     { name: "ثبت شده", value: 280 },
     { name: "ثبت نشده", value: 290 },
     { name: "2ثبت نشده", value: 900 },
-  ]);
+  ])
   return (
     <div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2  gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <div className="">
           <CircularChart data={ChartData}
             title="صرافی های ثبت شده"
