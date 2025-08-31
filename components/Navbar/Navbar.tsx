@@ -21,8 +21,6 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
         const pathParts = pathname.split('/').filter(part => part !== '');
         const secondPart = pathParts[1];
         SetPathName(secondPart)
-
-
     }, [])
 
     const navItems = [
@@ -101,7 +99,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
             {/* Sidebar */}
             <div
                 className={clsx(
-                    "fixed top-0 right-0 h-screen w-64 bg-[#f8f8f9] shadow-sm transition-transform duration-300 z-50 bg-boxColor dark:bg-boxColor-dark dark:text-titleText-dark",
+                    "fixed top-0 right-0 h-screen w-64 shadow-sm transition-transform duration-300 z-50 bg-boxColor dark:bg-boxColor-dark dark:text-titleText-dark",
                     {
                         "translate-x-full lg:translate-x-0": (!isOpen && !isMobileOpen),
                         "translate-x-0": (isOpen || isMobileOpen),
