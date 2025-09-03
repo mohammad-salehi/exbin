@@ -183,39 +183,43 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={selectedPeriod === "ماه" ? MonthlyData : DailyData}>
+        <LineChart
+          data={selectedPeriod === "ماه" ? MonthlyData : DailyData}
+          margin={{ top: 30, right: 0, left: -50, bottom: 0 }}
+        >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="date"
             tick={{
               fill: "#aaaaaa",
-              fontSize: 13
+              fontSize: 13,
             }}
           />
           <YAxis
             tick={{
               fill: "#aaaaaa",
-              fontSize: 13
+              fontSize: 13,
             }}
-            dx={-40}
-            tickFormatter={(value) => value.toLocaleString("fa-IR")} // یا "en-US"
+            dx={10}
+            dy={-10}
+            tickFormatter={(value) => value.toLocaleString("fa-IR")}
           />
           <Tooltip
-            formatter={(value) => value.toLocaleString("en-US")} // یا "fa-IR"
+            formatter={(value) => value.toLocaleString("en-US")}
             contentStyle={{
               backgroundColor: "#fff",
               borderColor: "#ddd",
               color: "#606060",
               borderRadius: "8px",
               fontSize: "14px",
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
             }}
             itemStyle={{
-              color: "#606060"
+              color: "#606060",
             }}
             labelStyle={{
               color: "#606060",
-              fontWeight: "bold"
+              fontWeight: "bold",
             }}
           />
           <Line
@@ -227,6 +231,7 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
           />
         </LineChart>
       </ResponsiveContainer>
+
     </div>
   );
 };
