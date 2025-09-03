@@ -5,10 +5,14 @@ import { useEffect, useState } from "react";
 import CircularChart from "../../../../components/Dashboard/CircularChart/CircularChart";
 import LineChartExample from "../../../../components/Dashboard/LinearChart/LinearChart";
 export default function page() {
+  
+  //دیتای تستی برای تعداد صرافی های ثبت شده
   const [ChartData, SetChartData] = useState([
     { name: "ثبت شده", value: 60 },
     { name: "ثبت نشده", value: 40, color: "#E4E4E4" },
   ])
+
+  //دیتای تستی برای دارایی صرافی ها
   const [ExAssetsValue, SetExAssetsValue] = useState([
     { name: "ثبت شده", value: 10 },
     { name: "ثبت نشده", value: 20 },
@@ -43,7 +47,6 @@ export default function page() {
   ])
   
   const [ExTrNumber, SetExTrNumber] = useState<Array<{
-    id: number;
     date: string;
     timestamp: number;
     year:number,
@@ -55,6 +58,7 @@ export default function page() {
     }>;
   }>>([]);
 
+  //ساخت دیتا برای نمودار های خطی
   const generateExchangeData = () => {
     const startDate = new Date("2023-01-01");
     const data = Array.from({ length: 365 }, (_, index) => {
@@ -65,7 +69,6 @@ export default function page() {
       });
       const [year, month, day] = formattedDate.split("/").map(Number);
       const dayData = {
-        id: index + 1,
         date: formattedDate,
         timestamp: currentDate.getTime(),
         year,

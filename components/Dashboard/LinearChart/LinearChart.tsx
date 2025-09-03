@@ -6,7 +6,6 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 interface LinearChartProps {
   title: string;
   data: Array<{
-    id: number;
     date: string;
     timestamp: number;
     year: number,
@@ -25,13 +24,11 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
   const [Exchanges, SetExchanges] = useState<string[]>([]);
 
   const [DailyData, SetDailytData] = useState<Array<{
-    id: number;
     date: string;
     timestamp: number;
     value: number;
   }>>([])
   const [MonthlyData, SetMonthlyData] = useState<Array<{
-    id: number;
     date: string;
     timestamp: number;
     value: number;
@@ -52,7 +49,6 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
         }
       }
       getData.push({
-        id: data[i].id,
         date: data[i].date,
         timestamp: data[i].timestamp,
         value: sum
@@ -93,10 +89,9 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
         });
       } else {
         monthlyDataMap.set(monthKey, {
-          id: item.id,
           year,
           month,
-          date: `${year}${getPersianMonthName(month)}`,
+          date: `${getPersianMonthName(month)}${year}`,
           timestamp: item.timestamp,
           value: dayTotal,
         });
@@ -192,10 +187,16 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="date"
-            tick={{ fill: "#aaaaaa" }}
+            tick={{
+              fill: "#aaaaaa",
+              fontSize: 13
+            }}
           />
           <YAxis
-            tick={{ fill: "#aaaaaa" }}
+            tick={{
+              fill: "#aaaaaa",
+              fontSize: 13
+            }}
             dx={-40}
             tickFormatter={(value) => value.toLocaleString("fa-IR")} // یا "en-US"
           />
