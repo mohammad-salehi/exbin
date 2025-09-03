@@ -3,74 +3,142 @@
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
-import { Combobox, MenuItem } from "@heathmont/moon-core-tw";
-import { ControlsChevronDownSmall } from "@heathmont/moon-icons-tw";
+interface LinearChartProps {
+  title: string;
+  data: Array<{
+    id: number;
+    date: string;
+    timestamp: number;
+    year: number,
+    month: number,
+    day: number,
+    data: Array<{
+      name: string;
+      value: number;
+    }>;
+  }>
+}
 
-const people = [
-  { id: 1, label: "Wade Cooper", value: "Wade Cooper" },
-  { id: 2, label: "Arlene Mccoy", value: "Arlene Mccoy" },
-  { id: 3, label: "Devon Webb", value: "Devon Webb" },
-  { id: 4, label: "Tom Cook", value: "Tom Cook" },
-  { id: 5, label: "Tanya Fox", value: "Tanya Fox" },
-  { id: 6, label: "Hellen Schmidt", value: "Hellen Schmidt" },
-];
+const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
+  const [selectedPeriod, setSelectedPeriod] = useState("ماه")
+  const [Filter, SetFilter] = useState<string>("")
+  const [Exchanges, SetExchanges] = useState<string[]>([]);
 
-const data = [
-  { month: "فروردین", value: 150 },
-  { month: "اردیبهشت", value: 220 },
-  { month: "خرداد", value: 350 },
-  { month: "تیر", value: 270 },
-  { month: "مرداد", value: 350 },
-  { month: "شهریور", value: 400 },
-  { month: "مهر", value: 420 },
-  { month: "آبان", value: 550 },
-  { month: "آذر", value: 300 },
-  { month: "دی", value: 450 },
-  { month: "بهمن", value: 600 },
-  { month: "اسفند", value: 800 },
-];
+  const [DailyData, SetDailytData] = useState<Array<{
+    id: number;
+    date: string;
+    timestamp: number;
+    value: number;
+  }>>([])
+  const [MonthlyData, SetMonthlyData] = useState<Array<{
+    id: number;
+    date: string;
+    timestamp: number;
+    value: number;
+  }>>([])
 
-const LineChartExample = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState("ماه"); // انتخاب بازه زمانی (ماه یا روز)
-  const [DarkMode, setDarkMode] = useState<boolean>(false);
-  const [TextColor, setTextColor] = useState<string>('');
+  const ProccessDailyData = () => {
+    const getData = []
+    for (let i = 0; i < data.length; i++) {
 
-  // تعیین رنگ‌ها برای دارک و لایت تم
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("dark-mode");
-    const currentTheme = storedTheme ? true : false;
-    setDarkMode(currentTheme);
-    const tickColor = currentTheme ? "#dcdcdc" : "#606060";
-    setTextColor(tickColor)
-  }, []);
+      let sum = 0
+      for (let j = 0; j < data[i].data.length; j++) {
+        if (Filter === "") {
+          sum = sum + data[i].data[j].value
+        } else {
+          if (data[i].data[j].name === Filter) {
+            sum = sum + data[i].data[j].value
+          }
+        }
+      }
+      getData.push({
+        id: data[i].id,
+        date: data[i].date,
+        timestamp: data[i].timestamp,
+        value: sum
+      })
+    }
+    SetDailytData(getData)
+  }
 
-  const filter = (
-    query: string,
-    people: { id: number; label: string; value: string }[],
-  ) => {
-    return query === ""
-      ? people
-      : people.filter(({ value }) =>
-        value
-          .toLowerCase()
-          .replace(/\s+/g, "")
-          .includes(query.toLowerCase().replace(/\s+/g, "")),
-      );
+  function getPersianMonthName(month: number): string {
+    const names = [
+      "فروردین", "اردیبهشت", "خرداد",
+      "تیر", "مرداد", "شهریور",
+      "مهر", "آبان", "آذر",
+      "دی", "بهمن", "اسفند"
+    ];
+    return names[month - 1];
+  }
+
+  const ProcessMonthlyData = () => {
+    const monthlyDataMap = new Map();
+
+    for (let i = 0; i < data.length; i++) {
+      const item = data[i];
+      const { year, month } = item;
+      const monthKey = `${year}-${month}`;
+      let dayTotal = 0;
+      for (let j = 0; j < item.data.length; j++) {
+        const d = item.data[j];
+        if (Filter === "" || d.name === Filter) {
+          dayTotal += d.value;
+        }
+      }
+      if (monthlyDataMap.has(monthKey)) {
+        const existing = monthlyDataMap.get(monthKey);
+        monthlyDataMap.set(monthKey, {
+          ...existing,
+          value: existing.value + dayTotal,
+        });
+      } else {
+        monthlyDataMap.set(monthKey, {
+          id: item.id,
+          year,
+          month,
+          date: `${year}${getPersianMonthName(month)}`,
+          timestamp: item.timestamp,
+          value: dayTotal,
+        });
+      }
+    }
+    const result = Array.from(monthlyDataMap.values());
+    SetMonthlyData(result);
   };
 
-  const [selected1, setSelected1] = useState({});
+  useEffect(() => {
+    ProccessDailyData()
+    ProcessMonthlyData()
+  }, [data, Filter])
 
-  const [query1, setQuery1] = useState<string>("");
-  const filteredPeople1 = filter(query1, people);
+  useEffect(() => {
+    const getData: string[] = [];
+    for (let i = 0; i < data.length; i++) {
+      for (let j = 0; j < data[i].data.length; j++) {
+        const name = data[i].data[j].name;
+        if (!getData.includes(name)) {
+          getData.push(name);
+        }
+      }
+    }
+    SetExchanges(getData);
+  }, [data]);
+
+
+  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = event.target.value;
+    SetFilter(value);
+  };
 
   return (
-    <div className="p-4 w-full rounded-xl shadow-lg relative bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark">
+    <div className="p-4 w-full rounded-xl shadow-sm relative bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark">
       <div className="flex flex-col mb-4">
         <div className="mb-2">
-          <h3 className="text-xl">مجموع داده‌های ثبت شده توسط صرافی‌ها</h3>
+          <h3 className="text-xl">{title}</h3>
         </div>
 
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+
           <div className="flex items-center">
             <button
               className={`px-4 py-2 rounded w-24 ${selectedPeriod === "ماه"
@@ -102,26 +170,53 @@ const LineChartExample = () => {
 
           <div className="relative inline-block w-48 ">
             <select
+              onChange={handleSelectChange}
+              value={Filter}
               className="block w-full px-4 py-2 text-gray-700 bg-gray-100  border dark:bg-gray-700 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500  dark:text-gray-100 dark:border-gray-600 dark:focus:ring-blue-400 appearance-none"
             >
               <option value="">همه صرافی ها</option>
-              <option value="1">گزینه اول</option>
-              <option value="2">گزینه دوم</option>
-              <option value="3">گزینه سوم</option>
+              {
+                Exchanges.map((item, index) => (
+                  <option key={index} value={item}>
+                    {item}
+                  </option>
+                ))
+              }
             </select>
           </div>
-
-
-
         </div>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
+        <LineChart data={selectedPeriod === "ماه" ? MonthlyData : DailyData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" tick={{ fill: TextColor }} />
-          <YAxis tick={{ fill: TextColor }} dx={-25} />
-          <Tooltip />
+          <XAxis
+            dataKey="date"
+            tick={{ fill: "#aaaaaa" }}
+          />
+          <YAxis
+            tick={{ fill: "#aaaaaa" }}
+            dx={-40}
+            tickFormatter={(value) => value.toLocaleString("fa-IR")} // یا "en-US"
+          />
+          <Tooltip
+            formatter={(value) => value.toLocaleString("en-US")} // یا "fa-IR"
+            contentStyle={{
+              backgroundColor: "#fff",
+              borderColor: "#ddd",
+              color: "#606060",
+              borderRadius: "8px",
+              fontSize: "14px",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)"
+            }}
+            itemStyle={{
+              color: "#606060"
+            }}
+            labelStyle={{
+              color: "#606060",
+              fontWeight: "bold"
+            }}
+          />
           <Line
             type="monotone"
             dataKey="value"

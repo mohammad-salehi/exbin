@@ -54,7 +54,7 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, title, InnerSpace, 
   };
 
   return (
-    <div className="p-4 w-full bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark rounded-xl shadow-lg relative">
+    <div className="p-4 w-full bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark rounded-xl shadow-sm relative">
       <h3 className="text-center text-xl mb-2">{title}</h3>
       <ResponsiveContainer width="100%" height={height !== undefined ? height : 250}>
         <PieChart>

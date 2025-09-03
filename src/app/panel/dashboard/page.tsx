@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import CircularChart from "../../../../components/Dashboard/CircularChart/CircularChart";
 import LineChartExample from "../../../../components/Dashboard/LinearChart/LinearChart";
 export default function page() {
@@ -41,6 +41,76 @@ export default function page() {
     { name: "ثبت نشده", value: 290 },
     { name: "2ثبت نشده", value: 900 },
   ])
+  
+  const [ExTrNumber, SetExTrNumber] = useState<Array<{
+    id: number;
+    date: string;
+    timestamp: number;
+    year:number,
+    month:number,
+    day:number,
+    data: Array<{
+      name: string;
+      value: number;
+    }>;
+  }>>([]);
+
+  const generateExchangeData = () => {
+    const startDate = new Date("2023-01-01");
+    const data = Array.from({ length: 365 }, (_, index) => {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + index);
+      const formattedDate = currentDate.toLocaleDateString("fa-IR", {
+        numberingSystem: "latn",
+      });
+      const [year, month, day] = formattedDate.split("/").map(Number);
+      const dayData = {
+        id: index + 1,
+        date: formattedDate,
+        timestamp: currentDate.getTime(),
+        year,
+        month,
+        day,
+        data: [
+          {
+            name: "نوبیتکس",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "والکس",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "رمزینکس",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "او ام پی فینکس",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "تبدیل",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "بیت24",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "آبان‌تتر",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+        ],
+      };
+      return dayData;
+    });
+    return data;
+  };
+  
+  useEffect(() => {
+    SetExTrNumber(generateExchangeData())
+  },[])
+
   return (
     <div>
 
@@ -64,9 +134,13 @@ export default function page() {
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-1  gap-4 mt-4">
         <div className="">
-          <LineChartExample/>
+          <LineChartExample title="مجموع داده های ثبت‌شده توسط صرافی‌ها" data={ExTrNumber} />
         </div>
-
+      </div>
+      <div className="grid grid-cols-1 xl:grid-cols-1  gap-4 mt-4 pb-4">
+        <div className="">
+          <LineChartExample title="تعداد تراکنش صرافی‌ها" data={ExTrNumber} />
+        </div>
       </div>
     </div>
   );
