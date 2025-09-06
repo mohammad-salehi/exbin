@@ -125,8 +125,10 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
     SetFilter(value);
   };
 
+  
+
   return (
-    <div className="p-4 w-full rounded-xl shadow-sm relative bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark">
+    <div className="p-4 w-full rounded-xl shadow-lg relative bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark">
       <div className="flex flex-col mb-4">
         <div className="mb-2">
           <h3 className="text-xl">{title}</h3>
@@ -187,7 +189,7 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
           data={selectedPeriod === "ماه" ? MonthlyData : DailyData}
           margin={{ top: 30, right: 0, left: -50, bottom: 0 }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
+          <CartesianGrid strokeDasharray="0" />
           <XAxis
             dataKey="date"
             tick={{
@@ -225,8 +227,9 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
           <Line
             type="monotone"
             dataKey="value"
-            stroke="#2B6CB0"
+            stroke="#73a7de"
             strokeWidth={2}
+            dot={false}
             activeDot={{ r: 8 }}
           />
         </LineChart>
