@@ -6,12 +6,13 @@ variables:
   DOCKER_BUILDKIT: "1"
   COMPOSE_DOCKER_CLI_BUILD: "1"
 
-
+# -------- Build Stage --------
 build_exbin:
   stage: build
   image: docker:25.0.3
   variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE/exbin:$CI_COMMIT_TAG
+    # Image will be git.bahfara.ir:5050/panta/exbin:<tag>
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
@@ -20,15 +21,16 @@ build_exbin:
     - docker push "$IMAGE_NAME"
   tags:
     - app2
+  only:
+    - tags
 
-
-
+# -------- Deploy Stage --------
 deploy_exbin_prod:
   stage: deploy
-  image: docker:25.0.3
   needs: ["build_exbin"]
+  image: docker:25.0.3
   variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE/exbin:$CI_COMMIT_TAG
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   before_script:
     - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin $CI_REGISTRY
   script:
@@ -42,4 +44,5 @@ deploy_exbin_prod:
   tags:
     - app2
   when: manual
-
+  only:
+    - tags
