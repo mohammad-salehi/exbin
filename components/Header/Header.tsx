@@ -8,6 +8,7 @@ type NavbarProps = {
     toggleDarkMode: () => void; // اصلاح تایپ
     isDarkMode: boolean
 };
+import { Dropdown, MenuItem } from "@heathmont/moon-core-tw";
 
 export default function Header({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen, toggleDarkMode, isDarkMode }: NavbarProps) {
 
@@ -27,13 +28,39 @@ export default function Header({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpe
                 {
                     isOpen ?
                         <div className="flex items-center gap-1 text-titleText dark:text-titleText-dark">
-                            <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
-                            <span className='mr-4'>علی اکبری</span>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-gray-500 mr-4 dark:text-gray-400">
-                                <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                            </svg>
+
+
+                            <Dropdown value={'option'} onChange={() => { }}>
+                                <Dropdown.Trigger>
+                                    <div className="flex items-center justify-between gap-2 px-3 py-2">
+                                        <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                        <span className='mr-4'>علی اکبری</span>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-gray-500 mr-4 dark:text-gray-400">
+                                            <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        </svg>
+                                    </div>
+
+                                </Dropdown.Trigger>
+
+                                <Dropdown.Options
+                                    className="
+        absolute top-full right-0 mt-2 z-[10000]
+        w-fit inline-block
+        max-w-[90vw]      /* اختیاری: جلوگیری از خروج از صفحه */
+        rounded-md border dark:border-boxColor-dark
+        bg-white dark:bg-boxBorderColor2-dark shadow-lg
+        origin-top-right  /* رشد از راست به چپ */
+        p-4
+      "
+                                >
+                                    <span className="block text-md mb-1">ادمین سیستم</span>
+                                    <p className="text-md whitespace-nowrap mt-4" dir="rtl">
+                                        mohammad7979salehi@gmail.com
+                                    </p>
+                                </Dropdown.Options>
+                            </Dropdown>
                         </div>
                         :
                         <div className="text-titleText dark:text-titleText-dark">

@@ -41,6 +41,14 @@ const config: Config = {
           DEFAULT: "#D8D8D8",
           dark: "#6B6E74",
         },
+        boxColor2: {
+          DEFAULT: "#54565C",
+          dark: "#494b50",
+        },
+        boxBorderColor2: {
+          DEFAULT: "#D8D8D8",
+          dark: "#6B6E74",
+        },
         buttonColor: {
           DEFAULT: "#FFFFFF",
           dark: "#54565C",
