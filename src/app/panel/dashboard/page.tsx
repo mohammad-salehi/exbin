@@ -4,8 +4,9 @@
 import { useEffect, useState } from "react";
 import CircularChart from "../../../../components/Dashboard/CircularChart/CircularChart";
 import LineChartExample from "../../../../components/Dashboard/LinearChart/LinearChart";
+import MarketVolumeChart from "../../../../components/Dashboard/MarketVolumeChart/MarketVolumeChart";
 export default function page() {
-  
+
   //دیتای تستی برای تعداد صرافی های ثبت شده
   const [ChartData, SetChartData] = useState([
     { name: "ثبت شده", value: 60 },
@@ -14,44 +15,36 @@ export default function page() {
 
   //دیتای تستی برای دارایی صرافی ها
   const [ExAssetsValue, SetExAssetsValue] = useState([
-    { name: "ثبت شده", value: 10 },
-    { name: "ثبت نشده", value: 20 },
-    { name: "2ثبت نشده", value: 30 },
-    { name: "ثبت شده", value: 40 },
-    { name: "ثبت نشده", value: 50 },
-    { name: "2ثبت نشده", value: 60 },
-    { name: "ثبت شده", value: 70 },
-    { name: "ثبت نشده", value: 80 },
-    { name: "2ثبت نشده", value: 90 },
-    { name: "ثبت شده", value: 100 },
-    { name: "ثبت نشده", value: 110 },
-    { name: "2ثبت نشده", value: 120 },
-    { name: "ثبت شده", value: 130 },
-    { name: "ثبت نشده", value: 140 },
-    { name: "2ثبت نشده", value: 150 },
-    { name: "ثبت شده", value: 160 },
-    { name: "ثبت نشده", value: 170 },
-    { name: "2ثبت نشده", value: 180 },
-    { name: "ثبت شده", value: 190 },
-    { name: "ثبت نشده", value: 200 },
-    { name: "2ثبت نشده", value: 210 },
-    { name: "ثبت شده", value: 220 },
-    { name: "ثبت نشده", value: 230 },
-    { name: "2ثبت نشده", value: 240 },
-    { name: "ثبت شده", value: 250 },
-    { name: "ثبت نشده", value: 260 },
-    { name: "2ثبت نشده", value: 270 },
-    { name: "ثبت شده", value: 280 },
-    { name: "ثبت نشده", value: 290 },
-    { name: "2ثبت نشده", value: 900 },
+ 
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "بیت24", value: 0.9 },
+    { name: "آبان‌تتر", value: 1.7 },
+    { name: "اکسکوینو", value: 2.4 },
+    { name: "والکس", value: 7 },
+    { name: "نوبیتکس", value: 80 },
   ])
-  
+
   const [ExTrNumber, SetExTrNumber] = useState<Array<{
     date: string;
     timestamp: number;
-    year:number,
-    month:number,
-    day:number,
+    year: number,
+    month: number,
+    day: number,
     data: Array<{
       name: string;
       value: number;
@@ -109,42 +102,47 @@ export default function page() {
     });
     return data;
   };
-  
+
   useEffect(() => {
     SetExTrNumber(generateExchangeData())
-  },[])
+  }, [])
 
   return (
-    <div>
+    <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <div className="">
-          <CircularChart data={ChartData}
+        <div>
+          <CircularChart
+            data={ChartData}
             title="صرافی های ثبت شده"
           />
         </div>
-        <div className="">
-          <CircularChart
+        <div>
+          <MarketVolumeChart
             data={ExAssetsValue}
             title="حجم دارایی صرافی‌ها"
-            InnerSpace={80}
-            height={290}
-            Radius={120}
-            paddingAngle={1}
-            ShowDetails={false}
           />
         </div>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-1  gap-4 mt-4">
-        <div className="">
-          <LineChartExample title="مجموع داده های ثبت‌شده توسط صرافی‌ها" data={ExTrNumber} />
+
+      <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4">
+        <div>
+          <LineChartExample
+            title="مجموع داده های ثبت‌شده توسط صرافی‌ها"
+            data={ExTrNumber}
+          />
         </div>
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-1  gap-4 mt-4 pb-4">
-        <div className="">
-          <LineChartExample title="تعداد تراکنش صرافی‌ها" data={ExTrNumber} />
+
+      <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4 pb-4">
+        <div>
+          <LineChartExample
+            title="تعداد تراکنش صرافی‌ها"
+            data={ExTrNumber}
+          />
         </div>
       </div>
+
     </div>
   );
 }
