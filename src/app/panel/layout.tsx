@@ -61,7 +61,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <div className={`flex-1 flex flex-col transition-all duration-300 ${isNavbarOpen ? "mr-64" : "mr-0"} ${isNavbarOpen ? "p-8" : "p-0"} pt-0`}>
                 <Header isOpen={isNavbarOpen} setIsOpen={setIsNavbarOpen} isMobileOpen={isMobileOpen} setIsMobileOpen={SetisMobileOpen} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} />
-                <main className="flex-1 overflow-auto p-6">
+                <main className="flex-1 overflow-auto pt-0 mt-4">
                     {children}
                 </main>
             </div>

@@ -3,9 +3,9 @@
 import { Button } from "@heathmont/moon-core-tw";
 import { useState } from "react";
 import { Alert } from "@heathmont/moon-core-tw";
-import { OtherFrame } from "@heathmont/moon-icons-tw";
 import { ControlsClose } from '@heathmont/moon-icons-tw';
 import { Loader } from "@heathmont/moon-core-tw";
+import Link from "next/link"
 
 export default function Home() {
 
@@ -137,9 +137,9 @@ export default function Home() {
           </div>
 
           <div className="text-right">
-            <a href="/recovery" className="text-sm text-blue-600 hover:underline text-primary">
+            <Link href="/recovery" className="text-sm hover:underline text-primary">
               رمز عبور خود را فراموش کرده‌اید؟
-            </a>
+            </Link>
           </div>
 
           <Button

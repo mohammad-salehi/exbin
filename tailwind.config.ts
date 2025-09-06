@@ -31,11 +31,31 @@ const config: Config = {
         },
         bgColor: {
           DEFAULT: "#FBFAFA",
-          dark: "#181818",
+          dark: "#343a3f",
         },
         boxColor: {
           DEFAULT: "#FFFFFF",
-          dark: "#2c2c2c",
+          dark: "#494b50",
+        },
+        boxBorderColor: {
+          DEFAULT: "#D8D8D8",
+          dark: "#6B6E74",
+        },
+        buttonColor: {
+          DEFAULT: "#FFFFFF",
+          dark: "#54565C",
+        },
+        buttonBorderColor: {
+          DEFAULT: "#ededed",
+          dark: "#6B6E74",
+        },
+        buttonSelectedColor: {
+          DEFAULT: "#eaf6fc",
+          dark: "#54565C",
+        },
+        buttonSelectedBorderColor: {
+          DEFAULT: "#9fd4ef",
+          dark: "#2fa2dc",
         },
       },
       fontFamily: {

@@ -1,11 +1,147 @@
-import React from 'react'
+"use client";
 
-const page = () => {
+import { useEffect, useState } from "react";
+import CircularChart from "../../../../components/Dashboard/CircularChart/CircularChart";
+import LineChartExample from "../../../../components/Dashboard/LinearChart/LinearChart";
+import MarketVolumeChart from "../../../../components/Dashboard/MarketVolumeChart/MarketVolumeChart";
+export default function Page() {
+
+  //دیتای تستی برای تعداد صرافی های ثبت شده
+  const [ChartData, SetChartData] = useState([
+    { name: "ثبت شده", value: 60 },
+    { name: "ثبت نشده", value: 40, color: "#E4E4E4" },
+  ])
+
+  //دیتای تستی برای دارایی صرافی ها
+  const [ExAssetsValue, SetExAssetsValue] = useState([
+ 
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "ثبت شده", value: 0.5 },
+    { name: "بیت24", value: 0.9 },
+    { name: "آبان‌تتر", value: 1.7 },
+    { name: "اکسکوینو", value: 2.4 },
+    { name: "والکس", value: 7 },
+    { name: "نوبیتکس", value: 80 },
+  ])
+
+  const [ExTrNumber, SetExTrNumber] = useState<Array<{
+    date: string;
+    timestamp: number;
+    year: number,
+    month: number,
+    day: number,
+    data: Array<{
+      name: string;
+      value: number;
+    }>;
+  }>>([]);
+
+  //ساخت دیتا برای نمودار های خطی
+  const generateExchangeData = () => {
+    const startDate = new Date("2023-01-01");
+    const data = Array.from({ length: 365 }, (_, index) => {
+      const currentDate = new Date(startDate);
+      currentDate.setDate(startDate.getDate() + index);
+      const formattedDate = currentDate.toLocaleDateString("fa-IR", {
+        numberingSystem: "latn",
+      });
+      const [year, month, day] = formattedDate.split("/").map(Number);
+      const dayData = {
+        date: formattedDate,
+        timestamp: currentDate.getTime(),
+        year,
+        month,
+        day,
+        data: [
+          {
+            name: "نوبیتکس",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "والکس",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "رمزینکس",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "او ام پی فینکس",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "تبدیل",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "بیت24",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+          {
+            name: "آبان‌تتر",
+            value: Math.floor(Math.random() * (1000000 - 10000 + 1)) + 10000,
+          },
+        ],
+      };
+      return dayData;
+    });
+    return data;
+  };
+
+  useEffect(() => {
+    SetExTrNumber(generateExchangeData())
+  }, [])
+
   return (
-    <div>
-      DashboardLayout
-    </div>
-  )
-}
+    <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
 
-export default page
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <div>
+          <CircularChart
+            data={ChartData}
+            title="صرافی های ثبت شده"
+          />
+        </div>
+        <div>
+          <MarketVolumeChart
+            data={ExAssetsValue}
+            title="حجم دارایی صرافی‌ها"
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4">
+        <div>
+          <LineChartExample
+            title="مجموع داده های ثبت‌شده توسط صرافی‌ها"
+            data={ExTrNumber}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4 pb-4">
+        <div>
+          <LineChartExample
+            title="تعداد تراکنش صرافی‌ها"
+            data={ExTrNumber}
+          />
+        </div>
+      </div>
+
+    </div>
+  );
+}
