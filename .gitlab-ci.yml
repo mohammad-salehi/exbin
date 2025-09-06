@@ -34,7 +34,7 @@ build_front_dev:
     - docker build . -f Dockerfile --tag $IMAGE_NAME --build-arg NODE_ENV=development
     - docker push $IMAGE_NAME
   tags:
-    - app2
+    - app3
   only:
     refs:
       - development
