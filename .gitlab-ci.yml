@@ -18,8 +18,7 @@ build_web_prod:
     - docker push "$IMAGE_NAME"
   tags:
     - app2
-  only:
-    - tags
+
 
 deploy_prod:
   stage: deploy
@@ -35,9 +34,3 @@ deploy_prod:
   tags:
     - app2
   when: manual
-  only:
-    changes:
-      - .gitlab-ci.yml
-      - docker-compose.yml
-    refs:
-      - main
