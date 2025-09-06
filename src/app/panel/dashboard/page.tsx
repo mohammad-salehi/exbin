@@ -1,11 +1,10 @@
-
 "use client";
 
 import { useEffect, useState } from "react";
 import CircularChart from "../../../../components/Dashboard/CircularChart/CircularChart";
 import LineChartExample from "../../../../components/Dashboard/LinearChart/LinearChart";
 import MarketVolumeChart from "../../../../components/Dashboard/MarketVolumeChart/MarketVolumeChart";
-export default function page() {
+export default function Page() {
 
   //دیتای تستی برای تعداد صرافی های ثبت شده
   const [ChartData, SetChartData] = useState([

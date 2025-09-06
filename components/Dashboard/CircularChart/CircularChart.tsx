@@ -17,7 +17,6 @@ interface DonutChartData {
   name: string;
   value: number;
   color?: string;
-
 }
 
 interface CircularChartProps {
@@ -30,36 +29,43 @@ interface CircularChartProps {
   ShowDetails?: boolean;
 }
 
-const CircularChart: React.FC<CircularChartProps> = ({ data, title, InnerSpace, Radius, paddingAngle, height, ShowDetails = true }) => {
+const CircularChart: React.FC<CircularChartProps> = ({
+  data,
+  title,
+  InnerSpace,
+  Radius,
+  paddingAngle,
+  height,
+  ShowDetails = true,
+}) => {
   const [hoveredData, setHoveredData] = useState<DonutChartData | null>(null);
   const [colors, setColors] = useState<string[]>([]);
-  const [HoveredNumber, SetHoveredNumber] = useState<Number>(0);
-  const [HoveredText, SetHoveredText] = useState<String>('');
+  const [HoveredNumber, SetHoveredNumber] = useState<number>(0);
+  const [HoveredText, SetHoveredText] = useState<string>("");
 
   useEffect(() => {
     const generatedColors = data.map((entry) => entry.color || getRandomColor());
     setColors(generatedColors);
-  }, [data])
+  }, [data]);
 
-  const handleMouseEnter = (data: DonutChartData, e: React.MouseEvent<SVGElement, MouseEvent>) => {
-    setHoveredData(data);
-    SetHoveredNumber(data.value)
-    SetHoveredText(data.name)
+  const handleMouseEnter = (item: DonutChartData) => {
+    setHoveredData(item);
+    SetHoveredNumber(item.value);
+    SetHoveredText(item.name);
   };
 
   const handleMouseLeave = () => {
     setHoveredData(null);
-    SetHoveredNumber(0)
-    SetHoveredText('')
+    SetHoveredNumber(0);
+    SetHoveredText("");
   };
 
   return (
     <div className="p-4 w-full bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark rounded-xl shadow-lg relative border border-boxBorderColor dark:border-boxBorderColor-dark">
       <h3 className="text-center text-xl mb-2">{title}</h3>
-      <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
-
+      <div className="px-4 xl:px-0">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <div className=" border-t xl:border-t-0 xl:border-l border-gray-200 mt-4 xl:mt-0 xl:pl-4 ">
+          <div className="border-t xl:border-t-0 xl:border-l border-gray-200 mt-4 xl:mt-0 xl:pl-4">
             <div className="text-center mt-4 text-gray-700">
               <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 xxl:grid-cols-1 gap-4">
                 {data.map((entry, index) => (
@@ -67,34 +73,26 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, title, InnerSpace, 
                     className="flex justify-between"
                     key={index}
                     style={{
-                      fontWeight: hoveredData?.name === entry.name ? "bold" : "normal", // بولد کردن متن هاور شده
+                      fontWeight: hoveredData?.name === entry.name ? "bold" : "normal",
                     }}
                   >
-
-
                     <div className="flex items-center justify-between text-titleText dark:text-titleText-dark">
                       <div className="flex items-center">
                         <div
                           className="w-3 h-3 rounded-full ml-2"
-                          style={{ backgroundColor: colors[index] }} // رنگ ثابت برای هر بخش
+                          style={{ backgroundColor: colors[index] }}
                         />
                         <span className="ml-2">{entry.name}</span>
                       </div>
-                      <div className="ml-auto">{entry.value}</div> {/* مقدار در سمت راست */}
+                      <div className="ml-auto">{entry.value}</div>
                     </div>
-
-
-
                   </div>
                 ))}
               </div>
-
             </div>
-
           </div>
 
-          <div
-          >
+          <div>
             <ResponsiveContainer width="100%" height={height !== undefined ? height : 250}>
               <PieChart>
                 <Pie
@@ -110,26 +108,23 @@ const CircularChart: React.FC<CircularChartProps> = ({ data, title, InnerSpace, 
                   {data.map((entry, index) => (
                     <Cell
                       key={`cell-${index}`}
-                      fill={colors[index]} // استفاده از رنگ ثابت از state
-                      onMouseEnter={(e) => handleMouseEnter(entry, e)} // فعال شدن هاور
-                      onMouseLeave={handleMouseLeave} // غیرفعال شدن هاور
+                      fill={colors[index]}
+                      onMouseEnter={() => handleMouseEnter(entry)}
+                      onMouseLeave={handleMouseLeave}
                     />
                   ))}
 
                   <Label
-                    value={`${HoveredNumber !== 0 ? HoveredText + ': ' + HoveredNumber : ''}`}
+                    value={`${HoveredNumber !== 0 ? HoveredText + ": " + HoveredNumber : ""}`}
                     position="center"
-                    style={{ fontSize: '14px', fontWeight: 'bold' }}
+                    style={{ fontSize: "14px", fontWeight: "bold" }}
                   />
                 </Pie>
               </PieChart>
             </ResponsiveContainer>
           </div>
-
         </div>
-
       </div>
-
     </div>
   );
 };

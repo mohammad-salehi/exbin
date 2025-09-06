@@ -6,6 +6,7 @@ import { Alert } from "@heathmont/moon-core-tw";
 import { ControlsClose } from '@heathmont/moon-icons-tw';
 import { Loader } from "@heathmont/moon-core-tw";
 import { Input } from "@heathmont/moon-core-tw";
+import Link from "next/link"
 
 export default function Home() {
 
@@ -115,9 +116,9 @@ export default function Home() {
               </div>
 
               <div className="text-right">
-                <a href="/" className="text-sm hover:underline text-primary">
+                <Link href="/" className="text-sm hover:underline text-primary">
                   بازگشت به صفحه ورود
-                </a>
+                </Link>
               </div>
 
               <Button
@@ -160,9 +161,9 @@ export default function Home() {
 
                   <div className="flex justify-between items-center  rounded-lg w-full p-4 pt-0 pb-0">
                     <span className="text-gray-700">
-                      <a href="/" className="text-sm hover:underline text-primary">
+                      <Link href="/" className="text-sm hover:underline text-primary">
                         ارسال مجدد کد تایید
-                      </a>
+                      </Link>
                     </span>
                     <span className="text-red-500">
                       {minutes}:{seconds.toString().padStart(2, "0")}
