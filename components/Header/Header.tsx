@@ -48,7 +48,7 @@ export default function Header({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpe
 
             <div className="flex items-center p-4 pl-0">
 
-                <button className="flex items-center justify-center border border-gray-200 bg-gray-100 hover:bg-gray-200 transition ml-2 h-9 w-9 rounded-full dark:text-gray-200 dark:bg-gray-800 dark:hover:bg-gray-900 dark:border-gray-600">
+                <button className="flex items-center justify-center border border-gray-200 bg-gray-100 hover:bg-gray-200 transition ml-2 h-9 w-9 rounded-full dark:text-gray-200 dark:bg-bgColor-dark dark:hover:bg-gray-900 dark:border-gray-600">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                     </svg>
@@ -64,7 +64,7 @@ export default function Header({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpe
                 }
                 {
                     isOpen ?
-                        <button className="flex items-center justify-center border border-gray-200 bg-gray-100 hover:bg-gray-200 transition ml-2 h-9 w-9 rounded-full dark:text-gray-200 dark:bg-gray-800 dark:hover:bg-gray-900 dark:border-gray-600" onClick={toggleDarkMode}>
+                        <button className="flex items-center justify-center border border-gray-200 bg-gray-100 hover:bg-gray-200 transition ml-2 h-9 w-9 rounded-full dark:text-gray-200 dark:bg-bgColor-dark dark:hover:bg-gray-900 dark:border-gray-600" onClick={toggleDarkMode}>
                             {
                                 isDarkMode ?
                                     <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

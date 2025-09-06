@@ -117,8 +117,8 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
                                 
                                 className={`flex items-center space-x-2 w-full px-4 py-2 rounded-md ${item.link === pathName ? "bg-BgPrimary text-primary dark:bg-BgPrimary-dark dark:text-primary-dark" : "hover:bg-gray-200 dark:hover:bg-gray-600"}  transition`}
                             >
-                                <span className={`text-xl ml-2 ${item.link === pathName ? " text-primary dark:text-primary-dark" : ""} `}>{item.icon}</span>
-                                <span className={` ${item.link === pathName ? " text-primary dark:text-primary-dark" : "text-titleText dark:text-titleText-dark"} `}>{item.label}</span>
+                                <span className={`text-xl ml-2 ${item.link === pathName ? " text-primary dark:text-titleText-dark" : ""} `}>{item.icon}</span>
+                                <span className={` ${item.link === pathName ? " text-primary dark:text-titleText-dark" : "text-titleText dark:text-titleText-dark"} `}>{item.label}</span>
                             </button>
                         </a>
 

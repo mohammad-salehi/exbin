@@ -136,9 +136,9 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
 
           <div className="flex items-center">
             <button
-              className={`px-4 py-2 rounded w-24 ${selectedPeriod === "ماه"
-                ? "bg-primary text-white dark:bg-primary-dark dark:text-boxColor-dark"
-                : "bg-gray-100 dark:bg-gray-600 dark:border-gray-600 border"
+              className={`px-4 py-2 rounded-lg w-24 ${selectedPeriod === "ماه"
+                ? "bg-buttonSelectedColor text-black dark:bg-primary-dark dark:text-boxColor-dark border-buttonSelectedBorderColor dark:border-buttonSelectedBorderColor-dark border"
+                : "border-buttonBorderColor bg-white dark:bg-buttonColor-dark dark:border-buttonBorderColor-dark border"
                 }`}
               onClick={() => setSelectedPeriod("ماه")}
               style={{
@@ -149,9 +149,9 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
               ماه
             </button>
             <button
-              className={`px-4 py-2 w-24 rounded ${selectedPeriod === "روز"
-                ? "bg-primary text-white dark:bg-primary-dark dark:text-boxColor-dark"
-                : "bg-gray-100 dark:bg-gray-600 dark:border-gray-600 border"
+              className={`px-4 py-2 w-24 rounded-lg ${selectedPeriod === "روز"
+                ? "bg-buttonSelectedColor text-black dark:bg-primary-dark dark:text-boxColor-dark border-buttonSelectedBorderColor dark:border-buttonSelectedBorderColor-dark border"
+                : "border-buttonBorderColor bg-white dark:bg-buttonColor-dark dark:border-buttonBorderColor-dark border"
                 }`}
               onClick={() => setSelectedPeriod("روز")}
               style={{
@@ -167,7 +167,7 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
             <select
               onChange={handleSelectChange}
               value={Filter}
-              className="block w-full px-4 py-2 text-gray-700 bg-gray-100  border dark:bg-gray-700 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500  dark:text-gray-100 dark:border-gray-600 dark:focus:ring-blue-400 appearance-none"
+              className="block w-full px-4 py-2 text-gray-700 bg-gray-50  border dark:bg-buttonColor-dark border-gray-300 rounded-lg dark:border-buttonBorderColor-dark focus:outline-none focus:ring-2 focus:ring-blue-500  dark:text-gray-100 dark:focus:ring-blue-400 appearance-none"
             >
               <option value="">همه صرافی ها</option>
               {
