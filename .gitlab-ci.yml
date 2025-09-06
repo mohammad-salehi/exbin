@@ -1,15 +1,19 @@
 stages:
   - build
   - deploy
-    
+
 variables:
   FRONT_VERSION: v4.21.1
+  GIT_SSL_NO_VERIFY: "true"       # temporary workaround for expired server certs
+  DOCKER_BUILDKIT: "1"
+  COMPOSE_DOCKER_CLI_BUILD: "1"
 
 build_front:
   stage: build
   image: docker
   variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE/exbin:$CI_COMMIT_TAG
+    # Use your project registry directly (no extra /exbin suffix)
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script: 
@@ -25,7 +29,7 @@ build_front_dev:
   stage: build
   image: docker
   variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE/exbin:$CI_COMMIT_SHORT_SHA
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
@@ -44,21 +48,21 @@ deploy_front:
   image: docker
   only:
     changes:
-      - .env
+      - .env.production      # was `.env`; use the actual prod file you rely on
       - .gitlab-ci.yml
       - docker-compose.yml
     refs:
-      - master
+      - main                 # was `master`; your repo shows main
   variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE/exbin:$FRONT_VERSION
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$FRONT_VERSION
     PROJECT_ENV_FILE: .env.production
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-  - echo $IMAGE_NAME
-  - docker pull $IMAGE_NAME
-  - docker-compose -f docker-compose.yml up -d
- # - docker exec -i panta_front bash -c "export NODE_OPTIONS='--max-old-space-size=8192' && npm run build && npm run preview"
+    - echo $IMAGE_NAME
+    - docker pull $IMAGE_NAME
+    - docker-compose -f docker-compose.yml up -d
+    # - docker exec -i panta_front bash -c "export NODE_OPTIONS='--max-old-space-size=8192' && npm run build && npm run preview"
   tags:
     - app2
   when: manual
@@ -70,7 +74,7 @@ deploy_front_dev:
     refs:
       - development
   variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE/exbin:$CI_COMMIT_SHORT_SHA
+    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
     PROJECT_ENV_FILE: .env.development
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -78,7 +82,6 @@ deploy_front_dev:
     - echo $IMAGE_NAME
     - docker pull $IMAGE_NAME
     - docker-compose -f docker-compose.yml up -d
-  # - docker exec -i panta_front bash -c "export NODE_OPTIONS='--max-old-space-size=8192' && npm run build && npm run preview"
+    # - docker exec -i panta_front bash -c "export NODE_OPTIONS='--max-old-space-size=8192' && npm run build && npm run preview"
   tags:
     - app2
-
