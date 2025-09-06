@@ -1,0 +1,43 @@
+stages:
+  - build
+  - deploy
+
+variables:
+
+  PURIFIER_VERSION: v0.0.1
+
+build_web_prod:
+  stage: build
+  variables:
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/exbin:$CI_COMMIT_TAG
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - echo "Building $IMAGE_NAME"
+    - docker build -f Dockerfile -t "$IMAGE_NAME" .
+    - docker push "$IMAGE_NAME"
+  tags:
+    - app2
+  only:
+    - tags
+
+deploy_prod:
+  stage: deploy
+  variables:
+    IMAGE_NAME: $CI_REGISTRY_IMAGE/exbin:$CI_COMMIT_TAG
+    VERSION: $PURIFIER_VERSION
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - echo "Deploying $IMAGE_NAME"
+    - docker pull "$IMAGE_NAME"
+    - docker compose up -d
+  tags:
+    - app2
+  when: manual
+  only:
+    changes:
+      - .gitlab-ci.yml
+      - docker-compose.yml
+    refs:
+      - main
