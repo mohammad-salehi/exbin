@@ -3,16 +3,13 @@ stages:
   - deploy
 
 variables:
-  FRONT_VERSION: v4.21.1
-  GIT_SSL_NO_VERIFY: "true"       # temporary workaround for expired server certs
-  DOCKER_BUILDKIT: "1"
-  COMPOSE_DOCKER_CLI_BUILD: "1"
+  FRONT_VERSION: v1.0.0
+
 
 build_front:
   stage: build
   image: docker
   variables:
-    # Use your project registry directly (no extra /exbin suffix)
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
@@ -48,11 +45,11 @@ deploy_front:
   image: docker
   only:
     changes:
-      - .env.production      # was `.env`; use the actual prod file you rely on
+      - .env.production
       - .gitlab-ci.yml
       - docker-compose.yml
     refs:
-      - main                 # was `master`; your repo shows main
+      - main
   variables:
     IMAGE_NAME: $CI_REGISTRY_IMAGE:$FRONT_VERSION
     PROJECT_ENV_FILE: .env.production
@@ -62,7 +59,6 @@ deploy_front:
     - echo $IMAGE_NAME
     - docker pull $IMAGE_NAME
     - docker-compose -f docker-compose.yml up -d
-    # - docker exec -i panta_front bash -c "export NODE_OPTIONS='--max-old-space-size=8192' && npm run build && npm run preview"
   tags:
     - app2
   when: manual
@@ -82,6 +78,5 @@ deploy_front_dev:
     - echo $IMAGE_NAME
     - docker pull $IMAGE_NAME
     - docker-compose -f docker-compose.yml up -d
-    # - docker exec -i panta_front bash -c "export NODE_OPTIONS='--max-old-space-size=8192' && npm run build && npm run preview"
   tags:
     - app2
