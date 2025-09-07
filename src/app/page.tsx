@@ -1,14 +1,16 @@
 'use client';
 
 import { Button } from "@heathmont/moon-core-tw";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { Alert } from "@heathmont/moon-core-tw";
 import { ControlsClose } from '@heathmont/moon-icons-tw';
-import { Loader } from "@heathmont/moon-core-tw";
 import Link from "next/link"
+import type { LoginRequest, LoginResponse } from "@/types/auth";
+import { useRouter } from "next/navigation";
+import { LoaderCircle } from "../../components/Loader/Loader";
 
 export default function Home() {
-
+  const router = useRouter();
   const DottedPatternLeft = () => (
     <svg width="150" height="60" xmlns="http://www.w3.org/2000/svg">
       <circle cx="5" cy="20" r="2" fill="#ccc" />
@@ -80,10 +82,53 @@ export default function Home() {
     </svg>
   );
 
-  const [UsernameError, SetUsernameError] = useState(false)
-  const [hasError, SetHasError] = useState(false)
-  const [ErrorText, SetErrorText] = useState('سلام')
-  const [loading, setLoading] = useState(false);
+  const [UsernameError, SetUsernameError] = useState<boolean>(false)
+  const [hasError, SetHasError] = useState<boolean>(false)
+  const [ErrorText, SetErrorText] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const [username, Setusername] = useState<string>('')
+  const [password, Setpassword] = useState<string>('')
+
+  async function Login(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    const ADDRESS = process.env.NEXT_PUBLIC_API_URL + `/api/v1/auth/signin`
+    const credentials: LoginRequest = {
+      username,
+      password
+    }
+    const response = await fetch(`${ADDRESS}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+    });
+    if (!response.ok) {
+      setLoading(false)
+      SetHasError(true)
+      SetUsernameError(true)
+      SetErrorText('شماره موبایل یا رمزعبور اشتباه است')
+      return;
+    } else {
+      setLoading(false)
+      SetHasError(false)
+      SetUsernameError(false)
+    }
+
+    const data: LoginResponse = await response.json();
+    const token = data?.result?.token;
+    if (!token) {
+      SetHasError(true)
+      SetErrorText('خطا در پردازش')
+      return;
+    } else {
+      SetHasError(false)
+    }
+    const secure = location.protocol === "https:" ? "; Secure" : "";
+    document.cookie = `token=${token}; Path=/; SameSite=Lax; Max-Age=86400${secure}`;
+
+    router.push("/panel/dashboard")
+  }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -114,11 +159,14 @@ export default function Home() {
         </h2>
 
         {/* فرم */}
-        <form className="flex flex-col gap-4 mt-14">
+        <form className="flex flex-col gap-4 mt-14" onSubmit={Login}>
           <div>
             <label className="block mb-1 text-sm font-medium text-titleText">نام کاربری</label>
             <input
               type="text"
+              name="email"
+              onChange={(e) => { Setusername(e.target.value) }}
+              value={username}
               placeholder="نام کاربری"
               className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 h-[48px] ${UsernameError
                 ? "border border-red-500 focus:ring-red-500"
@@ -131,8 +179,14 @@ export default function Home() {
             <label className="block mb-1 text-sm font-medium text-titleText">گذرواژه </label>
             <input
               type="password"
+              name="password"
+              onChange={(e) => { Setpassword(e.target.value) }}
+              value={password}
               placeholder="گذرواژه "
-              className="w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 h-[48px] "
+              className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 h-[48px] ${UsernameError
+                ? "border border-red-500 focus:ring-red-500"
+                : "border border-gray-300 focus:ring-blue-500"
+                }`}
             />
           </div>
 
@@ -147,12 +201,12 @@ export default function Home() {
             className="w-full bg-primary text-white hover:bg-primary-600 rounded-lg mt-16 h-[48px]"
             disabled={loading} // اگر لودینگ هست، دکمه غیرفعال بشه
           >
-            {loading ? <Loader color="border-redError" size="xs" /> : 'ورود'}
+            {loading ? <LoaderCircle size={8} color="border-white-500" /> : 'ورود'}
           </Button>
+          <button type="submit" className="hidden" tabIndex={-1} aria-hidden />
 
         </form>
       </div>
-      <Loader color="border-redError" size="xs" />
     </div>
   );
 }
