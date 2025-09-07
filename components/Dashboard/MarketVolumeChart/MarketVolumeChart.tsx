@@ -102,7 +102,7 @@ const MarketVolumeChart: React.FC<CircularChartProps> = ({
                                             fontWeight: hoveredData?.name === entry.name ? "bold" : "normal",
                                         }}
                                     >
-                                        <div className="flex items-center justify-between text-titleText dark:text-titleText-dark w-full">
+                                        <div className="flex items-center justify-between text-titleText dark:text-titleText-dark w-full text-sm lg:text-md">
                                             <div className="flex items-center">
                                                 <div
                                                     className="w-3 h-3 rounded-full ml-2"
@@ -110,7 +110,7 @@ const MarketVolumeChart: React.FC<CircularChartProps> = ({
                                                 />
                                                 <span className="ml-2">{entry.name}</span>
                                             </div>
-                                            <div className="ml-auto">{entry.value}</div>
+                                            <div className="ml-auto"><span className="font-bold">{entry.value}</span> میلیارد تومان</div>
                                         </div>
                                     </div>
                                 ))}

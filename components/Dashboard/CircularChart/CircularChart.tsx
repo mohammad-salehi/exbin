@@ -84,7 +84,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
                         />
                         <span className="ml-2">{entry.name}</span>
                       </div>
-                      <div className="ml-auto">{entry.value}</div>
+                      <div className="ml-auto"><span className="font-bold">{entry.value}</span> صرافی</div>
                     </div>
                   </div>
                 ))}
