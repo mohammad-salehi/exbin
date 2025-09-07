@@ -50,7 +50,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     return (
-        <div className={`flex h-screen ${isDarkMode ? "dark" : ""}`}>
+        <div className={`flex flex-col h-screen ${isDarkMode ? "dark" : ""}`}>
             <Head>
                 <style>{`
                     html {
@@ -59,12 +59,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 `}</style>
             </Head>
 
-            <div className={`flex-1 flex flex-col transition-all duration-300 ${isNavbarOpen ? "mr-64" : "mr-0"} ${isNavbarOpen ? "p-8" : "p-0"} pt-0`}>
+            <div className={`flex-1 flex flex-col transition-all duration-300 ${isNavbarOpen ? "mr-64" : "mr-0"} ${isNavbarOpen ? "p-8 pb-0" : "p-0"} pt-0`}>
                 <Header isOpen={isNavbarOpen} setIsOpen={setIsNavbarOpen} isMobileOpen={isMobileOpen} setIsMobileOpen={SetisMobileOpen} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} />
                 <main className="flex-1 overflow-auto pt-0 mt-4">
                     {children}
                 </main>
+                <footer className=" text-titleText dark:text-titleText-dark mx-auto w-full max-w-screen-xl text-sm py-1">
+                    <div className="text-center">
+                        <p>© طراحی‌ و توسعه توسط شرکت پردازش داده های زنجیره امین (پنتا)</p>
+                    </div>
+                </footer>
             </div>
+
+            {/* Footer Section */}
+
+
             <Navbar isOpen={isNavbarOpen} setIsOpen={setIsNavbarOpen} isMobileOpen={isMobileOpen} setIsMobileOpen={SetisMobileOpen} />
         </div>
     );
