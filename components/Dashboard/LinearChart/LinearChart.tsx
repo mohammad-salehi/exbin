@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
+import { GenericSearch } from '@heathmont/moon-icons-tw';
+import { Dropdown, MenuItem, Button, Input } from "@heathmont/moon-core-tw";
 
 interface LinearChartProps {
   title: string;
@@ -119,11 +122,11 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
     SetExchanges(getData);
   }, [data]);
 
-
-  const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = event.target.value;
-    SetFilter(value);
+  const handleSelectChange = (event: string) => {
+    SetFilter(event);
   };
+  const [FiltredText, SetFiltredText] = useState<string>('')
+
 
   return (
     <div className="p-4 w-full rounded-xl shadow-lg relative bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark">
@@ -132,9 +135,8 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
           <h3 className="text-xl">{title}</h3>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-
-          <div className="flex items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4"> {/* تغییر به items-stretch */}
+          <div className="flex items-center w-full">
             <button
               className={`px-4 py-2 rounded-lg w-24 ${selectedPeriod === "ماه"
                 ? "bg-buttonSelectedColor text-black dark:bg-primary-dark dark:text-boxColor-dark border-buttonSelectedBorderColor dark:border-buttonSelectedBorderColor-dark border"
@@ -163,23 +165,71 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
             </button>
           </div>
 
-          <div className="relative inline-block w-48 ">
-            <select
+          <div className="inline-block w-full sm:w-72 text-left sm:text-right  flex-grow pb-6 sm:pb-0"> {/* اضافه کردن flex-grow */}
+            <Dropdown
               onChange={handleSelectChange}
-              value={Filter}
-              className="block w-full px-4 py-2 text-gray-700 bg-gray-50  border dark:bg-buttonColor-dark border-gray-300 rounded-lg dark:border-buttonBorderColor-dark focus:outline-none focus:ring-2 focus:ring-blue-500  dark:text-gray-100 dark:focus:ring-blue-400 appearance-none"
-            >
-              <option value="">همه صرافی ها</option>
-              {
-                Exchanges.map((item, index) => (
-                  <option key={index} value={item}>
-                    {item}
-                  </option>
-                ))
-              }
-            </select>
+              value={Filter}>
+              <Dropdown.Trigger className="absolute right-0 sm:left-0">
+                <Button
+                  as="span"
+                  role="button"
+                  className="flex items-center justify-center gap-2 w-full pl-4 pr-4 py-2 
+               text-gray-700 bg-gray-50 border dark:bg-buttonColor-dark border-gray-300 
+               rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+               dark:text-gray-100 appearance-none"
+                  variant="ghost"
+                >
+                  {Filter !== '' ? Filter : 'همه صرافی‌ها'}
+                  <ControlsChevronDown className="text-xl" />
+                </Button>
+              </Dropdown.Trigger>
+
+              <Dropdown.Options
+                className="absolute left-0 mt-4 w-72 pl-2 pr-2
+             text-gray-700 bg-white dark:bg-buttonColor-dark
+             border border-gray-300 dark:border-buttonBorderColor-dark 
+             rounded-lg dark:text-gray-100 appearance-none z-50
+             max-h-60 overflow-y-auto"
+              >
+                <div className="relative p-2">
+                  <Input placeholder="جست‌وجو" className="w-full pr-8" style={{ background: 'none' }} onChange={(e) => { SetFiltredText(e.target.value) }} value={FiltredText} />
+                  <GenericSearch className="absolute right-2 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark  " style={{ fontSize: '25px' }} />
+                </div>
+                <hr />
+                <Dropdown.Option value={''} key={'default'}>
+                  {({ selected, active }) => (
+                    <MenuItem
+                      isActive={active}
+                      isSelected={selected}
+                      className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${Filter === '' ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}
+                    >
+                      <MenuItem.Title>همه صرافی‌ها</MenuItem.Title>
+                    </MenuItem>
+                  )}
+                </Dropdown.Option>
+                {Exchanges.filter((item) =>
+                  item.toLowerCase().includes(FiltredText.toLowerCase())
+                ).map((item, index) => (
+                  <Dropdown.Option value={item} key={index}>
+                    {({ selected, active }) => (
+                      <MenuItem
+                        isActive={active}
+                        isSelected={selected}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${Filter === item
+                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                            : ""
+                          }`}
+                      >
+                        <MenuItem.Title>{item}</MenuItem.Title>
+                      </MenuItem>
+                    )}
+                  </Dropdown.Option>
+                ))}
+              </Dropdown.Options>
+            </Dropdown>
           </div>
         </div>
+
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
