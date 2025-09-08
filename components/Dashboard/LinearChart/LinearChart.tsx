@@ -125,8 +125,6 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
     SetFilter(value);
   };
 
-  
-
   return (
     <div className="p-4 w-full rounded-xl shadow-lg relative bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark">
       <div className="flex flex-col mb-4">
@@ -207,14 +205,28 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
             tickFormatter={(value) => value.toLocaleString("fa-IR")}
           />
           <Tooltip
-            formatter={(value) => value.toLocaleString("en-US")}
-            contentStyle={{
-              backgroundColor: "#fff",
-              borderColor: "#ddd",
-              color: "#606060",
-              borderRadius: "8px",
-              fontSize: "14px",
-              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+            content={(props) => {
+              const { active, payload } = props;
+              if (active && payload && payload.length) {
+                const value = payload[0].value;
+                return (
+                  <div
+                    style={{
+                      backgroundColor: "#f8f8f8",
+                      borderColor: "#ddd",
+                      color: "#606060",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
+                      padding: "10px",
+                    }}
+                  >
+                    <p>مقدار: <span className="font-bold">{value.toLocaleString("en-US")}</span></p>
+                    <small>{payload[0].payload.date}</small>
+                  </div>
+                )
+              }
+              return null
             }}
             itemStyle={{
               color: "#606060",
@@ -236,7 +248,7 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
       </ResponsiveContainer>
 
     </div>
-  );
-};
+  )
+}
 
-export default LineChartExample;
+export default LineChartExample

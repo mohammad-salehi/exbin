@@ -90,44 +90,56 @@ export default function Home() {
   const [username, Setusername] = useState<string>('')
   const [password, Setpassword] = useState<string>('')
 
+  function validatePhoneNumber(phoneNumber: string) {
+    const phoneRegex = /^09\d{9}$/;
+    return phoneRegex.test(phoneNumber);
+  }
+
   async function Login(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    setLoading(true)
     const ADDRESS = process.env.NEXT_PUBLIC_API_URL + `/api/v1/auth/signin`
     const credentials: LoginRequest = {
       username,
       password
     }
-    const response = await fetch(`${ADDRESS}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(credentials),
-    });
-    if (!response.ok) {
-      setLoading(false)
-      SetHasError(true)
+    if (validatePhoneNumber(username)) {
+      setLoading(true)
+      const response = await fetch(`${ADDRESS}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(credentials),
+      });
+      if (!response.ok) {
+        setLoading(false)
+        SetHasError(true)
+        SetUsernameError(true)
+        SetErrorText('شماره موبایل یا رمزعبور اشتباه است')
+        return;
+      } else {
+        setLoading(false)
+        SetHasError(false)
+        SetUsernameError(false)
+      }
+
+      const data: LoginResponse = await response.json();
+      const token = data?.result?.token;
+      if (!token) {
+        SetHasError(true)
+        SetErrorText('خطا در پردازش')
+        return;
+      } else {
+        SetHasError(false)
+      }
+      const secure = location.protocol === "https:" ? "; Secure" : "";
+      document.cookie = `token=${token}; Path=/; SameSite=Lax; Max-Age=86400${secure}`;
+
+      router.push("/panel/dashboard")
+    } else {
       SetUsernameError(true)
-      SetErrorText('شماره موبایل یا رمزعبور اشتباه است')
-      return;
-    } else {
-      setLoading(false)
-      SetHasError(false)
-      SetUsernameError(false)
-    }
-
-    const data: LoginResponse = await response.json();
-    const token = data?.result?.token;
-    if (!token) {
       SetHasError(true)
-      SetErrorText('خطا در پردازش')
-      return;
-    } else {
-      SetHasError(false)
+      SetErrorText('شماره موبایل وارد شده اشتباه است')
     }
-    const secure = location.protocol === "https:" ? "; Secure" : "";
-    document.cookie = `token=${token}; Path=/; SameSite=Lax; Max-Age=86400${secure}`;
 
-    router.push("/panel/dashboard")
   }
 
   return (
@@ -165,7 +177,11 @@ export default function Home() {
             <input
               type="text"
               name="email"
-              onChange={(e) => { Setusername(e.target.value) }}
+              onChange={(e) => {
+                Setusername(e.target.value)
+                SetUsernameError(false)
+                SetHasError(false)
+              }}
               value={username}
               placeholder="نام کاربری"
               className={`w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 h-[48px] ${UsernameError
