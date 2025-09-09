@@ -13,6 +13,7 @@
     "@heathmont/moon-core": "^10.7.4",
     "@heathmont/moon-core-tw": "^10.24.13",
     "@heathmont/moon-icons-tw": "^9.30.1",
+    "@heathmont/moon-table-v8-tw": "^10.22.7",
     "@heathmont/moon-themes": "^10.7.5",
     "moment-jalaali": "^0.10.4",
     "next": "15.4.6",
