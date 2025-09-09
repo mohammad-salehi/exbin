@@ -241,7 +241,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                               {canExpand ? (
                                 <button
                                   onClick={(e) => { e.stopPropagation(); toggle(node.id); }}
-                                  className="inline-flex items-center justify-center rounded hover:bg-gray-100 p-1"
+                                  className="inline-flex items-center justify-center rounded  hover:bg-gray-100 hover:dark:bg-gray-800 p-1"
                                   aria-label={isOpen ? "بستن" : "باز کردن"}
                                 >
                                   {isOpen ? <CaretDown /> : <CaretRight />}
@@ -265,7 +265,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                                 {canExpand ? (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); toggle(node.id); }}
-                                    className="inline-flex items-center justify-center rounded hover:bg-gray-100 p-1"
+                                    className="inline-flex items-center justify-center rounded hover:bg-gray-100 hover:dark:bg-gray-800 p-1"
                                     aria-label={isOpen ? "بستن" : "باز کردن"}
                                   >
                                     {isOpen ? <CaretDown /> : <CaretRight />}
