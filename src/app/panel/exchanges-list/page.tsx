@@ -99,8 +99,8 @@ const page = () => {
   ];
 
   return (
-    <div>
-      <div className="relative w-[491px] h-[48px]">
+    <div className=" p-4 md:p-0">
+      <div className="relative w-full md:w-[500px] h-[48px] mb-4">
         <input
           className="flex w-full h-full p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-[0_8px_24px_-8px_rgba(0,_0,_0,_0.16),_0_0_1px_0_rgba(0,_0,_0,_0.40)] pl-4 pr-10 focus:outline-none focus:ring-0"
           placeholder="جست‌وجو"
@@ -116,12 +116,13 @@ const page = () => {
           rowDetails={(row) => {
             return (
               <div className="
-              bg-white p-3 w-full
+              bg-white dark:bg-bgColor-dark p-3 w-full
                 border-b border-gray-200
                 last:border-b-0 last:pb-0 last:mb-0
+                
               ">
-                <div className="text-sm text-gray-700">شناسه ملی: {row.visits}</div>
-                <div className="text-sm text-gray-700">وضعیت: {row.status}</div>
+                <div className="text-sm text-titleText dark:text-titleText-dark">شناسه ملی: {row.visits}</div>
+                <div className="text-sm text-titleText dark:text-titleText-dark">وضعیت: {row.status}</div>
               </div>
             );
           }}

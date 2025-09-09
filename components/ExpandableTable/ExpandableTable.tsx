@@ -26,15 +26,9 @@ export type ExpandableTableProps<T extends { id?: RowId; subRows?: T[] }> = {
   onRowClick?: (row: T) => void;
   defaultExpandedIds?: RowId[];
   renderProgress?: (value: number) => React.ReactNode;
-
-  /** جزئیات دلخواه (می‌تواند یک یا چند کامپوننت برگرداند) */
   rowDetails?: (row: T) => React.ReactNode | React.ReactNode[];
-  /** کلاس اختیاری برای کانتینر جزئیات */
   rowDetailsClassName?: string;
-
-  /** نحوه نمایش جزئیات: داخل همان سلول (inline) یا در یک ردیفِ جدا (row) */
   rowDetailsMode?: "inline" | "row";
-  /** وقتی inline است، جزئیات در کدام ستون بیاید (پیش‌فرض 0) */
   detailsColumnIndex?: number;
 };
 
@@ -179,15 +173,15 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
 
   return (
     <div className="">
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-gray-100 shadow-sm px-2">
+      <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-boxColor-dark bg-gray-100 shadow-sm px-2 dark:bg-boxColor-dark">
         <table className="min-w-[720px] w-full text-sm border-separate border-spacing-y-2">
-          <thead className="sticky top-0 bg-gray-100 text-gray-700">
+          <thead className="sticky top-0 bg-gray-100 dark:bg-boxColor-dark text-gray-700">
             <tr className="text-right">
               {columns.map((c, i) => (
                 <th
                   key={i}
                   className={classNames(
-                    "px-6 py-3 font-semibold",
+                    "px-6 py-5 font-semibold text-titleText dark:text-titleText-dark",
                     i === 0 ? "first:rounded-tr-2xl rtl:first:rounded-tr-2xl" : "",
                     i === columns.length - 1 ? "last:rounded-tl-2xl rtl:last:rounded-tl-2xl" : "",
                     getAlignClass(c.align)
@@ -229,14 +223,14 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                 <React.Fragment key={`row-${node.path}`}>
                   {/* ردیف اصلی */}
                   <tr
-                    className="hover:bg-gray-50"
+                    className="text-titleText dark:text-titleText-dark"
                     onClick={() => onRowClick?.(node.row)}
                   >
                     {columns.map((c, ci) => (
                       <td
                         key={ci}
                         className={classNames(
-                          "px-6 py-4 align-top bg-white !border-0 ring-0 shadow-none",
+                          "px-6 py-6 align-top bg-white dark:bg-bgColor-dark !border-0 ring-0 shadow-none",
                           "first:rounded-r-xl last:rounded-l-xl",
                           getAlignClass(c.align),
                           c.className
@@ -281,7 +275,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                                 ) : (
                                   <span className="inline-block w-[18px]" />
                                 )}
-                                <span>{renderCell(c, node.row)}</span>
+                                <span className="text-titleText dark:text-titleText-dark">{renderCell(c, node.row)}</span>
                               </div>
                             ) : (
                               renderCell(c, node.row)
@@ -297,7 +291,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                     <tr key={`detail-row-${node.path}`} >
                       <td
                         colSpan={columns.length}
-                        className="bg-white p-0 first:rounded-r-xl last:rounded-l-xl !border-0 ring-0 shadow-none"
+                        className="bg-white dark:bg-bgColor-dark p-0 first:rounded-r-xl last:rounded-l-xl !border-0 ring-0 shadow-none "
                       >
                         <div className={classNames("px-6 py-4  shadow-none", rowDetailsClassName)}>
                           <div className="flex flex-col gap-3">
