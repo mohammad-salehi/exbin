@@ -141,9 +141,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
   const roots = useMemo(() => flat.filter((f) => f.level === 0), [flat]);
 
   const visibleRows = useMemo(() => {
-    // فقط ردیف‌های ریشه را نشان بده
     if (!query) return roots;
-    // در حالت جست‌وجو: فقط ریشه‌هایی که در هرجای زیردرخت match دارند
     return roots.filter((root) => subtreeMatches(root.id));
   }, [roots, query, subtreeMatches]);
 

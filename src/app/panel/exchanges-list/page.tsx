@@ -112,7 +112,7 @@ const page = () => {
         <ExpandableTable<Person>
           data={data}
           columns={columns}
-          defaultExpandedIds={["1"]} // اگر خواستی باز باشد
+          defaultExpandedIds={["1"]}
           rowDetails={(row) => {
             return (
               <div className="
