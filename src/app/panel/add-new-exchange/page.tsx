@@ -6,7 +6,7 @@ import GetExchangeInfo from '../../../../components/Dashboard/Add_New_Exchange/G
 import Get_CEO_info from '../../../../components/Dashboard/Add_New_Exchange/Get_CEO_info/Get_CEO_info'
 const Page = () => {
 
-    const [Step, SetStep] = useState<number>(2)
+    const [Step, SetStep] = useState<number>(1)
 
     interface Step1DataTypes {
         name: string;
