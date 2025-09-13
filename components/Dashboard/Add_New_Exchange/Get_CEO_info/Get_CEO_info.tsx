@@ -7,99 +7,69 @@ import { Dropdown, MenuItem, Button, Input } from "@heathmont/moon-core-tw";
 import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 import toast from "react-hot-toast";
 
-interface Step1Data {
-    name: string;
-    legalName: string;
-    nationalCode: string;
-    establishmentDate: string;
-    type: string;
-    exchangeType: string;
-    financialCode: string;
-    logo: string;
-    siteAddress: string;
-    emergencyPhoneNumber: string;
-    officeAddress: string;
-    email: string;
-  }
+interface Step2Data {
+    name:string;
+    phoneNumber:string;
+    nationalCode:string;
+    educationalHistory:string;
+    careerHistory:string;
+    sharePercentage:number | null;
+    email:string;
+}
 
 type ShowingStepProps = {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
-    step1Data: Step1Data;
-    setStep1Data: React.Dispatch<React.SetStateAction<Step1Data>>;
+    step2Data: Step2Data;
+    setStep2Data: React.Dispatch<React.SetStateAction<Step2Data>>;
 };
 
-const Get_CEO_info = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps) => {
+const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) => {
 
     //exchange info
     const [name, Setname] = useState<string>('');
-    const [legalName, SetlegalName] = useState<string>('');
+    const [phoneNumber, SetphoneNumber] = useState<string>('');
     const [nationalCode, SetnationalCode] = useState<string>('');
-    const [establishmentDate, SetestablishmentDate] = useState<any>('');
-    const [type, Settype] = useState<string>("")
-    const [exchangeType, SetexchangeType] = useState<string>("")
-    const [financialCode, SetfinancialCode] = useState<string>("")
-    const [logo, SetLogo] = useState<string>("");
-    const [siteAddress, SetsiteAddress] = useState<string>("");
-    const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>("");
-    const [officeAddress, SetofficeAddress] = useState<string>("");
-    const [email, Setemail] = useState<string>("");
+    const [educationalHistory, SeteducationalHistory] = useState<any>('');
+    const [careerHistory, SetcareerHistory] = useState<string>("")
+    const [sharePercentage, SetsharePercentage] = useState<number | null>(0)
+    const [email, Setemail] = useState<string>("")
 
-    const [fileName, setFileName] = useState<string>("");
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            SetLogo(reader.result as string);
-        };
-        reader.readAsDataURL(file);
-        setFileName(file.name)
-    };
-
-    const handleSelectChange = (event: string) => {
-        Settype(event);
-    };
 
     const nextStep = () => {
         if (name === '') {
             return (
-                toast.error("نام صرافی مورد نظر را انتخاب کنید", {
+                toast.error("نام و نام‌خانوادگی مورد نظر را انتخاب کنید", {
                     position: "bottom-left",
                 })
             )
         }
-        if (legalName === '') {
+        if (phoneNumber === '') {
             return (
-                toast.error("نام حقوقی صرافی مورد نظر را انتخاب کنید", {
+                toast.error("شماره همراه مورد نظر را انتخاب کنید", {
                     position: "bottom-left",
                 })
             )
         }
         if (nationalCode === '') {
             return (
-                toast.error("شناسه ملی صرافی مورد نظر را انتخاب کنید", {
+                toast.error("کد ملی مورد نظر را انتخاب کنید", {
                     position: "bottom-left",
                 })
             )
         }
-        setStep1Data(
+        setStep2Data(
             {
                 name,
-                legalName,
+                phoneNumber,
                 nationalCode,
-                establishmentDate:`${establishmentDate.year}/${establishmentDate.month.number}/${establishmentDate.day}`,
-                type,
-                exchangeType,
-                financialCode,
-                logo,
-                siteAddress,
-                emergencyPhoneNumber,
-                officeAddress,
-                email,
+                educationalHistory,
+                careerHistory,
+                sharePercentage,
+                email
             }
         )
-        SetStep(2)
+        SetStep(3)
     }
     return (
         <div className='mt-4'>
@@ -112,215 +82,38 @@ const Get_CEO_info = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps) =>
                 </h6>
                 <div className='grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-4 mt-4'>
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نام صرافی</label>
-                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <label className='text-titleText dark: dark:text-titleText-dark'>نام و نام‌خانوادگی</label>
+                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام و نام‌خانوادگی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نام حقوقی صرافی</label>
-                        <Input value={legalName} onChange={(e) => { SetlegalName(e.target.value) }} placeholder='نام حقوقی صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره همراه</label>
+                        <Input value={phoneNumber} onChange={(e) => { SetphoneNumber(e.target.value) }} placeholder='شماره همراه' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شناسه ملی صرافی</label>
-                        <Input value={nationalCode} onChange={(e) => { SetnationalCode(e.target.value) }} placeholder='شناسه ملی صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
-                    </div>
-
-                    <div className="">
-                        <label className='text-titleText dark: dark:text-titleText-dark'>تاریخ تاسیس</label>
-                        <DatePicker
-                            value={establishmentDate}
-                            onChange={SetestablishmentDate}
-                            calendar={persian}
-                            locale={persian_fa}
-                            calendarPosition="bottom-right"
-                            containerClassName="w-full" // 📌 برای div اصلی
-                            render={(val, openCalendar) => (
-                                <div className="relative flex items-center w-full mt-2 text-titleText dark: dark:text-titleText-dark">
-                                    <Input
-                                        readOnly
-                                        value={val}
-                                        onClick={openCalendar}
-                                        placeholder="انتخاب تاریخ"
-                                        className=" w-full pr-10 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                    />
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        width="24"
-                                        height="25"
-                                        viewBox="0 0 24 25"
-                                        fill="none"
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                                    >
-                                        <path
-                                            d="M19.125 10.4742H4.875M8.71154 7.73381V5.5415M15.2885 7.73381L15.2885 5.5415M4.875 8.82997L4.875 17.5992C4.875 18.81 5.85653 19.7915 7.06731 19.7915L16.9327 19.7915C18.1435 19.7915 19.125 18.81 19.125 17.5992V8.82999C19.125 7.61921 18.1435 6.63768 16.9327 6.63768L7.06731 6.63766C5.85653 6.63766 4.875 7.61919 4.875 8.82997Z"
-                                            stroke="currentColor"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        />
-                                    </svg>
-                                </div>
-                            )}
-                        />
-
+                        <label className='text-titleText dark: dark:text-titleText-dark'>کد ملی</label>
+                        <Input value={nationalCode} onChange={(e) => { SetnationalCode(e.target.value) }} placeholder='کد ملی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شکل حقوقی صرافی</label>
-
-                        <Dropdown
-                            onChange={SetexchangeType}
-                            value={type}>
-                            <Dropdown.Trigger className="right-0 sm:left-0 mt-2 w-full">
-                                <Button
-                                    as="span"
-                                    role="button"
-                                    variant="ghost"
-                                    className="flex items-center justify-between gap-2 w-full pl-4 pr-4 py-2 
-               text-gray-700 border border-gray-300 
-               rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-               dark:text-gray-100 appearance-none"
-                                >
-                                    {/* متن سمت راست */}
-                                    <span>{type !== '' ? type : 'انتخاب'}</span>
-
-                                    {/* آیکون سمت چپ */}
-                                    <ControlsChevronDown className="text-xl order-last" />
-                                </Button>
-                            </Dropdown.Trigger>
-
-                            <Dropdown.Options
-                                className="absolute left-0 mt-4 w-72 pl-2 pr-2
-             text-gray-700 bg-white dark:bg-buttonColor-dark
-             border border-gray-300 dark:border-buttonBorderColor-dark 
-             rounded-lg dark:text-gray-100 appearance-none z-50
-             max-h-60 overflow-y-auto"
-                            >
-                                <Dropdown.Option value={'سهامی'} key={'option1'}>
-                                    {({ selected, active }) => (
-                                        <MenuItem
-                                            isActive={active}
-                                            isSelected={selected}
-                                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === 'سهامی' ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}
-                                        >
-                                            <MenuItem.Title>سهامی</MenuItem.Title>
-                                        </MenuItem>
-                                    )}
-                                </Dropdown.Option>
-                                <Dropdown.Option value={'مسئولیت محدود'} key={'option2'}>
-                                    {({ selected, active }) => (
-                                        <MenuItem
-                                            isActive={active}
-                                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === 'مسئولیت محدود' ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}
-                                        >
-                                            <MenuItem.Title>مسئولیت محدود</MenuItem.Title>
-                                        </MenuItem>
-                                    )}
-                                </Dropdown.Option>
-                            </Dropdown.Options>
-                        </Dropdown>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>سوابق تحصیلی</label>
+                        <Input value={educationalHistory} onChange={(e) => { SeteducationalHistory(e.target.value) }} placeholder='سوابق تحصیلی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نوع صرافی</label>
-
-                        <Dropdown
-                            onChange={handleSelectChange}
-                            value={exchangeType}>
-                            <Dropdown.Trigger className=" right-0 sm:left-0 mt-2 w-full">
-                                <Button
-                                    as="span"
-                                    role="button"
-                                    variant="ghost"
-                                    className="flex items-center justify-between gap-2 w-full pl-4 pr-4 py-2 
-               text-gray-700 border border-gray-300 
-               rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-               dark:text-gray-100 appearance-none"
-                                >
-                                    {/* متن سمت راست */}
-                                    <span>{exchangeType !== '' ? exchangeType : 'انتخاب'}</span>
-
-                                    {/* آیکون سمت چپ */}
-                                    <ControlsChevronDown className="text-xl order-last" />
-                                </Button>
-                            </Dropdown.Trigger>
-
-                            <Dropdown.Options
-                                className="absolute left-0 mt-4 w-72 pl-2 pr-2
-             text-gray-700 bg-white dark:bg-buttonColor-dark
-             border border-gray-300 dark:border-buttonBorderColor-dark 
-             rounded-lg dark:text-gray-100 appearance-none z-50
-             max-h-60 overflow-y-auto"
-                            >
-                                <Dropdown.Option value={'P2P'} key={'option1'}>
-                                    {({ selected, active }) => (
-                                        <MenuItem
-                                            isActive={active}
-                                            isSelected={selected}
-                                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === 'P2P' ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}
-                                        >
-                                            <MenuItem.Title>P2P</MenuItem.Title>
-                                        </MenuItem>
-                                    )}
-                                </Dropdown.Option>
-                                <Dropdown.Option value={'OTC'} key={'option2'}>
-                                    {({ selected, active }) => (
-                                        <MenuItem
-                                            isActive={active}
-                                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === 'OTC' ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}
-                                        >
-                                            <MenuItem.Title>OTC</MenuItem.Title>
-                                        </MenuItem>
-                                    )}
-                                </Dropdown.Option>
-                            </Dropdown.Options>
-                        </Dropdown>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>سوابق شغلی</label>
+                        <Input value={careerHistory} onChange={(e) => { SetcareerHistory(e.target.value) }} placeholder='سوابق شغلی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>کد اقتصادی</label>
-                        <Input value={financialCode} onChange={(e) => { SetfinancialCode(e.target.value) }} placeholder='کد اقتصادی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <label className='text-titleText dark: dark:text-titleText-dark'>درصد سهام</label>
+                        <Input type='number' value={sharePercentage ?? ""} onChange={(e) => { SetsharePercentage(Number(e.target.value)) }} placeholder='درصد سهام' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
-                        <label className="text-titleText dark:text-titleText-dark">لوگو</label>
-                        <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm">
-                            {
-                                fileName === "" ?
-                                    <span>
-                                        انتخاب فایل
-                                    </span>
-                                    :
-                                    fileName
-                            }
-
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="hidden"
-                            />
-                        </label>
-                    </div>
-
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>آدرس سایت</label>
-                        <Input value={siteAddress} onChange={(e) => { SetsiteAddress(e.target.value) }} placeholder='آدرس سایت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
-                    </div>
-
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره تماس اضطراری</label>
-                        <Input value={emergencyPhoneNumber} onChange={(e) => { SetemergencyPhoneNumber(e.target.value) }} placeholder='شماره تماس اضطراری' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
-                    </div>
-
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>آدرس دفتر رسمی</label>
-                        <Input value={officeAddress} onChange={(e) => { SetofficeAddress(e.target.value) }} placeholder='آدرس دفتر رسمی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
-                    </div>
-
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل صرافی</label>
-                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل</label>
+                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
                 </div>
             </div>

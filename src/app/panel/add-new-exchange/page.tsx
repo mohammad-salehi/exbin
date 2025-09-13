@@ -6,9 +6,9 @@ import GetExchangeInfo from '../../../../components/Dashboard/Add_New_Exchange/G
 import Get_CEO_info from '../../../../components/Dashboard/Add_New_Exchange/Get_CEO_info/Get_CEO_info'
 const Page = () => {
 
-    const [Step, SetStep] = useState<number>(1)
+    const [Step, SetStep] = useState<number>(2)
 
-    interface Step1Data {
+    interface Step1DataTypes {
         name: string;
         legalName: string;
         nationalCode: string;
@@ -22,7 +22,17 @@ const Page = () => {
         officeAddress: string;
         email: string;
     }
-    const [step1Data, setStep1Data] = useState<Step1Data>({
+    interface Step2DataTypes {
+        name:string;
+        phoneNumber:string;
+        nationalCode:string;
+        educationalHistory:string;
+        careerHistory:string;
+        sharePercentage:number | null;
+        email:string;
+    }
+
+    const [step1Data, setStep1Data] = useState<Step1DataTypes>({
         name: "",
         legalName: "",
         nationalCode: "",
@@ -34,6 +44,15 @@ const Page = () => {
         siteAddress: "",
         emergencyPhoneNumber: "",
         officeAddress: "",
+        email: "",
+    });
+    const [step2Data, setStep2Data] = useState<Step2DataTypes>({
+        name: "",
+        phoneNumber: "",
+        nationalCode: "",
+        educationalHistory: "",
+        careerHistory: "",
+        sharePercentage: null,
         email: "",
     });
 
@@ -59,7 +78,7 @@ const Page = () => {
             <ShowingStep titles={titles} step={Step} />
             <div className='w-full bg-boxBorderColor dark:bg-boxBorderColor-dark mt-4' style={{ height: '1px' }}></div>
             {Step === 1 && <GetExchangeInfo SetStep={SetStep} step1Data={step1Data} setStep1Data={setStep1Data} />}
-            {Step === 2 && <Get_CEO_info SetStep={SetStep} step1Data={step1Data} setStep1Data={setStep1Data} />}
+            {Step === 2 && <Get_CEO_info SetStep={SetStep} step2Data={step2Data} setStep2Data={setStep2Data} />}
         </div>
     )
 }
