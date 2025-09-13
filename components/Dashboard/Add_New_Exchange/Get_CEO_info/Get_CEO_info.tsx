@@ -8,13 +8,13 @@ import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 import toast from "react-hot-toast";
 
 interface Step2Data {
-    name:string;
-    phoneNumber:string;
-    nationalCode:string;
-    educationalHistory:string;
-    careerHistory:string;
-    sharePercentage:number | null;
-    email:string;
+    name: string;
+    phoneNumber: string;
+    nationalCode: string;
+    educationalHistory: string;
+    careerHistory: string;
+    sharePercentage: number | null;
+    email: string;
 }
 
 type ShowingStepProps = {
@@ -31,7 +31,7 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
     const [nationalCode, SetnationalCode] = useState<string>('');
     const [educationalHistory, SeteducationalHistory] = useState<any>('');
     const [careerHistory, SetcareerHistory] = useState<string>("")
-    const [sharePercentage, SetsharePercentage] = useState<number | null>(0)
+    const [sharePercentage, SetsharePercentage] = useState<number | null>(null)
     const [email, Setemail] = useState<string>("")
 
 
@@ -58,6 +58,11 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                 })
             )
         }
+        if (sharePercentage === null || sharePercentage < 0 || sharePercentage > 100) {
+            return toast.error("درصد سهام باید بین 0 تا 100 باشد", {
+              position: "bottom-left",
+            });
+          }
         setStep2Data(
             {
                 name,
@@ -69,7 +74,15 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                 email
             }
         )
-        SetStep(3)
+        console.log(          {
+            name,
+            phoneNumber,
+            nationalCode,
+            educationalHistory,
+            careerHistory,
+            sharePercentage,
+            email
+        })
     }
     return (
         <div className='mt-4'>
@@ -108,7 +121,10 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>درصد سهام</label>
-                        <Input type='number' value={sharePercentage ?? ""} onChange={(e) => { SetsharePercentage(Number(e.target.value)) }} placeholder='درصد سهام' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input type='number' value={sharePercentage ?? ""} onChange={(e) => {
+                            const val = e.target.value;
+                            SetsharePercentage(val === "" ? null : Number(val));
+                        }} placeholder='درصد سهام' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
