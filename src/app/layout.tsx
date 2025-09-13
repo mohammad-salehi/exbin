@@ -2,6 +2,7 @@
 
 import { ThemeProvider, moonDesignLight } from "@heathmont/moon-themes";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 export default function RootLayout({
   children,
@@ -13,6 +14,18 @@ export default function RootLayout({
       <body className="bg-bgColor dark:bg-bgColor-dark">
         <ThemeProvider theme={moonDesignLight}>
           {children}
+          <Toaster
+            position="bottom-left"
+            toastOptions={{
+              style: {
+                background: "#1f2937", // bg-gray-800
+                color: "#fff",
+                borderRadius: "0.5rem",
+                padding: "12px 16px",
+                fontSize: "14px",
+              },
+            }}
+          />
         </ThemeProvider>
       </body>
     </html>

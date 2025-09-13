@@ -19,7 +19,7 @@ const config: Config = {
         },
         BgPrimary: {
           DEFAULT: "#EAF6FC", 
-          dark: "#5e5e5e",
+          dark: "rgb(94,94,93)",
         },
         titleText: {
           DEFAULT: "#606060", 
