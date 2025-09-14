@@ -1,0 +1,186 @@
+import React, { useState } from 'react'
+import ExpandableTable, { Column } from '../../../ExpandableTable/ExpandableTable';
+import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import toast from 'react-hot-toast';
+
+type Person = {
+    id: string;
+    name: string;
+    phoneNumber: string;
+    nationalCode: string;
+};
+
+type ShowingStepProps = {
+    SetStep: React.Dispatch<React.SetStateAction<number>>;
+    step4Data: Person[];
+    setStep4Data: React.Dispatch<React.SetStateAction<Person[]>>;
+};
+
+const Exchange_Agent_Info = ({ SetStep, step4Data, setStep4Data }: ShowingStepProps) => {
+
+    const [editingId, setEditingId] = useState<string | null>(null);
+
+    const [isOpen, setIsOpen] = useState(false);
+    const closeModal = () => setIsOpen(false);
+    const openModal = () => setIsOpen(true);
+
+    const columns: Column<Person>[] = [
+        { header: "نام و نام‌خانوادگی", accessorKey: "name" },
+        { header: "شماره همراه", accessorKey: "phoneNumber", align: "center", className: "tabular-nums" },
+        { header: "کد ملی", accessorKey: "nationalCode", align: "center", className: "tabular-nums" },
+        {
+            header: "عملیات",
+            cell: (row: Person) => (
+                <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark" >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
+                        onClick={() => {
+                            setForm({
+                                name: row.name,
+                                phoneNumber: row.phoneNumber,
+                                nationalCode: row.nationalCode,
+                            });
+                            setEditingId(row.id); // مشخص کنیم داریم ویرایش می‌کنیم
+                            openModal();
+                        }}
+                    >
+                        <path d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z" stroke="#A8A8A8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        <path d="M3.5 22H21.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                </div>
+            ),
+        },
+    ];
+
+    const [data, SetData] = useState<Person[]>([
+        {
+            id: '1',
+            name: 'محمد صالحی',
+            phoneNumber: '09166366715',
+            nationalCode: '2200220022',
+        },
+        {
+            id: '2',
+            name: 'محمد صالحی',
+            phoneNumber: '09166366715',
+            nationalCode: '2200220022',
+        },
+    ]);
+
+    // 🟢 استیت برای ورودی‌های مودال
+    const [form, setForm] = useState<Omit<Person, "id">>({
+        name: "",
+        phoneNumber: "",
+        nationalCode: "",
+    });
+
+    const handleChange = (field: keyof typeof form, value: any) => {
+        setForm({ ...form, [field]: value });
+    };
+
+    const handleSave = () => {
+        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
+            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
+            return;
+        }
+
+        if (editingId) {
+            // 🟢 ویرایش
+            SetData(data.map(member =>
+                member.id === editingId ? { ...member, ...form } : member
+            ));
+        } else {
+            // 🟢 افزودن جدید
+            const newMember: Person = {
+                id: String(data.length + 1),
+                ...form,
+            };
+            SetData([...data, newMember]);
+        }
+
+        closeModal();
+        setEditingId(null); // بعد از ذخیره ریست می‌کنیم
+        setForm({
+            name: "",
+            phoneNumber: "",
+            nationalCode: "",
+        });
+    };
+
+
+    return (
+        <div className='mt-4'>
+            {/* تیتر و دکمه */}
+            <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4">
+                <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>
+                    مشخصات نمایندگان
+                </h5>
+                <button className='text-primary border border-primary px-4 py-2 rounded-md' onClick={openModal}>
+                    افزودن نماینده جدید
+                </button>
+            </div>
+
+            {/* جدول */}
+            <div className='mt-4'>
+                <ExpandableTable<Person>
+                    rowDetailsMode="row"
+                    rowDetailsClassName="rounded-xl p-3"
+                    data={data}
+                    columns={columns}
+                />
+            </div>
+            <div className="relative w-full mt-4 ">
+                <div className="flex justify-between items-center">
+                    <div className="text-sm text-titleText dark:text-titleText-dark"></div>
+
+                    <div className="text-sm text-titleText dark:text-titleText-dark">
+                        <button className="w-36 ml-2 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { SetStep(1) }}>
+                            صفحه قبل
+                        </button>
+                        <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { setStep4Data(data)}}>
+                            صفحه بعد
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {/* مودال */}
+            <Modal open={isOpen} onClose={closeModal}>
+                <Modal.Backdrop />
+                <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
+                    <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
+                        <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+                            <Modal.Title className="text-lg font-bold">
+                                {editingId ? "ویرایش عضو" : "افزودن عضو جدید"}
+                            </Modal.Title>
+                        </div>
+
+                        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label>نام و نام‌خانوادگی</label>
+                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => handleChange("name", e.target.value)} placeholder='نام و نام‌خانوادگی' />
+                            </div>
+                            <div>
+                                <label>شماره همراه</label>
+                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => handleChange("phoneNumber", e.target.value)} placeholder='شماره همراه' />
+                            </div>
+                            <div>
+                                <label>کد ملی</label>
+                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => handleChange("nationalCode", e.target.value)} placeholder='کد ملی' />
+                            </div>
+                        </div>
+
+                        <div className="p-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex justify-end gap-2">
+                            <Button variant="ghost" onClick={closeModal}>انصراف</Button>
+                            <Button onClick={handleSave}>
+                                {editingId ? "ذخیره تغییرات" : "ذخیره"}
+                            </Button>
+                        </div>
+                    </Modal.Panel>
+                </div>
+            </Modal>
+        </div>
+    )
+}
+
+export default Exchange_Agent_Info

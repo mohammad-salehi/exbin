@@ -5,10 +5,11 @@ import ShowingStep from '../../../../components/Dashboard/Add_New_Exchange/Showi
 import GetExchangeInfo from '../../../../components/Dashboard/Add_New_Exchange/GetExchangeInfo/GetExchangeInfo'
 import Get_CEO_info from '../../../../components/Dashboard/Add_New_Exchange/Get_CEO_info/Get_CEO_info'
 import BoardMemberInfo from '../../../../components/Dashboard/Add_New_Exchange/Board_member_info/BoardMemberInfo'
+import Exchange_Agent_Info from '../../../../components/Dashboard/Add_New_Exchange/Exchange_Agent_Info/Exchange_Agent_Info'
 
 const Page = () => {
 
-    const [Step, SetStep] = useState<number>(3)
+    const [Step, SetStep] = useState<number>(4)
 
     interface Step1DataTypes {
         name: string;
@@ -44,6 +45,12 @@ const Page = () => {
         sharePercentage: number | null;
         email: string;
     }
+    interface Step4DataTypes {
+        id: string;
+        name: string;
+        phoneNumber: string;
+        nationalCode: string;
+    }
 
     const [step1Data, setStep1Data] = useState<Step1DataTypes>({
         name: "",
@@ -69,7 +76,8 @@ const Page = () => {
         email: "",
     })
     const [step3Data, setStep3Data] = useState<Step3DataTypes[]>([])
-    
+    const [step4Data, setStep4Data] = useState<Step4DataTypes[]>([])
+
     const titles = [
         {
             title: 'مشخصات صرافی'
@@ -94,6 +102,7 @@ const Page = () => {
             {Step === 1 && <GetExchangeInfo SetStep={SetStep} step1Data={step1Data} setStep1Data={setStep1Data} />}
             {Step === 2 && <Get_CEO_info SetStep={SetStep} step2Data={step2Data} setStep2Data={setStep2Data} />}
             {Step === 3 && <BoardMemberInfo SetStep={SetStep} step3Data={step3Data} setStep3Data={setStep3Data}/>}
+            {Step === 4 && <Exchange_Agent_Info SetStep={SetStep} step4Data={step4Data} setStep4Data={setStep4Data}/>}
         </div>
     )
 }
