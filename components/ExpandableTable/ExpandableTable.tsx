@@ -306,7 +306,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
 
             {paginated.length === 0 && (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-8 text-center text-gray-500 bg-white rounded-xl border">
+                <td colSpan={columns.length} className="px-6 py-8 text-center text-titleText dark:text-titleText-dark bg-none rounded-xl ">
                   نتیجه‌ای یافت نشد
                 </td>
               </tr>

@@ -4,9 +4,11 @@ import React, { useEffect, useState } from 'react'
 import ShowingStep from '../../../../components/Dashboard/Add_New_Exchange/ShowingStep/ShowingStep'
 import GetExchangeInfo from '../../../../components/Dashboard/Add_New_Exchange/GetExchangeInfo/GetExchangeInfo'
 import Get_CEO_info from '../../../../components/Dashboard/Add_New_Exchange/Get_CEO_info/Get_CEO_info'
+import BoardMemberInfo from '../../../../components/Dashboard/Add_New_Exchange/Board_member_info/BoardMemberInfo'
+
 const Page = () => {
 
-    const [Step, SetStep] = useState<number>(1)
+    const [Step, SetStep] = useState<number>(3)
 
     interface Step1DataTypes {
         name: string;
@@ -31,6 +33,17 @@ const Page = () => {
         sharePercentage:number | null;
         email:string;
     }
+    interface Step3DataTypes {
+        id: string;
+        name: string;
+        phoneNumber: string;
+        nationalCode: string;
+        role: string;
+        careerHistory: string;
+        educationalHistory: string;
+        sharePercentage: number | null;
+        email: string;
+    }
 
     const [step1Data, setStep1Data] = useState<Step1DataTypes>({
         name: "",
@@ -45,7 +58,7 @@ const Page = () => {
         emergencyPhoneNumber: "",
         officeAddress: "",
         email: "",
-    });
+    })
     const [step2Data, setStep2Data] = useState<Step2DataTypes>({
         name: "",
         phoneNumber: "",
@@ -54,8 +67,9 @@ const Page = () => {
         careerHistory: "",
         sharePercentage: null,
         email: "",
-    });
-
+    })
+    const [step3Data, setStep3Data] = useState<Step3DataTypes[]>([])
+    
     const titles = [
         {
             title: 'مشخصات صرافی'
@@ -64,7 +78,7 @@ const Page = () => {
             title: 'مشخصات مدیرعامل'
         },
         {
-            title: 'مشخصات عضو هیت مدیره'
+            title: 'مشخصات اعضای هیئت‌مدیره'
         },
         {
             title: 'مشخصات نماینده صرافی'
@@ -79,6 +93,7 @@ const Page = () => {
             <div className='w-full bg-boxBorderColor dark:bg-boxBorderColor-dark mt-4' style={{ height: '1px' }}></div>
             {Step === 1 && <GetExchangeInfo SetStep={SetStep} step1Data={step1Data} setStep1Data={setStep1Data} />}
             {Step === 2 && <Get_CEO_info SetStep={SetStep} step2Data={step2Data} setStep2Data={setStep2Data} />}
+            {Step === 3 && <BoardMemberInfo SetStep={SetStep} step3Data={step3Data} setStep3Data={setStep3Data}/>}
         </div>
     )
 }

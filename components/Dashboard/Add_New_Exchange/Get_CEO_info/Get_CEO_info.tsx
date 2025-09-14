@@ -74,15 +74,6 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                 email
             }
         )
-        console.log(          {
-            name,
-            phoneNumber,
-            nationalCode,
-            educationalHistory,
-            careerHistory,
-            sharePercentage,
-            email
-        })
     }
     return (
         <div className='mt-4'>
@@ -96,27 +87,27 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                 <div className='grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-4 mt-4'>
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>نام و نام‌خانوادگی</label>
-                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام و نام‌خانوادگی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام و نام‌خانوادگی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>شماره همراه</label>
-                        <Input value={phoneNumber} onChange={(e) => { SetphoneNumber(e.target.value) }} placeholder='شماره همراه' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={phoneNumber} onChange={(e) => { SetphoneNumber(e.target.value) }} placeholder='شماره همراه' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>کد ملی</label>
-                        <Input value={nationalCode} onChange={(e) => { SetnationalCode(e.target.value) }} placeholder='کد ملی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={nationalCode} onChange={(e) => { SetnationalCode(e.target.value) }} placeholder='کد ملی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>سوابق تحصیلی</label>
-                        <Input value={educationalHistory} onChange={(e) => { SeteducationalHistory(e.target.value) }} placeholder='سوابق تحصیلی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={educationalHistory} onChange={(e) => { SeteducationalHistory(e.target.value) }} placeholder='سوابق تحصیلی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>سوابق شغلی</label>
-                        <Input value={careerHistory} onChange={(e) => { SetcareerHistory(e.target.value) }} placeholder='سوابق شغلی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={careerHistory} onChange={(e) => { SetcareerHistory(e.target.value) }} placeholder='سوابق شغلی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
@@ -124,12 +115,12 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                         <Input type='number' value={sharePercentage ?? ""} onChange={(e) => {
                             const val = e.target.value;
                             SetsharePercentage(val === "" ? null : Number(val));
-                        }} placeholder='درصد سهام' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        }} placeholder='درصد سهام' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل</label>
-                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
                 </div>
             </div>
