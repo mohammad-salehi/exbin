@@ -26,15 +26,13 @@ type ShowingStepProps = {
 const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) => {
 
     //exchange info
-    const [name, Setname] = useState<string>('');
-    const [phoneNumber, SetphoneNumber] = useState<string>('');
-    const [nationalCode, SetnationalCode] = useState<string>('');
-    const [educationalHistory, SeteducationalHistory] = useState<any>('');
-    const [careerHistory, SetcareerHistory] = useState<string>("")
-    const [sharePercentage, SetsharePercentage] = useState<number | null>(null)
-    const [email, Setemail] = useState<string>("")
-
-
+    const [name, Setname] = useState<string>(step2Data.name);
+    const [phoneNumber, SetphoneNumber] = useState<string>(step2Data.phoneNumber);
+    const [nationalCode, SetnationalCode] = useState<string>(step2Data.nationalCode);
+    const [educationalHistory, SeteducationalHistory] = useState<any>(step2Data.educationalHistory);
+    const [careerHistory, SetcareerHistory] = useState<string>(step2Data.careerHistory)
+    const [sharePercentage, SetsharePercentage] = useState<number | null>(step2Data.sharePercentage)
+    const [email, Setemail] = useState<string>(step2Data.email)
 
     const nextStep = () => {
         if (name === '') {

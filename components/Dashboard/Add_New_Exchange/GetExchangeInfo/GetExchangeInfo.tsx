@@ -20,6 +20,7 @@ interface Step1Data {
     emergencyPhoneNumber: string;
     officeAddress: string;
     email: string;
+    fileName: string;
 }
 
 type ShowingStepProps = {
@@ -31,20 +32,20 @@ type ShowingStepProps = {
 const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps) => {
 
     //exchange info
-    const [name, Setname] = useState<string>('');
-    const [legalName, SetlegalName] = useState<string>('');
-    const [nationalCode, SetnationalCode] = useState<string>('');
-    const [establishmentDate, SetestablishmentDate] = useState<any>('');
-    const [type, Settype] = useState<string>("")
-    const [exchangeType, SetexchangeType] = useState<string>("")
-    const [financialCode, SetfinancialCode] = useState<string>("")
-    const [logo, SetLogo] = useState<string>("");
-    const [siteAddress, SetsiteAddress] = useState<string>("");
-    const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>("");
-    const [officeAddress, SetofficeAddress] = useState<string>("");
-    const [email, Setemail] = useState<string>("");
+    const [name, Setname] = useState<string>(step1Data.name);
+    const [legalName, SetlegalName] = useState<string>(step1Data.legalName);
+    const [nationalCode, SetnationalCode] = useState<string>(step1Data.nationalCode);
+    const [establishmentDate, SetestablishmentDate] = useState<any>(step1Data.establishmentDate);
+    const [type, Settype] = useState<string>(step1Data.type)
+    const [exchangeType, SetexchangeType] = useState<string>(step1Data.exchangeType)
+    const [financialCode, SetfinancialCode] = useState<string>(step1Data.financialCode)
+    const [logo, SetLogo] = useState<string>(step1Data.logo);
+    const [siteAddress, SetsiteAddress] = useState<string>(step1Data.siteAddress);
+    const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>(step1Data.emergencyPhoneNumber);
+    const [officeAddress, SetofficeAddress] = useState<string>(step1Data.officeAddress);
+    const [email, Setemail] = useState<string>(step1Data.email);
 
-    const [fileName, setFileName] = useState<string>("");
+    const [fileName, setFileName] = useState<string>(step1Data.fileName);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -97,6 +98,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                 emergencyPhoneNumber,
                 officeAddress,
                 email,
+                fileName
             }
         )
         SetStep(2)

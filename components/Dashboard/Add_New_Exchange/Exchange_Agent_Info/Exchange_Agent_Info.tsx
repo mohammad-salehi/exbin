@@ -52,7 +52,7 @@ const Exchange_Agent_Info = ({ SetStep, step4Data, setStep4Data }: ShowingStepPr
         },
     ];
 
-    const [data, SetData] = useState<Person[]>([]);
+    const [data, SetData] = useState<Person[]>(step4Data);
 
     // 🟢 استیت برای ورودی‌های مودال
     const [form, setForm] = useState<Omit<Person, "id">>({
@@ -121,7 +121,7 @@ const Exchange_Agent_Info = ({ SetStep, step4Data, setStep4Data }: ShowingStepPr
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
 
                     <div className="text-sm text-titleText dark:text-titleText-dark">
-                        <button className="w-36 ml-2 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { SetStep(1) }}>
+                        <button className="w-36 ml-2 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { SetStep(3) }}>
                             صفحه قبل
                         </button>
                         <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { setStep4Data(data), SetStep(5)}}>

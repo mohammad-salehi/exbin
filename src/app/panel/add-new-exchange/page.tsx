@@ -25,6 +25,7 @@ const Page = () => {
         emergencyPhoneNumber: string;
         officeAddress: string;
         email: string;
+        fileName: string;
     }
     interface Step2DataTypes {
         name:string;
@@ -79,6 +80,7 @@ const Page = () => {
         emergencyPhoneNumber: "",
         officeAddress: "",
         email: "",
+        fileName:""
     })
     const [step2Data, setStep2Data] = useState<Step2DataTypes>({
         name: "",

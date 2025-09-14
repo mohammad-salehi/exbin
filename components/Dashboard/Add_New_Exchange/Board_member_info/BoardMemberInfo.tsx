@@ -63,7 +63,7 @@ const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps)
         },
     ];
 
-    const [data, SetData] = useState<Person[]>([]);
+    const [data, SetData] = useState<Person[]>(step3Data);
 
     // 🟢 استیت برای ورودی‌های مودال
     const [form, setForm] = useState<Omit<Person, "id">>({
