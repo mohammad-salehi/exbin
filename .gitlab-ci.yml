@@ -6,21 +6,20 @@ variables:
   FRONT_VERSION: v1.0.0
 
 
-build_front:
-  stage: build
-  image: docker
-  variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script: 
-    - echo $IMAGE_NAME
-    - docker build . -f Dockerfile --tag $IMAGE_NAME
-    - docker push $IMAGE_NAME
-  tags:
-    - app2
-  only:
-    - tags
+#build_front:
+#  stage: build
+#  image: docker
+#  variables:
+#    IMAGE_NAME: $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+#  before_script:
+#    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#  script:
+#    - echo $IMAGE_NAME
+#    - docker build . -f Dockerfile --tag $IMAGE_NAME
+#    - docker push $IMAGE_NAME
+#  tags:
+#    - app2
+
 
 build_front_dev:
   stage: build
@@ -34,34 +33,34 @@ build_front_dev:
     - docker build . -f Dockerfile --tag $IMAGE_NAME --build-arg NODE_ENV=development
     - docker push $IMAGE_NAME
   tags:
-    - app3
+    - app2
   only:
     refs:
       - development
 
-deploy_front:
-  stage: deploy
-  needs: [ ]
-  image: docker
-  only:
-    changes:
-      - .env.production
-      - .gitlab-ci.yml
-      - docker-compose.yml
-    refs:
-      - main
-  variables:
-    IMAGE_NAME: $CI_REGISTRY_IMAGE:$FRONT_VERSION
-    PROJECT_ENV_FILE: .env.production
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - echo $IMAGE_NAME
-    - docker pull $IMAGE_NAME
-    - docker-compose -f docker-compose.yml up -d
-  tags:
-    - app2
-  when: manual
+#deploy_front:
+#  stage: deploy
+#  needs: [ ]
+#  image: docker
+#  only:
+#    changes:
+#      - .env.production
+#      - .gitlab-ci.yml
+#      - docker-compose.yml
+#    refs:
+#      - main
+#  variables:
+#    IMAGE_NAME: $CI_REGISTRY_IMAGE:$FRONT_VERSION
+#    PROJECT_ENV_FILE: .env.production
+#  before_script:
+#    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+#  script:
+#    - echo $IMAGE_NAME
+#    - docker pull $IMAGE_NAME
+#    - docker-compose -f docker-compose.yml up -d
+#  tags:
+#    - app2
+#  when: manual
 
 deploy_front_dev:
   stage: deploy
