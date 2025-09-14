@@ -6,10 +6,11 @@ import GetExchangeInfo from '../../../../components/Dashboard/Add_New_Exchange/G
 import Get_CEO_info from '../../../../components/Dashboard/Add_New_Exchange/Get_CEO_info/Get_CEO_info'
 import BoardMemberInfo from '../../../../components/Dashboard/Add_New_Exchange/Board_member_info/BoardMemberInfo'
 import Exchange_Agent_Info from '../../../../components/Dashboard/Add_New_Exchange/Exchange_Agent_Info/Exchange_Agent_Info'
+import Employee_Info from '../../../../components/Dashboard/Add_New_Exchange/Employee_Info/Employee_Info'
 
 const Page = () => {
 
-    const [Step, SetStep] = useState<number>(4)
+    const [Step, SetStep] = useState<number>(1)
 
     interface Step1DataTypes {
         name: string;
@@ -51,6 +52,19 @@ const Page = () => {
         phoneNumber: string;
         nationalCode: string;
     }
+    interface Step5DataTypes {
+        id:string
+        name: string,
+        jobPosition: string,
+        startDate: string,
+        educationalHistory: string,
+        careerHistory: string,
+        insuranceStartDate: string,
+        insuranceEndDate: string,
+        isSpecialAccess: boolean | null,
+        nationalCode: string,
+        phoneNumber: string
+    }
 
     const [step1Data, setStep1Data] = useState<Step1DataTypes>({
         name: "",
@@ -77,7 +91,15 @@ const Page = () => {
     })
     const [step3Data, setStep3Data] = useState<Step3DataTypes[]>([])
     const [step4Data, setStep4Data] = useState<Step4DataTypes[]>([])
+    const [step5Data, setStep5Data] = useState<Step5DataTypes[]>([])
 
+    const saveExchange = () => {
+        console.log(step1Data)
+        console.log(step2Data)
+        console.log(step3Data)
+        console.log(step4Data)
+        console.log(step5Data)
+    }
     const titles = [
         {
             title: 'مشخصات صرافی'
@@ -103,6 +125,7 @@ const Page = () => {
             {Step === 2 && <Get_CEO_info SetStep={SetStep} step2Data={step2Data} setStep2Data={setStep2Data} />}
             {Step === 3 && <BoardMemberInfo SetStep={SetStep} step3Data={step3Data} setStep3Data={setStep3Data}/>}
             {Step === 4 && <Exchange_Agent_Info SetStep={SetStep} step4Data={step4Data} setStep4Data={setStep4Data}/>}
+            {Step === 5 && <Employee_Info SetStep={SetStep} step5Data={step5Data} setStep5Data={setStep5Data} saveExchange={saveExchange}/>}
         </div>
     )
 }

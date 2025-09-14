@@ -58,7 +58,7 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                 })
             )
         }
-        if (sharePercentage === null || sharePercentage < 0 || sharePercentage > 100) {
+        if ( sharePercentage !== null && (sharePercentage < 0 || sharePercentage > 100)) {
             return toast.error("درصد سهام باید بین 0 تا 100 باشد", {
               position: "bottom-left",
             });
@@ -74,6 +74,7 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                 email
             }
         )
+        SetStep(3)
     }
     return (
         <div className='mt-4'>
