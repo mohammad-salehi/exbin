@@ -89,7 +89,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                 name,
                 legalName,
                 nationalCode,
-                establishmentDate: establishmentDate === '' ? '' : `${establishmentDate.year}/${establishmentDate.month.number}/${establishmentDate.day}`,
+                establishmentDate,
                 type,
                 exchangeType,
                 financialCode,

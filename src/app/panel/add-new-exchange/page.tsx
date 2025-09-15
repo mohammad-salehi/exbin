@@ -67,6 +67,7 @@ const Page = () => {
         phoneNumber: string
     }
 
+    
     const [step1Data, setStep1Data] = useState<Step1DataTypes>({
         name: "",
         legalName: "",
