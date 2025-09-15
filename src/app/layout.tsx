@@ -11,6 +11,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fa" dir="rtl">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      </head>
       <body className="bg-bgColor dark:bg-bgColor-dark">
         <ThemeProvider theme={moonDesignLight}>
           {children}
