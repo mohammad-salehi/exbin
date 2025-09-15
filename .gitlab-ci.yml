@@ -76,6 +76,10 @@ deploy_front_dev:
   script:
     - echo $IMAGE_NAME
     - docker pull $IMAGE_NAME
-    - docker-compose -f docker-compose.yml up -d
+    - docker pull "$IMAGE_NAME"
+    - docker rm -f panta_front 2>/dev/null || true
+    - docker compose -f docker-compose.yml down --remove-orphans || true
+    - docker compose -f docker-compose.yml up -d
+
   tags:
     - app4
