@@ -28,6 +28,8 @@ type ShowingStepProps = {
     saveExchange: () => void;
 };
 
+type EmployeeForm = Person;
+
 const Employee_Info = ({ SetStep, step5Data, setStep5Data, saveExchange }: ShowingStepProps) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
@@ -88,7 +90,7 @@ const Employee_Info = ({ SetStep, step5Data, setStep5Data, saveExchange }: Showi
 
     const [data, SetData] = useState<Person[]>(step5Data);
 
-    const [form, setForm] = useState<Person>({
+    const [form, setForm] = useState<EmployeeForm>({
         id: "",
         name: "",
         jobPosition: "",
@@ -102,9 +104,9 @@ const Employee_Info = ({ SetStep, step5Data, setStep5Data, saveExchange }: Showi
         phoneNumber: "",
     });
 
-    const handleChange = (field: keyof Person, value: any) => {
-        setForm({ ...form, [field]: value });
-    };
+    const handleChange = <K extends keyof EmployeeForm>(field: K, value: EmployeeForm[K]) => {
+        setForm((prev) => ({ ...prev, [field]: value }));
+      };
 
     const handleSave = () => {
         if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {

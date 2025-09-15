@@ -121,8 +121,10 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
       const q = query.trim().toLowerCase();
       if (!q || !searchKeys.length) return true;
       return searchKeys.some((k) => {
-        const v = (r as any)[k];
-        return typeof v === "string" || typeof v === "number" ? String(v).toLowerCase().includes(q) : false;
+        const v = r[k];
+        return typeof v === "string" || typeof v === "number"
+          ? String(v).toLowerCase().includes(q)
+          : false;
       });
     },
     [query, searchKeys]
@@ -158,8 +160,12 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
     (col: Column<T>, row: T): React.ReactNode => {
       if (col.cell) return col.cell(row);
       if (col.accessorKey) {
-        const v = (row as any)[col.accessorKey];
-        if (typeof v === "number" && col.accessorKey.toString().toLowerCase().includes("progress") && renderProgress) {
+        const v = row[col.accessorKey]; // ✅ نوع درست میشه T[keyof T]
+        if (
+          typeof v === "number" &&
+          col.accessorKey.toString().toLowerCase().includes("progress") &&
+          renderProgress
+        ) {
           return renderProgress(v);
         }
         return String(v ?? "");

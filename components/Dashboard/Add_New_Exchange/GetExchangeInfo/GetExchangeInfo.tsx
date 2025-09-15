@@ -35,7 +35,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
     const [name, Setname] = useState<string>(step1Data.name);
     const [legalName, SetlegalName] = useState<string>(step1Data.legalName);
     const [nationalCode, SetnationalCode] = useState<string>(step1Data.nationalCode);
-    const [establishmentDate, SetestablishmentDate] = useState<any>(step1Data.establishmentDate);
+    const [establishmentDate, SetestablishmentDate] = useState<string>(step1Data.establishmentDate);
     const [type, Settype] = useState<string>(step1Data.type)
     const [exchangeType, SetexchangeType] = useState<string>(step1Data.exchangeType)
     const [financialCode, SetfinancialCode] = useState<string>(step1Data.financialCode)
@@ -132,7 +132,9 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                         <label className='text-titleText dark: dark:text-titleText-dark'>تاریخ تاسیس</label>
                         <DatePicker
                             value={establishmentDate}
-                            onChange={SetestablishmentDate}
+                            onChange={(date) => {
+                                SetestablishmentDate(date ? date.format("YYYY/MM/DD") : "");
+                              }}
                             calendar={persian}
                             locale={persian_fa}
                             calendarPosition="bottom-right"
@@ -165,7 +167,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
 
                                     <svg
                                         onClick={(e) => {
-                                            e.stopPropagation(); // ❌ جلو گیری از باز شدن تقویم
+                                            e.stopPropagation(); 
                                             SetestablishmentDate("");
                                         }}
                                         className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:dark:text-gray-300 transition"

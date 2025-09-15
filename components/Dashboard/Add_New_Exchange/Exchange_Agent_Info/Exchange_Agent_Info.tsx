@@ -61,9 +61,9 @@ const Exchange_Agent_Info = ({ SetStep, step4Data, setStep4Data }: ShowingStepPr
         nationalCode: "",
     });
 
-    const handleChange = (field: keyof typeof form, value: any) => {
-        setForm({ ...form, [field]: value });
-    };
+    const handleChange = <K extends keyof Person>(field: K, value: Person[K]) => {
+        setForm((prev) => ({ ...prev, [field]: value }));
+      };
 
     const handleSave = () => {
         if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {

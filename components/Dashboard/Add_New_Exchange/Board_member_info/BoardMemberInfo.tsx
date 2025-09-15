@@ -21,6 +21,8 @@ type ShowingStepProps = {
     setStep3Data: React.Dispatch<React.SetStateAction<Person[]>>;
 };
 
+type PersonForm = Omit<Person, "id">;
+
 const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps) => {
 
     const [editingId, setEditingId] = useState<string | null>(null);
@@ -77,9 +79,9 @@ const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps)
         email: "",
     });
 
-    const handleChange = (field: keyof typeof form, value: any) => {
-        setForm({ ...form, [field]: value });
-    };
+    const handleChange = <K extends keyof PersonForm>(field: K, value: PersonForm[K]) => {
+        setForm((prev) => ({ ...prev, [field]: value }));
+      };
 
     const handleSave = () => {
         if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
