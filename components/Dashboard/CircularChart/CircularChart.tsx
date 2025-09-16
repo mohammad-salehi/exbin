@@ -111,6 +111,10 @@ const CircularChart: React.FC<CircularChartProps> = ({
                       fill={colors[index]}
                       onMouseEnter={() => handleMouseEnter(entry)}
                       onMouseLeave={handleMouseLeave}
+                      style={{
+                        outline: "none",   // غیرفعال کردن outline
+                        boxShadow: "none", // غیرفعال کردن box-shadow
+                      }}
                     />
                   ))}
 

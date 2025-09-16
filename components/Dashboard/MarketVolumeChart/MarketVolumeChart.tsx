@@ -139,6 +139,10 @@ const MarketVolumeChart: React.FC<CircularChartProps> = ({
                                             key={`cell-${index}`}
                                             fill={colors[index]}
                                             onMouseEnter={() => handleMouseEnter(entry)}
+                                            style={{
+                                                outline: "none",    // غیرفعال کردن outline برای نمودار
+                                                boxShadow: "none",  // غیرفعال کردن box-shadow برای نمودار
+                                              }}
                                         />
                                     ))}
                                     <Label
