@@ -3,6 +3,7 @@
 import { ThemeProvider, moonDesignLight } from "@heathmont/moon-themes";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import Head from 'next/head';
 
 export default function RootLayout({
   children,
@@ -11,9 +12,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fa" dir="rtl">
-      <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-      </head>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        {/* سایر تگ‌های متا */}
+      </Head>
       <body className="bg-bgColor dark:bg-bgColor-dark">
         <ThemeProvider theme={moonDesignLight}>
           {children}
