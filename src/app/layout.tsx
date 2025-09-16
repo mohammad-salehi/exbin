@@ -14,7 +14,6 @@ export default function RootLayout({
     <html lang="fa" dir="rtl">
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        {/* سایر تگ‌های متا */}
       </Head>
       <body className="bg-bgColor dark:bg-bgColor-dark">
         <ThemeProvider theme={moonDesignLight}>
