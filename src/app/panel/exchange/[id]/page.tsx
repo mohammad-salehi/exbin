@@ -3,6 +3,9 @@
 import React from 'react'
 import DetailBox from '../../../../../components/Dashboard/Exchange_page/DetailBox/DetailBox';
 import CeoDetail from '../../../../../components/Dashboard/Exchange_page/CeoDetail/CeoDetail';
+import BoardMemberTable from '../../../../../components/Dashboard/Exchange_page/BoardMemberInfo/BoardMemberInfo';
+import ExchangeAgentInfo from '../../../../../components/Dashboard/Exchange_page/ExchangeAgentInfo/ExchangeAgentInfo';
+import EmployeeInfo from '../../../../../components/Dashboard/Exchange_page/EmployeeInfo/EmployeeInfo';
 const Page = () => {
     const invoiceData = [
         {
@@ -106,12 +109,15 @@ const Page = () => {
     ];
 
     return (
-        <div className='px-4 xl:px-0"'>
+        <div className='px-4 xl:px-0'>
             <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>
                 مشخصات صرافی
             </h5>
             <DetailBox data={invoiceData} downloadLink="/path/to/pdf" />
             <CeoDetail/>
+            <BoardMemberTable/>
+            <ExchangeAgentInfo/>
+            <EmployeeInfo/>
         </div>
     )
 }
