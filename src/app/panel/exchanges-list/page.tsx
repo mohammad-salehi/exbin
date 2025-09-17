@@ -3,6 +3,7 @@
 import React, { useMemo, useState } from "react";
 import ExpandableTable, { Column } from "../../../../components/ExpandableTable/ExpandableTable";
 import { GenericSearch } from "@heathmont/moon-icons-tw";
+import Link from "next/link";
 
 type Person = {
   id: string;
@@ -82,7 +83,24 @@ const Page = () => {
         </div>
       ),
     },
-    { header: "نام صرافی", accessorKey: "name" },
+    {
+      header: "نام صرافی", accessorKey: "name",
+
+      cell: (row: Person) => (
+        <div>
+          <Link href={`/panel/exchange/${row.id}`}>
+            {row.name}
+            <svg width="20px" height="20px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block' }} className="mr-1">
+              <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                <g id="icon" fill="currentColor" transform="translate(85.333333, 64.000000)">
+                  <path d="M128,63.999444 L128,106.666444 L42.6666667,106.666667 L42.6666667,320 L256,320 L256,234.666444 L298.666,234.666444 L298.666667,362.666667 L4.26325641e-14,362.666667 L4.26325641e-14,64 L128,63.999444 Z M362.666667,1.42108547e-14 L362.666667,170.666667 L320,170.666667 L320,72.835 L143.084945,249.751611 L112.915055,219.581722 L289.83,42.666 L192,42.6666667 L192,1.42108547e-14 L362.666667,1.42108547e-14 Z" id="Combined-Shape"></path>
+                </g>
+              </g>
+            </svg>
+          </Link>
+        </div>
+      ),
+    },
     { header: "نام حقوقی", accessorKey: "legal_name", align: "center", className: "tabular-nums" },
     { header: "شناسه ملی", accessorKey: "national_code", align: "center", className: "tabular-nums" },
     { header: "سایت", accessorKey: "website" },
@@ -91,11 +109,11 @@ const Page = () => {
       accessorKey: "progress",
       cell: (row: Person) => (
         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark">
-          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer">
+          {/* <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer">
             <path d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z" stroke="#A8A8A8" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M3.5 22H21.5" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+          </svg> */}
 
           <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer">
             <path d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

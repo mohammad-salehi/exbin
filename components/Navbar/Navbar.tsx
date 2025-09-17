@@ -107,7 +107,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
                 )}
             >
                 <div className="flex items-center p-4 border-b dark:border-[#666]">
-                    <img src='../images/pantaLogo.png' className="w-12" />
+                    <img src='../../images/pantaLogo.png' className="w-12" />
                     <span className="text-sm font-bold mr-4 text-titleText dark:text-titleText-dark">سامانه نظارت بر صرافی‌ها</span>
                 </div>
                 <nav className="p-2 space-y-4 mt-12">
