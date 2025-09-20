@@ -353,7 +353,7 @@ const BoardMemberTable = () => {
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="ایمیل" />
                             </div>
                         </div>
-                        <div className="p-4 border-t flex justify-end gap-2">
+                        <div className="p-4 border-t flex justify-end gap-2 border-boxBorderColor dark:border-boxBorderColor-dark">
                             <Button variant="ghost" onClick={closeAddModal}>
                                 انصراف
                             </Button>
