@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import ExpandableTable, { Column } from "../../../ExpandableTable/ExpandableTable";
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import toast from "react-hot-toast";
 
 type Person = {
     id: string;
@@ -80,6 +81,27 @@ const EmployeeInfo = () => {
 
     const handleSave = () => {
         if (!editingId) return;
+
+        const regex = /^\d{4}\/\d{2}\/\d{2}$/;
+        if (!regex.test(form.insuranceStartDate || "")) {
+            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", {
+                position: "bottom-left",
+            })
+            return;
+        }
+        if (!regex.test(form.insuranceEndDate || "")) {
+            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", {
+                position: "bottom-left",
+            })
+            return;
+        }
+        if (!regex.test(form.startDate || "")) {
+            toast.error("تاریخ شروع کار را به درستی وارد کنید", {
+                position: "bottom-left",
+            })
+            return;
+        }
+
         setData((prev) =>
             prev.map((item) =>
                 item.id === editingId ? { ...form, id: editingId } : item
@@ -173,13 +195,34 @@ const EmployeeInfo = () => {
 
     const handleAdd = () => {
         const newId = (data.length + 1).toString();
+        const regex = /^\d{4}\/\d{2}\/\d{2}$/;
+
+        if (!regex.test(form.insuranceStartDate || "")) {
+            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", {
+                position: "bottom-left",
+            })
+            return;
+        }
+        if (!regex.test(form.insuranceEndDate || "")) {
+            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", {
+                position: "bottom-left",
+            })
+            return;
+        }
+        if (!regex.test(form.startDate || "")) {
+            toast.error("تاریخ شروع کار را به درستی وارد کنید", {
+                position: "bottom-left",
+            })
+            return;
+        }
+
         setData((prev) => [...prev, { ...form, id: newId }]);
         closeAddModal();
     };
 
     return (
         <div className="mt-4">
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mt-2">
                 <h5 className="font-bold text-lg text-titleText dark:text-titleText-dark mb-2">
                     مشخصات کارمندان
                 </h5>
@@ -236,19 +279,76 @@ const EmployeeInfo = () => {
                                 <label>تاریخ شروع کار</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} placeholder="تاریخ شروع کار" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.startDate}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (!/^[0-9/]*$/.test(value)) return;
+                                        if (value.length > 10) return;
+                                        if (value.length <= 4) {
+                                            if (!/^\d{0,4}$/.test(value)) return;
+                                        } else if (value.length === 5) {
+                                            if (!/^\d{4}\/$/.test(value)) return;
+                                        } else if (value.length <= 7) {
+                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
+                                        } else if (value.length === 8) {
+                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
+                                        } else {
+                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
+                                        }
+                                        setForm({ ...form, startDate: e.target.value });
+                                    }
+                                    }
+                                    placeholder="تاریخ شروع کار" />
                             </div>
                             <div>
                                 <label>تاریخ شروع بیمه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceStartDate} onChange={(e) => setForm({ ...form, insuranceStartDate: e.target.value })} placeholder="تاریخ شروع بیمه" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceStartDate}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (!/^[0-9/]*$/.test(value)) return;
+                                        if (value.length > 10) return;
+                                        if (value.length <= 4) {
+                                            if (!/^\d{0,4}$/.test(value)) return;
+                                        } else if (value.length === 5) {
+                                            if (!/^\d{4}\/$/.test(value)) return;
+                                        } else if (value.length <= 7) {
+                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
+                                        } else if (value.length === 8) {
+                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
+                                        } else {
+                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
+                                        }
+                                        setForm({ ...form, insuranceStartDate: value });
+                                    }
+                                    }
+                                    placeholder="تاریخ شروع بیمه" />
                             </div>
                             <div>
                                 <label>تاریخ پایان بیمه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceEndDate} onChange={(e) => setForm({ ...form, insuranceEndDate: e.target.value })} placeholder="تاریخ پایان بیمه" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceEndDate}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (!/^[0-9/]*$/.test(value)) return;
+                                        if (value.length > 10) return;
+                                        if (value.length <= 4) {
+                                            if (!/^\d{0,4}$/.test(value)) return;
+                                        } else if (value.length === 5) {
+                                            if (!/^\d{4}\/$/.test(value)) return;
+                                        } else if (value.length <= 7) {
+                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
+                                        } else if (value.length === 8) {
+                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
+                                        } else {
+                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
+                                        }
+                                        setForm({ ...form, insuranceEndDate: e.target.value })
+                                    }
+
+                                    } placeholder="تاریخ پایان بیمه" />
                             </div>
                             <div>
                                 <label>سوابق تحصیلی</label>
@@ -303,67 +403,123 @@ const EmployeeInfo = () => {
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label>نام و نام‌خانوادگی</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="نام و نام‌خانوادگی" />
                             </div>
                             <div>
                                 <label>سمت</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="سمت" />
                             </div>
                             <div>
                                 <label>شماره همراه</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} placeholder="شماره همراه" />
                             </div>
                             <div>
                                 <label>کد ملی</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => setForm({ ...form, nationalCode: e.target.value })} placeholder="کد ملی" />
                             </div>
                             <div>
                                 <label>تاریخ شروع کار</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.startDate} onChange={(e) => setForm({ ...form, startDate: e.target.value })} placeholder="تاریخ شروع کار" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.startDate}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (!/^[0-9/]*$/.test(value)) return;
+                                        if (value.length > 10) return;
+                                        if (value.length <= 4) {
+                                            if (!/^\d{0,4}$/.test(value)) return;
+                                        } else if (value.length === 5) {
+                                            if (!/^\d{4}\/$/.test(value)) return;
+                                        } else if (value.length <= 7) {
+                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
+                                        } else if (value.length === 8) {
+                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
+                                        } else {
+                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
+                                        }
+                                        setForm({ ...form, startDate: e.target.value });
+                                    }
+                                    }
+                                    placeholder="تاریخ شروع کار" />
                             </div>
                             <div>
                                 <label>تاریخ شروع بیمه</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceStartDate} onChange={(e) => setForm({ ...form, insuranceStartDate: e.target.value })} placeholder="تاریخ شروع بیمه" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceStartDate}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (!/^[0-9/]*$/.test(value)) return;
+                                        if (value.length > 10) return;
+                                        if (value.length <= 4) {
+                                            if (!/^\d{0,4}$/.test(value)) return;
+                                        } else if (value.length === 5) {
+                                            if (!/^\d{4}\/$/.test(value)) return;
+                                        } else if (value.length <= 7) {
+                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
+                                        } else if (value.length === 8) {
+                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
+                                        } else {
+                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
+                                        }
+                                        setForm({ ...form, insuranceStartDate: e.target.value });
+                                    }
+                                    }
+                                    placeholder="تاریخ شروع بیمه" />
                             </div>
                             <div>
                                 <label>تاریخ پایان بیمه</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceEndDate} onChange={(e) => setForm({ ...form, insuranceEndDate: e.target.value })} placeholder="تاریخ پایان بیمه" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceEndDate}
+                                    onChange={(e) => {
+                                        let value = e.target.value;
+                                        if (!/^[0-9/]*$/.test(value)) return;
+                                        if (value.length > 10) return;
+                                        if (value.length <= 4) {
+                                            if (!/^\d{0,4}$/.test(value)) return;
+                                        } else if (value.length === 5) {
+                                            if (!/^\d{4}\/$/.test(value)) return;
+                                        } else if (value.length <= 7) {
+                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
+                                        } else if (value.length === 8) {
+                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
+                                        } else {
+                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
+                                        }
+                                        setForm({ ...form, insuranceEndDate: e.target.value });
+                                    }}
+                                    placeholder="تاریخ پایان بیمه" />
                             </div>
                             <div>
                                 <label>سوابق تحصیلی</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.educationHistory} onChange={(e) => setForm({ ...form, educationHistory: e.target.value })} placeholder="سوابق تحصیلی" />
                             </div>
                             <div>
                                 <label>سوابق شغلی</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.careerHistory} onChange={(e) => setForm({ ...form, careerHistory: e.target.value })} placeholder="سوابق شغلی" />
                             </div>
                             <div>
                                 <label>درصد سهام</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" type="number" value={form.sharePercentage} onChange={(e) => setForm({ ...form, sharePercentage: e.target.value })} placeholder="درصد سهام" />
                             </div>
                             <div>
                                 <label>ایمیل</label>
-                                <Input  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="ایمیل" />
                             </div>

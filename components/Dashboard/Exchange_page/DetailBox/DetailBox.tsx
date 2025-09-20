@@ -1,24 +1,22 @@
 import React, { JSX } from "react";
 
-// تعریف نوع محتوی برای هر ستون
 interface ColumnData {
     title?: string;
-    content: string | JSX.Element; // اجازه استفاده از JSX در محتوی
-    image?: string; // افزودن تصویر داینامیک برای هر آیتم محتوی
+    content: string | JSX.Element;
+    image?: string;
 }
 
-// تعریف پروپرتی‌های کامپوننت
 interface DetailBoxProps {
     data: {
         title: string;
-        content: ColumnData[]; // داینامیک برای عنوان‌ها و محتواها
+        content: ColumnData[];
     }[];
     downloadLink: string;
 }
 
 const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
     return (
-        <div className="shadow-lg rounded-lg overflow-x-hidden bg-white dark:bg-bgColor-dark border border-gray-200 dark:border-boxColor-dark mt-2">
+        <div className="shadow-lg rounded-lg overflow-x-hidden bg-white dark:bg-bgColor-dark border border-gray-200 dark:border-boxColor-dark mt-2 pb-2">
             <div className="w-full grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-4 bg-white dark:bg-bgColor-dark">
                 {data.map((section, sectionIndex) => (
                     <div
@@ -31,13 +29,12 @@ const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
                         <ul className=" px-4 bg-white dark:bg-bgColor-dark">
                             {section.content.map((item, index) => (
                                 <li key={index} className="py-2 flex justify-between items-center bg-white dark:bg-bgColor-dark text-titleText dark:text-titleText-dark">
-                                    {/* اگر تصویر باشد، فقط عنوان نمایش داده شود */}
                                     {item.image ? (
                                         <div className="flex items-center bg-white dark:bg-bgColor-dark">
                                             <img
-                                                src={item.image} // مسیر داینامیک تصویر
+                                                src={item.image} 
                                                 alt="Logo"
-                                                className="w-8 h-8 ml-2" // اندازه تصویر
+                                                className="w-8 h-8 ml-2" 
                                             />
                                             <strong className="">{item.title}</strong>
                                         </div>

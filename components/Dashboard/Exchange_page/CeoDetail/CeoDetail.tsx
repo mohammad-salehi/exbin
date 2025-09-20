@@ -181,9 +181,9 @@ const CeoDetail = () => {
                                 <label>سوابق تحصیلی</label>
                                 <textarea
 
-                                    className=" w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                    className=" w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md pt-2 
                                 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark focus:outline-none"
                                     value={form.educationHistory}
                                     onChange={(e) =>
                                         setForm({ ...form, educationHistory: e.target.value })
@@ -194,9 +194,9 @@ const CeoDetail = () => {
                             <div>
                                 <label>سوابق شغلی</label>
                                 <textarea
-                                    className=" w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                    className=" w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md pt-2 
                                 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark focus:outline-none"
                                     value={form.careerHistory}
                                     onChange={(e) =>
                                         setForm({ ...form, careerHistory: e.target.value })
@@ -232,7 +232,7 @@ const CeoDetail = () => {
                                 />
                             </div>
                         </div>
-                        <div className="p-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex justify-start gap-2 ">
+                        <div className="p-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex justify-end gap-2 ">
                             <Button variant="ghost" onClick={closeModal}>
                                 انصراف
                             </Button>

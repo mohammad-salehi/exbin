@@ -109,7 +109,7 @@ const Page = () => {
     ];
 
     return (
-        <div className='px-4 xl:px-0'>
+        <div className='px-4 xl:px-0 mb-4'>
             <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>
                 مشخصات صرافی
             </h5>

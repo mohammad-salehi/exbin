@@ -121,7 +121,7 @@ const ExchangeAgentInfo = () => {
 
     return (
         <div className="mt-4">
-            <div className="flex justify-between items-center mb-3">
+            <div className="flex justify-between items-center mt-2">
                 <h5 className="font-bold text-lg text-titleText dark:text-titleText-dark mb-2">
                     مشخصات نمایندگان صرافی
                 </h5>
