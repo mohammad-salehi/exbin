@@ -21,6 +21,8 @@ interface Step1Data {
     officeAddress: string;
     email: string;
     fileName: string;
+    phoneNumber:string;
+    registrationNumber:string;
 }
 
 type ShowingStepProps = {
@@ -44,6 +46,9 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
     const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>(step1Data.emergencyPhoneNumber);
     const [officeAddress, SetofficeAddress] = useState<string>(step1Data.officeAddress);
     const [email, Setemail] = useState<string>(step1Data.email);
+    const [registrationNumber, SetregistrationNumber] = useState<string>(step1Data.email);
+    const [phoneNumber, SetphoneNumber] = useState<string>(step1Data.email);
+    // const [association, Setassociation] = useState<string>(step1Data.email);
 
     const [fileName, setFileName] = useState<string>(step1Data.fileName);
 
@@ -97,6 +102,8 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                 siteAddress,
                 emergencyPhoneNumber,
                 officeAddress,
+                phoneNumber,
+                registrationNumber,
                 email,
                 fileName
             }
@@ -359,7 +366,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                         <Input value={financialCode} onChange={(e) => { SetfinancialCode(e.target.value) }} placeholder='کد اقتصادی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
+                    {/* <div>
                         <label className="text-titleText dark:text-titleText-dark">لوگو</label>
                         <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
                             {
@@ -378,11 +385,42 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                                 className="hidden"
                             />
                         </label>
-                    </div>
+                    </div> */}
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>آدرس سایت</label>
                         <Input value={siteAddress} onChange={(e) => { SetsiteAddress(e.target.value) }} placeholder='آدرس سایت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    </div>
+
+                    <div>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره ثبت</label>
+                        <Input value={registrationNumber} onChange={(e) => { SetregistrationNumber(e.target.value) }} placeholder='شماره ثبت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    </div>
+{/* 
+                    <div>
+                        <label className="text-titleText dark:text-titleText-dark">اساسنامه</label>
+                        <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
+                            {
+                                fileName === "" ?
+                                    <span>
+                                        انتخاب فایل
+                                    </span>
+                                    :
+                                    fileName
+                            }
+
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
+                        </label>
+                    </div> */}
+
+                    <div>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره تماس</label>
+                        <Input value={phoneNumber} onChange={(e) => { SetphoneNumber(e.target.value) }} placeholder='شماره تماس' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
@@ -391,14 +429,15 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                     </div>
 
                     <div>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل صرافی</label>
+                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    </div>
+
+                    <div className="col-span-2">
                         <label className='text-titleText dark: dark:text-titleText-dark'>آدرس دفتر رسمی</label>
                         <Input value={officeAddress} onChange={(e) => { SetofficeAddress(e.target.value) }} placeholder='آدرس دفتر رسمی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل صرافی</label>
-                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
-                    </div>
                 </div>
             </div>
 

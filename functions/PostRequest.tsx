@@ -1,32 +1,34 @@
-function postDataToUrl(url: string, data: Record<string, string | number | boolean | File | Blob>) {
-    const token = document.cookie.replace(
-        /(?:(?:^|.*;\s*)token\s*\=\s*([^;]*).*$)|^.*$/, 
-        "$1"
-    );
-    const formData = new FormData();
-    Object.keys(data).forEach(key => {
-        const value = data[key];
-        if (value instanceof File || value instanceof Blob) {
-            formData.append(key, value);
-        } else {
-            formData.append(key, String(value));
-        }
+
+// حذف تابع رفرش توکن
+export async function PostRequest(url: string | URL | Request, params: Record<string, any> = {}) {
+    const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            ?.split('=')[1];
+
+    const bodyFormData = new FormData();
+
+    Object.keys(params).forEach(key => {
+        bodyFormData.append(key, params[key]);
     });
-    return fetch(url, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${token}`,
-        },
-        body: formData, 
-    })
-    .then(response => {
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            body: bodyFormData,
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
         if (!response.ok) {
-            return Promise.reject('Request failed with status ' + response.status);
+            throw new Error(`Request failed with status ${response.status}`);
         }
-        return response.json(); 
-    })
-    .catch(error => {
-        console.error('Error posting data:', error);
-        throw error;  
-    });
+
+        return await response.json();
+    } catch (err) {
+        // اگر خطای 500 یا شبکه رخ دهد دیگر درخواست را دوباره ارسال نمی‌کنیم
+        throw err;
+    }
 }
