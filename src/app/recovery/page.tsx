@@ -15,7 +15,6 @@ import { LoaderCircle } from "../../../components/Loader/Loader";
 export default function Home() {
   const router = useRouter();
 
-
   const [UsernameError, SetUsernameError] = useState(false)
 
   const [hasError, SetHasError] = useState(false)
