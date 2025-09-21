@@ -230,7 +230,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                                         )}
                                     </Dropdown.Option>
                                     <Dropdown.Option value="مسئولیت محدود" key="option2">
-                                        {({ selected, active }) => (
+                                        {({ active }) => (
                                             <MenuItem isActive={active}
                                             className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === "مسئولیت محدود"
                                                 ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
@@ -313,7 +313,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                                         )}
                                     </Dropdown.Option>
                                     <Dropdown.Option value="OTC" key="option2">
-                                        {({ selected, active }) => (
+                                        {({ active }) => (
                                             <MenuItem
                                                 isActive={active}
                                                 className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "OTC"

@@ -1,10 +1,5 @@
 import React, { useState } from 'react'
-import DatePicker from "react-multi-date-picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-
-import { Dropdown, MenuItem, Button, Input } from "@heathmont/moon-core-tw";
-import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
+import { Input } from "@heathmont/moon-core-tw";
 import toast from "react-hot-toast";
 
 interface Step2Data {

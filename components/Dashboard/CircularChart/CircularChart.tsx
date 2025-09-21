@@ -36,7 +36,6 @@ const CircularChart: React.FC<CircularChartProps> = ({
   Radius,
   paddingAngle,
   height,
-  ShowDetails = true,
 }) => {
   const [hoveredData, setHoveredData] = useState<DonutChartData | null>(null);
   const [colors, setColors] = useState<string[]>([]);

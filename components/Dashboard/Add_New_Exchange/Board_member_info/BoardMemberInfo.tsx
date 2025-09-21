@@ -81,7 +81,7 @@ const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps)
 
     const handleChange = <K extends keyof PersonForm>(field: K, value: PersonForm[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
-      };
+    };
 
     const handleSave = () => {
         if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
@@ -152,7 +152,10 @@ const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps)
                         <button className="w-36 ml-2 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { SetStep(2) }}>
                             صفحه قبل
                         </button>
-                        <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { setStep3Data(data), SetStep(4)}}>
+                        <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => {
+                            setStep3Data(data)
+                            SetStep(4)
+                        }}>
                             صفحه بعد
                         </button>
                     </div>

@@ -124,7 +124,9 @@ const Exchange_Agent_Info = ({ SetStep, step4Data, setStep4Data }: ShowingStepPr
                         <button className="w-36 ml-2 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { SetStep(3) }}>
                             صفحه قبل
                         </button>
-                        <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { setStep4Data(data), SetStep(5)}}>
+                        <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { 
+                            setStep4Data(data)
+                            SetStep(5)}}>
                             صفحه بعد
                         </button>
                     </div>

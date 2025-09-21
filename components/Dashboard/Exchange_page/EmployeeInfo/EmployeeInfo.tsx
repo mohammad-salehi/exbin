@@ -281,7 +281,7 @@ const EmployeeInfo = () => {
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.startDate}
                                     onChange={(e) => {
-                                        let value = e.target.value;
+                                        const value = e.target.value;
                                         if (!/^[0-9/]*$/.test(value)) return;
                                         if (value.length > 10) return;
                                         if (value.length <= 4) {
@@ -306,7 +306,7 @@ const EmployeeInfo = () => {
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceStartDate}
                                     onChange={(e) => {
-                                        let value = e.target.value;
+                                        const value = e.target.value;
                                         if (!/^[0-9/]*$/.test(value)) return;
                                         if (value.length > 10) return;
                                         if (value.length <= 4) {
@@ -331,7 +331,7 @@ const EmployeeInfo = () => {
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceEndDate}
                                     onChange={(e) => {
-                                        let value = e.target.value;
+                                        const value = e.target.value;
                                         if (!/^[0-9/]*$/.test(value)) return;
                                         if (value.length > 10) return;
                                         if (value.length <= 4) {
@@ -431,7 +431,7 @@ const EmployeeInfo = () => {
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.startDate}
                                     onChange={(e) => {
-                                        let value = e.target.value;
+                                        const value = e.target.value;
                                         if (!/^[0-9/]*$/.test(value)) return;
                                         if (value.length > 10) return;
                                         if (value.length <= 4) {
@@ -456,7 +456,7 @@ const EmployeeInfo = () => {
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceStartDate}
                                     onChange={(e) => {
-                                        let value = e.target.value;
+                                        const value = e.target.value;
                                         if (!/^[0-9/]*$/.test(value)) return;
                                         if (value.length > 10) return;
                                         if (value.length <= 4) {
@@ -481,7 +481,7 @@ const EmployeeInfo = () => {
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceEndDate}
                                     onChange={(e) => {
-                                        let value = e.target.value;
+                                        const value = e.target.value;
                                         if (!/^[0-9/]*$/.test(value)) return;
                                         if (value.length > 10) return;
                                         if (value.length <= 4) {
