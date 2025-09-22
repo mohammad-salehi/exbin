@@ -133,7 +133,6 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
         }
     };
 
-
     return (
         <div className='mt-4'>
             <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>
