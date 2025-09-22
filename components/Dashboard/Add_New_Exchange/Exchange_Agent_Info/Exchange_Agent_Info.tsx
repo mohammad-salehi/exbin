@@ -10,19 +10,70 @@ type Person = {
     nationalCode: string;
 };
 
-type ShowingStepProps = {
+interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
-    step4Data: Person[];
-    setStep4Data: React.Dispatch<React.SetStateAction<Person[]>>;
-};
+    ID: number | undefined;
+}
 
-const Exchange_Agent_Info = ({ SetStep, step4Data, setStep4Data }: ShowingStepProps) => {
+
+const Exchange_Agent_Info : React.FC<GetExchangeInfoProps> = ({ SetStep, ID })  => {
 
     const [editingId, setEditingId] = useState<string | null>(null);
-
+    const [Loading, setLoading] = useState<boolean>(false);
     const [isOpen, setIsOpen] = useState(false);
     const closeModal = () => setIsOpen(false);
     const openModal = () => setIsOpen(true);
+
+    const nextStep = async () => {
+
+        const getData = []
+        for (let i = 0; i < data.length; i++) {
+            getData.push(
+                {
+                    name: data[i].name,
+                    phoneNumber: data[i].phoneNumber,
+                    nationalCode: data[i].nationalCode,
+                }
+            )
+        }
+        console.log(getData)
+        console.log(JSON.stringify(getData))
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // ارسال درخواست به API
+            setLoading(true)
+            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/exchange-agent`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(getData),
+            });
+
+            if (!response.ok) {
+                setLoading(false)
+                return toast.error(`خطا در ذخیره نمایندگان صرافی`);
+            }
+            const responseData = await response.json();
+            console.log(responseData);
+            toast.success("نمایندگان صرافی با موفقیت ذخیره شدند.", { position: "bottom-left" });
+            setLoading(false)
+            SetStep(5)
+        } catch (err) {
+            console.error(err);
+            return toast.error(`خطا در ذخیره نمایندگان صرافی`);
+        }
+    }
 
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
@@ -52,7 +103,7 @@ const Exchange_Agent_Info = ({ SetStep, step4Data, setStep4Data }: ShowingStepPr
         },
     ];
 
-    const [data, SetData] = useState<Person[]>(step4Data);
+    const [data, SetData] = useState<Person[]>([]);
 
     // 🟢 استیت برای ورودی‌های مودال
     const [form, setForm] = useState<Omit<Person, "id">>({
@@ -125,8 +176,7 @@ const Exchange_Agent_Info = ({ SetStep, step4Data, setStep4Data }: ShowingStepPr
                             صفحه قبل
                         </button>
                         <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { 
-                            setStep4Data(data)
-                            SetStep(5)}}>
+                            nextStep()}}>
                             صفحه بعد
                         </button>
                     </div>

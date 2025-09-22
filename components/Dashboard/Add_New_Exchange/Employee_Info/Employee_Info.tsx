@@ -21,18 +21,18 @@ type Person = {
     phoneNumber: string;
 };
 
-type ShowingStepProps = {
+interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
-    step5Data: Person[];
-    setStep5Data: React.Dispatch<React.SetStateAction<Person[]>>;
-    saveExchange: () => void;
-};
+    ID: number | undefined;
+}
+
 
 type EmployeeForm = Person;
 
-const Employee_Info = ({ SetStep, step5Data, setStep5Data, saveExchange }: ShowingStepProps) => {
+const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [isOpen, setIsOpen] = useState(false);
+    const [Loading, setLoading] = useState<boolean>(false);
 
     const closeModal = () => setIsOpen(false);
     const openModal = () => setIsOpen(true);
@@ -88,7 +88,7 @@ const Employee_Info = ({ SetStep, step5Data, setStep5Data, saveExchange }: Showi
         },
     ];
 
-    const [data, SetData] = useState<Person[]>(step5Data);
+    const [data, SetData] = useState<Person[]>([]);
 
     const [form, setForm] = useState<EmployeeForm>({
         id: "",
@@ -119,12 +119,10 @@ const Employee_Info = ({ SetStep, step5Data, setStep5Data, saveExchange }: Showi
                 emp.id === editingId ? { ...emp, ...form } : emp
             );
             SetData(updated);
-            setStep5Data(updated);
         } else {
             const newEmployee: Person = { ...form, id: String(data.length + 1) };
             const updated = [...data, newEmployee];
             SetData(updated);
-            setStep5Data(updated);
         }
 
         closeModal();
@@ -143,6 +141,64 @@ const Employee_Info = ({ SetStep, step5Data, setStep5Data, saveExchange }: Showi
             phoneNumber: "",
         });
     };
+
+    const nextStep = async () => {
+
+        const getData = []
+        for (let i = 0; i < data.length; i++) {
+            getData.push(
+                {
+                    name:data[i].name,
+                    jobPosition:data[i].jobPosition,
+                    startDate:data[i].startDate,
+                    educationalHistory:data[i].educationalHistory,
+                    careerHistory:data[i].careerHistory,
+                    insuranceStartDate:data[i].insuranceStartDate,
+                    insuranceEndDate:data[i].insuranceEndDate,
+                    isSpecialAccess: data[i].isSpecialAccess,
+                    nationalCode:data[i].nationalCode,
+                    phoneNumber:data[i].phoneNumber,
+                }
+            )
+        }
+        console.log(getData)
+        console.log(JSON.stringify(getData))
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // ارسال درخواست به API
+            setLoading(true)
+            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/employees`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(getData),
+            });
+
+            if (!response.ok) {
+                setLoading(false)
+                return toast.error(`خطا در ذخیره کارمندان`);
+            }
+            const responseData = await response.json();
+            console.log(responseData);
+            toast.success("کارمندان با موفقیت ذخیره شدند.", { position: "bottom-left" });
+            setLoading(false)
+            SetStep(4)
+        } catch (err) {
+            console.error(err);
+            return toast.error(`خطا در ذخیره کارمندان`);
+        }
+    }
 
     return (
         <div className="mt-4">
@@ -201,8 +257,7 @@ const Employee_Info = ({ SetStep, step5Data, setStep5Data, saveExchange }: Showi
                         <button
                             className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg"
                             onClick={() => {
-                                setStep5Data(data);
-                                saveExchange()
+                                nextStep()
                             }}
                         >
                             اتمام

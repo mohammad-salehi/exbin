@@ -6,51 +6,34 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import { Dropdown, MenuItem, Button, Input } from "@heathmont/moon-core-tw";
 import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 import toast from "react-hot-toast";
+import { LoaderCircle } from '../../../Loader/Loader';
 
-interface Step1Data {
-    name: string;
-    legalName: string;
-    nationalCode: string;
-    establishmentDate: string;
-    type: string;
-    exchangeType: string;
-    financialCode: string;
-    logo: string;
-    siteAddress: string;
-    emergencyPhoneNumber: string;
-    officeAddress: string;
-    email: string;
-    fileName: string;
-    phoneNumber:string;
-    registrationNumber:string;
+interface GetExchangeInfoProps {
+    SetStep: React.Dispatch<React.SetStateAction<number>>;
+    ID: number | undefined;
+    setID: React.Dispatch<React.SetStateAction<number | undefined>>;
 }
 
-type ShowingStepProps = {
-    SetStep: React.Dispatch<React.SetStateAction<number>>;
-    step1Data: Step1Data;
-    setStep1Data: React.Dispatch<React.SetStateAction<Step1Data>>;
-};
-
-const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps) => {
+const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID }) => {
 
     //exchange info
-    const [name, Setname] = useState<string>(step1Data.name);
-    const [legalName, SetlegalName] = useState<string>(step1Data.legalName);
-    const [nationalCode, SetnationalCode] = useState<string>(step1Data.nationalCode);
-    const [establishmentDate, SetestablishmentDate] = useState<string>(step1Data.establishmentDate);
-    const [type, Settype] = useState<string>(step1Data.type)
-    const [exchangeType, SetexchangeType] = useState<string>(step1Data.exchangeType)
-    const [financialCode, SetfinancialCode] = useState<string>(step1Data.financialCode)
-    const [logo, SetLogo] = useState<string>(step1Data.logo);
-    const [siteAddress, SetsiteAddress] = useState<string>(step1Data.siteAddress);
-    const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>(step1Data.emergencyPhoneNumber);
-    const [officeAddress, SetofficeAddress] = useState<string>(step1Data.officeAddress);
-    const [email, Setemail] = useState<string>(step1Data.email);
-    const [registrationNumber, SetregistrationNumber] = useState<string>(step1Data.email);
-    const [phoneNumber, SetphoneNumber] = useState<string>(step1Data.email);
-    // const [association, Setassociation] = useState<string>(step1Data.email);
+    const [name, Setname] = useState<string>("");
+    const [legalName, SetlegalName] = useState<string>("");
+    const [nationalCode, SetnationalCode] = useState<string>("");
+    const [establishmentDate, SetestablishmentDate] = useState<string>("");
+    const [type, Settype] = useState<string>("")
+    const [exchangeType, SetexchangeType] = useState<string>("")
+    const [financialCode, SetfinancialCode] = useState<string>("")
+    const [logo, SetLogo] = useState<string>("");
+    const [siteAddress, SetsiteAddress] = useState<string>("");
+    const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>("");
+    const [officeAddress, SetofficeAddress] = useState<string>("");
+    const [email, Setemail] = useState<string>("");
+    const [registrationNumber, SetregistrationNumber] = useState<number>();
+    const [phoneNumber, SetphoneNumber] = useState<string>("");
 
-    const [fileName, setFileName] = useState<string>(step1Data.fileName);
+    const [fileName, setFileName] = useState<string>("");
+    const [Loading, setLoading] = useState<boolean>(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -67,49 +50,90 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
         Settype(event);
     };
 
-    const nextStep = () => {
+    const nextStep = async () => {
+        // بررسی مقادیر ورودی
         if (name === '') {
-            return (
-                toast.error("نام صرافی مورد نظر را انتخاب کنید", {
-                    position: "bottom-left",
-                })
-            )
+            toast.error("نام صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
         }
         if (legalName === '') {
-            return (
-                toast.error("نام حقوقی صرافی مورد نظر را انتخاب کنید", {
-                    position: "bottom-left",
-                })
-            )
+            toast.error("نام حقوقی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
         }
         if (nationalCode === '') {
-            return (
-                toast.error("شناسه ملی صرافی مورد نظر را انتخاب کنید", {
-                    position: "bottom-left",
-                })
-            )
+            toast.error("شناسه ملی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
         }
-        setStep1Data(
-            {
-                name,
-                legalName,
-                nationalCode,
-                establishmentDate,
-                type,
-                exchangeType,
-                financialCode,
-                logo,
-                siteAddress,
-                emergencyPhoneNumber,
-                officeAddress,
-                phoneNumber,
-                registrationNumber,
-                email,
-                fileName
+
+        const data = {
+            name,
+            legalName,
+            nationalCode,
+            establishmentDate,
+            type,
+            exchangeType,
+            financialCode,
+            logo,
+            siteAddress,
+            emergencyPhoneNumber,
+            officeAddress,
+            phoneNumber,
+            registrationNumber,
+            email,
+        };
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
             }
-        )
-        SetStep(2)
-    }
+
+            // ارسال درخواست به API
+            setLoading(true)
+            const response = await fetch('https://sand-em-api.bahfara.ir/api/exchanges', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                setLoading(false)
+                const errorData = await response.json();
+                if (errorData.error) {
+                    const errorMessage = errorData.error; // پیام خطا
+                    const financialCodeError = errorMessage.match(/Exchange with financial code '(.*?)' already exists/);
+                    if (financialCodeError) {
+                        const existingFinancialCode = financialCodeError[1]; // کد مالی موجود
+                        return toast.error(`صرافی با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد. لطفاً کد اقتصادی را اصلاح کنید.`, { position: "bottom-left" });
+                    }
+
+                    const nationalCodeError = errorMessage.match(/Exchange with national code '(.*?)' already exists/);
+                    if (nationalCodeError) {
+                        const existingNationalCode = nationalCodeError[1]; // شناسه ملی موجود
+                        return toast.error(`صرافی با شناسه ملی ${existingNationalCode} قبلاً وجود دارد. لطفاً شناسه ملی را اصلاح کنید.`, { position: "bottom-left" });
+                    }
+                }
+                return toast.error(`خطا در ذخیره صرافی`);
+            }
+
+            const responseData = await response.json();
+            toast.success("صرافی با موفقیت ذخیره شد.", { position: "bottom-left" });
+            setLoading(false)
+            setID(responseData.result.id)
+            SetStep(2)
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+
     return (
         <div className='mt-4'>
             <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>
@@ -141,7 +165,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                             value={establishmentDate}
                             onChange={(date) => {
                                 SetestablishmentDate(date ? date.format("YYYY/MM/DD") : "");
-                              }}
+                            }}
                             calendar={persian}
                             locale={persian_fa}
                             calendarPosition="bottom-right"
@@ -174,7 +198,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
 
                                     <svg
                                         onClick={(e) => {
-                                            e.stopPropagation(); 
+                                            e.stopPropagation();
                                             SetestablishmentDate("");
                                         }}
                                         className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:dark:text-gray-300 transition"
@@ -227,10 +251,10 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                                     <Dropdown.Option value="سهامی" key="option1">
                                         {({ selected, active }) => (
                                             <MenuItem isActive={active} isSelected={selected}
-                                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === "سهامی"
-                                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                                : ""
-                                                }`}
+                                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === "سهامی"
+                                                    ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                                    : ""
+                                                    }`}
                                             >
                                                 <MenuItem.Title>سهامی</MenuItem.Title>
                                             </MenuItem>
@@ -239,10 +263,10 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                                     <Dropdown.Option value="مسئولیت محدود" key="option2">
                                         {({ active }) => (
                                             <MenuItem isActive={active}
-                                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === "مسئولیت محدود"
-                                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                                : ""
-                                                }`}
+                                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === "مسئولیت محدود"
+                                                    ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                                    : ""
+                                                    }`}
                                             >
                                                 <MenuItem.Title>مسئولیت محدود</MenuItem.Title>
                                             </MenuItem>
@@ -366,7 +390,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                         <Input value={financialCode} onChange={(e) => { SetfinancialCode(e.target.value) }} placeholder='کد اقتصادی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    {/* <div>
+                    <div>
                         <label className="text-titleText dark:text-titleText-dark">لوگو</label>
                         <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
                             {
@@ -385,7 +409,7 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                                 className="hidden"
                             />
                         </label>
-                    </div> */}
+                    </div>
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>آدرس سایت</label>
@@ -394,29 +418,8 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>شماره ثبت</label>
-                        <Input value={registrationNumber} onChange={(e) => { SetregistrationNumber(e.target.value) }} placeholder='شماره ثبت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input type='number' value={registrationNumber} onChange={(e) => { SetregistrationNumber(Number(e.target.value)) }} placeholder='شماره ثبت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
-{/* 
-                    <div>
-                        <label className="text-titleText dark:text-titleText-dark">اساسنامه</label>
-                        <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
-                            {
-                                fileName === "" ?
-                                    <span>
-                                        انتخاب فایل
-                                    </span>
-                                    :
-                                    fileName
-                            }
-
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="hidden"
-                            />
-                        </label>
-                    </div> */}
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>شماره تماس</label>
@@ -446,9 +449,19 @@ const GetExchangeInfo = ({ SetStep, step1Data, setStep1Data }: ShowingStepProps)
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
 
                     <div className="text-sm text-titleText dark:text-titleText-dark">
-                        <button className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { nextStep() }}>
-                            صفحه بعد
+                        <button
+                            className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
+                            onClick={() => { nextStep() }}
+                        >
+                            {Loading ?
+                                <div>
+                                    <LoaderCircle size={8} color="border-white-500" />
+                                </div>
+                                :
+                                "صفحه بعد"
+                            }
                         </button>
+
                     </div>
                 </div>
             </div>

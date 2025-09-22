@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import ExpandableTable, { Column } from '../../../ExpandableTable/ExpandableTable';
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
 import toast from 'react-hot-toast';
+import { GetRequest } from '../../../../functions/GetRequest';
 
 type Person = {
     id: string;
@@ -15,19 +16,30 @@ type Person = {
     email: string,
 };
 
-type ShowingStepProps = {
+interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
-    step3Data: Person[];
-    setStep3Data: React.Dispatch<React.SetStateAction<Person[]>>;
-};
+    ID: number | undefined;
+}
 
 type PersonForm = Omit<Person, "id">;
 
-const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps) => {
+const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
+    const [form, setForm] = useState<Omit<Person, "id">>({
+        name: "",
+        phoneNumber: "",
+        nationalCode: "",
+        role: "",
+        careerHistory: "",
+        educationalHistory: "",
+        sharePercentage: 0,
+        email: "",
+    });
+    const [data, SetData] = useState<Person[]>([]);
     const [editingId, setEditingId] = useState<string | null>(null);
-
+    const [Loading, setLoading] = useState<boolean>(false);
     const [isOpen, setIsOpen] = useState(false);
+
     const closeModal = () => setIsOpen(false);
     const openModal = () => setIsOpen(true);
 
@@ -64,20 +76,6 @@ const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps)
             ),
         },
     ];
-
-    const [data, SetData] = useState<Person[]>(step3Data);
-
-    // 🟢 استیت برای ورودی‌های مودال
-    const [form, setForm] = useState<Omit<Person, "id">>({
-        name: "",
-        phoneNumber: "",
-        nationalCode: "",
-        role: "",
-        careerHistory: "",
-        educationalHistory: "",
-        sharePercentage: 0,
-        email: "",
-    });
 
     const handleChange = <K extends keyof PersonForm>(field: K, value: PersonForm[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
@@ -122,6 +120,61 @@ const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps)
         });
     };
 
+    const nextStep = async () => {
+
+        const getData = []
+        for (let i = 0; i < data.length; i++) {
+            getData.push(
+                {
+                    name: data[i].name,
+                    phoneNumber: data[i].phoneNumber,
+                    nationalCode: data[i].nationalCode,
+                    role: data[i].role,
+                    careerHistory: data[i].careerHistory,
+                    educationalHistory: data[i].educationalHistory,
+                    sharePercentage: data[i].sharePercentage,
+                    email: data[i].email,
+                }
+            )
+        }
+        console.log(getData)
+        console.log(JSON.stringify(getData))
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // ارسال درخواست به API
+            setLoading(true)
+            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/board-members`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(getData),
+            });
+
+            if (!response.ok) {
+                setLoading(false)
+                return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
+            }
+            const responseData = await response.json();
+            console.log(responseData);
+            toast.success("اعضای هیئت‌مدیره با موفقیت ذخیره شدند.", { position: "bottom-left" });
+            setLoading(false)
+            SetStep(4)
+        } catch (err) {
+            console.error(err);
+            return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
+        }
+    }
 
     return (
         <div className='mt-4'>
@@ -149,12 +202,8 @@ const BoardMemberInfo = ({ SetStep, step3Data, setStep3Data }: ShowingStepProps)
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
 
                     <div className="text-sm text-titleText dark:text-titleText-dark">
-                        <button className="w-36 ml-2 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { SetStep(2) }}>
-                            صفحه قبل
-                        </button>
                         <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => {
-                            setStep3Data(data)
-                            SetStep(4)
+                            nextStep()
                         }}>
                             صفحه بعد
                         </button>

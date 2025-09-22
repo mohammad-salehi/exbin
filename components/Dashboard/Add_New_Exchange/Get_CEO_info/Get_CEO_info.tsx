@@ -1,35 +1,29 @@
 import React, { useState } from 'react'
 import { Input } from "@heathmont/moon-core-tw";
 import toast from "react-hot-toast";
+import { GetRequest } from '../../../../functions/GetRequest';
+import { LoaderCircle } from '../../../Loader/Loader';
 
-interface Step2Data {
-    name: string;
-    phoneNumber: string;
-    nationalCode: string;
-    educationalHistory: string;
-    careerHistory: string;
-    sharePercentage: number | null;
-    email: string;
+interface GetExchangeInfoProps {
+    SetStep: React.Dispatch<React.SetStateAction<number>>;
+    ID: number | undefined;
 }
 
-type ShowingStepProps = {
-    SetStep: React.Dispatch<React.SetStateAction<number>>;
-    step2Data: Step2Data;
-    setStep2Data: React.Dispatch<React.SetStateAction<Step2Data>>;
-};
-
-const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) => {
+const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
     //exchange info
-    const [name, Setname] = useState<string>(step2Data.name);
-    const [phoneNumber, SetphoneNumber] = useState<string>(step2Data.phoneNumber);
-    const [nationalCode, SetnationalCode] = useState<string>(step2Data.nationalCode);
-    const [educationalHistory, SeteducationalHistory] = useState<string>(step2Data.educationalHistory);
-    const [careerHistory, SetcareerHistory] = useState<string>(step2Data.careerHistory)
-    const [sharePercentage, SetsharePercentage] = useState<number | null>(step2Data.sharePercentage)
-    const [email, Setemail] = useState<string>(step2Data.email)
+    const [name, Setname] = useState<string>("");
+    const [phoneNumber, SetphoneNumber] = useState<string>("");
+    const [nationalCode, SetnationalCode] = useState<string>("");
+    const [educationalHistory, SeteducationalHistory] = useState<string>("");
+    const [careerHistory, SetcareerHistory] = useState<string>("")
+    const [sharePercentage, SetsharePercentage] = useState<number | null>(0)
+    const [email, Setemail] = useState<string>("")
 
-    const nextStep = () => {
+    const [Loading, setLoading] = useState<boolean>(false);
+
+
+    const nextStep = async () => {
         if (name === '') {
             return (
                 toast.error("نام و نام‌خانوادگی مورد نظر را انتخاب کنید", {
@@ -51,23 +45,70 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                 })
             )
         }
-        if ( sharePercentage !== null && (sharePercentage < 0 || sharePercentage > 100)) {
+        if (sharePercentage !== null && (sharePercentage < 0 || sharePercentage > 100)) {
             return toast.error("درصد سهام باید بین 0 تا 100 باشد", {
-              position: "bottom-left",
+                position: "bottom-left",
             });
-          }
-        setStep2Data(
-            {
-                name,
-                phoneNumber,
-                nationalCode,
-                educationalHistory,
-                careerHistory,
-                sharePercentage,
-                email
-            }
-        )
-        SetStep(3)
+        }
+
+        const data = {
+            name,
+            phoneNumber,
+            nationalCode,
+            educationalHistory,
+            careerHistory,
+            sharePercentage,
+            email
+        };
+        GetRequest(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}`)
+            .then(async (response) => {
+                let managerInfo = response.result
+                managerInfo.managerInfo = data
+                console.log(managerInfo)
+                try {
+                    const token = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('token='))
+                        ?.split('=')[1];
+
+                    if (!token) {
+                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                        return;
+                    }
+
+                    // ارسال درخواست به API
+                    setLoading(true)
+                    const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(managerInfo),
+                    });
+
+                    if (!response.ok) {
+                        console.log(response)
+                        setLoading(false)
+                        return toast.error(`خطا در ذخیره مدیرعامل`);
+                    } else {
+                        const responseData = await response.json();
+                        console.log(responseData);
+                        toast.success("مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
+                        setLoading(false)
+                        SetStep(3)
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    return toast.error(`خطا در ذخیره مدیرعامل`);
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+                return toast.error(`خطا در ذخیره مدیرعامل`);
+            })
+
     }
     return (
         <div className='mt-4'>
@@ -124,11 +165,14 @@ const Get_CEO_info = ({ SetStep, step2Data, setStep2Data }: ShowingStepProps) =>
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
 
                     <div className="text-sm text-titleText dark:text-titleText-dark">
-                        <button className="w-36 ml-2 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { SetStep(1) }}>
-                            صفحه قبل
-                        </button>
                         <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { nextStep() }}>
-                            صفحه بعد
+                            {Loading ?
+                                <div>
+                                    <LoaderCircle size={8} color="border-white-500" />
+                                </div>
+                                :
+                                "صفحه بعد"
+                            }
                         </button>
                     </div>
                 </div>
