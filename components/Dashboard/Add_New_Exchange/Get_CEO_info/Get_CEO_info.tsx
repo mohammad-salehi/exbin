@@ -62,7 +62,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         };
         GetRequest(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}`)
             .then(async (response) => {
-                let managerInfo = response.result
+                const managerInfo = response.result
                 managerInfo.managerInfo = data
                 console.log(managerInfo)
                 try {

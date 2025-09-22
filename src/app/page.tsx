@@ -148,7 +148,7 @@ export default function Home() {
         {/* عنوان */}
         <div className="flex justify-between ">
           <DottedPatternLeft />
-          <img src="/images/pantaLogo.png" className="w-14 h-16" />
+          <img src="/images/pantaLogo.png" className="w-14 h-16" alt="image"/>
           <DottedPatternRight />
         </div>
         {

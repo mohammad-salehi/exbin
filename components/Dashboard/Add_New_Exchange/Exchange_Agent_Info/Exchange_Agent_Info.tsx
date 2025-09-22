@@ -17,7 +17,7 @@ interface GetExchangeInfoProps {
 }
 
 
-const Exchange_Agent_Info : React.FC<GetExchangeInfoProps> = ({ SetStep, ID })  => {
+const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
     const [editingId, setEditingId] = useState<string | null>(null);
     const [Loading, setLoading] = useState<boolean>(false);
@@ -26,82 +26,35 @@ const Exchange_Agent_Info : React.FC<GetExchangeInfoProps> = ({ SetStep, ID })  
     const openModal = () => setIsOpen(true);
 
     const nextStep = async () => {
-
-        const getData = []
-        for (let i = 0; i < data.length; i++) {
-            getData.push(
-                {
-                    name: data[i].name,
-                    phoneNumber: data[i].phoneNumber,
-                    nationalCode: data[i].nationalCode,
-                }
-            )
-        }
-        console.log(getData)
-        console.log(JSON.stringify(getData))
-        try {
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                return;
-            }
-
-            // ارسال درخواست به API
-            setLoading(true)
-            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/exchange-agent`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(getData),
-            });
-
-            if (!response.ok) {
-                setLoading(false)
-                return toast.error(`خطا در ذخیره نمایندگان صرافی`);
-            }
-            const responseData = await response.json();
-            console.log(responseData);
-            toast.success("نمایندگان صرافی با موفقیت ذخیره شدند.", { position: "bottom-left" });
-            setLoading(false)
-            SetStep(5)
-        } catch (err) {
-            console.error(err);
-            return toast.error(`خطا در ذخیره نمایندگان صرافی`);
-        }
+        SetStep(5)
     }
 
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
         { header: "شماره همراه", accessorKey: "phoneNumber", align: "center", className: "tabular-nums" },
         { header: "کد ملی", accessorKey: "nationalCode", align: "center", className: "tabular-nums" },
-        {
-            header: "عملیات",
-            cell: (row: Person) => (
-                <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark" >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
-                        onClick={() => {
-                            setForm({
-                                name: row.name,
-                                phoneNumber: row.phoneNumber,
-                                nationalCode: row.nationalCode,
-                            });
-                            setEditingId(row.id); // مشخص کنیم داریم ویرایش می‌کنیم
-                            openModal();
-                        }}
-                    >
-                        <path d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z" stroke="#A8A8A8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M3.5 22H21.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                </div>
-            ),
-        },
+        // {
+        //     header: "عملیات",
+        //     cell: (row: Person) => (
+        //         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark" >
+        //             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
+        //                 onClick={() => {
+        //                     setForm({
+        //                         name: row.name,
+        //                         phoneNumber: row.phoneNumber,
+        //                         nationalCode: row.nationalCode,
+        //                     });
+        //                     setEditingId(row.id); // مشخص کنیم داریم ویرایش می‌کنیم
+        //                     openModal();
+        //                 }}
+        //             >
+        //                 <path d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z" stroke="#A8A8A8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        //                 <path d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        //                 <path d="M3.5 22H21.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        //             </svg>
+        //         </div>
+        //     ),
+        // },
     ];
 
     const [data, SetData] = useState<Person[]>([]);
@@ -115,9 +68,14 @@ const Exchange_Agent_Info : React.FC<GetExchangeInfoProps> = ({ SetStep, ID })  
 
     const handleChange = <K extends keyof Person>(field: K, value: Person[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
-      };
+    };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
+            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
+            return;
+        }
+
         if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
             toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
             return;
@@ -129,12 +87,47 @@ const Exchange_Agent_Info : React.FC<GetExchangeInfoProps> = ({ SetStep, ID })  
                 member.id === editingId ? { ...member, ...form } : member
             ));
         } else {
-            // 🟢 افزودن جدید
+            const Member = {
+                name: form.name,
+                nationalCode: form.nationalCode,
+                phoneNumber: form.phoneNumber,
+            };
+            console.log()
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // ارسال درخواست به API
+            setLoading(true)
+            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/exchange-agents`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(Member),
+            });
+
+            if (!response.ok) {
+                setLoading(false)
+                return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
+            }
+            const responseData = await response.json();
+            console.log(responseData);
+            toast.success("نماینده صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
+
             const newMember: Person = {
                 id: String(data.length + 1),
                 ...form,
             };
             SetData([...data, newMember]);
+            setLoading(false)
         }
 
         closeModal();
@@ -177,12 +170,7 @@ const Exchange_Agent_Info : React.FC<GetExchangeInfoProps> = ({ SetStep, ID })  
                             className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
                             onClick={() => { nextStep() }}
                         >
-                            {Loading ?
-                                <div>
-                                    <LoaderCircle size={8} color="border-white-500" />
-                                </div>
-                                :
-                                "صفحه بعد"
+                            {"صفحه بعد"
                             }
                         </button>
 
@@ -219,7 +207,13 @@ const Exchange_Agent_Info : React.FC<GetExchangeInfoProps> = ({ SetStep, ID })  
                         <div className="p-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex justify-end gap-2">
                             <Button variant="ghost" onClick={closeModal}>انصراف</Button>
                             <Button onClick={handleSave}>
-                                {editingId ? "ذخیره تغییرات" : "ذخیره"}
+                                {Loading ?
+                                    <div>
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                    </div>
+                                    :
+                                    "افزودن"
+                                }
                             </Button>
                         </div>
                     </Modal.Panel>

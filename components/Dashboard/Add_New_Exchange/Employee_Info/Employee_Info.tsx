@@ -27,7 +27,6 @@ interface GetExchangeInfoProps {
     ID: number | undefined;
 }
 
-
 type EmployeeForm = Person;
 
 const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
@@ -45,48 +44,48 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         { header: "تاریخ شروع بیمه", accessorKey: "insuranceStartDate", align: "center" },
         { header: "تاریخ پایان بیمه", accessorKey: "insuranceEndDate", align: "center" },
         { header: "دسترسی خاص", accessorKey: "isSpecialAccess", align: "center" },
-        {
-            header: "عملیات",
-            cell: (row: Person) => (
-                <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="25"
-                        height="24"
-                        viewBox="0 0 25 24"
-                        fill="none"
-                        className="cursor-pointer"
-                        onClick={() => {
-                            setForm({ ...row });
-                            setEditingId(row.id);
-                            openModal();
-                        }}
-                    >
-                        <path
-                            d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z"
-                            stroke="#A8A8A8"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                        <path
-                            d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                        <path
-                            d="M3.5 22H21.5"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
-                </div>
-            ),
-        },
+        // {
+        //     header: "عملیات",
+        //     cell: (row: Person) => (
+        //         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark">
+        //             <svg
+        //                 xmlns="http://www.w3.org/2000/svg"
+        //                 width="25"
+        //                 height="24"
+        //                 viewBox="0 0 25 24"
+        //                 fill="none"
+        //                 className="cursor-pointer"
+        //                 onClick={() => {
+        //                     setForm({ ...row });
+        //                     setEditingId(row.id);
+        //                     openModal();
+        //                 }}
+        //             >
+        //                 <path
+        //                     d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z"
+        //                     stroke="#A8A8A8"
+        //                     strokeWidth="1.5"
+        //                     strokeLinecap="round"
+        //                     strokeLinejoin="round"
+        //                 />
+        //                 <path
+        //                     d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998"
+        //                     stroke="currentColor"
+        //                     strokeWidth="1.5"
+        //                     strokeLinecap="round"
+        //                     strokeLinejoin="round"
+        //                 />
+        //                 <path
+        //                     d="M3.5 22H21.5"
+        //                     stroke="currentColor"
+        //                     strokeWidth="1.5"
+        //                     strokeLinecap="round"
+        //                     strokeLinejoin="round"
+        //                 />
+        //             </svg>
+        //         </div>
+        //     ),
+        // },
     ];
 
     const [data, SetData] = useState<Person[]>([]);
@@ -107,64 +106,43 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
     const handleChange = <K extends keyof EmployeeForm>(field: K, value: EmployeeForm[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
-      };
+    };
 
-    const handleSave = () => {
+    const handleSave = async () => {
+        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
+            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
+            return;
+        }
+
+        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
+            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
+            return;
+        }
+
         if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
             toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
             return;
         }
 
         if (editingId) {
-            const updated = data.map((emp) =>
-                emp.id === editingId ? { ...emp, ...form } : emp
-            );
-            SetData(updated);
+            // 🟢 ویرایش
+            SetData(data.map(member =>
+                member.id === editingId ? { ...member, ...form } : member
+            ));
         } else {
-            const newEmployee: Person = { ...form, id: String(data.length + 1) };
-            const updated = [...data, newEmployee];
-            SetData(updated);
-        }
-
-        closeModal();
-        setEditingId(null);
-        setForm({
-            id: "",
-            name: "",
-            jobPosition: "",
-            startDate: "",
-            educationalHistory: "",
-            careerHistory: "",
-            insuranceStartDate: "",
-            insuranceEndDate: "",
-            isSpecialAccess: null,
-            nationalCode: "",
-            phoneNumber: "",
-        });
-    };
-
-    const nextStep = async () => {
-
-        const getData = []
-        for (let i = 0; i < data.length; i++) {
-            getData.push(
-                {
-                    name:data[i].name,
-                    jobPosition:data[i].jobPosition,
-                    startDate:data[i].startDate,
-                    educationalHistory:data[i].educationalHistory,
-                    careerHistory:data[i].careerHistory,
-                    insuranceStartDate:data[i].insuranceStartDate,
-                    insuranceEndDate:data[i].insuranceEndDate,
-                    isSpecialAccess: data[i].isSpecialAccess,
-                    nationalCode:data[i].nationalCode,
-                    phoneNumber:data[i].phoneNumber,
-                }
-            )
-        }
-        console.log(getData)
-        console.log(JSON.stringify(getData))
-        try {
+            const Member = {
+                id: form.id,
+                name: form.name,
+                jobPosition: form.jobPosition,
+                startDate: form.startDate,
+                educationalHistory: form.educationalHistory,
+                careerHistory: form.careerHistory,
+                insuranceStartDate: form.insuranceStartDate,
+                insuranceEndDate: form.insuranceEndDate,
+                isSpecialAccess: form.isSpecialAccess,
+                nationalCode: form.nationalCode,
+                phoneNumber: form.phoneNumber,
+            };
             const token = document.cookie
                 .split('; ')
                 .find(row => row.startsWith('token='))
@@ -177,28 +155,49 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
             // ارسال درخواست به API
             setLoading(true)
-            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/employees`, {
+            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/exchange-agents`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(getData),
+                body: JSON.stringify(Member),
             });
 
             if (!response.ok) {
                 setLoading(false)
-                return toast.error(`خطا در ذخیره کارمندان`);
+                return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
             }
             const responseData = await response.json();
             console.log(responseData);
-            toast.success("کارمندان با موفقیت ذخیره شدند.", { position: "bottom-left" });
+            toast.success("کارمند صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
+
+            const newMember: Person = {
+                ...form,
+            };
+            SetData([...data, newMember]);
             setLoading(false)
-            SetStep(4)
-        } catch (err) {
-            console.error(err);
-            return toast.error(`خطا در ذخیره کارمندان`);
         }
+
+        closeModal();
+        setEditingId(null); // بعد از ذخیره ریست می‌کنیم
+        setForm({
+            id: '',
+            name: '',
+            jobPosition: '',
+            startDate: '',
+            educationalHistory: '',
+            careerHistory: '',
+            insuranceStartDate: '',
+            insuranceEndDate: '',
+            isSpecialAccess: null,
+            nationalCode: '',
+            phoneNumber: '',
+        });
+    };
+
+    const nextStep = async () => {
+        SetStep(1)
     }
 
     return (
@@ -251,12 +250,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                             className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
                             onClick={() => { nextStep() }}
                         >
-                            {Loading ?
-                                <div>
-                                    <LoaderCircle size={8} color="border-white-500" />
-                                </div>
-                                :
-                                "صفحه بعد"
+                            {"اتمام"
                             }
                         </button>
 
@@ -534,7 +528,13 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                 انصراف
                             </Button>
                             <Button onClick={handleSave}>
-                                {editingId ? "ذخیره تغییرات" : "ذخیره"}
+                                {Loading ?
+                                    <div>
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                    </div>
+                                    :
+                                    "افزودن"
+                                }
                             </Button>
                         </div>
                     </Modal.Panel>
