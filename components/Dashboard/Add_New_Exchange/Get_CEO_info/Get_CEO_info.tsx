@@ -165,7 +165,10 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
 
                     <div className="text-sm text-titleText dark:text-titleText-dark">
-                        <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => { nextStep() }}>
+                        <button
+                            className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
+                            onClick={() => { nextStep() }}
+                        >
                             {Loading ?
                                 <div>
                                     <LoaderCircle size={8} color="border-white-500" />
@@ -174,6 +177,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                 "صفحه بعد"
                             }
                         </button>
+
                     </div>
                 </div>
             </div>

@@ -29,7 +29,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>("");
     const [officeAddress, SetofficeAddress] = useState<string>("");
     const [email, Setemail] = useState<string>("");
-    const [registrationNumber, SetregistrationNumber] = useState<number>();
+    const [registrationNumber, SetregistrationNumber] = useState<number>(0);
     const [phoneNumber, SetphoneNumber] = useState<string>("");
 
     const [fileName, setFileName] = useState<string>("");

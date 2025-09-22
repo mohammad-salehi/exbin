@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import { LoaderCircle } from "../../../Loader/Loader";
 
 type Person = {
     id: string;
@@ -247,21 +248,18 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                     <div />
                     <div className="text-sm text-titleText dark:text-titleText-dark">
                         <button
-                            className="w-36 ml-2 bg-primary h-[48px] rounded-lg text-white shadow-lg"
-                            onClick={() => {
-                                SetStep(4);
-                            }}
+                            className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
+                            onClick={() => { nextStep() }}
                         >
-                            صفحه قبل
+                            {Loading ?
+                                <div>
+                                    <LoaderCircle size={8} color="border-white-500" />
+                                </div>
+                                :
+                                "صفحه بعد"
+                            }
                         </button>
-                        <button
-                            className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg"
-                            onClick={() => {
-                                nextStep()
-                            }}
-                        >
-                            اتمام
-                        </button>
+
                     </div>
                 </div>
             </div>

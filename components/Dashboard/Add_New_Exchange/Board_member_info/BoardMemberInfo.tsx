@@ -3,6 +3,7 @@ import ExpandableTable, { Column } from '../../../ExpandableTable/ExpandableTabl
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
 import toast from 'react-hot-toast';
 import { GetRequest } from '../../../../functions/GetRequest';
+import { LoaderCircle } from '../../../Loader/Loader';
 
 type Person = {
     id: string;
@@ -202,11 +203,19 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
 
                     <div className="text-sm text-titleText dark:text-titleText-dark">
-                        <button className="w-36 bg-primary h-[48px] rounded-lg text-white shadow-lg" onClick={() => {
-                            nextStep()
-                        }}>
-                            صفحه بعد
+                        <button
+                            className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
+                            onClick={() => { nextStep() }}
+                        >
+                            {Loading ?
+                                <div>
+                                    <LoaderCircle size={8} color="border-white-500" />
+                                </div>
+                                :
+                                "صفحه بعد"
+                            }
                         </button>
+
                     </div>
                 </div>
             </div>
