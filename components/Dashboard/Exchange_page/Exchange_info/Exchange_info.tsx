@@ -251,7 +251,7 @@ const Exchange_info = () => {
                                 { id: 4, title: "نوع صرافی", content: form.type },
                                 { id: 5, title: "شکل حقوقی صرافی", content: form.exchangeType },
                                 { id: 6, title: "کد اقتصادی", content: form.financialCode },
-                                { id: 7, title: "شماره ثبت", content: form.registrationNumber },
+                                { id: 7, title: "شماره ثبت", content: String(form.registrationNumber) },
                             ];
                             newData[1].content = [
                                 {
