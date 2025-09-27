@@ -147,7 +147,6 @@ const Exchange_info = () => {
                     </a>)
                 }
 
-
                 handleEdit(2, 2, response.result.phoneNumber)
                 handleEdit(2, 3, response.result.emergencyPhoneNumber)
                 handleEdit(2, 4, response.result.officeAddress)
@@ -196,7 +195,7 @@ const Exchange_info = () => {
     const [isOpen, setIsOpen] = useState(false);
     const handleSave = () => {
 
-        GetRequest(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}`)
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
             .then(async (response) => {
                 const managerInfo = response.result
 
@@ -225,7 +224,7 @@ const Exchange_info = () => {
                     }
 
                     setLoading(true)
-                    const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}`, {
+                    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`, {
                         method: 'PUT',
                         headers: {
                             'Authorization': `Bearer ${token}`,
