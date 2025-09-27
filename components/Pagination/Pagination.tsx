@@ -67,10 +67,7 @@ export default function Pagination({
 
   return (
     <div dir={dir} className={`w-full flex flex-col gap-3 ${className}`}>
-      {/* Top: rows per page + range */}
 
-
-      {/* Pagination controls */}
       <div className="flex items-center justify-center gap-1 mt-4">
         <button
           className={`rounded-xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 ${size} disabled:opacity-40 text-titleText dark:text-titleText-dark`}
