@@ -15,7 +15,6 @@ export const GetRequest = async (url: string) => {
                 'Content-Type': 'application/json',
             }
         });
-        console.log(response)
         if (!response.ok) {
             if (response.status === 403) {
                 document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;

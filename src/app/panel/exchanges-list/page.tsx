@@ -7,6 +7,7 @@ import Link from "next/link";
 import { GetRequest } from "../../../../functions/GetRequest";
 import LoadingComponent from "../../../../components/LoadingComponent/LoadingComponent";
 import Pagination from "../../../../components/Pagination/Pagination";
+import toast from "react-hot-toast";
 
 type Person = {
   id: string;
@@ -104,7 +105,33 @@ const Page = () => {
       header: "عملیات",
       accessorKey: "progress",
       cell: (row: Person) => (
-        <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark">
+        <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark" onClick={async () => {
+          const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            ?.split('=')[1];
+
+          const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${row.id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            }
+          });
+          if (!response.ok) {
+            toast.error("خطا در حذف صرافی.", { position: "bottom-left" });
+            if (response.status === 403) {
+              document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+              window.location.assign('/')
+            }
+            throw new Error('Failed to fetch data');
+          } else {
+            if (response.status === 200) {
+              toast.success("صرافی با موفقیت حذف شد.", { position: "bottom-left" });
+              window.location.reload();
+            }
+          }
+        }}>
           <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer">
             <path d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             <path d="M9 4.97L9.22 3.66C9.38 2.71 9.5 2 11.19 2H13.81C15.5 2 15.63 2.75 15.78 3.67L16 4.97" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />

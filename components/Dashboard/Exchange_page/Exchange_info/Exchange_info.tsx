@@ -1,42 +1,51 @@
-import React, { useState } from 'react'
+import React, { JSX, useEffect, useState } from 'react'
 import DetailBox from '../../../DetailBox/DetailBox'
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import { GetRequest } from '../../../../functions/GetRequest';
+import { useParams } from "next/navigation";
+import toast from 'react-hot-toast';
+import { LoaderCircle } from '../../../Loader/Loader';
+
+interface InvoiceContent {
+    id: number;
+    title: string;
+    content: React.ReactNode; // تغییر به React.ReactNode
+}
+
+interface InvoiceSection {
+    id: number;
+    title: string;
+    content: InvoiceContent[];
+}
 
 const Exchange_info = () => {
+    const params = useParams<{ id: string }>();
+    const [logo, SetLogo] = useState<string>("");
+    const [name, SetName] = useState<string>("");
 
-
-
-    const [invoiceData, setInvoiceData] = useState([
+    const [invoiceData, setInvoiceData] = useState<InvoiceSection[]>([
         {
             id: 1,
             title: "مشخصات پایه",
             content: [
-                { id: 1, title: "نام حقوقی", content: 'راهکار فناوری نویان' },
-                { id: 2, title: "تاریخ تاسیس", content: "1404/03/03" },
-                { id: 3, title: "شناسه ملی صرافی", content: "44332211-021" },
-                { id: 4, title: "نوع صرافی", content: "p2p" },
-                { id: 5, title: "شکل حقوقی صرافی", content: "سهامی" },
-
-
+                { id: 1, title: "نام حقوقی", content: '' },
+                { id: 2, title: "تاریخ تاسیس", content: "" },
+                { id: 3, title: "شناسه ملی صرافی", content: "" },
+                { id: 4, title: "نوع صرافی", content: "" },
+                { id: 5, title: "شکل حقوقی صرافی", content: "" },
+                { id: 6, title: "کد اقتصادی", content: "" },
+                { id: 7, title: "شماره ثبت", content: "" },
             ],
         },
         {
             id: 2,
             title: "اطلاعات تماس",
             content: [
-                {
-                    id: 1,
-                    title: "آدرس سایت",
-                    content: (
-                        <a href="https://www.example.com" className="text-primary dark:text-primary-dark">
-                            مراجعه به سایت
-                        </a>
-                    ),
-                },
-                { id: 2, title: "شماره تماس", content: "9876543210" },
-                { id: 3, title: "شماره تماس اضطراری", content: "9876543210" },
-                { id: 4, title: "آدرس دفتر", content: "9876543210" },
-                { id: 5, title: "ایمیل", content: "9876543210" },
+                { id: 1, title: "آدرس سایت", content: "" },
+                { id: 2, title: "شماره تماس", content: "" },
+                { id: 3, title: "شماره تماس اضطراری", content: "" },
+                { id: 4, title: "آدرس دفتر", content: "" },
+                { id: 5, title: "ایمیل", content: "" },
 
             ],
         },
@@ -47,30 +56,8 @@ const Exchange_info = () => {
                 {
                     id: 1,
                     title: "اساسنامه",
-                    content: (
-                        <a href="https://www.example.com" className="text-primary dark:text-primary-dark">
-                            دریافت
-                        </a>
-                    ),
-                },
-                {
-                    id: 2,
-                    title: "صورت‌ مالی 1404",
-                    content: (
-                        <a href="https://www.example.com" className="text-primary dark:text-primary-dark">
-                            دریافت
-                        </a>
-                    ),
-                },
-                {
-                    id: 3,
-                    title: "صورت‌ مالی 1403",
-                    content: (
-                        <a href="https://www.example.com" className="text-primary dark:text-primary-dark">
-                            دریافت
-                        </a>
-                    ),
-                },
+                    content: "",
+                }
 
             ],
         },
@@ -81,7 +68,7 @@ const Exchange_info = () => {
                 {
                     id: 1,
                     content: (
-                        <div className='text-center w-full cursor-pointer' onClick={() => {setIsOpen(true)}}>
+                        <div className='text-center w-full cursor-pointer' onClick={() => { setIsOpen(true); }}>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" className='inline-block ml-1'>
                                 <path d="M13.2594 3.60022L5.04936 12.2902C4.73936 12.6202 4.43936 13.2702 4.37936 13.7202L4.00936 16.9602C3.87936 18.1302 4.71936 18.9302 5.87936 18.7302L9.09936 18.1802C9.54936 18.1002 10.1794 17.7702 10.4894 17.4302L18.6994 8.74022C20.1194 7.24022 20.7594 5.53022 18.5494 3.44022C16.3494 1.37022 14.6794 2.10022 13.2594 3.60022Z" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
                                 <path d="M11.8906 5.0498C12.3206 7.8098 14.5606 9.9198 17.3406 10.1998" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
@@ -92,71 +79,245 @@ const Exchange_info = () => {
                         </div>
 
                     ),
+                    title: ''
                 },
-                
-
             ],
         },
     ]);
+    const [Loading, setLoading] = useState<boolean>(false)
+    const handleEdit = (sectionId: number, contentId: number, newContent: React.ReactNode) => {
+        setInvoiceData((prevData) =>
+            prevData.map((section) => {
+                if (section.id === sectionId) {
+                    return {
+                        ...section,
+                        content: section.content.map((item) => {
+                            if (item.id === contentId) {
+                                return { ...item, content: newContent };
+                            }
+                            return item;
+                        }),
+                    };
+                }
+                return section;
+            })
+        );
+    };
+    const addFinancialDocuments = (financialStatements: { id: number; date: string; file: string }[]) => {
+        setInvoiceData(prevData => {
+            return prevData.map(section => {
+                if (section.id === 3) {
+                    return {
+                        ...section,
+                        content: [
+                            ...section.content,
+                            ...financialStatements.map(statement => ({
+                                id: statement.id + 100,
+                                title: `صورت‌ مالی ${statement.date}`,
+                                content: (
+                                    <a href={statement.file} className="text-primary dark:text-primary-dark">
+                                        دریافت
+                                    </a>
+                                )
+                            }))
+                        ]
+                    };
+                }
+                return section;
+            });
+        });
+    };
+
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
+            .then((response) => {
+                console.log(response.result)
+                SetLogo(response.result.logo)
+                SetName(response.result.name)
+                handleEdit(1, 1, response.result.legalName)
+                handleEdit(1, 2, response.result.establishmentDate)
+                handleEdit(1, 3, response.result.nationalCode)
+                handleEdit(1, 4, response.result.type)
+                handleEdit(1, 5, response.result.exchangeType)
+                handleEdit(1, 6, response.result.financialCode)
+                handleEdit(1, 7, String(response.result.registrationNumber))
+                if (response.result.siteAddress !== "" && response.result.siteAddress !== null) {
+                    handleEdit(2, 1, <a href={response.result.siteAddress} className="text-primary dark:text-primary-dark">
+                        {response.result.siteAddress}
+                    </a>)
+                }
+
+
+                handleEdit(2, 2, response.result.phoneNumber)
+                handleEdit(2, 3, response.result.emergencyPhoneNumber)
+                handleEdit(2, 4, response.result.officeAddress)
+                handleEdit(2, 5, response.result.email)
+                if (response.result.association !== null && response.result.association !== "") {
+                    handleEdit(3, 1, <a href={response.result.association} className="text-primary dark:text-primary-dark">
+                        دریافت
+                    </a>)
+                }
+
+
+                addFinancialDocuments(response.result.financialStatements)
+
+                setForm({
+                    legalName: response.result.legalName,
+                    establishmentDate: response.result.establishmentDate,
+                    nationalCode: response.result.nationalCode,
+                    type: response.result.type,
+                    exchangeType: response.result.exchangeType,
+                    siteAddress: response.result.siteAddress,
+                    phoneNumber: response.result.phoneNumber,
+                    emergencyPhoneNumber: response.result.emergencyPhoneNumber,
+                    officeAddress: response.result.officeAddress,
+                    email: response.result.email,
+                    financialCode: response.result.financialCode,
+                    registrationNumber: response.result.registrationNumber,
+                });
+            })
+    }, [])
 
 
     const [form, setForm] = useState({
-        name: "راهکار فناوری نویان",
-        establishedDate: "1404/03/03",
-        nationalId: "44332211-021",
-        exchangeType: "p2p",
-        legalForm: "سهامی",
-        website: "https://www.example.com",
-        phone: "9876543210",
-        emergencyPhone: "9876543210",
-        officeAddress: "9876543210",
-        email: "9876543210",
+        legalName: '',
+        establishmentDate: '',
+        nationalCode: '',
+        type: '',
+        exchangeType: '',
+        siteAddress: '',
+        phoneNumber: '',
+        emergencyPhoneNumber: '',
+        officeAddress: '',
+        email: '',
+        financialCode: '',
+        registrationNumber: '',
     });
-
     const [isOpen, setIsOpen] = useState(false);
-
     const handleSave = () => {
-        setInvoiceData((prev) => {
-            const newData = [...prev];
-            newData[0].content = [
-                { id: 1, title: "نام حقوقی", content: form.name },
-                { id: 2, title: "تاریخ تاسیس", content: form.establishedDate },
-                { id: 3, title: "شناسه ملی صرافی", content: form.nationalId },
-                { id: 4, title: "نوع صرافی", content: form.exchangeType },
-                { id: 5, title: "شکل حقوقی صرافی", content: form.legalForm },
-            ];
-            newData[1].content = [
-                {
-                    id: 1,
-                    title: "آدرس سایت",
-                    content: (
-                        <a href={form.website} className="text-primary dark:text-primary-dark">
-                            {form.website}
-                        </a>
-                    ),
-                },
-                { id: 2, title: "شماره تماس", content: form.phone },
-                { id: 3, title: "شماره تماس اضطراری", content: form.emergencyPhone },
-                { id: 4, title: "آدرس دفتر", content: form.officeAddress },
-                { id: 5, title: "ایمیل", content: form.email },
-            ];
 
-            return newData;
-        });
+        GetRequest(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}`)
+            .then(async (response) => {
+                const managerInfo = response.result
 
-        setIsOpen(false);
+                managerInfo.legalName = form.legalName
+                managerInfo.establishmentDate = form.establishmentDate
+                managerInfo.nationalCode = form.nationalCode
+                managerInfo.type = form.type
+                managerInfo.exchangeType = form.exchangeType
+                managerInfo.siteAddress = form.siteAddress
+                managerInfo.phoneNumber = form.phoneNumber
+                managerInfo.emergencyPhoneNumber = form.emergencyPhoneNumber
+                managerInfo.officeAddress = form.officeAddress
+                managerInfo.email = form.email
+                managerInfo.financialCode = form.financialCode
+                managerInfo.registrationNumber = form.registrationNumber
+
+                try {
+                    const token = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('token='))
+                        ?.split('=')[1];
+
+                    if (!token) {
+                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                        return;
+                    }
+
+                    setLoading(true)
+                    const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(managerInfo),
+                    });
+
+                    if (!response.ok) {
+                        console.log(response)
+                        setLoading(false)
+                        return toast.error(`خطا در ذخیره مدیرعامل`);
+                    } else {
+                        const responseData = await response.json();
+                        console.log(responseData);
+                        toast.success("مشخصات با موفقیت ذخیره شد.", { position: "bottom-left" });
+                        setLoading(false)
+                        setInvoiceData((prev) => {
+                            const newData = [...prev];
+                            newData[0].content = [
+                                { id: 1, title: "نام حقوقی", content: form.legalName },
+                                { id: 2, title: "تاریخ تاسیس", content: form.establishmentDate },
+                                { id: 3, title: "شناسه ملی صرافی", content: form.nationalCode },
+                                { id: 4, title: "نوع صرافی", content: form.type },
+                                { id: 5, title: "شکل حقوقی صرافی", content: form.exchangeType },
+                                { id: 6, title: "کد اقتصادی", content: form.financialCode },
+                                { id: 7, title: "شماره ثبت", content: form.registrationNumber },
+                            ];
+                            newData[1].content = [
+                                {
+                                    id: 1,
+                                    title: "آدرس سایت",
+                                    content: (
+                                        <a href={form.siteAddress} className="text-primary dark:text-primary-dark">
+                                            {form.siteAddress}
+                                        </a>
+                                    ),
+                                },
+                                { id: 2, title: "شماره تماس", content: form.phoneNumber },
+                                { id: 3, title: "شماره تماس اضطراری", content: form.emergencyPhoneNumber },
+                                { id: 4, title: "آدرس دفتر", content: form.officeAddress },
+                                { id: 5, title: "ایمیل", content: form.email },
+                            ];
+
+                            return newData;
+                        });
+
+                        setIsOpen(false);
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    return toast.error(`خطا در ذخیره مدیرعامل`);
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+                return toast.error(`خطا در ذخیره مدیرعامل`);
+            })
+
+
     };
 
     return (
         <div>
-            <img alt="image" className='w-8 h-8 inline-block' src="data:image/png;base64,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" />
+            {
+                logo !== null && logo !== '' ?
+                    <img alt="image" className='w-8 h-8 inline-block' src={logo} />
+                    :
+                    <div className=" items-center text-titleText dark:text-titleText-dark inline-block " style={{ marginBottom: '-6px' }}>
+                        <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M14.2639 15.9376L12.5958 14.2835C11.7909 13.4852 11.3884 13.0861 10.9266 12.9402C10.5204 12.8119 10.0838 12.8166 9.68048 12.9537C9.22188 13.1096 8.82814 13.5173 8.04068 14.3327L4.04409 18.2802M14.2639 15.9376L14.6053 15.5991C15.4112 14.7999 15.8141 14.4003 16.2765 14.2544C16.6831 14.1262 17.12 14.1312 17.5236 14.2688C17.9824 14.4252 18.3761 14.834 19.1634 15.6515L20 16.4936M14.2639 15.9376L18.275 19.9566M20.9992 6.00011H14.9992M11 3.99951L7.2 4.00011C6.07989 4.00011 5.51984 4.00011 5.09202 4.21809C4.71569 4.40984 4.40973 4.7158 4.21799 5.09213C4 5.51995 4 6.08 4 7.20011V16.8001C4 17.4576 4 17.9222 4.04409 18.2802M20 9.99951V16.4936M4.04409 18.2802C4.07512 18.5322 4.12796 18.7314 4.21799 18.9081C4.40973 19.2844 4.71569 19.5904 5.09202 19.7821C5.51984 20.0001 6.07989 20.0001 7.2 20.0001H16.8C17.9201 20.0001 18.4802 20.0001 18.908 19.7821C19.2843 19.5904 19.5903 19.2844 19.782 18.9081C20 18.4803 20 17.9202 20 16.8001V16.4936" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </div>
+            }
             <h3 className='inline-block text-2xl text-bold mr-2 text-titleText dark:text-titleText-dark' >
-                نوبیتکس
+                {name}
             </h3>
             <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark mt-4'>
                 مشخصات صرافی
             </h5>
-            <DetailBox data={invoiceData} downloadLink="/path/to/pdf" />
+            <DetailBox
+                data={invoiceData.map((section) => ({
+                    title: section.title,
+                    content: section.content.map((item) => ({
+                        title: item.title,
+                        content: typeof item.content === 'string' ? item.content : React.isValidElement(item.content) ? item.content : '', // تبدیل به string یا Element
+                    })),
+                }))}
+                downloadLink="/path/to/pdf"
+            />
+
 
             <Modal open={isOpen} onClose={() => setIsOpen(false)}>
                 <Modal.Backdrop />
@@ -171,49 +332,61 @@ const Exchange_info = () => {
                                 <label>نام حقوقی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.legalName} onChange={(e) => setForm({ ...form, legalName: e.target.value })} />
                             </div>
                             <div>
                                 <label>تاریخ تأسیس</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.establishedDate} onChange={(e) => setForm({ ...form, establishedDate: e.target.value })} />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.establishmentDate} onChange={(e) => setForm({ ...form, establishmentDate: e.target.value })} />
                             </div>
                             <div>
                                 <label>شناسه ملی صرافی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalId} onChange={(e) => setForm({ ...form, nationalId: e.target.value })} />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => setForm({ ...form, nationalCode: e.target.value })} />
                             </div>
                             <div>
                                 <label>نوع صرافی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.exchangeType} onChange={(e) => setForm({ ...form, exchangeType: e.target.value })} />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value })} />
+                            </div>
+                            <div>
+                                <label>کد اقتصادی</label>
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.financialCode} onChange={(e) => setForm({ ...form, financialCode: e.target.value })} />
+                            </div>
+                            <div>
+                                <label>شماره ثبت</label>
+                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.registrationNumber} onChange={(e) => setForm({ ...form, registrationNumber: e.target.value })} />
                             </div>
                             <div>
                                 <label>شکل حقوقی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.legalForm} onChange={(e) => setForm({ ...form, legalForm: e.target.value })} />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.exchangeType} onChange={(e) => setForm({ ...form, exchangeType: e.target.value })} />
                             </div>
                             <div>
                                 <label>آدرس سایت</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.website} onChange={(e) => setForm({ ...form, website: e.target.value })} />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.siteAddress} onChange={(e) => setForm({ ...form, siteAddress: e.target.value })} />
                             </div>
                             <div>
                                 <label>شماره تماس</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} />
                             </div>
                             <div>
                                 <label>شماره تماس اضطراری</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.emergencyPhone} onChange={(e) => setForm({ ...form, emergencyPhone: e.target.value })} />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.emergencyPhoneNumber} onChange={(e) => setForm({ ...form, emergencyPhoneNumber: e.target.value })} />
                             </div>
                             <div className="md:col-span-2">
                                 <label>آدرس دفتر</label>
@@ -231,7 +404,14 @@ const Exchange_info = () => {
 
                         <div className="p-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex justify-end gap-2">
                             <Button variant="ghost" onClick={() => setIsOpen(false)}>انصراف</Button>
-                            <Button variant="primary" onClick={handleSave}>ذخیره</Button>
+                            <Button variant="primary" onClick={handleSave}>
+                                {
+                                    Loading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        "ذخیره"
+                                }
+                            </Button>
                         </div>
                     </Modal.Panel>
                 </div>
