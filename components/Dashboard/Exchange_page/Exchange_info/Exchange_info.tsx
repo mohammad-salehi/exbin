@@ -131,7 +131,6 @@ const Exchange_info = () => {
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
             .then((response) => {
-                console.log(response.result)
                 SetLogo(response.result.logo)
                 SetName(response.result.name)
                 handleEdit(1, 1, response.result.legalName)
