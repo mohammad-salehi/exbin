@@ -6,6 +6,7 @@ import { GenericSearch } from "@heathmont/moon-icons-tw";
 import Link from "next/link";
 import { GetRequest } from "../../../../functions/GetRequest";
 import LoadingComponent from "../../../../components/LoadingComponent/LoadingComponent";
+import Pagination from "../../../../components/Pagination/Pagination";
 
 type Person = {
   id: string;
@@ -55,8 +56,11 @@ function filterTree(items: Person[], rawQuery: string, keys: (keyof Person)[]): 
 const Page = () => {
   const [q, setQ] = useState("");
   const [Loading, SetLoading] = useState(false);
-
   const [data, Setdata] = useState<Person[]>([]);
+
+  const [First, SetFirst] = useState<number>(0)
+
+
 
   const columns: Column<Person>[] = [
     {
@@ -66,7 +70,7 @@ const Page = () => {
         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark">
           {
             row.logo !== "" ?
-              <img src={row.logo} style={{ width: "30px" }} alt="image"/>
+              <img src={row.logo} style={{ width: "30px" }} alt="image" />
               :
               <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M14.2639 15.9376L12.5958 14.2835C11.7909 13.4852 11.3884 13.0861 10.9266 12.9402C10.5204 12.8119 10.0838 12.8166 9.68048 12.9537C9.22188 13.1096 8.82814 13.5173 8.04068 14.3327L4.04409 18.2802M14.2639 15.9376L14.6053 15.5991C15.4112 14.7999 15.8141 14.4003 16.2765 14.2544C16.6831 14.1262 17.12 14.1312 17.5236 14.2688C17.9824 14.4252 18.3761 14.834 19.1634 15.6515L20 16.4936M14.2639 15.9376L18.275 19.9566M20.9992 6.00011H14.9992M11 3.99951L7.2 4.00011C6.07989 4.00011 5.51984 4.00011 5.09202 4.21809C4.71569 4.40984 4.40973 4.7158 4.21799 5.09213C4 5.51995 4 6.08 4 7.20011V16.8001C4 17.4576 4 17.9222 4.04409 18.2802M20 9.99951V16.4936M4.04409 18.2802C4.07512 18.5322 4.12796 18.7314 4.21799 18.9081C4.40973 19.2844 4.71569 19.5904 5.09202 19.7821C5.51984 20.0001 6.07989 20.0001 7.2 20.0001H16.8C17.9201 20.0001 18.4802 20.0001 18.908 19.7821C19.2843 19.5904 19.5903 19.2844 19.782 18.9081C20 18.4803 20 17.9202 20 16.8001V16.4936" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -168,36 +172,49 @@ const Page = () => {
               <LoadingComponent />
             </div>
             :
-            <ExpandableTable<Person>
-              data={filteredData}          // ← فقط دیتای فیلترشده را بده
-              columns={columns}
-              defaultExpandedIds={[]}      // همه بسته شروع شوند
-              rowDetails={(row) => (
-                <div
-                  className="
+            <div>
+              <ExpandableTable<Person>
+                data={filteredData.slice((First * 10), (First * 10) + 10)}          // ← فقط دیتای فیلترشده را بده
+                columns={columns}
+                defaultExpandedIds={[]}      // همه بسته شروع شوند
+                rowDetails={(row) => (
+                  <div
+                    className="
                 bg-white dark:bg-bgColor-dark p-4 w-full
                 border-b border-gray-200 dark:border-gray-500
                 last:border-b-0 last:pb-0 last:mb-0
               "
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="text-sm text-titleText dark:text-titleText-dark">
-                      {row.title}
-                    </div>
-                    <div className="text-sm text-titleText dark:text-titleText-dark">
-                      {/* آیکون نمونه */}
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="cursor-pointer">
-                        <path d="M16.44 8.9C20.04 9.21 21.51 11.06 21.51 15.11v.13c0 4.47-1.79 6.26-6.26 6.26H8.74c-4.47 0-6.26-1.79-6.26-6.26v-.13C2.48 11.09 3.93 9.24 7.47 8.91" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M12 2V14.88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        <path d="M15.35 12.65 12 16l-3.35-3.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="text-sm text-titleText dark:text-titleText-dark">
+                        {row.title}
+                      </div>
+                      <div className="text-sm text-titleText dark:text-titleText-dark">
+                        {/* آیکون نمونه */}
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="cursor-pointer">
+                          <path d="M16.44 8.9C20.04 9.21 21.51 11.06 21.51 15.11v.13c0 4.47-1.79 6.26-6.26 6.26H8.74c-4.47 0-6.26-1.79-6.26-6.26v-.13C2.48 11.09 3.93 9.24 7.47 8.91" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M12 2V14.88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <path d="M15.35 12.65 12 16l-3.35-3.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
-              rowDetailsMode="row"
-              rowDetailsClassName="rounded-xl p-3"
-            />
+                )}
+                rowDetailsMode="row"
+                rowDetailsClassName="rounded-xl p-3"
+              />
+              <Pagination
+                rtl
+                totalItems={filteredData.length}
+                pageSize={10}
+                currentPage={First + 1}
+                onPageChange={
+                  (e) => {
+                    SetFirst(e - 1)
+                  }
+                }
+              />
+            </div>
         }
 
       </div>
