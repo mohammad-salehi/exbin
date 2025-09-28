@@ -9,7 +9,7 @@ import { LoaderCircle } from '../../../Loader/Loader';
 interface InvoiceContent {
     id: number;
     title: string;
-    content: React.ReactNode; // تغییر به React.ReactNode
+    content: React.ReactNode; 
 }
 
 interface InvoiceSection {

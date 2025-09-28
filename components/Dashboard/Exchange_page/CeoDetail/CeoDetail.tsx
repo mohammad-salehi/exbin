@@ -1,6 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ExpandableTable, { Column } from "../../../../components/ExpandableTable/ExpandableTable";
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import { GetRequest } from '../../../../functions/GetRequest';
+import { useParams } from "next/navigation";
+import toast from 'react-hot-toast';
+import { LoaderCircle } from '../../../Loader/Loader';
 
 type Person = {
     id: string;
@@ -14,18 +18,9 @@ type Person = {
 };
 
 const CeoDetail = () => {
-    const [data, setData] = useState<Person[]>([
-        {
-            id: "5",
-            name: "محمد",
-            phoneNumber: "09121234567",
-            nationalCode: "1400765432",
-            educationHistory: "4040404040",
-            careerHistory: "9129991111",
-            sharePercentage: "30",
-            email: "",
-        },
-    ]);
+    const params = useParams<{ id: string }>();
+
+    const [data, setData] = useState<Person[]>([]);
 
     const [form, setForm] = useState<Person>({
         id: "",
@@ -39,9 +34,11 @@ const CeoDetail = () => {
     });
 
     const [isOpen, setIsOpen] = useState(false);
+    const [Loading, setLoading] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const openModal = (row: Person) => {
+        console.log(row)
         setForm(row);
         setEditingId(row.id);
         setIsOpen(true);
@@ -54,13 +51,86 @@ const CeoDetail = () => {
 
     const handleSave = () => {
         if (!editingId) return;
-        setData((prev) =>
-            prev.map((item) =>
-                item.id === editingId ? { ...form, id: editingId } : item
-            )
-        );
-        closeModal();
+
+        const updatedForm = {
+            ...form,
+            educationHistory: form.educationHistory || "", // اگر خالی بود، "" قرار بده
+            careerHistory: form.careerHistory || "",
+            sharePercentage: form.sharePercentage || "0", // مثلا درصد سهام باید عدد باشد
+        };
+
+        setLoading(true)
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
+            .then(async (response) => {
+                let managerInfo = response.result
+                managerInfo.managerInfo = updatedForm
+
+                try {
+                    const token = document.cookie
+                        .split('; ')
+                        .find(row => row.startsWith('token='))
+                        ?.split('=')[1];
+
+                    if (!token) {
+                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                        return;
+                    }
+
+                    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(managerInfo),
+                    });
+
+                    if (!response.ok) {
+                        console.log(response)
+                        setLoading(false)
+                        return toast.error(`خطا در ذخیره مدیرعامل`);
+                    } else {
+                        const responseData = await response.json();
+                        console.log(responseData);
+                        toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
+                        setData((prev) =>
+                            prev.map((item) =>
+                                item.id === editingId ? { ...form, id: editingId } : item
+                            )
+                        );
+                        closeModal();
+                        setLoading(false)
+                        setIsOpen(false);
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    return toast.error(`خطا در ذخیره مدیرعامل`);
+                }
+            })
+            .catch((err) => {
+                setLoading(false)
+            })
     };
+
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
+            .then((response) => {
+                const managerInfo = response.result.managerInfo
+                setData(
+                    [{
+                        id: managerInfo.id,
+                        name: managerInfo.name,
+                        phoneNumber: managerInfo.phoneNumber,
+                        nationalCode: managerInfo.nationalCode,
+                        educationHistory: managerInfo.educationHistory,
+                        careerHistory: managerInfo.careerHistory,
+                        sharePercentage: managerInfo.sharePercentage,
+                        email: managerInfo.email
+                    }]
+                )
+            })
+    }, [])
 
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
@@ -237,7 +307,13 @@ const CeoDetail = () => {
                                 انصراف
                             </Button>
                             <Button variant="primary" onClick={handleSave}>
-                                ذخیره اطلاعات
+                                {
+                                    Loading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        "ذخیره اطلاعات"
+                                }
+
                             </Button>
                         </div>
                     </Modal.Panel>

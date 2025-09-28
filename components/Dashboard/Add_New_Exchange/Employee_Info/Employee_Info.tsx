@@ -139,7 +139,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 careerHistory: form.careerHistory,
                 insuranceStartDate: form.insuranceStartDate,
                 insuranceEndDate: form.insuranceEndDate,
-                isSpecialAccess: form.isSpecialAccess,
+                isSpecialAccess: form.isSpecialAccess === true ? true : false,
                 nationalCode: form.nationalCode,
                 phoneNumber: form.phoneNumber,
             };
@@ -155,7 +155,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
             // ارسال درخواست به API
             setLoading(true)
-            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/exchange-agents`, {
+            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/employees`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

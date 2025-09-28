@@ -1,68 +1,44 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ExpandableTable, { Column } from "../../../ExpandableTable/ExpandableTable";
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
 import toast from "react-hot-toast";
+import { useParams } from "next/navigation";
+import { GetRequest } from '../../../../functions/GetRequest';
+import { LoaderCircle } from '../../../Loader/Loader';
 
 type Person = {
     id: string;
-    name?: string;
-    role?: string;
-    phoneNumber?: string;
-    nationalCode?: string;
-    startDate?: string;
-    insuranceStartDate?: string;
-    insuranceEndDate?: string;
-    educationHistory?: string;
-    careerHistory?: string;
-    sharePercentage?: string;
-    email?: string;
+    name: string,
+    jobPosition: string,
+    startDate: string,
+    educationalHistory: string,
+    careerHistory: string,
+    insuranceStartDate: string,
+    insuranceEndDate: string,
+    isSpecialAccess: boolean,
+    nationalCode: string,
+    phoneNumber: string
 };
 
 const EmployeeInfo = () => {
-    const [data, setData] = useState<Person[]>([
-        {
-            id: "1",
-            name: "محمد",
-            startDate: "1404/04/04",
-            insuranceStartDate: "1404/04/04",
-            insuranceEndDate: "1404/04/04",
-            role: "رئیس هیئت‌مدیره",
-            phoneNumber: "09121234567",
-            nationalCode: "1400765432",
-            educationHistory: "لیسانس مدیریت",
-            careerHistory: "۱۰ سال سابقه مدیریت",
-            sharePercentage: "30",
-            email: "test@test.com",
-        },
-        {
-            id: "2",
-            name: "محمد",
-            startDate: "1404/04/04",
-            insuranceStartDate: "1404/04/04",
-            insuranceEndDate: "1404/04/04",
-            role: "رئیس هیئت‌مدیره",
-            phoneNumber: "09121234567",
-            nationalCode: "1400765432",
-            educationHistory: "لیسانس مدیریت",
-            careerHistory: "۱۰ سال سابقه مدیریت",
-            sharePercentage: "30",
-            email: "test@test.com",
-        },
-    ]);
 
+    const params = useParams<{ id: string }>();
+
+    const [data, setData] = useState<Person[]>([]);
+    const [editLoading, SetEditLoading] = useState<boolean>(false)
+    const [addLoading, SetAddLoading] = useState<boolean>(false)
     const [form, setForm] = useState<Person>({
         id: "",
-        name: "",
-        role: "",
-        phoneNumber: "",
-        nationalCode: "",
-        startDate: "",
-        insuranceStartDate: "",
-        insuranceEndDate: "",
-        educationHistory: "",
-        careerHistory: "",
-        sharePercentage: "",
-        email: "",
+        name: '',
+        jobPosition: '',
+        startDate: '',
+        educationalHistory: '',
+        careerHistory: '',
+        insuranceStartDate: '',
+        insuranceEndDate: '',
+        isSpecialAccess: false,
+        nationalCode: '',
+        phoneNumber: ''
     });
 
     const [isOpen, setIsOpen] = useState(false);
@@ -79,7 +55,7 @@ const EmployeeInfo = () => {
         setEditingId(null);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!editingId) return;
 
         const regex = /^\d{4}\/\d{2}\/\d{2}$/;
@@ -102,6 +78,67 @@ const EmployeeInfo = () => {
             return;
         }
 
+        let memberInfo = {
+            name: form.name !== null ? form.name : "",
+            jobPosition: form.jobPosition !== null ? form.jobPosition : "",
+            startDate: form.startDate !== null ? form.startDate : "",
+            educationalHistory: form.educationalHistory !== null ? form.educationalHistory : "",
+            careerHistory: form.careerHistory !== null ? form.careerHistory : "",
+            insuranceStartDate: form.insuranceStartDate !== null ? form.insuranceStartDate : "",
+            insuranceEndDate: form.insuranceEndDate !== null ? form.insuranceEndDate : "",
+            isSpecialAccess: form.isSpecialAccess !== null ? form.isSpecialAccess : "",
+            nationalCode: form.nationalCode !== null ? form.nationalCode : "",
+            phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
+        }
+        memberInfo = {
+            ...memberInfo,
+            educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
+            careerHistory: form.careerHistory || "",
+            jobPosition: form.jobPosition !== undefined ? form.jobPosition : "",
+        }
+        SetEditLoading(true)
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                SetEditLoading(false)
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // setLoading(true)
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees/${editingId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(memberInfo),
+
+            });
+
+            if (!response.ok) {
+                console.log(response)
+                // setLoading(false)
+                SetEditLoading(false)
+                return toast.error(`خطا در حذف کارمند`);
+            } else {
+                const responseData = await response.json();
+                console.log(responseData);
+                SetEditLoading(false)
+                toast.success("کارمند با موفقیت ویرایش شد.", { position: "bottom-left" });
+            }
+
+        } catch (err) {
+            console.error(err);
+            SetEditLoading(false)
+            return toast.error(`خطا در ذخیره کارمند`);
+        }
+
+
         setData((prev) =>
             prev.map((item) =>
                 item.id === editingId ? { ...form, id: editingId } : item
@@ -112,14 +149,29 @@ const EmployeeInfo = () => {
 
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
-        { header: "سمت", accessorKey: "role" },
+        { header: "سمت", accessorKey: "jobPosition" },
         { header: "شماره همراه", accessorKey: "phoneNumber" },
         { header: "کدملی", accessorKey: "nationalCode" },
-        { header: "سوابق تحصیلی", accessorKey: "educationHistory" },
+        { header: "سوابق تحصیلی", accessorKey: "educationalHistory" },
         { header: "سوابق شغلی", accessorKey: "careerHistory" },
         { header: "تاریخ شروع کار", accessorKey: "startDate" },
         { header: "تاریخ شروع بیمه", accessorKey: "insuranceStartDate" },
         { header: "تاریخ پایان بیمه", accessorKey: "insuranceEndDate" },
+        {
+            header: "دسترسی خاص",
+            cell: (row: Person) => {
+                if (row.isSpecialAccess) {
+                    return (
+                        <span className='text-green-500 dark:text-green-300'>دارد</span> // اینجا محتوای مورد نظر را قرار دهید
+                    );
+                } else {
+                    return (
+                        <span className='text-red-500 dark:text-red-300'>ندارد</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
+                    );
+                }
+            },
+        },
+
         {
             header: "عملیات",
             cell: (row: Person) => (
@@ -159,7 +211,45 @@ const EmployeeInfo = () => {
                             strokeLinejoin="round"
                         />
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
+                        onClick={async () => {
+                            try {
+                                const token = document.cookie
+                                    .split('; ')
+                                    .find(row => row.startsWith('token='))
+                                    ?.split('=')[1];
+
+                                if (!token) {
+                                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                                    return;
+                                }
+
+                                // setLoading(true)
+                                const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees/${row.id}`, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                        'Content-Type': 'application/json',
+                                    },
+                                });
+
+                                if (!response.ok) {
+                                    console.log(response)
+                                    // setLoading(false)
+                                    return toast.error(`خطا در حذف کارمند`);
+                                } else {
+                                    const responseData = await response.json();
+                                    console.log(responseData);
+                                    toast.success("کارمند با موفقیت حذف شد.", { position: "bottom-left" });
+                                    setData((prevData) => prevData.filter(person => person.id !== row.id));
+                                }
+
+                            } catch (err) {
+                                console.error(err);
+                                return toast.error(`خطا در حذف کارمند`);
+                            }
+                        }}
+                    >
                         <path d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M9 4.97L9.22 3.66C9.38 2.71 9.5 2 11.19 2H13.81C15.5 2 15.63 2.75 15.78 3.67L16 4.97" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M19.3504 9.14014L18.7004 19.2101C18.5904 20.7801 18.5004 22.0001 15.7104 22.0001H9.29039C6.50039 22.0001 6.41039 20.7801 6.30039 19.2101L5.65039 9.14014" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -176,24 +266,23 @@ const EmployeeInfo = () => {
     const openAddModal = () => {
         setForm({
             id: "",
-            name: "",
-            role: "",
-            phoneNumber: "",
-            nationalCode: "",
-            startDate: "",
-            insuranceStartDate: "",
-            insuranceEndDate: "",
-            educationHistory: "",
-            careerHistory: "",
-            sharePercentage: "",
-            email: "",
+            name: '',
+            jobPosition: '',
+            startDate: '',
+            educationalHistory: '',
+            careerHistory: '',
+            insuranceStartDate: '',
+            insuranceEndDate: '',
+            isSpecialAccess: false,
+            nationalCode: '',
+            phoneNumber: ''
         });
         setIsAddOpen(true);
     };
 
     const closeAddModal = () => setIsAddOpen(false);
 
-    const handleAdd = () => {
+    const handleAdd = async () => {
         const newId = (data.length + 1).toString();
         const regex = /^\d{4}\/\d{2}\/\d{2}$/;
 
@@ -215,10 +304,68 @@ const EmployeeInfo = () => {
             })
             return;
         }
+        SetAddLoading(true)
+        let memberInfo = {
+            name: form.name !== null ? form.name : "",
+            jobPosition: form.jobPosition !== null ? form.jobPosition : "",
+            startDate: form.startDate !== null ? form.startDate : "",
+            educationalHistory: form.educationalHistory !== null ? form.educationalHistory : "",
+            careerHistory: form.careerHistory !== null ? form.careerHistory : "",
+            insuranceStartDate: form.insuranceStartDate !== null ? form.insuranceStartDate : "",
+            insuranceEndDate: form.insuranceEndDate !== null ? form.insuranceEndDate : "",
+            isSpecialAccess: form.isSpecialAccess !== null ? form.isSpecialAccess : "",
+            nationalCode: form.nationalCode !== null ? form.nationalCode : "",
+            phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
+        }
+        memberInfo = {
+            ...memberInfo,
+            educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
+            careerHistory: form.careerHistory || "",
+            jobPosition: form.jobPosition !== undefined ? form.jobPosition : "",
+        }
+        const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            ?.split('=')[1];
+
+        if (!token) {
+            SetAddLoading(false)
+            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+            return;
+        }
+
+        const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}/employees`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(memberInfo),
+        });
+
+        if (!response.ok) {
+            SetAddLoading(false)
+            return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
+        }
+        const responseData = await response.json();
+        console.log(responseData);
+        SetAddLoading(false)
+        toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
 
         setData((prev) => [...prev, { ...form, id: newId }]);
         closeAddModal();
     };
+
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees`)
+            .then((response) => {
+                const getData = (response.result.content)
+                setData(getData)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }, [])
 
     return (
         <div className="mt-4">
@@ -257,24 +404,28 @@ const EmployeeInfo = () => {
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="نام و نام‌خانوادگی" />
                             </div>
+
                             <div>
                                 <label>سمت</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="سمت" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.jobPosition} onChange={(e) => setForm({ ...form, jobPosition: e.target.value })} placeholder="سمت" />
                             </div>
+
                             <div>
                                 <label>شماره همراه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} placeholder="شماره همراه" />
                             </div>
+
                             <div>
                                 <label>کد ملی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => setForm({ ...form, nationalCode: e.target.value })} placeholder="کد ملی" />
                             </div>
+
                             <div>
                                 <label>تاریخ شروع کار</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -300,6 +451,7 @@ const EmployeeInfo = () => {
                                     }
                                     placeholder="تاریخ شروع کار" />
                             </div>
+
                             <div>
                                 <label>تاریخ شروع بیمه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -325,6 +477,7 @@ const EmployeeInfo = () => {
                                     }
                                     placeholder="تاریخ شروع بیمه" />
                             </div>
+
                             <div>
                                 <label>تاریخ پایان بیمه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -350,29 +503,30 @@ const EmployeeInfo = () => {
 
                                     } placeholder="تاریخ پایان بیمه" />
                             </div>
+
                             <div>
                                 <label>سوابق تحصیلی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.educationHistory} onChange={(e) => setForm({ ...form, educationHistory: e.target.value })} placeholder="سوابق تحصیلی" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.educationalHistory} onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })} placeholder="سوابق تحصیلی" />
                             </div>
+
                             <div>
                                 <label>سوابق شغلی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.careerHistory} onChange={(e) => setForm({ ...form, careerHistory: e.target.value })} placeholder="سوابق شغلی" />
                             </div>
-                            <div>
-                                <label>درصد سهام</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" type="number" value={form.sharePercentage} onChange={(e) => setForm({ ...form, sharePercentage: e.target.value })} placeholder="درصد سهام" />
-                            </div>
-                            <div>
-                                <label>ایمیل</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="ایمیل" />
+
+                            <div className="flex items-center gap-2 mt-6">
+                                <input
+                                    type="checkbox"
+                                    id="isSpecialAccess"
+                                    checked={form.isSpecialAccess === true}
+                                    onChange={(e) => setForm({ ...form, isSpecialAccess: e.target.checked })}
+                                    className="w-4 h-4 accent-primary cursor-pointer"
+                                />
+                                <label htmlFor="isSpecialAccess" className="cursor-pointer">دسترسی خاص</label>
                             </div>
                         </div>
 
@@ -381,7 +535,13 @@ const EmployeeInfo = () => {
                                 انصراف
                             </Button>
                             <Button variant="primary" onClick={handleSave}>
-                                ذخیره اطلاعات
+                                {
+                                    editLoading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        'ذخیره اطلاعات'
+                                }
+
                             </Button>
                         </div>
                     </Modal.Panel>
@@ -411,7 +571,7 @@ const EmployeeInfo = () => {
                                 <label>سمت</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="سمت" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.jobPosition} onChange={(e) => setForm({ ...form, jobPosition: e.target.value })} placeholder="سمت" />
                             </div>
                             <div>
                                 <label>شماره همراه</label>
@@ -503,7 +663,7 @@ const EmployeeInfo = () => {
                                 <label>سوابق تحصیلی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.educationHistory} onChange={(e) => setForm({ ...form, educationHistory: e.target.value })} placeholder="سوابق تحصیلی" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.educationalHistory} onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })} placeholder="سوابق تحصیلی" />
                             </div>
                             <div>
                                 <label>سوابق شغلی</label>
@@ -511,17 +671,16 @@ const EmployeeInfo = () => {
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.careerHistory} onChange={(e) => setForm({ ...form, careerHistory: e.target.value })} placeholder="سوابق شغلی" />
                             </div>
-                            <div>
-                                <label>درصد سهام</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" type="number" value={form.sharePercentage} onChange={(e) => setForm({ ...form, sharePercentage: e.target.value })} placeholder="درصد سهام" />
-                            </div>
-                            <div>
-                                <label>ایمیل</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="ایمیل" />
+
+                            <div className="flex items-center gap-2 mt-6">
+                                <input
+                                    type="checkbox"
+                                    id="isSpecialAccess"
+                                    checked={form.isSpecialAccess === true}
+                                    onChange={(e) => setForm({ ...form, isSpecialAccess: e.target.checked })}
+                                    className="w-4 h-4 accent-primary cursor-pointer"
+                                />
+                                <label htmlFor="isSpecialAccess" className="cursor-pointer">دسترسی خاص</label>
                             </div>
                         </div>
 
@@ -531,7 +690,12 @@ const EmployeeInfo = () => {
                                 انصراف
                             </Button>
                             <Button variant="primary" onClick={handleAdd}>
-                                ذخیره
+                                {
+                                    addLoading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        'ذخیره اطلاعات'
+                                }
                             </Button>
                         </div>
                     </Modal.Panel>

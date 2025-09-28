@@ -1,6 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ExpandableTable, { Column } from "../../../ExpandableTable/ExpandableTable";
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import { GetRequest } from '../../../../functions/GetRequest';
+import { useParams } from "next/navigation";
+import toast from 'react-hot-toast';
+import { LoaderCircle } from '../../../Loader/Loader';
 
 type Person = {
     id: string;
@@ -10,6 +14,9 @@ type Person = {
 };
 
 const ExchangeAgentInfo = () => {
+
+    const params = useParams<{ id: string }>();
+
     const [data, setData] = useState<Person[]>([
         { id: "1", name: "محمد", phoneNumber: "09121234567", nationalCode: "1400765432" },
         { id: "2", name: "علی", phoneNumber: "09351234567", nationalCode: "1400123456" },
@@ -25,6 +32,8 @@ const ExchangeAgentInfo = () => {
 
     const [isOpen, setIsOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [editLoading, SetEditLoading] = useState<boolean>(false)
+    const [addLoading, SetAddLoading] = useState<boolean>(false)
 
     const openModal = (row: Person) => {
         setForm(row);
@@ -37,8 +46,57 @@ const ExchangeAgentInfo = () => {
         setEditingId(null);
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!editingId) return;
+
+        const memberInfo = {
+            name: form.name !== null ? form.name : "",
+            phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
+            nationalCode: form.nationalCode !== null ? form.nationalCode : "",
+        }
+        SetEditLoading(true)
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                SetEditLoading(false)
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // setLoading(true)
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents/${editingId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(memberInfo),
+
+            });
+
+            if (!response.ok) {
+                console.log(response)
+                // setLoading(false)
+                SetEditLoading(false)
+                return toast.error(`خطا در حذف نماینده صرافی`);
+            } else {
+                const responseData = await response.json();
+                console.log(responseData);
+                SetEditLoading(false)
+                toast.success("نماینده صرافی با موفقیت ویرایش شد.", { position: "bottom-left" });
+            }
+
+        } catch (err) {
+            console.error(err);
+            SetEditLoading(false)
+            return toast.error(`خطا در ذخیره نماینده صرافی`);
+        }
+
+
         setData((prev) =>
             prev.map((item) =>
                 item.id === editingId ? { ...form, id: editingId } : item
@@ -92,7 +150,45 @@ const ExchangeAgentInfo = () => {
                         />
                     </svg>
 
-                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
+                        onClick={async () => {
+                            try {
+                                const token = document.cookie
+                                    .split('; ')
+                                    .find(row => row.startsWith('token='))
+                                    ?.split('=')[1];
+
+                                if (!token) {
+                                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                                    return;
+                                }
+
+                                // setLoading(true)
+                                const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents/${row.id}`, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                        'Content-Type': 'application/json',
+                                    },
+                                });
+
+                                if (!response.ok) {
+                                    console.log(response)
+                                    // setLoading(false)
+                                    return toast.error(`خطا در حذف نماینده صرافی`);
+                                } else {
+                                    const responseData = await response.json();
+                                    console.log(responseData);
+                                    toast.success("نماینده صرافی با موفقیت حذف شد.", { position: "bottom-left" });
+                                    setData((prevData) => prevData.filter(person => person.id !== row.id));
+                                }
+
+                            } catch (err) {
+                                console.error(err);
+                                return toast.error(`خطا در ذخیره نماینده صرافی`);
+                            }
+                        }}
+                    >
                         <path d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M9 4.97L9.22 3.66C9.38 2.71 9.5 2 11.19 2H13.81C15.5 2 15.63 2.75 15.78 3.67L16 4.97" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M19.3504 9.14014L18.7004 19.2101C18.5904 20.7801 18.5004 22.0001 15.7104 22.0001H9.29039C6.50039 22.0001 6.41039 20.7801 6.30039 19.2101L5.65039 9.14014" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -113,11 +209,60 @@ const ExchangeAgentInfo = () => {
 
     const closeAddModal = () => setIsAddOpen(false);
 
-    const handleAdd = () => {
-        const newId = (data.length + 1).toString();
-        setData((prev) => [...prev, { ...form, id: newId }]);
-        closeAddModal();
+    const handleAdd = async () => {
+
+        try {
+            const Member = {
+                name: form.name,
+                nationalCode: form.nationalCode,
+                phoneNumber: form.phoneNumber,
+            };
+            SetAddLoading(true)
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                SetAddLoading(false)
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}/exchange-agents`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(Member),
+            });
+            if (!response.ok) {
+                SetAddLoading(false)
+                return toast.error(`خطا در ذخیره نماینده صرافی`);
+            }
+            const responseData = await response.json();
+            SetAddLoading(false)
+            toast.success("نماینده صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
+            const newId = (data.length + 1).toString();
+            setData((prev) => [...prev, { ...form, id: newId }]);
+            closeAddModal();
+        } catch (error) {
+            SetAddLoading(false)
+            return toast.error(`خطا در ذخیره نماینده صرافی`);
+        }
     };
+
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents`)
+            .then((response) => {
+                const getData = (response.result.content)
+                setData(getData)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }, [])
+
 
     return (
         <div className="mt-4">
@@ -192,7 +337,12 @@ const ExchangeAgentInfo = () => {
                                 انصراف
                             </Button>
                             <Button variant="primary" onClick={handleSave}>
-                                ذخیره اطلاعات
+                                {
+                                    editLoading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        'ذخیره اطلاعات'
+                                }
                             </Button>
                         </div>
                     </Modal.Panel>
@@ -233,7 +383,12 @@ const ExchangeAgentInfo = () => {
                                 انصراف
                             </Button>
                             <Button variant="primary" onClick={handleAdd}>
-                                ذخیره
+                                {
+                                    addLoading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        'ذخیره اطلاعات'
+                                }
                             </Button>
                         </div>
                     </Modal.Panel>

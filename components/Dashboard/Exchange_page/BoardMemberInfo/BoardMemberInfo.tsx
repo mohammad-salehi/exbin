@@ -1,8 +1,12 @@
 
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ExpandableTable, { Column } from "../../../ExpandableTable/ExpandableTable";
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import { GetRequest } from '../../../../functions/GetRequest';
+import { useParams } from "next/navigation";
+import toast from 'react-hot-toast';
+import { LoaderCircle } from '../../../Loader/Loader';
 
 type Person = {
     id: string;
@@ -17,6 +21,7 @@ type Person = {
 };
 
 const BoardMemberTable = () => {
+    const params = useParams<{ id: string }>();
 
     const [form, setForm] = useState<Person>({
         id: "",
@@ -32,17 +37,16 @@ const BoardMemberTable = () => {
 
 
     const [isOpen, setIsOpen] = useState(false);
+    const [editLoading, SetEditLoading] = useState<boolean>(false)
+    const [addLoading, SetAddLoading] = useState<boolean>(false)
+
     const closeModal = () => setIsOpen(false);
     const openModal = () => {
         setIsOpen(true)
     };
 
-    const [data, setData] = useState<Person[]>([
-        { id: "1", name: "محمد", role: "رئیس هیئت‌مدیره", phoneNumber: "09121234567", nationalCode: '1400765432', educationHistory: 'لیسانس مدیریت', careerHistory: '۱۰ سال سابقه مدیریت', sharePercentage: '30', email: 'test@test.com' },
-        { id: "2", name: "علی", role: "عضو هیئت‌مدیره", phoneNumber: "09351234567", nationalCode: '1400123456', educationHistory: 'کارشناسی ارشد حقوق', careerHistory: '۵ سال وکیل پایه یک', sharePercentage: '20', email: 'ali@test.com' },
-    ]);
+    const [data, setData] = useState<Person[]>([]);
 
-    // برای تشخیص اینکه داریم کدوم رکورد رو ویرایش می‌کنیم
     const [editingId, setEditingId] = useState<string | null>(null);
 
     const handleEdit = (row: Person) => {
@@ -51,10 +55,68 @@ const BoardMemberTable = () => {
         openModal();
     };
 
-    const handleSave = () => {
+    const handleSave = async () => {
         if (!editingId) return;
 
-        // جایگزین کردن رکورد ویرایش شده
+        let memberInfo = {
+            name: form.name !== null ? form.name : "",
+            phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
+            nationalCode: form.nationalCode !== null ? form.nationalCode : "",
+            role: form.role !== null ? form.role : "",
+            careerHistory: form.careerHistory !== null ? form.careerHistory : "",
+            educationHistory: form.educationHistory !== null ? form.educationHistory : "",
+            sharePercentage: form.sharePercentage !== null ? Number(form.sharePercentage) : 0,
+            email: form.email !== null ? form.email : "",
+        }
+        memberInfo = {
+            ...memberInfo,
+            educationHistory: form.educationHistory || "", // اگر خالی بود، "" قرار بده
+            careerHistory: form.careerHistory || "",
+        }
+        SetEditLoading(true)
+
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                SetEditLoading(false)
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // setLoading(true)
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/board-members/${editingId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(memberInfo),
+
+            });
+
+            if (!response.ok) {
+                console.log(response)
+                // setLoading(false)
+                SetEditLoading(false)
+                return toast.error(`خطا در حذف عضو هیئت‌مدیره`);
+            } else {
+                const responseData = await response.json();
+                console.log(responseData);
+                SetEditLoading(false)
+                toast.success("عضو هیئت‌مدیره با موفقیت ویرایش شد.", { position: "bottom-left" });
+            }
+
+        } catch (err) {
+            console.error(err);
+            SetEditLoading(false)
+            return toast.error(`خطا در ذخیره عضو هیئت‌مدیره`);
+        }
+
+
         setData((prevData) =>
             prevData.map((item) =>
                 item.id === editingId ? { ...form, id: editingId } : item
@@ -115,7 +177,45 @@ const BoardMemberTable = () => {
                             strokeLinejoin="round"
                         />
                     </svg>
-                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
+                        onClick={async () => {
+                            try {
+                                const token = document.cookie
+                                    .split('; ')
+                                    .find(row => row.startsWith('token='))
+                                    ?.split('=')[1];
+
+                                if (!token) {
+                                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                                    return;
+                                }
+
+                                // setLoading(true)
+                                const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/board-members/${row.id}`, {
+                                    method: 'DELETE',
+                                    headers: {
+                                        'Authorization': `Bearer ${token}`,
+                                        'Content-Type': 'application/json',
+                                    },
+                                });
+
+                                if (!response.ok) {
+                                    console.log(response)
+                                    // setLoading(false)
+                                    return toast.error(`خطا در حذف عضو هیئت‌مدیره`);
+                                } else {
+                                    const responseData = await response.json();
+                                    console.log(responseData);
+                                    toast.success("عضو هیئت‌مدیره با موفقیت حذف شد.", { position: "bottom-left" });
+                                    setData((prevData) => prevData.filter(person => person.id !== row.id));
+                                }
+
+                            } catch (err) {
+                                console.error(err);
+                                return toast.error(`خطا در ذخیره عضو هیئت‌مدیره`);
+                            }
+                        }}
+                    >
                         <path d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M9 4.97L9.22 3.66C9.38 2.71 9.5 2 11.19 2H13.81C15.5 2 15.63 2.75 15.78 3.67L16 4.97" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M19.3504 9.14014L18.7004 19.2101C18.5904 20.7801 18.5004 22.0001 15.7104 22.0001H9.29039C6.50039 22.0001 6.41039 20.7801 6.30039 19.2101L5.65039 9.14014" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -143,11 +243,63 @@ const BoardMemberTable = () => {
         setIsAddOpen(true);
     };
     const closeAddModal = () => setIsAddOpen(false);
-    const handleAdd = () => {
+
+    const handleAdd = async () => {
+
+        const Member = {
+            careerHistory: form.careerHistory,
+            email: form.email,
+            name: form.name,
+            nationalCode: form.nationalCode,
+            phoneNumber: form.phoneNumber,
+            role: form.role,
+            sharePercentage: form.sharePercentage !== null ? Number(form.sharePercentage) : 0
+        };
+        SetAddLoading(true)
+        const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            ?.split('=')[1];
+
+        if (!token) {
+            SetAddLoading(false)
+            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+            return;
+        }
+
+        const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}/board-members`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(Member),
+        });
+
+        if (!response.ok) {
+            SetAddLoading(false)
+            return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
+        }
+        const responseData = await response.json();
+        console.log(responseData);
+        SetAddLoading(false)
+        toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
+
         const newId = (data.length + 1).toString();
         setData((prev) => [...prev, { ...form, id: newId }]);
         closeAddModal();
     };
+
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/board-members`)
+            .then((response) => {
+                const getData = (response.result.content)
+                setData(getData)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }, [])
 
     return (
         <div className='mt-4'>
@@ -283,7 +435,12 @@ const BoardMemberTable = () => {
                                 انصراف
                             </Button>
                             <Button variant="ghost" onClick={handleSave}>
-                                ذخیره اطلاعات
+                                {
+                                    editLoading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        'ذخیره اطلاعات'
+                                }
                             </Button>
                         </div>
                     </Modal.Panel>
@@ -358,7 +515,12 @@ const BoardMemberTable = () => {
                                 انصراف
                             </Button>
                             <Button variant="primary" onClick={handleAdd}>
-                                ذخیره
+                                {
+                                    addLoading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        'ذخیره اطلاعات'
+                                }
                             </Button>
                         </div>
                     </Modal.Panel>
