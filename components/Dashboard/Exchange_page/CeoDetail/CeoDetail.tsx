@@ -11,7 +11,7 @@ type Person = {
     name?: string;
     phoneNumber?: string;
     nationalCode?: string;
-    educationHistory?: string;
+    educationalHistory?: string;
     careerHistory?: string;
     sharePercentage?: string;
     email?: string;
@@ -27,7 +27,7 @@ const CeoDetail = () => {
         name: "",
         phoneNumber: "",
         nationalCode: "",
-        educationHistory: "",
+        educationalHistory: "",
         careerHistory: "",
         sharePercentage: "",
         email: "",
@@ -54,7 +54,7 @@ const CeoDetail = () => {
 
         const updatedForm = {
             ...form,
-            educationHistory: form.educationHistory || "", // اگر خالی بود، "" قرار بده
+            educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
             careerHistory: form.careerHistory || "",
             sharePercentage: form.sharePercentage || "0", // مثلا درصد سهام باید عدد باشد
         };
@@ -123,7 +123,7 @@ const CeoDetail = () => {
                         name: managerInfo.name,
                         phoneNumber: managerInfo.phoneNumber,
                         nationalCode: managerInfo.nationalCode,
-                        educationHistory: managerInfo.educationHistory,
+                        educationalHistory: managerInfo.educationalHistory,
                         careerHistory: managerInfo.careerHistory,
                         sharePercentage: managerInfo.sharePercentage,
                         email: managerInfo.email
@@ -136,7 +136,7 @@ const CeoDetail = () => {
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
         { header: "شماره همراه", accessorKey: "phoneNumber" },
         { header: "کدملی", accessorKey: "nationalCode" },
-        { header: "سوابق تحصیلی", accessorKey: "educationHistory" },
+        { header: "سوابق تحصیلی", accessorKey: "educationalHistory" },
         { header: "سوابق شغلی", accessorKey: "careerHistory" },
         { header: "درصد سهام", accessorKey: "sharePercentage" },
         { header: "ایمیل", accessorKey: "email" },
@@ -254,9 +254,9 @@ const CeoDetail = () => {
                                     className=" w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md pt-2 
                                 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                 shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark focus:outline-none"
-                                    value={form.educationHistory}
+                                    value={form.educationalHistory}
                                     onChange={(e) =>
-                                        setForm({ ...form, educationHistory: e.target.value })
+                                        setForm({ ...form, educationalHistory: e.target.value })
                                     }
                                     placeholder="سوابق تحصیلی"
                                 />

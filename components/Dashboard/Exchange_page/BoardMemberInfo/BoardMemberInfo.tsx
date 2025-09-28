@@ -14,7 +14,7 @@ type Person = {
     role?: string;
     phoneNumber?: string;
     nationalCode?: string;
-    educationHistory?: string;
+    educationalHistory?: string;
     careerHistory?: string;
     sharePercentage?: string;
     email?: string;
@@ -30,7 +30,7 @@ const BoardMemberTable = () => {
         nationalCode: "",
         role: "",
         careerHistory: "",
-        educationHistory: "",
+        educationalHistory: "",
         sharePercentage: "",
         email: "",
     });
@@ -64,13 +64,13 @@ const BoardMemberTable = () => {
             nationalCode: form.nationalCode !== null ? form.nationalCode : "",
             role: form.role !== null ? form.role : "",
             careerHistory: form.careerHistory !== null ? form.careerHistory : "",
-            educationHistory: form.educationHistory !== null ? form.educationHistory : "",
+            educationalHistory: form.educationalHistory !== null ? form.educationalHistory : "",
             sharePercentage: form.sharePercentage !== null ? Number(form.sharePercentage) : 0,
             email: form.email !== null ? form.email : "",
         }
         memberInfo = {
             ...memberInfo,
-            educationHistory: form.educationHistory || "", // اگر خالی بود، "" قرار بده
+            educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
             careerHistory: form.careerHistory || "",
         }
         SetEditLoading(true)
@@ -132,7 +132,7 @@ const BoardMemberTable = () => {
         { header: "سمت", accessorKey: "role" },
         { header: "شماره همراه", accessorKey: "phoneNumber" },
         { header: "کدملی", accessorKey: "nationalCode" },
-        { header: "سوابق تحصیلی", accessorKey: "educationHistory" },
+        { header: "سوابق تحصیلی", accessorKey: "educationalHistory" },
         { header: "سوابق شغلی", accessorKey: "careerHistory" },
         { header: "درصد سهام", accessorKey: "sharePercentage" },
         { header: "ایمیل", accessorKey: "email" },
@@ -236,7 +236,7 @@ const BoardMemberTable = () => {
             nationalCode: "",
             role: "",
             careerHistory: "",
-            educationHistory: "",
+            educationalHistory: "",
             sharePercentage: "",
             email: "",
         });
@@ -386,8 +386,8 @@ const BoardMemberTable = () => {
                                     className="w-full p-0 pt-2 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark focus:outline-none"
-                                    value={form.educationHistory}
-                                    onChange={(e) => setForm({ ...form, educationHistory: e.target.value })}
+                                    value={form.educationalHistory}
+                                    onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })}
                                     placeholder="سوابق تحصیلی"
                                 />
                             </div>
@@ -487,7 +487,7 @@ const BoardMemberTable = () => {
                                     className="w-full p-0 pt-2 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark focus:outline-none"
-                                    value={form.educationHistory} onChange={(e) => setForm({ ...form, educationHistory: e.target.value })} placeholder="سوابق تحصیلی" />
+                                    value={form.educationalHistory} onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })} placeholder="سوابق تحصیلی" />
                             </div>
                             <div>
                                 <label>سوابق شغلی</label>
