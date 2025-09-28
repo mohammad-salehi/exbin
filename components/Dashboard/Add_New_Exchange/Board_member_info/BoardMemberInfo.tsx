@@ -101,7 +101,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         } else {
             const Member = {
                 careerHistory: form.careerHistory,
-                educationalHistory: form.careerHistory,
+                educationalHistory: form.educationalHistory,
                 email: form.email,
                 name: form.name,
                 nationalCode: form.nationalCode,
