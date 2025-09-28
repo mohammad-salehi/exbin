@@ -43,7 +43,20 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         { header: "تاریخ شروع به کار", accessorKey: "startDate", align: "center" },
         { header: "تاریخ شروع بیمه", accessorKey: "insuranceStartDate", align: "center" },
         { header: "تاریخ پایان بیمه", accessorKey: "insuranceEndDate", align: "center" },
-        { header: "دسترسی خاص", accessorKey: "isSpecialAccess", align: "center" },
+        {
+            header: "دسترسی خاص",
+            cell: (row: Person) => {
+                if (row.isSpecialAccess) {
+                    return (
+                        <span className='text-green-500 dark:text-green-300'>دارد</span> // اینجا محتوای مورد نظر را قرار دهید
+                    );
+                } else {
+                    return (
+                        <span className='text-red-500 dark:text-red-300'>ندارد</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
+                    );
+                }
+            },
+        },
         // {
         //     header: "عملیات",
         //     cell: (row: Person) => (
