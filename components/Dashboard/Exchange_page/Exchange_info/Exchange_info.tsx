@@ -44,7 +44,7 @@ const Exchange_info = () => {
                 { id: 1, title: "آدرس سایت", content: "" },
                 { id: 2, title: "شماره تماس", content: "" },
                 { id: 3, title: "شماره تماس اضطراری", content: "" },
-                { id: 4, title: "آدرس دفتر", content: "" },
+                { id: 4, title: "آدرس", content: "" },
                 { id: 5, title: "ایمیل", content: "" },
 
             ],
@@ -268,7 +268,7 @@ const Exchange_info = () => {
                                 },
                                 { id: 2, title: "شماره تماس", content: form.phoneNumber },
                                 { id: 3, title: "شماره تماس اضطراری", content: form.emergencyPhoneNumber },
-                                { id: 4, title: "آدرس دفتر", content: form.officeAddress },
+                                { id: 4, title: "آدرس", content: form.officeAddress },
                                 { id: 5, title: "ایمیل", content: form.email },
                             ];
 
