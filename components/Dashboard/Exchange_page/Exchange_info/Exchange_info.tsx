@@ -9,7 +9,7 @@ import { LoaderCircle } from '../../../Loader/Loader';
 interface InvoiceContent {
     id: number;
     title: string;
-    content: React.ReactNode; 
+    content: React.ReactNode;
 }
 
 interface InvoiceSection {
@@ -193,7 +193,7 @@ const Exchange_info = () => {
     });
     const [isOpen, setIsOpen] = useState(false);
     const handleSave = () => {
-
+        setLoading(true)
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
             .then(async (response) => {
                 const managerInfo = response.result
@@ -210,7 +210,11 @@ const Exchange_info = () => {
                 managerInfo.email = form.email
                 managerInfo.financialCode = form.financialCode
                 managerInfo.registrationNumber = form.registrationNumber
+                managerInfo.exchangeAgentInfo = []
+                managerInfo.boardMemberInfo = []
+                managerInfo.employeeInfo = []
 
+                console.log(managerInfo)
                 try {
                     const token = document.cookie
                         .split('; ')
@@ -275,6 +279,7 @@ const Exchange_info = () => {
                     }
 
                 } catch (err) {
+                    setLoading(false)
                     console.error(err);
                     return toast.error(`خطا در ذخیره مدیرعامل`);
                 }

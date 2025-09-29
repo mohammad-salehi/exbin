@@ -514,7 +514,7 @@ const BoardMemberTable = () => {
                             <Button variant="ghost" onClick={closeAddModal}>
                                 انصراف
                             </Button>
-                            <Button variant="primary" onClick={handleAdd}>
+                            <Button variant="primary" onClick={ () => {handleAdd()}}>
                                 {
                                     addLoading ?
                                         <LoaderCircle size={8} color="border-white-500" />
