@@ -114,7 +114,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
                     {navItems.map((item) => (
                         <a href={`/panel/${item.link}`} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }} key={item.label}>
                             <button
-                                
+
                                 className={`flex items-center space-x-2 w-full px-4 py-2 rounded-md ${item.link === pathName ? "bg-BgPrimary text-primary dark:bg-BgPrimary-dark dark:text-primary-dark" : "hover:bg-gray-200 dark:hover:bg-gray-600"}  transition`}
                             >
                                 <span className={`text-xl ml-2 ${item.link === pathName ? " text-primary dark:text-titleText-dark" : ""} `}>{item.icon}</span>
@@ -127,13 +127,19 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen }: NavbarProp
                         <button
                             key={'exit'}
                             className="flex items-center space-x-2 w-full px-4 py-2 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition"
+                            onClick={() => {
+                                document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                                window.location.assign('/')
+                            }}
                         >
                             <span className="text-xl ml-2 dark:text-gray-200">
                                 <svg width="20px" height="20px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M10 12H18M18 12L15.5 9.77778M18 12L15.5 14.2222M18 7.11111V5C18 4.44772 17.5523 4 17 4H7C6.44772 4 6 4.44772 6 5V19C6 19.5523 6.44772 20 7 20H17C17.5523 20 18 19.5523 18 19V16.8889" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" />
                                 </svg>
                             </span>
-                            <span className="text-titleText dark:text-titleText-dark">خروج</span>
+                            <span className="text-titleText dark:text-titleText-dark"
+                                
+                            >خروج</span>
                         </button>
                     </div>
                 </nav>

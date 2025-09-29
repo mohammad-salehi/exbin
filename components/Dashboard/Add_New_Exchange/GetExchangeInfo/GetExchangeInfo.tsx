@@ -8,6 +8,10 @@ import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 import toast from "react-hot-toast";
 import { LoaderCircle } from '../../../Loader/Loader';
 
+import { validateEmail } from '../../../../functions/Validations';
+import { validateNumbers } from '../../../../functions/Validations';
+import { validateWebsite } from '../../../../functions/Validations';
+
 interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
     ID: number | undefined;
@@ -29,7 +33,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>("");
     const [officeAddress, SetofficeAddress] = useState<string>("");
     const [email, Setemail] = useState<string>("");
-    const [registrationNumber, SetregistrationNumber] = useState<number>(0);
+    const [registrationNumber, SetregistrationNumber] = useState<string>("");
     const [phoneNumber, SetphoneNumber] = useState<string>("");
 
     const [fileName, setFileName] = useState<string>("");
@@ -52,6 +56,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
     const nextStep = async () => {
         // بررسی مقادیر ورودی
+
         if (name === '') {
             toast.error("نام صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
             return;
@@ -62,6 +67,46 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
         }
         if (nationalCode === '') {
             toast.error("شناسه ملی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (financialCode === '') {
+            toast.error("کد اقتصادی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (registrationNumber === '') {
+            toast.error("شماره ثبت صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (exchangeType === '') {
+            toast.error("شکل حقوقی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (type === '') {
+            toast.error("نوع صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (establishmentDate === '') {
+            toast.error("تاریخ تاسیس صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (logo === '') {
+            toast.error("لوگو صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (siteAddress === '') {
+            toast.error("وبسایت صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (phoneNumber === '') {
+            toast.error("شماره تماس صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!validateEmail(email) && email !== '') {
+            toast.error("ایمیل صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!validateWebsite(siteAddress)) {
+            toast.error("آدرس وبسایت مورد نظر باید با //:https شروع شود", { position: "bottom-left" });
             return;
         }
 
@@ -142,24 +187,28 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                 <h6 className='font-bold text-md text-titleText dark:text-titleText-dark'>
                     مشخصات صرافی
                 </h6>
-                <div className='grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-4 mt-4'>
+                <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4'>
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نام صرافی</label>
-                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <label className='text-titleText dark: dark:text-titleText-dark'>نام صرافی *</label>
+                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام صرافی' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نام حقوقی صرافی</label>
-                        <Input value={legalName} onChange={(e) => { SetlegalName(e.target.value) }} placeholder='نام حقوقی صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>نام حقوقی صرافی *</label>
+                        <Input value={legalName} onChange={(e) => { SetlegalName(e.target.value) }} placeholder='نام حقوقی صرافی' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شناسه ملی صرافی</label>
-                        <Input value={nationalCode} onChange={(e) => { SetnationalCode(e.target.value) }} placeholder='شناسه ملی صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شناسه ملی صرافی *</label>
+                        <Input value={nationalCode} onChange={(e) => {
+                            if (validateNumbers(e.target.value)) {
+                                SetnationalCode(e.target.value)
+                            }
+                        }} placeholder='شناسه ملی صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>تاریخ تاسیس</label>
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>تاریخ تاسیس *</label>
                         <DatePicker
                             value={establishmentDate}
                             onChange={(date) => {
@@ -221,8 +270,8 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شکل حقوقی صرافی</label>
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شکل حقوقی صرافی *</label>
 
                         <div className="relative w-full mt-2">
                             <Dropdown onChange={SetexchangeType} value={exchangeType}>
@@ -302,8 +351,8 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نوع صرافی</label>
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>نوع صرافی *</label>
 
                         <div className="relative w-full mt-2">
                             <Dropdown onChange={handleSelectChange} value={type}>
@@ -384,13 +433,17 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>کد اقتصادی</label>
-                        <Input value={financialCode} onChange={(e) => { SetfinancialCode(e.target.value) }} placeholder='کد اقتصادی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>کد اقتصادی *</label>
+                        <Input value={financialCode} onChange={(e) => {
+                            if (validateNumbers(e.target.value)) {
+                                SetfinancialCode(e.target.value)
+                            }
+                        }} placeholder='کد اقتصادی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
-                        <label className="text-titleText dark:text-titleText-dark">لوگو</label>
+                    <div className="col-span-1">
+                        <label className="text-titleText dark:text-titleText-dark">لوگو *</label>
                         <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
                             {
                                 fileName === "" ?
@@ -410,34 +463,52 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                         </label>
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>آدرس سایت</label>
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>آدرس سایت *</label>
                         <Input value={siteAddress} onChange={(e) => { SetsiteAddress(e.target.value) }} placeholder='آدرس سایت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره ثبت</label>
-                        <Input type='number' value={registrationNumber} onChange={(e) => { SetregistrationNumber(Number(e.target.value)) }} placeholder='شماره ثبت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره ثبت *</label>
+                        <Input type='text' value={registrationNumber} onChange={(e) => {
+                            if (validateNumbers(e.target.value)) {
+                                SetregistrationNumber((e.target.value))
+                            }
+                        }} placeholder='شماره ثبت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره تماس</label>
-                        <Input value={phoneNumber} onChange={(e) => { SetphoneNumber(e.target.value) }} placeholder='شماره تماس' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    <div className="col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره تماس *</label>
+                        <Input value={phoneNumber} onChange={(e) => {
+                            if (validateNumbers(e.target.value)) {
+                                SetphoneNumber(e.target.value)
+                            }
+                        }} placeholder='شماره تماس' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
+                    <div className="col-span-1">
                         <label className='text-titleText dark: dark:text-titleText-dark'>شماره تماس اضطراری</label>
-                        <Input value={emergencyPhoneNumber} onChange={(e) => { SetemergencyPhoneNumber(e.target.value) }} placeholder='شماره تماس اضطراری' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={emergencyPhoneNumber} onChange={(e) => {
+                            if (validateNumbers(e.target.value)) {
+                                SetemergencyPhoneNumber(e.target.value)
+                            }
+                        }} placeholder='شماره تماس اضطراری' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div>
+                    <div className="col-span-1">
                         <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل صرافی</label>
                         <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div className="col-span-2">
+                    <div className="col-span-1 sm:col-span-2">
                         <label className='text-titleText dark: dark:text-titleText-dark'>آدرس دفتر رسمی</label>
                         <Input value={officeAddress} onChange={(e) => { SetofficeAddress(e.target.value) }} placeholder='آدرس دفتر رسمی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    </div>
+
+                    <div>
+                        <p className='text-red-400 text-sm'>
+                            موارد ستاره‌دار الزامی هستند!
+                        </p>
                     </div>
 
                 </div>
