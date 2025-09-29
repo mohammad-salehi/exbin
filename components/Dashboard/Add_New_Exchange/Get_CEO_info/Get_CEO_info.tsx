@@ -4,6 +4,10 @@ import toast from "react-hot-toast";
 import { GetRequest } from '../../../../functions/GetRequest';
 import { LoaderCircle } from '../../../Loader/Loader';
 
+import { validateEmail } from '../../../../functions/Validations';
+import { validateNumbers } from '../../../../functions/Validations';
+import { validateWebsite } from '../../../../functions/Validations';
+
 interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
     ID: number | undefined;
@@ -17,7 +21,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
     const [nationalCode, SetnationalCode] = useState<string>("");
     const [educationalHistory, SeteducationalHistory] = useState<string>("");
     const [careerHistory, SetcareerHistory] = useState<string>("")
-    const [sharePercentage, SetsharePercentage] = useState<number | null>(0)
+    const [sharePercentage, SetsharePercentage] = useState<string | null>(null)
     const [email, Setemail] = useState<string>("")
 
     const [Loading, setLoading] = useState<boolean>(false);
@@ -45,10 +49,18 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 })
             )
         }
-        if (sharePercentage !== null && (sharePercentage < 0 || sharePercentage > 100)) {
+        if (sharePercentage !== null && (Number(sharePercentage) < 0 || Number(sharePercentage) > 100)) {
             return toast.error("درصد سهام باید بین 0 تا 100 باشد", {
                 position: "bottom-left",
             });
+        }
+
+        if (!validateEmail(email) && email !== "") {
+            return (
+                toast.error("ایمیل مورد نظر را به درستی وارد کنید", {
+                    position: "bottom-left",
+                })
+            )
         }
 
         const data = {
@@ -57,9 +69,10 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             nationalCode,
             educationalHistory,
             careerHistory,
-            sharePercentage,
+            sharePercentage: sharePercentage !== null ? Number(sharePercentage) : 0,
             email
         };
+
         GetRequest(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}`)
             .then(async (response) => {
                 const managerInfo = response.result
@@ -127,12 +140,22 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>شماره همراه</label>
-                        <Input value={phoneNumber} onChange={(e) => { SetphoneNumber(e.target.value) }} placeholder='شماره همراه' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={phoneNumber} onChange={(e) => {
+                            if (validateNumbers(e.target.value)) {
+                                SetphoneNumber(e.target.value)
+                            }
+                        }} placeholder='شماره همراه' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>کد ملی</label>
-                        <Input value={nationalCode} onChange={(e) => { SetnationalCode(e.target.value) }} placeholder='کد ملی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={nationalCode}
+                            onChange={(e) => {
+                                if (validateNumbers(e.target.value)) {
+                                    SetnationalCode(e.target.value)
+                                }
+                            }}
+                            placeholder='کد ملی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
@@ -147,9 +170,10 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>درصد سهام</label>
-                        <Input type='number' value={sharePercentage ?? ""} onChange={(e) => {
-                            const val = e.target.value;
-                            SetsharePercentage(val === "" ? null : Number(val));
+                        <Input type='text' value={sharePercentage ?? ""} onChange={(e) => {
+                            if (validateNumbers(e.target.value)) {
+                                SetsharePercentage(e.target.value)
+                            }
                         }} placeholder='درصد سهام' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 

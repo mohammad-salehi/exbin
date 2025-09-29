@@ -8,9 +8,7 @@ import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 import toast from "react-hot-toast";
 import { LoaderCircle } from '../../../Loader/Loader';
 
-import { validateEmail } from '../../../../functions/Validations';
-import { validateNumbers } from '../../../../functions/Validations';
-import { validateWebsite } from '../../../../functions/Validations';
+import { addHttps, removeProtocolAndWWW, validateDomainExtension, validateEmail, validateNumbers } from '../../../../functions/Validations';
 
 interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
@@ -105,8 +103,8 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             toast.error("ایمیل صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (!validateWebsite(siteAddress)) {
-            toast.error("آدرس وبسایت مورد نظر باید با //:https شروع شود", { position: "bottom-left" });
+        if (!validateDomainExtension(siteAddress)) {
+            toast.error("پسوند سایت صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
 
@@ -119,7 +117,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             exchangeType,
             financialCode,
             logo,
-            siteAddress,
+            siteAddress: addHttps(removeProtocolAndWWW(siteAddress)),
             emergencyPhoneNumber,
             officeAddress,
             phoneNumber,
@@ -506,7 +504,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                     </div>
 
                     <div>
-                        <p className='text-red-400 text-sm'>
+                        <p className='text-primary dark:text-primary-dark text-sm'>
                             موارد ستاره‌دار الزامی هستند!
                         </p>
                     </div>
