@@ -10,11 +10,9 @@ import Employee_Info from '../../../../components/Dashboard/Add_New_Exchange/Emp
 
 const Page = () => {
 
-    const [Step, SetStep] = useState<number>(1)
+    const [Step, SetStep] = useState<number>(3)
     const [ID, setID] = useState<number>()
-    const saveExchange = async () => {
 
-    };
     const titles = [
         {
             title: 'مشخصات صرافی'

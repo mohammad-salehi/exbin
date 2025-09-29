@@ -53,7 +53,6 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     };
 
     const nextStep = async () => {
-        // بررسی مقادیر ورودی
 
         if (name === '') {
             toast.error("نام صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
