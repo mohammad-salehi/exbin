@@ -6,6 +6,12 @@ import { useParams } from "next/navigation";
 import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../Loader/Loader';
 
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
+
+type AnyObj = Record<string, any>;
+
+
 interface InvoiceContent {
     id: number;
     title: string;
@@ -22,6 +28,125 @@ const Exchange_info = () => {
     const params = useParams<{ id: string }>();
     const [logo, SetLogo] = useState<string>("");
     const [name, SetName] = useState<string>("");
+
+    async function generateCompanyExcel(data: AnyObj) {
+        const wb = new ExcelJS.Workbook();
+      
+        // مشخصات پایه
+        const base = wb.addWorksheet("مشخصات پایه");
+        base.columns = [
+          { header: "عنوان", key: "label", width: 25 },
+          { header: "مقدار", key: "value", width: 40 },
+        ];
+        [
+          ["عنوان", data.name],
+          ["عنوان حقوقی", data.legalName],
+          ["نوع پلتفرم", data.type],
+          ["شکل حقوقی", data.exchangeType],
+          ["شماره ثبت", data.registrationNumber],
+          ["شناسه ملی", data.nationalCode],
+          ["کد اقتصادی", data.financialCode],
+          ["تاریخ تأسیس", data.establishmentDate],
+          ["تلفن", data.phoneNumber],
+          ["تلفن اضطراری", data.emergencyPhoneNumber],
+          ["ایمیل", data.email],
+          ["وب‌سایت", data.siteAddress],
+          ["آدرس دفتر", data.officeAddress],
+        ].forEach(([label, value]) => {
+          base.addRow({ label, value: value ?? "-" });
+        });
+      
+        // مدیرعامل
+        if (data.managerInfo) {
+          const ws = wb.addWorksheet("مدیرعامل");
+          ws.columns = [
+            { header: "نام", key: "name", width: 20 },
+            { header: "تلفن", key: "phoneNumber", width: 20 },
+            { header: "کد ملی", key: "nationalCode", width: 20 },
+            { header: "تحصیلات", key: "educationalHistory", width: 25 },
+            { header: "سوابق شغلی", key: "careerHistory", width: 25 },
+            { header: "درصد سهام", key: "sharePercentage", width: 15 },
+            { header: "ایمیل", key: "email", width: 30 },
+          ];
+          ws.addRow(data.managerInfo);
+        }
+      
+        // هیئت مدیره
+        if (Array.isArray(data.boardMemberInfo) && data.boardMemberInfo.length) {
+          const ws = wb.addWorksheet("هیئت‌مدیره");
+          ws.columns = [
+            { header: "نام", key: "name", width: 20 },
+            { header: "تلفن", key: "phoneNumber", width: 20 },
+            { header: "کد ملی", key: "nationalCode", width: 20 },
+            { header: "تحصیلات", key: "educationalHistory", width: 25 },
+            { header: "سوابق شغلی", key: "careerHistory", width: 25 },
+            { header: "درصد سهام", key: "sharePercentage", width: 15 },
+            { header: "ایمیل", key: "email", width: 30 },
+            { header: "نقش", key: "role", width: 20 },
+          ];
+          data.boardMemberInfo.forEach((m: AnyObj) => ws.addRow(m));
+        }
+      
+        // نمایندگان
+        if (Array.isArray(data.exchangeAgentInfo) && data.exchangeAgentInfo.length) {
+          const ws = wb.addWorksheet("نمایندگان");
+          ws.columns = [
+            { header: "نام", key: "name", width: 20 },
+            { header: "تلفن", key: "phoneNumber", width: 20 },
+            { header: "کد ملی", key: "nationalCode", width: 20 },
+          ];
+          data.exchangeAgentInfo.forEach((a: AnyObj) => ws.addRow(a));
+        }
+      
+        // کارکنان
+        if (Array.isArray(data.employeeInfo) && data.employeeInfo.length) {
+          const ws = wb.addWorksheet("کارکنان");
+          ws.columns = [
+            { header: "نام", key: "name", width: 20 },
+            { header: "سمت", key: "jobPosition", width: 20 },
+            { header: "تلفن", key: "phoneNumber", width: 20 },
+            { header: "کد ملی", key: "nationalCode", width: 20 },
+            { header: "تاریخ شروع", key: "startDate", width: 20 },
+            { header: "تحصیلات", key: "educationalHistory", width: 25 },
+            { header: "سوابق شغلی", key: "careerHistory", width: 25 },
+            { header: "شروع بیمه", key: "insuranceStartDate", width: 20 },
+            { header: "پایان بیمه", key: "insuranceEndDate", width: 20 },
+            { header: "دسترسی ویژه", key: "isSpecialAccess", width: 15 },
+          ];
+          data.employeeInfo.forEach((e: AnyObj) =>
+            ws.addRow({ ...e, isSpecialAccess: e.isSpecialAccess ? "دارد" : "ندارد" })
+          );
+        }
+      
+        // صورت‌های مالی
+        if (Array.isArray(data.financialStatements) && data.financialStatements.length) {
+          const ws = wb.addWorksheet("صورت‌های مالی");
+          ws.columns = [
+            { header: "عنوان", key: "title", width: 25 },
+            { header: "تاریخ", key: "date", width: 20 },
+            { header: "توضیحات", key: "description", width: 40 },
+          ];
+          data.financialStatements.forEach((f: AnyObj) => ws.addRow(f));
+        }
+      
+        // ذخیره به فایل
+        const buf = await wb.xlsx.writeBuffer();
+        saveAs(new Blob([buf]), `${data.name || "report"}.xlsx`);
+      }
+      
+      const download = async () => {
+        try {
+          const res = await GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`);
+          if (!res?.result) {
+            toast.error("داده‌ای دریافت نشد");
+            return;
+          }
+          await generateCompanyExcel(res.result);
+          
+        } catch (e) {
+          console.log(e);
+        }
+      };
 
     const [invoiceData, setInvoiceData] = useState<InvoiceSection[]>([
         {
@@ -52,14 +177,7 @@ const Exchange_info = () => {
         {
             id: 3,
             title: "اسناد",
-            content: [
-                {
-                    id: 1,
-                    title: "اساسنامه",
-                    content: "",
-                }
-
-            ],
+            content: [],
         },
         {
             id: 4,
@@ -75,6 +193,25 @@ const Exchange_info = () => {
                                 <path d="M3 22H21" stroke="currentColor" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
                             <span>ویرایش</span>
+
+                        </div>
+
+                    ),
+                    title: ''
+                },
+                {
+                    id: 2,
+                    content: (
+                        <div className="flex justify-between items-center cursor-pointer" onClick={ () => {
+                            download()
+                        }}>
+                            <span className="flex items-center ml-1">
+                                <svg width="24px" height="24px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 3V16M12 16L16 11.625M12 16L8 11.625" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                            </span>
+                            <p className="text-right">دریافت Excel</p>
 
                         </div>
 
