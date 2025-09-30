@@ -3,6 +3,8 @@ import ExpandableTable, { Column } from '../../../ExpandableTable/ExpandableTabl
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
 import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../Loader/Loader';
+import { validateEmail } from '../../../../functions/Validations';
+import { validateNumbers } from '../../../../functions/Validations';
 
 type Person = {
     id: string;
@@ -33,28 +35,6 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
         { header: "شماره همراه", accessorKey: "phoneNumber", align: "center", className: "tabular-nums" },
         { header: "کد ملی", accessorKey: "nationalCode", align: "center", className: "tabular-nums" },
-        // {
-        //     header: "عملیات",
-        //     cell: (row: Person) => (
-        //         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark" >
-        //             <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
-        //                 onClick={() => {
-        //                     setForm({
-        //                         name: row.name,
-        //                         phoneNumber: row.phoneNumber,
-        //                         nationalCode: row.nationalCode,
-        //                     });
-        //                     setEditingId(row.id); // مشخص کنیم داریم ویرایش می‌کنیم
-        //                     openModal();
-        //                 }}
-        //             >
-        //                 <path d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z" stroke="#A8A8A8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        //                 <path d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        //                 <path d="M3.5 22H21.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-        //             </svg>
-        //         </div>
-        //     ),
-        // },
     ];
 
     const [data, SetData] = useState<Person[]>([]);
@@ -196,11 +176,19 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
                             </div>
                             <div>
                                 <label>شماره همراه</label>
-                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => handleChange("phoneNumber", e.target.value)} placeholder='شماره همراه' />
+                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
+                                    if (validateNumbers(e.target.value)) {
+                                        handleChange("phoneNumber", e.target.value)
+                                    }
+                                    }} placeholder='شماره همراه' />
                             </div>
                             <div>
                                 <label>کد ملی</label>
-                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => handleChange("nationalCode", e.target.value)} placeholder='کد ملی' />
+                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
+                                    if (validateNumbers(e.target.value)) {
+                                        handleChange("nationalCode", e.target.value)
+                                    }
+                                }} placeholder='کد ملی' />
                             </div>
                         </div>
 

@@ -4,6 +4,8 @@ import { Modal, Button, Input } from "@heathmont/moon-core-tw";
 import toast from 'react-hot-toast';
 import { GetRequest } from '../../../../functions/GetRequest';
 import { LoaderCircle } from '../../../Loader/Loader';
+import { validateEmail } from '../../../../functions/Validations';
+import { validateNumbers } from '../../../../functions/Validations';
 
 type Person = {
     id: string;
@@ -13,7 +15,7 @@ type Person = {
     role: string;
     careerHistory: string,
     educationalHistory: string,
-    sharePercentage: number,
+    sharePercentage: string | null,
     email: string,
 };
 
@@ -33,7 +35,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         role: "",
         careerHistory: "",
         educationalHistory: "",
-        sharePercentage: 0,
+        sharePercentage: null,
         email: "",
     });
     const [data, SetData] = useState<Person[]>([]);
@@ -49,6 +51,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         { header: "شماره همراه", accessorKey: "phoneNumber", align: "center", className: "tabular-nums" },
         { header: "کد ملی", accessorKey: "nationalCode", align: "center", className: "tabular-nums" },
         { header: "سمت", accessorKey: "role", align: "center", className: "tabular-nums" },
+        { header: "درصد سهام", accessorKey: "sharePercentage", align: "center", className: "tabular-nums" },
     ];
 
     const handleChange = <K extends keyof PersonForm>(field: K, value: PersonForm[K]) => {
@@ -61,7 +64,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             return;
         }
 
-        if (form.sharePercentage !== null && (form.sharePercentage < 0 || form.sharePercentage > 100)) {
+        if (form.sharePercentage !== null && (Number(form.sharePercentage) < 0 || Number(form.sharePercentage) > 100)) {
             toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
             return;
         }
@@ -128,7 +131,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             role: "",
             careerHistory: "",
             educationalHistory: "",
-            sharePercentage: 0,
+            sharePercentage: null,
             email: "",
         });
     };
@@ -193,11 +196,19 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                             </div>
                             <div>
                                 <label>شماره همراه</label>
-                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => handleChange("phoneNumber", e.target.value)} placeholder='شماره همراه' />
+                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
+                                    if (validateNumbers(e.target.value)) {
+                                        handleChange("phoneNumber", e.target.value)
+                                    }
+                                }} placeholder='شماره همراه' />
                             </div>
                             <div>
                                 <label>کد ملی</label>
-                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => handleChange("nationalCode", e.target.value)} placeholder='کد ملی' />
+                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
+                                    if (validateNumbers(e.target.value)) {
+                                        handleChange("nationalCode", e.target.value)
+                                    }
+                                }} placeholder='کد ملی' />
                             </div>
                             <div>
                                 <label>نقش</label>
@@ -217,15 +228,13 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
              bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
              shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                    type="number"
-                                    value={form.sharePercentage !== null && form.sharePercentage !== undefined
-                                        ? form.sharePercentage
-                                        : ""}
+                                    type="text"
+                                    value={form.sharePercentage ?? ""}
                                     onChange={(e) => {
-                                        const value = Number(e.target.value);
-                                        handleChange(
-                                            "sharePercentage", value
-                                        );
+                                        const value = (e.target.value);
+                                        if (validateNumbers(e.target.value)) {
+                                            handleChange("sharePercentage", value)
+                                        }
                                     }}
                                     placeholder="درصد سهام"
                                 />
