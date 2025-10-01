@@ -74,7 +74,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {/* Footer Section */}
 
 
-            <Navbar isOpen={isNavbarOpen} setIsOpen={setIsNavbarOpen} isMobileOpen={isMobileOpen} setIsMobileOpen={SetisMobileOpen} />
+            <Navbar isOpen={isNavbarOpen} setIsOpen={setIsNavbarOpen} isMobileOpen={isMobileOpen} setIsMobileOpen={SetisMobileOpen} toggleDarkMode={toggleDarkMode} isDarkMode={isDarkMode} />
         </div>
     );
 }

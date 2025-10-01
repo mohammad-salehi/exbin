@@ -30,12 +30,13 @@ interface InvoiceSection {
 
 type ExchangeInfoProps = {
     SetC1: React.Dispatch<React.SetStateAction<boolean>>;
-  };
+};
 
 const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     const params = useParams<{ id: string }>();
     const [logo, SetLogo] = useState<string>("");
     const [name, SetName] = useState<string>("");
+    const [DownloadLoading, SetDownloadLoading] = useState<boolean>(false);
 
     async function generateCompanyExcel(data: AnyObj) {
         const wb = new ExcelJS.Workbook();
@@ -143,16 +144,20 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     }
 
     const download = async () => {
+        SetDownloadLoading(true)
         try {
+            SetDownloadLoading(false)
             const res = await GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`);
             if (!res?.result) {
                 toast.error("داده‌ای دریافت نشد");
+                SetDownloadLoading(false)
                 return;
             }
             await generateCompanyExcel(res.result);
-
+            SetDownloadLoading(false)
         } catch (e) {
             console.log(e);
+            SetDownloadLoading(false)
         }
     };
 
@@ -300,7 +305,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         دریافت
                     </a>)
                 }
-
 
                 addFinancialDocuments(response.result.financialStatements)
 
@@ -496,7 +500,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             setForm((p) => ({ ...p, establishmentDate: "" }));
             return;
         }
-        const isDeleting = inputType?.startsWith("delete") || value.length < prev.length;                 
+        const isDeleting = inputType?.startsWith("delete") || value.length < prev.length;
         if (isDeleting) {
             setForm((p) => ({ ...p, establishmentDate: value }));
             return;
