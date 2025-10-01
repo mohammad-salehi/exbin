@@ -8,6 +8,7 @@ import { GetRequest } from "../../../../functions/GetRequest";
 import LoadingComponent from "../../../../components/LoadingComponent/LoadingComponent";
 import Pagination from "../../../../components/Pagination/Pagination";
 import toast from "react-hot-toast";
+import AnimatedText from "../../../../components/AnimatedLoading/AnimatedLoading";
 
 type Person = {
   id: string;
@@ -194,55 +195,56 @@ const Page = () => {
       {/* Table with filtered data */}
       <div className="mb-4">
         {
-          Loading ?
-            <div className="p-8">
-              <LoadingComponent />
-            </div>
-            :
-            <div>
-              <ExpandableTable<Person>
-                data={filteredData.slice((First * 10), (First * 10) + 10)}          // ← فقط دیتای فیلترشده را بده
-                columns={columns}
-                defaultExpandedIds={[]}      // همه بسته شروع شوند
-                rowDetails={(row) => (
-                  <div
-                    className="
+          Loading && (
+            <div className="fixed inset-0 z-50 grid place-items-center bg-white/70 backdrop-blur-sm">
+              <div className="pointer-events-none">
+                <AnimatedText />
+              </div>
+            </div>)
+        }
+        <div>
+          <ExpandableTable<Person>
+            data={filteredData.slice((First * 10), (First * 10) + 10)}          // ← فقط دیتای فیلترشده را بده
+            columns={columns}
+            defaultExpandedIds={[]}      // همه بسته شروع شوند
+            rowDetails={(row) => (
+              <div
+                className="
                 bg-white dark:bg-bgColor-dark p-4 w-full
                 border-b border-gray-200 dark:border-gray-500
                 last:border-b-0 last:pb-0 last:mb-0
               "
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="text-sm text-titleText dark:text-titleText-dark">
-                        {row.title}
-                      </div>
-                      <div className="text-sm text-titleText dark:text-titleText-dark">
-                        {/* آیکون نمونه */}
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="cursor-pointer">
-                          <path d="M16.44 8.9C20.04 9.21 21.51 11.06 21.51 15.11v.13c0 4.47-1.79 6.26-6.26 6.26H8.74c-4.47 0-6.26-1.79-6.26-6.26v-.13C2.48 11.09 3.93 9.24 7.47 8.91" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M12 2V14.88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <path d="M15.35 12.65 12 16l-3.35-3.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </svg>
-                      </div>
-                    </div>
+              >
+                <div className="flex justify-between items-center">
+                  <div className="text-sm text-titleText dark:text-titleText-dark">
+                    {row.title}
                   </div>
-                )}
-                rowDetailsMode="row"
-                rowDetailsClassName="rounded-xl p-3"
-              />
-              <Pagination
-                rtl
-                totalItems={filteredData.length}
-                pageSize={10}
-                currentPage={First + 1}
-                onPageChange={
-                  (e) => {
-                    SetFirst(e - 1)
-                  }
-                }
-              />
-            </div>
-        }
+                  <div className="text-sm text-titleText dark:text-titleText-dark">
+                    {/* آیکون نمونه */}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" className="cursor-pointer">
+                      <path d="M16.44 8.9C20.04 9.21 21.51 11.06 21.51 15.11v.13c0 4.47-1.79 6.26-6.26 6.26H8.74c-4.47 0-6.26-1.79-6.26-6.26v-.13C2.48 11.09 3.93 9.24 7.47 8.91" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M12 2V14.88" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M15.35 12.65 12 16l-3.35-3.35" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            )}
+            rowDetailsMode="row"
+            rowDetailsClassName="rounded-xl p-3"
+          />
+          <Pagination
+            rtl
+            totalItems={filteredData.length}
+            pageSize={10}
+            currentPage={First + 1}
+            onPageChange={
+              (e) => {
+                SetFirst(e - 1)
+              }
+            }
+          />
+        </div>
       </div>
       <div className="relative w-full mb-4 ">
         <div className="flex justify-between items-center">

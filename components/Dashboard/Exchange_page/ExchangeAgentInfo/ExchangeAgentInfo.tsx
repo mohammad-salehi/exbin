@@ -6,6 +6,9 @@ import { useParams } from "next/navigation";
 import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../Loader/Loader';
 
+import { validateEmail } from '../../../../functions/Validations';
+import { validateNumbers } from '../../../../functions/Validations';
+
 type Person = {
     id: string;
     name?: string;
@@ -13,7 +16,12 @@ type Person = {
     nationalCode?: string;
 };
 
-const ExchangeAgentInfo = () => {
+type ExchangeInfoProps = {
+    SetC4: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+
+
+const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
 
     const params = useParams<{ id: string }>();
 
@@ -49,6 +57,19 @@ const ExchangeAgentInfo = () => {
     const handleSave = async () => {
         if (!editingId) return;
 
+        if (form.name === '') {
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.phoneNumber === '') {
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.nationalCode === '') {
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        
         const memberInfo = {
             name: form.name !== null ? form.name : "",
             phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
@@ -211,6 +232,20 @@ const ExchangeAgentInfo = () => {
 
     const handleAdd = async () => {
 
+        if (form.name === '') {
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.phoneNumber === '') {
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.nationalCode === '') {
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        
+
         try {
             const Member = {
                 name: form.name,
@@ -257,9 +292,11 @@ const ExchangeAgentInfo = () => {
             .then((response) => {
                 const getData = (response.result.content)
                 setData(getData)
+                SetC4(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC4(true)
             })
     }, [])
 
@@ -314,7 +351,12 @@ const ExchangeAgentInfo = () => {
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.phoneNumber}
-                                    onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+                                    onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, phoneNumber: e.target.value })
+                                        }
+                                    }
+                                    }
                                     placeholder="شماره همراه"
                                 />
                             </div>
@@ -326,7 +368,12 @@ const ExchangeAgentInfo = () => {
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.nationalCode}
-                                    onChange={(e) => setForm({ ...form, nationalCode: e.target.value })}
+                                    onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, nationalCode: e.target.value })
+                                        }
+                                    }
+                                    }
                                     placeholder="کد ملی"
                                 />
                             </div>
@@ -369,13 +416,23 @@ const ExchangeAgentInfo = () => {
                                 <label>شماره همراه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} placeholder="شماره همراه" />
+      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, phoneNumber: e.target.value })
+                                        }
+                                    }
+                                    } placeholder="شماره همراه" />
                             </div>
                             <div>
                                 <label>کد ملی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => setForm({ ...form, nationalCode: e.target.value })} placeholder="کد ملی" />
+      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, nationalCode: e.target.value })
+                                        }
+                                    }
+                                    } placeholder="کد ملی" />
                             </div>
                         </div>
                         <div className="p-4 border-t flex justify-end gap-2 border-boxBorderColor dark:border-boxBorderColor-dark">

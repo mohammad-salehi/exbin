@@ -6,6 +6,9 @@ import { useParams } from "next/navigation";
 import { GetRequest } from '../../../../functions/GetRequest';
 import { LoaderCircle } from '../../../Loader/Loader';
 
+import { validateEmail } from '../../../../functions/Validations';
+import { validateNumbers } from '../../../../functions/Validations';
+
 type Person = {
     id: string;
     name: string,
@@ -20,7 +23,11 @@ type Person = {
     phoneNumber: string
 };
 
-const EmployeeInfo = () => {
+type ExchangeInfoProps = {
+    SetC5: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+
+const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
     const params = useParams<{ id: string }>();
 
@@ -58,6 +65,19 @@ const EmployeeInfo = () => {
     const handleSave = async () => {
         if (!editingId) return;
 
+        if (form.name === '') {
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.phoneNumber === '') {
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.nationalCode === '') {
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        
         const regex = /^\d{4}\/\d{2}\/\d{2}$/;
         if (!regex.test(form.insuranceStartDate || "")) {
             toast.error("تاریخ شروع بیمه را به درستی وارد کنید", {
@@ -286,6 +306,19 @@ const EmployeeInfo = () => {
         const newId = (data.length + 1).toString();
         const regex = /^\d{4}\/\d{2}\/\d{2}$/;
 
+        if (form.name === '') {
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.phoneNumber === '') {
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.nationalCode === '') {
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+
         if (!regex.test(form.insuranceStartDate || "")) {
             toast.error("تاریخ شروع بیمه را به درستی وارد کنید", {
                 position: "bottom-left",
@@ -361,9 +394,11 @@ const EmployeeInfo = () => {
             .then((response) => {
                 const getData = (response.result.content)
                 setData(getData)
+                SetC5(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC5(true)
             })
     }, [])
 
@@ -416,14 +451,26 @@ const EmployeeInfo = () => {
                                 <label>شماره همراه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} placeholder="شماره همراه" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => 
+                                        {
+                                            if (validateNumbers(e.target.value)) {
+                                                setForm({ ...form, phoneNumber: e.target.value })
+                                            }
+                                        }
+                                    } placeholder="شماره همراه" />
                             </div>
 
                             <div>
                                 <label>کد ملی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => setForm({ ...form, nationalCode: e.target.value })} placeholder="کد ملی" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => 
+                                        {
+                                            if (validateNumbers(e.target.value)) {
+                                                setForm({ ...form, nationalCode: e.target.value })
+                                            }
+                                        }
+                                    } placeholder="کد ملی" />
                             </div>
 
                             <div>
@@ -577,13 +624,25 @@ const EmployeeInfo = () => {
                                 <label>شماره همراه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} placeholder="شماره همراه" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => 
+                                        {
+                                            if (validateNumbers(e.target.value)) {
+                                                setForm({ ...form, phoneNumber: e.target.value })
+                                            }
+                                        }
+                                    } placeholder="شماره همراه" />
                             </div>
                             <div>
                                 <label>کد ملی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => setForm({ ...form, nationalCode: e.target.value })} placeholder="کد ملی" />
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => 
+                                        {
+                                            if (validateNumbers(e.target.value)) {
+                                                setForm({ ...form, nationalCode: e.target.value })
+                                            }
+                                        }
+                                    } placeholder="کد ملی" />
                             </div>
                             <div>
                                 <label>تاریخ شروع کار</label>

@@ -6,18 +6,26 @@ import { useParams } from "next/navigation";
 import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../Loader/Loader';
 
+import { validateEmail } from '../../../../functions/Validations';
+import { validateNumbers } from '../../../../functions/Validations';
+
 type Person = {
     id: string;
-    name?: string;
-    phoneNumber?: string;
-    nationalCode?: string;
-    educationalHistory?: string;
-    careerHistory?: string;
-    sharePercentage?: string;
-    email?: string;
+    name: string;
+    phoneNumber: string;
+    nationalCode: string;
+    educationalHistory: string;
+    careerHistory: string;
+    sharePercentage: string;
+    email: string;
 };
 
-const CeoDetail = () => {
+
+type ExchangeInfoProps = {
+    SetC2: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+
+const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
     const params = useParams<{ id: string }>();
 
     const [data, setData] = useState<Person[]>([]);
@@ -52,6 +60,23 @@ const CeoDetail = () => {
     const handleSave = () => {
         if (!editingId) return;
 
+        if (form.name === '') {
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.phoneNumber === '') {
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.nationalCode === '') {
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!validateEmail(form.email) && form.email !== '') {
+            toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+            return;
+        }
+
         const updatedForm = {
             ...form,
             educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
@@ -64,7 +89,9 @@ const CeoDetail = () => {
             .then(async (response) => {
                 let managerInfo = response.result
                 managerInfo.managerInfo = updatedForm
-
+                managerInfo.exchangeAgentInfo = []
+                managerInfo.boardMemberInfo = []
+                managerInfo.employeeInfo = []
                 try {
                     const token = document.cookie
                         .split('; ')
@@ -129,6 +156,10 @@ const CeoDetail = () => {
                         email: managerInfo.email
                     }]
                 )
+                SetC2(true)
+            })
+            .catch((err) => {
+                SetC2(true)
             })
     }, [])
 
@@ -215,7 +246,7 @@ const CeoDetail = () => {
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.name}
-                                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                    onChange={(e) => { setForm({ ...form, name: e.target.value }) }}
                                     placeholder="نام و نام‌خانوادگی"
                                 />
                             </div>
@@ -227,9 +258,11 @@ const CeoDetail = () => {
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.phoneNumber}
-                                    onChange={(e) =>
-                                        setForm({ ...form, phoneNumber: e.target.value })
-                                    }
+                                    onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, phoneNumber: e.target.value })
+                                        }
+                                    }}
                                     placeholder="شماره همراه"
                                 />
                             </div>
@@ -241,8 +274,11 @@ const CeoDetail = () => {
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.nationalCode}
-                                    onChange={(e) =>
-                                        setForm({ ...form, nationalCode: e.target.value })
+                                    onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, nationalCode: e.target.value })
+                                        }
+                                    }
                                     }
                                     placeholder="کد ملی"
                                 />
@@ -283,8 +319,11 @@ const CeoDetail = () => {
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     type="number"
                                     value={form.sharePercentage}
-                                    onChange={(e) =>
-                                        setForm({ ...form, sharePercentage: e.target.value })
+                                    onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, sharePercentage: e.target.value })
+                                        }
+                                    }
                                     }
                                     placeholder="درصد سهام"
                                 />

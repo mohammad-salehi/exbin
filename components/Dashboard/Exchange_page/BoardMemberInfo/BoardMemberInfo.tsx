@@ -8,19 +8,27 @@ import { useParams } from "next/navigation";
 import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../Loader/Loader';
 
+import { validateEmail } from '../../../../functions/Validations';
+import { validateNumbers } from '../../../../functions/Validations';
+
 type Person = {
     id: string;
-    name?: string;
-    role?: string;
-    phoneNumber?: string;
-    nationalCode?: string;
-    educationalHistory?: string;
-    careerHistory?: string;
-    sharePercentage?: string;
-    email?: string;
+    name: string;
+    role: string;
+    phoneNumber: string;
+    nationalCode: string;
+    educationalHistory: string;
+    careerHistory: string;
+    sharePercentage: string;
+    email: string;
 };
 
-const BoardMemberTable = () => {
+type ExchangeInfoProps = {
+    SetC3: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+
+
+const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     const params = useParams<{ id: string }>();
 
     const [form, setForm] = useState<Person>({
@@ -58,6 +66,23 @@ const BoardMemberTable = () => {
     const handleSave = async () => {
         if (!editingId) return;
 
+        if (form.name === '') {
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.phoneNumber === '') {
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.nationalCode === '') {
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!validateEmail(form.email) && form.email !== '') {
+            toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        
         let memberInfo = {
             name: form.name !== null ? form.name : "",
             phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
@@ -246,6 +271,23 @@ const BoardMemberTable = () => {
 
     const handleAdd = async () => {
 
+        if (form.name === '') {
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.phoneNumber === '') {
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.nationalCode === '') {
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!validateEmail(form.email) && form.email !== '') {
+            toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+            return;
+        }
+
         const Member = {
             careerHistory: form.careerHistory,
             email: form.email,
@@ -295,9 +337,12 @@ const BoardMemberTable = () => {
             .then((response) => {
                 const getData = (response.result.content)
                 setData(getData)
+                SetC3(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC3(true)
+
             })
     }, [])
 
@@ -351,7 +396,11 @@ const BoardMemberTable = () => {
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.phoneNumber}
-                                    onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })}
+                                    onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, phoneNumber: e.target.value })
+                                        }
+                                    }}
                                     placeholder="شماره همراه"
                                 />
                             </div>
@@ -363,7 +412,12 @@ const BoardMemberTable = () => {
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.nationalCode}
-                                    onChange={(e) => setForm({ ...form, nationalCode: e.target.value })}
+                                    onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, nationalCode: e.target.value })
+                                        }
+                                    }
+                                    }
                                     placeholder="کد ملی"
                                 />
                             </div>
@@ -412,7 +466,12 @@ const BoardMemberTable = () => {
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     type="number"
                                     value={form.sharePercentage}
-                                    onChange={(e) => setForm({ ...form, sharePercentage: e.target.value })}
+                                    onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, sharePercentage: e.target.value })
+                                        }
+                                    }
+                                    }
                                     placeholder="درصد سهام"
                                 />
                             </div>
@@ -467,13 +526,23 @@ const BoardMemberTable = () => {
                                 <label>شماره همراه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => setForm({ ...form, phoneNumber: e.target.value })} placeholder="شماره همراه" />
+      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, phoneNumber: e.target.value })
+                                        }
+                                    }
+                                    } placeholder="شماره همراه" />
                             </div>
                             <div>
                                 <label>کد ملی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => setForm({ ...form, nationalCode: e.target.value })} placeholder="کد ملی" />
+      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, nationalCode: e.target.value })
+                                        }
+                                    }
+                                    } placeholder="کد ملی" />
                             </div>
                             <div>
                                 <label>نقش</label>
@@ -501,7 +570,12 @@ const BoardMemberTable = () => {
                                 <label>درصد سهام</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" type="number" value={form.sharePercentage} onChange={(e) => setForm({ ...form, sharePercentage: e.target.value })} placeholder="درصد سهام" />
+      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" type="number" value={form.sharePercentage} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, sharePercentage: e.target.value })
+                                        }
+                                    }
+                                    } placeholder="درصد سهام" />
                             </div>
                             <div>
                                 <label>ایمیل</label>
@@ -514,7 +588,7 @@ const BoardMemberTable = () => {
                             <Button variant="ghost" onClick={closeAddModal}>
                                 انصراف
                             </Button>
-                            <Button variant="primary" onClick={ () => {handleAdd()}}>
+                            <Button variant="primary" onClick={() => { handleAdd() }}>
                                 {
                                     addLoading ?
                                         <LoaderCircle size={8} color="border-white-500" />
