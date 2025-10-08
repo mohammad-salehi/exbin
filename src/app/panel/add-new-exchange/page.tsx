@@ -10,7 +10,7 @@ import Employee_Info from '../../../../components/Dashboard/Add_New_Exchange/Emp
 
 const Page = () => {
 
-    const [Step, SetStep] = useState<number>(1)
+    const [Step, SetStep] = useState<number>(4)
     const [ID, setID] = useState<number>()
 
     const titles = [
@@ -18,16 +18,16 @@ const Page = () => {
             title: 'مشخصات صرافی'
         },
         {
-            title: 'مشخصات مدیرعامل'
+            title: 'مدیرعامل'
         },
         {
-            title: 'مشخصات اعضای هیئت‌مدیره'
+            title: 'اعضای هیئت‌مدیره'
         },
         {
-            title: 'مشخصات نماینده صرافی'
+            title: 'نمایندگان'
         },
         {
-            title: 'مشخصات کارمند '
+            title: 'کارمندان'
         },
     ]
     return (

@@ -215,23 +215,20 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 />
             </div>
 
-            {/* دکمه‌های پایین */}
             <div className="relative w-full mt-4">
-                <div className="flex justify-between items-center">
-                    <div />
-                    <div className="text-sm text-titleText dark:text-titleText-dark">
-                        <button
-                            className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
+                <div className="flex justify-between items-center w-full">
+                    <div className="text-sm text-titleText dark:text-titleText-dark"></div>
+                    <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
+                    <button
+                            className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
                             onClick={() => { nextStep() }}
                         >
                             {"اتمام"
                             }
                         </button>
-
                     </div>
                 </div>
             </div>
-
             {/* مودال */}
             <Modal open={isOpen} onClose={closeModal}>
                 <Modal.Backdrop />

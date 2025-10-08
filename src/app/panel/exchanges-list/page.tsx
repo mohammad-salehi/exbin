@@ -5,10 +5,11 @@ import ExpandableTable, { Column } from "../../../../components/ExpandableTable/
 import { GenericSearch } from "@heathmont/moon-icons-tw";
 import Link from "next/link";
 import { GetRequest } from "../../../../functions/GetRequest";
-import LoadingComponent from "../../../../components/LoadingComponent/LoadingComponent";
 import Pagination from "../../../../components/Pagination/Pagination";
 import toast from "react-hot-toast";
 import AnimatedText from "../../../../components/AnimatedLoading/AnimatedLoading";
+import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import { LoaderCircle } from "../../../../components/Loader/Loader";
 
 type Person = {
   id: string;
@@ -61,7 +62,9 @@ const Page = () => {
   const [data, Setdata] = useState<Person[]>([]);
 
   const [First, SetFirst] = useState<number>(0)
-
+  const [isOpen, SetisOpen] = useState<boolean>(false)
+  const [DeleteLoading, SetDeleteLoading] = useState<boolean>(false)
+  const [Deletedata, SetDeletedata] = useState<Person>();
 
 
   const columns: Column<Person>[] = [
@@ -99,39 +102,18 @@ const Page = () => {
         </div>
       ),
     },
-    { header: "نام حقوقی", accessorKey: "legal_name", align: "center", className: "tabular-nums" },
-    { header: "شماره ثبت", accessorKey: "registrationNumber", align: "center", className: "tabular-nums" },
-    { header: "سایت", accessorKey: "website", align: "center", className: "tabular-nums" },
+    { header: "نام حقوقی", accessorKey: "legal_name", className: "tabular-nums" },
+    { header: "شماره ثبت", accessorKey: "registrationNumber", className: "tabular-nums" },
+    { header: "سایت", accessorKey: "website", className: "tabular-nums" },
     {
       header: "عملیات",
       accessorKey: "progress",
       cell: (row: Person) => (
         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark" onClick={async () => {
-          const token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('token='))
-            ?.split('=')[1];
+          SetDeletedata(row)
+          SetisOpen(true)
 
-          const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${row.id}`, {
-            method: 'DELETE',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            }
-          });
-          if (!response.ok) {
-            toast.error("خطا در حذف صرافی.", { position: "bottom-left" });
-            if (response.status === 403) {
-              document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-              window.location.assign('/')
-            }
-            throw new Error('Failed to fetch data');
-          } else {
-            if (response.status === 200) {
-              toast.success("صرافی با موفقیت حذف شد.", { position: "bottom-left" });
-              window.location.reload();
-            }
-          }
+
         }}>
           <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer">
             <path d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -182,11 +164,11 @@ const Page = () => {
   return (
     <div className="p-4 md:p-0">
       {/* Search box */}
-      <div className="relative w-full md:w-[500px] h-[48px] mb-4">
+      <div className="relative w-full md:w-[500px] h-[48px] mb-4 mt-8">
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="flex w-full h-full p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-[0_8px_24px_-8px_rgba(0,_0,_0,_0.16),_0_0_1px_0_rgba(0,_0,_0,_0.40)] pl-4 pr-10 focus:outline-none focus:ring-0"
+          className="flex w-full h-full p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark pl-4 pr-10 focus:outline-none focus:ring-0"
           placeholder="جست‌وجو"
         />
         <GenericSearch className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl" />
@@ -258,6 +240,71 @@ const Page = () => {
           </div>
         </div>
       </div>
+
+      <Modal open={isOpen} onClose={() => { SetisOpen(false) }}>
+        <Modal.Backdrop />
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
+          <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
+            <h6>
+              آیا از حذف صرافی {Deletedata?.name} مطمئن هستید؟
+            </h6>
+            <div className="p-4  flex justify-end gap-2 mt-8">
+
+              <button
+                className="ml-4"
+                onClick={async () => {
+                  const token = document.cookie
+                    .split('; ')
+                    .find(Deletedata => Deletedata.startsWith('token='))
+                    ?.split('=')[1];
+                  if (Deletedata !== undefined) {
+                    SetDeleteLoading(true)
+                    const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${Deletedata.id}`, {
+                      method: 'DELETE',
+                      headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                      }
+                    });
+                    if (!response.ok) {
+                      toast.error("خطا در حذف صرافی.", { position: "bottom-left" });
+                      if (response.status === 403) {
+                        document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                        window.location.assign('/')
+                        SetDeleteLoading(false)
+                      }
+                      throw new Error('Failed to fetch data');
+                    } else {
+                      if (response.status === 200) {
+                        SetDeleteLoading(false)
+                        toast.success("صرافی با موفقیت حذف شد.", { position: "bottom-left" });
+                        window.location.reload();
+                      }
+                    }
+                  } else {
+                    SetDeleteLoading(false)
+                    toast.error("خطا در حذف صرافی.", { position: "bottom-left" });
+                  }
+
+                }}
+              >
+                {DeleteLoading ?
+                  <div>
+                    <LoaderCircle size={8} color="border-white-500" />
+                  </div>
+                  :
+                  "حذف"
+                }
+              </button>
+              <button onClick={() => { SetisOpen(false) }}>
+                بازگشت
+              </button>
+            </div>
+
+          </Modal.Panel>
+        </div>
+      </Modal>
+
     </div>
   );
 };

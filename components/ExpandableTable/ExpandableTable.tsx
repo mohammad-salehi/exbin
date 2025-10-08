@@ -253,7 +253,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                                   {isOpen ? <CaretDown /> : <CaretRight />}
                                 </button>
                               ) : (
-                                <span className="inline-block w-[18px]" />
+                                null
                               )}
                               <span>{renderCell(c, node.row)}</span>
                             </div>
@@ -277,7 +277,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                                     {isOpen ? <CaretDown /> : <CaretRight />}
                                   </button>
                                 ) : (
-                                  <span className="inline-block w-[18px]" />
+                                  null
                                 )}
                                 <span className="text-titleText dark:text-titleText-dark">{renderCell(c, node.row)}</span>
                               </div>

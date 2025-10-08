@@ -187,12 +187,12 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4'>
                     <div>
                         <label className='text-titleText dark: dark:text-titleText-dark'>نام صرافی *</label>
-                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام صرافی' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام صرافی' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
                         <label className='text-titleText dark: dark:text-titleText-dark'>نام حقوقی صرافی *</label>
-                        <Input value={legalName} onChange={(e) => { SetlegalName(e.target.value) }} placeholder='نام حقوقی صرافی' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={legalName} onChange={(e) => { SetlegalName(e.target.value) }} placeholder='نام حقوقی صرافی' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
@@ -201,7 +201,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                             if (validateNumbers(e.target.value)) {
                                 SetnationalCode(e.target.value)
                             }
-                        }} placeholder='شناسه ملی صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        }} placeholder='شناسه ملی صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
@@ -222,7 +222,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                                         value={val}
                                         onClick={openCalendar}
                                         placeholder="انتخاب تاریخ"
-                                        className="w-full pr-10 pl-10 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                        className="w-full pr-10 pl-10 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     />
 
                                     <svg
@@ -277,10 +277,10 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                                         as="span"
                                         role="button"
                                         variant="ghost"
-                                        className="flex items-center justify-between w-full pl-10 pr-10 py-2 
+                                        className="flex items-center justify-between w-full pl-10  py-2 
                    text-gray-700 border border-gray-300 
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                   dark:text-gray-100 appearance-none relative bg-bgColor dark:bg-bgColor-dark"
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-bgColor-dark"
                                     >
                                         <span>{exchangeType !== "" ? exchangeType : "انتخاب"}</span>
                                     </Button>
@@ -321,27 +321,8 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                             </Dropdown>
 
                             {/* فلش سمت راست */}
-                            <ControlsChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+                            <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
 
-                            {/* ضربدر سمت چپ */}
-                            {exchangeType && (
-                                <svg
-                                    onClick={() => SetexchangeType("")}
-                                    className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark hover:dark:text-gray-300 transition"
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M6 6L18 18M6 18L18 6"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-                            )}
                         </div>
 
 
@@ -358,10 +339,10 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                                         as="span"
                                         role="button"
                                         variant="ghost"
-                                        className="flex items-center justify-between w-full pl-10 pr-10 py-2 
+                                        className="flex items-center justify-between w-full pl-10 py-2 
                    text-gray-700 border border-gray-300 
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                   dark:text-gray-100 appearance-none relative bg-bgColor dark:bg-bgColor-dark"
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-bgColor-dark"
                                     >
                                         <span>{type !== "" ? type : "انتخاب"}</span>
                                     </Button>
@@ -405,27 +386,8 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                             </Dropdown>
 
                             {/* فلش سمت راست */}
-                            <ControlsChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+                            <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
 
-                            {/* ضربدر سمت چپ */}
-                            {type && (
-                                <svg
-                                    onClick={() => Settype("")}
-                                    className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark hover:dark:text-gray-300 transition"
-                                    width="20"
-                                    height="20"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                >
-                                    <path
-                                        d="M6 6L18 18M6 18L18 6"
-                                        stroke="currentColor"
-                                        strokeWidth="2"
-                                        strokeLinecap="round"
-                                    />
-                                </svg>
-                            )}
                         </div>
 
                     </div>
@@ -436,12 +398,12 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                             if (validateNumbers(e.target.value)) {
                                 SetfinancialCode(e.target.value)
                             }
-                        }} placeholder='کد اقتصادی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        }} placeholder='کد اقتصادی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
                         <label className="text-titleText dark:text-titleText-dark">لوگو *</label>
-                        <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
+                        <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
                             {
                                 fileName === "" ?
                                     <span>
@@ -462,7 +424,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
                     <div className="col-span-1">
                         <label className='text-titleText dark: dark:text-titleText-dark'>آدرس سایت *</label>
-                        <Input value={siteAddress} onChange={(e) => { SetsiteAddress(e.target.value) }} placeholder='آدرس سایت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={siteAddress} onChange={(e) => { SetsiteAddress(e.target.value) }} placeholder='آدرس سایت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
@@ -471,7 +433,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                             if (validateNumbers(e.target.value)) {
                                 SetregistrationNumber((e.target.value))
                             }
-                        }} placeholder='شماره ثبت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        }} placeholder='شماره ثبت' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
@@ -480,7 +442,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                             if (validateNumbers(e.target.value)) {
                                 SetphoneNumber(e.target.value)
                             }
-                        }} placeholder='شماره تماس' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        }} placeholder='شماره تماس' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
@@ -489,17 +451,17 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                             if (validateNumbers(e.target.value)) {
                                 SetemergencyPhoneNumber(e.target.value)
                             }
-                        }} placeholder='شماره تماس اضطراری' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        }} placeholder='شماره تماس اضطراری' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
                         <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل صرافی</label>
-                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1 sm:col-span-2">
                         <label className='text-titleText dark: dark:text-titleText-dark'>آدرس دفتر رسمی</label>
-                        <Input value={officeAddress} onChange={(e) => { SetofficeAddress(e.target.value) }} placeholder='آدرس دفتر رسمی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input value={officeAddress} onChange={(e) => { SetofficeAddress(e.target.value) }} placeholder='آدرس دفتر رسمی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
@@ -511,24 +473,22 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                 </div>
             </div>
 
-            <div className="relative w-full mt-4 ">
-                <div className="flex justify-between items-center">
+            <div className="relative w-full mt-4">
+                <div className="flex justify-between items-center w-full">
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
-
-                    <div className="text-sm text-titleText dark:text-titleText-dark">
+                    <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
                         <button
-                            className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
-                            onClick={() => { nextStep() }}
+                            className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
+                            onClick={() => nextStep()}
                         >
-                            {Loading ?
+                            {Loading ? (
                                 <div>
                                     <LoaderCircle size={8} color="border-white-500" />
                                 </div>
-                                :
+                            ) : (
                                 "صفحه بعد"
-                            }
+                            )}
                         </button>
-
                     </div>
                 </div>
             </div>

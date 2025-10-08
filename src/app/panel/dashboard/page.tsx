@@ -8,8 +8,8 @@ export default function Page() {
 
   //دیتای تستی برای تعداد صرافی های ثبت شده
   const [ChartData, SetChartData] = useState([
-    { name: "ثبت شده", value: 60 },
-    { name: "ثبت نشده", value: 40, color: "#E4E4E4" },
+    { name: "ثبت شده", value: 60, color:'#f1f1f1' },
+    { name: "ثبت نشده", value: 40, color: "#4caf50" },
   ])
 
   //دیتای تستی برای دارایی صرافی ها
