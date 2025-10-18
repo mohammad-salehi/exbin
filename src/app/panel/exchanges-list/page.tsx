@@ -15,13 +15,22 @@ type Person = {
   id: string;
   logo?: string;
   name?: string;
-  legal_name?: number;
+  legalName?: number;
   registrationNumber?: number;
   website?: number;
   title?: string;
   link?: string;
   progress?: number;
   subRows?: Person[];
+};
+
+type Company = {
+  id: number;
+  name: string;
+  logo: string;
+  legalName: string;
+  registrationNumber: string;
+  website: string;
 };
 
 // کمکی: چک مچ روی یک فیلد
@@ -102,7 +111,7 @@ const Page = () => {
         </div>
       ),
     },
-    { header: "نام حقوقی", accessorKey: "legal_name", className: "tabular-nums" },
+    { header: "نام حقوقی", accessorKey: "legalName", className: "tabular-nums" },
     { header: "شماره ثبت", accessorKey: "registrationNumber", className: "tabular-nums" },
     { header: "سایت", accessorKey: "website", className: "tabular-nums" },
     {
@@ -128,7 +137,7 @@ const Page = () => {
   ];
 
   // فیلدهایی که می‌خوای سرچ روی‌شون اعمال بشه:
-  const searchKeys: (keyof Person)[] = ["name", "legal_name", "registrationNumber", "website", "title", "link"];
+  const searchKeys: (keyof Person)[] = ["name", "legalName", "registrationNumber", "website", "title", "link"];
 
   // دیتای فیلترشده برای جدول
   const filteredData = useMemo(() => filterTree(data, q, searchKeys), [data, q]);
@@ -138,21 +147,18 @@ const Page = () => {
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges`)
       .then((response) => {
 
-        const getData = []
-        console.log(response.result.content)
-        for (let i = 0; i < response.result.content.length; i++) {
-          getData.push(
-            {
-              id: response.result.content[i].id,
-              name: response.result.content[i].name,
-              logo: response.result.content[i].logo,
-              legal_name: response.result.content[i].legalName,
-              registrationNumber: response.result.content[i].registrationNumber,
-              website: response.result.content[i].website
-            }
-          )
-        }
-        Setdata(getData)
+        const people: Person[] = response.result.content.map((item: Company) => ({
+          id: String(item.id),                     
+          name: item.name,
+          logo: item.logo,
+          legalName: item.legalName,
+          registrationNumber: item.registrationNumber,
+          website: item.website,
+        }));
+        
+        people.sort((a, b) => Number(b.id) - Number(a.id));
+        
+        Setdata(people);
         SetLoading(false)
 
       })

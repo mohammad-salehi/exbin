@@ -286,7 +286,7 @@ const Page: React.FC = () => {
     }, [])
 
     return (
-        <div>
+        <div className='p-2 sm:p-0'>
             {/* Search */}
             <div className="relative w-full md:w-[500px] h-[48px] mb-4 mt-8">
                 <input
