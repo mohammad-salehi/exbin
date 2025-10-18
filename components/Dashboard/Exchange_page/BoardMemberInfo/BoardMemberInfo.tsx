@@ -237,7 +237,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
 
                             } catch (err) {
                                 console.error(err);
-                                return toast.error(`خطا در ذخیره عضو هیئت‌مدیره`);
+                                return toast.error(`خطا در حذف عضو هیئت‌مدیره`);
                             }
                         }}
                     >

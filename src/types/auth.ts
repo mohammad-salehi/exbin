@@ -4,7 +4,12 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    result: { token: string };
+    result: {
+      role: any;
+      lastName: any;
+      firstName: any;
+      username: any; token: string 
+};
     error: null;
 }
 

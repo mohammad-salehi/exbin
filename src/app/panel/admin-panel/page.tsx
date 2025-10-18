@@ -1,34 +1,29 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { GenericSearch } from '@heathmont/moon-icons-tw';
 import ExpandableTable, { Column } from '../../../../components/ExpandableTable/ExpandableTable';
 import Pagination from '../../../../components/Pagination/Pagination';
-import { Button, Modal, Input } from '@heathmont/moon-core-tw';
-
-type Role = 'admin' | 'manager' | 'user';
+import { Modal, Input } from '@heathmont/moon-core-tw';
+import { GetRequest } from '../../../../functions/GetRequest';
+import toast from 'react-hot-toast';
+import { LoaderCircle } from '../../../../components/Loader/Loader';
+import LoadingComponent from '../../../../components/LoadingComponent/LoadingComponent';
+type Role = 'ADMIN' | 'USER';
 
 type Person = {
     id: string;
-    name: string;
+    firstName: string;
+    lastName: string;
     role: Role;
-    phoneNumber: string;
-    email: string;
+    username: string;
 };
 
-const roles: ReadonlyArray<{ label: string; value: Role }> = [
-    { label: 'مدیر', value: 'admin' },
-    { label: 'مدیر میانی', value: 'manager' },
-    { label: 'کاربر', value: 'user' },
-] as const;
-
 const Page: React.FC = () => {
+
+    const [Loading, setLoading] = useState<boolean>(false);
     // -------- داده‌ها --------
-    const [rows, setRows] = useState<Person[]>([
-        { id: '1', name: 'علی رضایی', role: 'admin', phoneNumber: '09120000000', email: 'ali@example.com' },
-        { id: '2', name: 'نگار محمدی', role: 'manager', phoneNumber: '09350000000', email: 'negar@example.com' },
-        { id: '3', name: 'سارا احمدی', role: 'user', phoneNumber: '09130000000', email: 'sara@example.com' },
-    ]);
+    const [rows, setRows] = useState<Person[]>([]);
 
     // -------- جست‌وجو --------
     const [query, setQuery] = useState<string>('');
@@ -37,11 +32,12 @@ const Page: React.FC = () => {
         const q = norm(query).trim();
         if (!q) return rows;
         return rows.filter(r =>
-            [r.name, r.email, r.phoneNumber, r.role].some(f => norm(f).includes(q))
+            [r.firstName, r.username, r.role, r.lastName].some(f => norm(f).includes(q))
         );
     }, [rows, query]);
 
     // -------- ویرایش --------
+    const [EditLoading, SetEditLoading] = useState<boolean>(false);
     const [editOpen, setEditOpen] = useState<boolean>(false);
     const [form, setForm] = useState<Person | null>(null);
 
@@ -53,41 +49,123 @@ const Page: React.FC = () => {
             setForm(prev => (prev ? { ...prev, [key]: e.target.value } : prev));
         };
 
-    const onFormRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value as Role;
-        setForm(prev => (prev ? { ...prev, role: value } : prev));
-    };
-
-    const onEditSave = () => {
+    const onEditSave = async () => {
         if (!form) return;
-        setRows(prev => prev.map(r => (r.id === form.id ? form : r)));
-        onEditClose();
+
+        const memberInfo = {
+            firstName: form.firstName,
+            lastName: form.lastName,
+            role: 'USER'
+        }
+
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                SetEditLoading(false)
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            SetEditLoading(true)
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/v1/users/${form.id}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(memberInfo),
+
+            });
+
+            if (!response.ok) {
+                console.log(response)
+                SetEditLoading(false)
+                return toast.error(`خطا در ویرایش کاربر`);
+            } else {
+                setRows(prev => prev.map(r => (r.id === form.id ? form : r)));
+                onEditClose();
+                SetEditLoading(false)
+                toast.success("کاربر با موفقیت ویرایش شد.", { position: "bottom-left" });
+            }
+
+        } catch (err) {
+            console.error(err);
+            SetEditLoading(false)
+            return toast.error(`خطا در ویرایش کاربر`);
+        }
+
+
     };
 
     // -------- حذف + تأیید --------
+    const [DeleteLoading, setDeleteLoading] = useState<boolean>(false);
     const [confirmOpen, setConfirmOpen] = useState<boolean>(false);
-    const [target, setTarget] = useState<{ id: string; name: string } | null>(null);
+    const [target, setTarget] = useState<{ id: string; firstName: string; lastName: string } | null>(null);
 
-    const openDeleteConfirm = (p: Person) => { setTarget({ id: p.id, name: p.name }); setConfirmOpen(true); };
+    const openDeleteConfirm = (p: Person) => { setTarget({ id: p.id, firstName: p.firstName, lastName: p.lastName }); setConfirmOpen(true); };
     const closeDeleteConfirm = () => { setConfirmOpen(false); setTarget(null); };
-    const confirmDelete = () => {
+    const confirmDelete = async () => {
         if (!target) return;
-        setRows(prev => prev.filter(r => r.id !== target.id));
-        closeDeleteConfirm();
+
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            setDeleteLoading(true)
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/v1/users/${target.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.log(response)
+                setDeleteLoading(false)
+                return toast.error(`خطا در حذف کاربر`);
+            } else {
+                setDeleteLoading(false)
+                const responseData = await response.json();
+                console.log(responseData);
+                toast.success("کاربر با موفقیت حذف شد.", { position: "bottom-left" });
+                setRows(prev => prev.filter(r => r.id !== target.id));
+                closeDeleteConfirm();
+            }
+
+        } catch (err) {
+            console.error(err);
+            setDeleteLoading(false)
+            return toast.error(`خطا در حذف کاربر`);
+        }
+
+
     };
 
     // -------- افزودن --------
+    const [AddLoading, SetAddLoading] = useState<boolean>(false);
     const [addOpen, setAddOpen] = useState<boolean>(false);
     const [addForm, setAddForm] = useState<Person>({
         id: '',
-        name: '',
-        role: 'user',
-        phoneNumber: '',
-        email: '',
+        firstName: '',
+        lastName: '',
+        role: 'USER',
+        username: '',
     });
 
     const openAdd = () => {
-        setAddForm({ id: '', name: '', role: 'user', phoneNumber: '', email: '' });
+        setAddForm({ id: '', firstName: '', lastName: '', role: 'USER', username: '' });
         setAddOpen(true);
     };
     const onAddClose = () => setAddOpen(false);
@@ -97,23 +175,63 @@ const Page: React.FC = () => {
             setAddForm(prev => ({ ...prev, [key]: e.target.value }));
         };
 
-    const onAddRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        const value = e.target.value as Role;
-        setAddForm(prev => ({ ...prev, role: value }));
-    };
+    const onAddSave = async () => {
 
-    const onAddSave = () => {
-        if (!addForm.name.trim() || !addForm.phoneNumber.trim() || !addForm.role) return;
-        const newItem: Person = { ...addForm, id: Date.now().toString() };
-        setRows(prev => [newItem, ...prev]);
-        onAddClose();
+        try {
+
+            if (addForm === null) return
+
+            const Member = {
+                firstName: addForm.firstName,
+                lastName: addForm.lastName,
+                username: addForm.username,
+                role: 'USER'
+            };
+            SetAddLoading(true)
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                SetAddLoading(false)
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/v1/users`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(Member),
+            });
+
+            if (!response.ok) {
+                SetAddLoading(false)
+                return toast.error(`خطا در ذخیره کاربر`);
+            }
+            const responseData = await response.json();
+            console.log(responseData);
+            SetAddLoading(false)
+            toast.success("کاربر باموفقیت افزوده شد.", { position: "bottom-left" });
+            if (!addForm.firstName.trim() || !addForm.username.trim() || !addForm.role) return;
+            const newItem: Person = { ...addForm, id: Date.now().toString() };
+            setRows(prev => [newItem, ...prev]);
+            onAddClose();
+        } catch (error) {
+            SetAddLoading(false)
+            console.log(error)
+            return toast.error(`خطا در ذخیره کاربر`);
+        }
     };
 
     // -------- ستون‌ها --------
     const columns: Column<Person>[] = useMemo<Column<Person>[]>(() => [
-        { header: 'نام و نام‌خانوادگی', accessorKey: 'name' },
-        { header: 'شماره همراه', accessorKey: 'phoneNumber' },
-        { header: 'ایمیل', accessorKey: 'email' },
+        { header: 'نام', accessorKey: 'firstName' },
+        { header: 'نام خانوادگی', accessorKey: 'lastName' },
+        { header: 'شماره همراه', accessorKey: 'username' },
         { header: 'نقش', accessorKey: 'role' },
         {
             header: 'عملیات',
@@ -124,7 +242,7 @@ const Page: React.FC = () => {
                         type="button"
                         onClick={() => onEdit(row)}
                         className=""
-                        aria-label={`ویرایش ${row.name}`}
+                        aria-label={`ویرایش ${row.firstName} ${row.lastName}`}
                         title="ویرایش"
                     >
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -139,7 +257,7 @@ const Page: React.FC = () => {
                         type="button"
                         onClick={() => openDeleteConfirm(row)}
                         className=""
-                        aria-label={`حذف ${row.name}`}
+                        aria-label={`حذف ${row.firstName} ${row.lastName}`}
                         title="حذف"
                     >
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -154,6 +272,19 @@ const Page: React.FC = () => {
         },
     ], []);
 
+    useEffect(() => {
+        setLoading(true)
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/v1/users`)
+            .then((response) => {
+                setRows(response.result)
+                setLoading(false)
+            })
+            .catch((err) => {
+                console.log(err)
+                setLoading(false)
+            })
+    }, [])
+
     return (
         <div>
             {/* Search */}
@@ -167,17 +298,23 @@ const Page: React.FC = () => {
                 <GenericSearch className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-xl" />
             </div>
 
-            <h5 className="font-medium text-[24px] leading-[100%] tracking-[0] text-right align-middle mt-8">
+            <h5 className="font-medium text-[24px] leading-[100%] tracking-[0] text-right align-middle mt-8 text-titleText dark:text-titleText-dark">
                 لیست کاربران
             </h5>
 
             <div className="mt-4">
-                <ExpandableTable<Person>
-                    data={filtered}
-                    columns={columns}
-                    rowDetailsMode="row"
-                    rowDetailsClassName="rounded-xl p-3"
-                />
+                {
+                    Loading ?
+                        <LoadingComponent />
+                        :
+                        <ExpandableTable<Person>
+                            data={filtered}
+                            columns={columns}
+                            rowDetailsMode="row"
+                            rowDetailsClassName="rounded-xl p-3"
+                        />
+                }
+
 
                 <Pagination
                     rtl
@@ -198,7 +335,8 @@ const Page: React.FC = () => {
                             className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
 
                         >
-                            {"افزودن کاربر جدید"
+                            {
+                                "افزودن کاربر جدید"
                             }
                         </button>
                     </div>
@@ -207,64 +345,58 @@ const Page: React.FC = () => {
 
             {/* -------- مودال ویرایش -------- */}
             <Modal open={editOpen} onClose={onEditClose}>
-                <Modal.Backdrop />
-                <Modal.Panel className="fixed left-[33px] top-[73px] h-[calc(100vh-60px)] w-full max-w-xl bg-boxColor dark:bg-bgColor-dark shadow-lg rounded-lg text-titleText dark:text-titleText-dark overflow-y-auto p-4">
-                    <h3 className="text-lg font-semibold mb-4">ویرایش کاربر</h3>
-                    {form && (
-                        <div className="">
-                            <div>
+                {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
+                <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
 
-                                <label className=''>
-                                    نام و نام‌خانوادگی
-                                </label>
-                                <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="نام و نام‌خانوادگی" value={form.name} onChange={onFormInputChange('name')} />
-                            </div>
-                            <div className='mt-4'>
-                                <label className=''>
-                                    شماره همراه
-                                </label>
-                                <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="شماره همراه" value={form.phoneNumber} onChange={onFormInputChange('phoneNumber')} />
-                            </div>
-                            <div className='mt-4'>
-                                <label className=''>
-                                    ایمیل
-                                </label>
-                                <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="ایمیل" value={form.email} onChange={onFormInputChange('email')} />
-                            </div>
-                            <div className='mt-4'>
-                                <label className="block text-sm mb-1">نقش</label>
-                                <select
-                                    value={form.role}
-                                    onChange={onFormRoleChange}
-                                    className="w-full h-10 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark px-3"
-                                >
-                                    {roles.map(r => (
-                                        <option key={r.value} value={r.value}>
-                                            {r.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                {/* کانتینر مرکزی پنل، بالاتر از بک‌دراپ */}
+                <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
+                    <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
+                        <h3 className="text-lg font-semibold mb-4">ویرایش کاربر</h3>
+                        {form && (
+                            <div className="">
+                                <div>
+                                    <label className=''>
+                                        نام
+                                    </label>
+                                    <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="نام" value={form.firstName} onChange={onFormInputChange('firstName')} />
+                                </div>
+                                <div className='mt-4'>
+                                    <label>
+                                        نام خانوادگی
+                                    </label>
+                                    <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="نام‌خانوادگی" value={form.lastName} onChange={onFormInputChange('lastName')} />
+                                </div>
+                                <div className='mt-4'>
+                                    <label className=''>
+                                        شماره همراه
+                                    </label>
+                                    <Input disabled className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="شماره همراه" value={form.username} onChange={onFormInputChange('username')} />
+                                </div>
 
-                            <div className="relative w-full mt-4">
-                                <div className="flex justify-between items-center w-full">
-                                    <div className="text-sm text-titleText dark:text-titleText-dark"></div>
-                                    <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
-                                        <button
-                                            onClick={onEditSave}
-                                            className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
+                                <div className="relative w-full mt-6">
+                                    <div className=" justify-between items-center w-full">
+                                        <div className="text-sm text-titleText dark:text-titleText-dark"></div>
+                                        <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
+                                            <button
+                                                onClick={onEditSave}
+                                                className="w-full bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
 
-                                        >
-                                            {"ذخیره"
-                                            }
-                                        </button>
+                                            >
+                                                {
+                                                    EditLoading ?
+                                                        <LoaderCircle size={8} color="border-white-500" />
+                                                        :
+                                                        "ذخیره"
+                                                }
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                        </div>
-                    )}
-                </Modal.Panel>
+                            </div>
+                        )}
+                    </Modal.Panel>
+                </div>
             </Modal>
 
             {/* -------- مودال تأیید حذف -------- */}
@@ -280,7 +412,7 @@ const Page: React.FC = () => {
                         </h3>
 
                         <p className="text-sm mb-6 text-center leading-relaxed">
-                            {`آیا از حذف ${target?.name ?? ''} مطمئن هستید؟`}
+                            {`آیا از حذف ${target?.firstName ?? ''} ${target?.lastName ?? ''} مطمئن هستید؟`}
                         </p>
 
                         <div className="flex justify-center gap-4 w-full">
@@ -294,70 +426,70 @@ const Page: React.FC = () => {
                                 onClick={confirmDelete}
                                 className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
                             >
-                                حذف
+                                {
+                                    DeleteLoading ?
+                                        <LoaderCircle size={8} color="border-white-500" />
+                                        :
+                                        'حذف'
+                                }
+
                             </button>
                         </div>
                     </Modal.Panel>
                 </div>
             </Modal>
 
-
             {/* -------- مودال افزودن -------- */}
             <Modal open={addOpen} onClose={onAddClose}>
-                <Modal.Backdrop />
-                <Modal.Panel className="fixed left-[33px] top-[73px] h-[calc(100vh-60px)] w-full max-w-xl bg-boxColor dark:bg-bgColor-dark shadow-lg rounded-lg text-titleText dark:text-titleText-dark overflow-y-auto p-4">
-                    <h3 className="text-lg font-semibold mb-4">افزودن کاربر جدید</h3>
-                    <div>
+                {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
+                <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
+
+                {/* کانتینر مرکزی پنل، بالاتر از بک‌دراپ */}
+                <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
+                    <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
+                        <h3 className="text-lg font-semibold mb-4">افزودن کاربر جدید</h3>
                         <div>
-                            <label className='mt-2'>
-                                نام و نام‌خانوادگی
-                            </label>
-                            <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="نام و نام‌خانوادگی" value={addForm.name} onChange={onAddInputChange('name')} />
-                        </div>
-                        <div className='mt-4'>
-                            <label className='mt-2'>
-                                شماره همراه
-                            </label>
-                            <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="شماره همراه" value={addForm.phoneNumber} onChange={onAddInputChange('phoneNumber')} />
-                        </div>
-                        <div className='mt-4'>
-                            <label className='mt-2'>
-                                ایمیل
-                            </label>
-                            <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="ایمیل" value={addForm.email} onChange={onAddInputChange('email')} />
-                        </div>
-                        <div className='mt-4'>
-                            <label className="block text-sm mb-1">نقش</label>
-                            <select
-                                value={addForm.role}
-                                onChange={onAddRoleChange}
-                                className="w-full h-10 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark px-3"
-                            >
-                                {roles.map(r => (
-                                    <option key={r.value} value={r.value}>
-                                        {r.label}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+                            <div>
+                                <label className='mt-2'>
+                                    نام
+                                </label>
+                                <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="نام و نام‌خانوادگی" value={addForm.firstName} onChange={onAddInputChange('firstName')} />
+                            </div>
+                            <div className='mt-4'>
+                                <label className='mt-2'>
+                                    نام خانوادگی
+                                </label>
+                                <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="نام و نام‌خانوادگی" value={addForm.lastName} onChange={onAddInputChange('lastName')} />
+                            </div>
+                            <div className='mt-4'>
+                                <label className='mt-2'>
+                                    شماره همراه
+                                </label>
+                                <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="شماره همراه" value={addForm.username} onChange={onAddInputChange('username')} />
+                            </div>
 
-                        <div className="relative w-full mt-4">
-                            <div className="flex justify-between items-center w-full">
-                                <div className="text-sm text-titleText dark:text-titleText-dark"></div>
-                                <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
-                                    <button
-                                        onClick={onAddSave}
-                                        className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
+                            <div className="relative w-full mt-6">
+                                <div className=" justify-between items-center w-full">
+                                    <div className="text-sm text-titleText dark:text-titleText-dark"></div>
+                                    <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
+                                        <button
+                                            onClick={onAddSave}
+                                            className="w-full bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
 
-                                    >
-                                        {"افزودن"
-                                        }
-                                    </button>
+                                        >
+                                            {
+                                                AddLoading ?
+                                                    <LoaderCircle size={8} color="border-white-500" />
+                                                    :
+                                                    "افزودن"
+                                            }
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </Modal.Panel>
+                    </Modal.Panel>
+                </div>
             </Modal>
         </div>
     );

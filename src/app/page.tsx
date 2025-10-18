@@ -102,6 +102,7 @@ export default function Home() {
       username,
       password
     }
+  
     if (validatePhoneNumber(username)) {
       setLoading(true)
       const response = await fetch(`${ADDRESS}`, {
@@ -109,38 +110,47 @@ export default function Home() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
+  
       if (!response.ok) {
         setLoading(false)
         SetHasError(true)
         SetUsernameError(true)
         SetErrorText('شماره موبایل یا رمزعبور اشتباه است')
-        return;
-      } else {
-        setLoading(false)
-        SetHasError(false)
-        SetUsernameError(false)
+        return
       }
-
-      const data: LoginResponse = await response.json();
-      const token = data?.result?.token;
-      if (!token) {
+  
+      setLoading(false)
+      SetHasError(false)
+      SetUsernameError(false)
+  
+      const data: LoginResponse = await response.json()
+      const token = data?.result?.token
+      const user = data?.result
+  
+      if (!token || !user) {
         SetHasError(true)
         SetErrorText('خطا در پردازش')
-        return;
-      } else {
-        SetHasError(false)
+        return
       }
-      const secure = location.protocol === "https:" ? "; Secure" : "";
-      document.cookie = `token=${token}; Path=/; SameSite=Lax; Max-Age=86400${secure}`;
-
+  
+      const secure = location.protocol === "https:" ? "; Secure" : ""
+      const maxAge = 60 * 60 * 24 // 24 ساعت
+  
+      // ذخیره‌ی کوکی‌ها
+      document.cookie = `token=${token}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+      document.cookie = `username=${user.username}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+      document.cookie = `firstName=${user.firstName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+      document.cookie = `lastName=${user.lastName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+      document.cookie = `role=${user.role}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+  
       router.push("/panel/dashboard")
     } else {
       SetUsernameError(true)
       SetHasError(true)
       SetErrorText('شماره موبایل وارد شده اشتباه است')
     }
-
   }
+  
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
