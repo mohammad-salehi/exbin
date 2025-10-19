@@ -247,7 +247,7 @@ const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
                                             </MenuItem>
                                         )}
                                     </Dropdown.Option>
-                                    <Dropdown.Option value="صورت مالی" key="option2">
+                                    {/* <Dropdown.Option value="صورت مالی" key="option2">
                                         {({ active }) => (
                                             <MenuItem
                                                 isActive={active}
@@ -257,7 +257,7 @@ const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
                                                 <MenuItem.Title>صورت مالی</MenuItem.Title>
                                             </MenuItem>
                                         )}
-                                    </Dropdown.Option>
+                                    </Dropdown.Option> */}
                                 </Dropdown.Options>
                             </Dropdown>
 
