@@ -17,7 +17,7 @@ type Person = {
   name?: string;
   legalName?: number;
   registrationNumber?: number;
-  website?: number;
+  siteAddress?: number;
   title?: string;
   link?: string;
   progress?: number;
@@ -30,7 +30,7 @@ type Company = {
   logo: string;
   legalName: string;
   registrationNumber: string;
-  website: string;
+  siteAddress: string;
 };
 
 // کمکی: چک مچ روی یک فیلد
@@ -113,7 +113,15 @@ const Page = () => {
     },
     { header: "نام حقوقی", accessorKey: "legalName", className: "tabular-nums" },
     { header: "شماره ثبت", accessorKey: "registrationNumber", className: "tabular-nums" },
-    { header: "سایت", accessorKey: "website", className: "tabular-nums" },
+    { header: "وبسایت", accessorKey: "siteAddress",
+      cell: (row: Person) => (
+        <div>
+          <Link href={`${row.siteAddress}`}>
+            {row.siteAddress}
+          </Link>
+        </div>
+      ),
+       className: "tabular-nums" },
     {
       header: "عملیات",
       accessorKey: "progress",
@@ -137,7 +145,7 @@ const Page = () => {
   ];
 
   // فیلدهایی که می‌خوای سرچ روی‌شون اعمال بشه:
-  const searchKeys: (keyof Person)[] = ["name", "legalName", "registrationNumber", "website", "title", "link"];
+  const searchKeys: (keyof Person)[] = ["name", "legalName", "registrationNumber", "siteAddress", "title", "link"];
 
   // دیتای فیلترشده برای جدول
   const filteredData = useMemo(() => filterTree(data, q, searchKeys), [data, q]);
@@ -153,7 +161,7 @@ const Page = () => {
           logo: item.logo,
           legalName: item.legalName,
           registrationNumber: item.registrationNumber,
-          website: item.website,
+          siteAddress: item.siteAddress,
         }));
         
         people.sort((a, b) => Number(b.id) - Number(a.id));
