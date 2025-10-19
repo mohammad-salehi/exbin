@@ -253,30 +253,79 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             })
         );
     };
-    const addFinancialDocuments = (financialStatements: { id: number; date: string; file: string }[]) => {
-        setInvoiceData(prevData => {
-            return prevData.map(section => {
+
+    const handleDownload = async () => {
+        try {
+            const token = document.cookie
+            .split('; ')
+            .find(row => row.startsWith('token='))
+            ?.split('=')[1];
+            
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/download`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (!res.ok) throw new Error("خطا در دریافت فایل");
+
+            // باینری فایل رو بگیر و دانلود کن
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "assasname.pdf"; // یا از header سرور بگیر
+            a.click();
+
+            window.URL.revokeObjectURL(url);
+        } catch (err) {
+            toast.error("خطا در دانلود فایل");
+        }
+    };
+
+    const addAssociationDocuments = (financialStatement: string) => {
+        setInvoiceData(prevData =>
+            prevData.map(section => {
                 if (section.id === 3) {
                     return {
                         ...section,
                         content: [
-                            ...section.content,
-                            ...financialStatements.map(statement => ({
-                                id: statement.id + 100,
-                                title: `صورت‌ مالی ${statement.date}`,
+                            {
+                                id: Date.now(), // یه id یکتا
+                                title: "اساسنامه",
                                 content: (
-                                    <a href={statement.file} className="text-primary dark:text-primary-dark">
-                                        دریافت
-                                    </a>
-                                )
-                            }))
-                        ]
+                                    <div>
+                                        <button
+                                            onClick={handleDownload}
+                                            className="text-primary dark:text-primary-dark block mt-2"
+                                        >
+                                            دریافت
+                                        </button>
+
+                                        <a
+                                            href={financialStatement}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-primary dark:text-primary-dark block mt-2"
+                                        >
+                                            حذف
+                                        </a>
+                                    </div>
+
+                                ),
+                            },
+                        ],
                     };
                 }
                 return section;
-            });
-        });
+            })
+        );
     };
+
 
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
@@ -306,7 +355,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                     </a>)
                 }
 
-                addFinancialDocuments(response.result.financialStatements)
+                addAssociationDocuments(response.result.association)
 
                 setForm({
                     legalName: response.result.legalName,
@@ -412,7 +461,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 managerInfo.boardMemberInfo = []
                 managerInfo.employeeInfo = []
 
-                console.log(managerInfo)
                 try {
                     const token = document.cookie
                         .split('; ')
