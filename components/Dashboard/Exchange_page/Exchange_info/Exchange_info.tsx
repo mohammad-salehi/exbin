@@ -674,7 +674,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           if (!response.ok) {
             console.log(response);
             setLoading(false);
-            return toast.error(`خطا در ذخیره مدیرعامل`);
+            return toast.error(`خطا در ذخیره مشخصات صرافی`);
           } else {
             const responseData = await response.json();
             console.log(responseData);
@@ -732,12 +732,12 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         } catch (err) {
           setLoading(false);
           console.error(err);
-          return toast.error(`خطا در ذخیره مدیرعامل`);
+          return toast.error(`خطا در ذخیره اطلاعات صرافی`);
         }
       })
       .catch((err) => {
         console.log(err);
-        return toast.error(`خطا در ذخیره مدیرعامل`);
+        return toast.error(`خطا در ذخیره اطلاعات صرافی`);
       });
   };
 

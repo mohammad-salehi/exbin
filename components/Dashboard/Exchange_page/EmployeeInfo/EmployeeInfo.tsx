@@ -25,7 +25,7 @@ type Person = {
 
 type ExchangeInfoProps = {
     SetC5: React.Dispatch<React.SetStateAction<boolean>>;
-  };
+};
 
 const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
@@ -77,24 +77,40 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
             return;
         }
-        
-        const regex = /^\d{4}\/\d{2}\/\d{2}$/;
-        if (!regex.test(form.insuranceStartDate || "")) {
-            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", {
-                position: "bottom-left",
-            })
+
+        const toEnglishDigits = (s: string) =>
+            s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
+                .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
+
+        // 2) نرمال‌سازی کلی تاریخ
+        const normalizeDateInput = (input?: string) => {
+            if (!input) return "";
+            return toEnglishDigits(input)
+                .replace(/[\u200c\u200e\u200f\ufeff]/g, "") // حذف ZWNJ/RTL marks/BOM
+                .replace(/[⁄∕／]/g, "/")                    // انواع slash به /
+                .replace(/\s+/g, "")                        // حذف فاصله‌ها
+                .trim();
+        };
+
+        // 3) regex روی الگوی yyyy/mm/dd با اعداد لاتین
+        const dateRegex = /^(\d{4})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/;
+
+        // استفاده:
+        const startIns = normalizeDateInput(form.insuranceStartDate);
+        if (!dateRegex.test(startIns)) {
+            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (!regex.test(form.insuranceEndDate || "")) {
-            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", {
-                position: "bottom-left",
-            })
+
+        const endIns = normalizeDateInput(form.insuranceEndDate);
+        if (!dateRegex.test(endIns)) {
+            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (!regex.test(form.startDate || "")) {
-            toast.error("تاریخ شروع کار را به درستی وارد کنید", {
-                position: "bottom-left",
-            })
+
+        const startWork = normalizeDateInput(form.startDate);
+        if (!dateRegex.test(startWork)) {
+            toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
 
@@ -319,22 +335,39 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             return;
         }
 
-        if (!regex.test(form.insuranceStartDate || "")) {
-            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", {
-                position: "bottom-left",
-            })
+        const toEnglishDigits = (s: string) =>
+            s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
+                .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
+
+        // 2) نرمال‌سازی کلی تاریخ
+        const normalizeDateInput = (input?: string) => {
+            if (!input) return "";
+            return toEnglishDigits(input)
+                .replace(/[\u200c\u200e\u200f\ufeff]/g, "") // حذف ZWNJ/RTL marks/BOM
+                .replace(/[⁄∕／]/g, "/")                    // انواع slash به /
+                .replace(/\s+/g, "")                        // حذف فاصله‌ها
+                .trim();
+        };
+
+        // 3) regex روی الگوی yyyy/mm/dd با اعداد لاتین
+        const dateRegex = /^(\d{4})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/;
+
+        // استفاده:
+        const startIns = normalizeDateInput(form.insuranceStartDate);
+        if (!dateRegex.test(startIns)) {
+            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (!regex.test(form.insuranceEndDate || "")) {
-            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", {
-                position: "bottom-left",
-            })
+
+        const endIns = normalizeDateInput(form.insuranceEndDate);
+        if (!dateRegex.test(endIns)) {
+            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (!regex.test(form.startDate || "")) {
-            toast.error("تاریخ شروع کار را به درستی وارد کنید", {
-                position: "bottom-left",
-            })
+
+        const startWork = normalizeDateInput(form.startDate);
+        if (!dateRegex.test(startWork)) {
+            toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
         SetAddLoading(true)
@@ -378,12 +411,12 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
         if (!response.ok) {
             SetAddLoading(false)
-            return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
+            return toast.error(`خطا در ذخیره کارمند`);
         }
         const responseData = await response.json();
         console.log(responseData);
         SetAddLoading(false)
-        toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
+        toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
 
         setData((prev) => [...prev, { ...form, id: newId }]);
         closeAddModal();
@@ -451,12 +484,11 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 <label>شماره همراه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => 
-                                        {
-                                            if (validateNumbers(e.target.value)) {
-                                                setForm({ ...form, phoneNumber: e.target.value })
-                                            }
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, phoneNumber: e.target.value })
                                         }
+                                    }
                                     } placeholder="شماره همراه" />
                             </div>
 
@@ -464,12 +496,11 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 <label>کد ملی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => 
-                                        {
-                                            if (validateNumbers(e.target.value)) {
-                                                setForm({ ...form, nationalCode: e.target.value })
-                                            }
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, nationalCode: e.target.value })
                                         }
+                                    }
                                     } placeholder="کد ملی" />
                             </div>
 
@@ -624,24 +655,22 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 <label>شماره همراه</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => 
-                                        {
-                                            if (validateNumbers(e.target.value)) {
-                                                setForm({ ...form, phoneNumber: e.target.value })
-                                            }
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, phoneNumber: e.target.value })
                                         }
+                                    }
                                     } placeholder="شماره همراه" />
                             </div>
                             <div>
                                 <label>کد ملی</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => 
-                                        {
-                                            if (validateNumbers(e.target.value)) {
-                                                setForm({ ...form, nationalCode: e.target.value })
-                                            }
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
+                                        if (validateNumbers(e.target.value)) {
+                                            setForm({ ...form, nationalCode: e.target.value })
                                         }
+                                    }
                                     } placeholder="کد ملی" />
                             </div>
                             <div>
