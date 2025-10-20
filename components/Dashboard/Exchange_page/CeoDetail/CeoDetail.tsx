@@ -89,9 +89,9 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
             .then(async (response) => {
                 let managerInfo = response.result
                 managerInfo.managerInfo = updatedForm
-                managerInfo.exchangeAgentInfo = []
-                managerInfo.boardMemberInfo = []
-                managerInfo.employeeInfo = []
+                // managerInfo.exchangeAgentInfo = []
+                // managerInfo.boardMemberInfo = []
+                // managerInfo.employeeInfo = []
                 try {
                     const token = document.cookie
                         .split('; ')

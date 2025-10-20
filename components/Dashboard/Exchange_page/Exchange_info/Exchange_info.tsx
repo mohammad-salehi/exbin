@@ -641,10 +641,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         managerInfo.email = form.email;
         managerInfo.financialCode = form.financialCode;
         managerInfo.registrationNumber = form.registrationNumber;
-        managerInfo.exchangeAgentInfo = [];
-        managerInfo.boardMemberInfo = [];
-        managerInfo.employeeInfo = [];
-
+        // managerInfo.exchangeAgentInfo = [];
+        // managerInfo.boardMemberInfo = [];
+        // managerInfo.employeeInfo = [];
+        console.log(managerInfo)
         try {
           const token = document.cookie
             .split("; ")

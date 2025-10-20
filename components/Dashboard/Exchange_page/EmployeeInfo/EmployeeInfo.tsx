@@ -160,7 +160,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 console.log(response)
                 // setLoading(false)
                 SetEditLoading(false)
-                return toast.error(`خطا در حذف کارمند`);
+                return toast.error(`خطا در ویرایش کارمند`);
             } else {
                 const responseData = await response.json();
                 console.log(responseData);
