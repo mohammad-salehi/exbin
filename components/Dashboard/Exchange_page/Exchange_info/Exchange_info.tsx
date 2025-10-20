@@ -157,22 +157,22 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   }
 
   const download = async () => {
-    SetDownloadLoading(true);
     try {
-      SetDownloadLoading(false);
+      SetDownloadLoading(true); 
       const res = await GetRequest(
         `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`
       );
       if (!res?.result) {
         toast.error("داده‌ای دریافت نشد");
-        SetDownloadLoading(false);
         return;
       }
       await generateCompanyExcel(res.result);
-      SetDownloadLoading(false);
-    } catch (e) {
-      console.log(e);
-      SetDownloadLoading(false);
+      toast.success("دانلود با موفقیت انجام شد");
+    } catch (error) {
+      console.error(error);
+      toast.error("خطا در دانلود داده‌ها");
+    } finally {
+      SetDownloadLoading(false); 
     }
   };
 
@@ -201,11 +201,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         { id: 5, title: "ایمیل", content: "" },
       ],
     },
-    {
-      id: 3,
-      title: "اسناد",
-      content: [],
-    },
+    // {
+    //   id: 3,
+    //   title: "اسناد",
+    //   content: [],
+    // },
     {
       id: 4,
       title: "عملیات",
@@ -252,6 +252,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   strokeLinejoin="round"
                 />
               </svg>
+
               <span>ویرایش</span>
             </div>
           ),
@@ -267,28 +268,34 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               }}
             >
               <span className="flex items-center ml-1">
-                <svg
-                  width="24px"
-                  height="24px"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+                {
+                  DownloadLoading ?
+                    <LoaderCircle size={8} color="border-white-500" />
+                    :
+                    <svg
+                      width="24px"
+                      height="24px"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                }
+
               </span>
               <p className="text-right">دریافت Excel</p>
             </div>
@@ -355,112 +362,112 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     }
   };
 
-  const addAssociationDocuments = (financialStatement: string) => {
-    setInvoiceData((prevData) =>
-      prevData.map((section) => {
-        if (section.id === 3) {
-          return {
-            ...section,
-            content: [
-              {
-                id: Date.now(), // یه id یکتا
-                title: "",
-                content: (
-                  <div className="flex justify-between items-center mb-3 w-full">
-                    <div className="flex items-center">
-                      <h6 className="inline-block">اساسنامه</h6>
-                    </div>
+  // const addAssociationDocuments = (financialStatement: string) => {
+  //   setInvoiceData((prevData) =>
+  //     prevData.map((section) => {
+  //       if (section.id === 3) {
+  //         return {
+  //           ...section,
+  //           content: [
+  //             {
+  //               id: Date.now(), // یه id یکتا
+  //               title: "",
+  //               content: (
+  //                 <div className="flex justify-between items-center mb-3 w-full">
+  //                   <div className="flex items-center">
+  //                     <h6 className="inline-block">اساسنامه</h6>
+  //                   </div>
 
-                    <div className="flex items-center">
-                      <button
-                        onClick={handleDownload}
-                        className="text-titleText dark:text-titleText-dark mr-2"
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                          <path
-                            d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      </button>
-                      <button
-                        onClick={async () => {
-                            try {
-                                const token = document.cookie
-                                    .split('; ')
-                                    .find(row => row.startsWith('token='))
-                                    ?.split('=')[1];
+  //                   <div className="flex items-center">
+  //                     <button
+  //                       onClick={handleDownload}
+  //                       className="text-titleText dark:text-titleText-dark mr-2"
+  //                     >
+  //                       <svg
+  //                         width="20"
+  //                         height="20"
+  //                         viewBox="0 0 24 24"
+  //                         fill="none"
+  //                         xmlns="http://www.w3.org/2000/svg"
+  //                       >
+  //                         <path
+  //                           d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
+  //                           stroke="currentColor"
+  //                           stroke-width="1.5"
+  //                           stroke-linecap="round"
+  //                           stroke-linejoin="round"
+  //                         />
+  //                         <path
+  //                           d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
+  //                           stroke="currentColor"
+  //                           stroke-width="1.5"
+  //                           stroke-linecap="round"
+  //                           stroke-linejoin="round"
+  //                         />
+  //                       </svg>
+  //                     </button>
+  //                     <button
+  //                       onClick={async () => {
+  //                           try {
+  //                               const token = document.cookie
+  //                                   .split('; ')
+  //                                   .find(row => row.startsWith('token='))
+  //                                   ?.split('=')[1];
 
-                                if (!token) {
-                                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                                    return;
-                                }
+  //                               if (!token) {
+  //                                   toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+  //                                   return;
+  //                               }
 
-                                // setLoading(true)
-                                const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/association/delete`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'Authorization': `Bearer ${token}`,
-                                        'Content-Type': 'application/json',
-                                    },
-                                });
+  //                               // setLoading(true)
+  //                               const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/association/delete`, {
+  //                                   method: 'DELETE',
+  //                                   headers: {
+  //                                       'Authorization': `Bearer ${token}`,
+  //                                       'Content-Type': 'application/json',
+  //                                   },
+  //                               });
 
-                                if (!response.ok) {
-                                    console.log(response)
-                                    // setLoading(false)
-                                    return toast.error(`خطا در حذف اساسنامه`);
-                                } else {
-                                    toast.success("اساسنامه با موفقیت حذف شد.", { position: "bottom-left" });
-                                    window.location.reload()
-                                }
+  //                               if (!response.ok) {
+  //                                   console.log(response)
+  //                                   // setLoading(false)
+  //                                   return toast.error(`خطا در حذف اساسنامه`);
+  //                               } else {
+  //                                   toast.success("اساسنامه با موفقیت حذف شد.", { position: "bottom-left" });
+  //                                   window.location.reload()
+  //                               }
 
-                            } catch (err) {
-                                console.error(err);
-                                return toast.error(`خطا در حذف اساسنامه`);
-                            }
-                        }}
-                        className="text-titleText dark:text-titleText-dark mr-1"
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          viewBox="0 0 1024 1024"
-                          xmlns="http://www.w3.org/2000/svg"
-                          className=""
-                        >
-                          <path
-                            fill="currentColor"
-                            d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                ),
-              },
-            ],
-          };
-        }
-        return section;
-      })
-    );
-  };
+  //                           } catch (err) {
+  //                               console.error(err);
+  //                               return toast.error(`خطا در حذف اساسنامه`);
+  //                           }
+  //                       }}
+  //                       className="text-titleText dark:text-titleText-dark mr-1"
+  //                     >
+  //                       <svg
+  //                         width="20"
+  //                         height="20"
+  //                         viewBox="0 0 1024 1024"
+  //                         xmlns="http://www.w3.org/2000/svg"
+  //                         className=""
+  //                       >
+  //                         <path
+  //                           fill="currentColor"
+  //                           d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"
+  //                         />
+  //                       </svg>
+  //                     </button>
+  //                   </div>
+  //                 </div>
+  //               ),
+  //             },
+  //           ],
+  //         };
+  //       }
+  //       return section;
+  //     })
+  //   );
+  // };
 
   useEffect(() => {
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
@@ -509,9 +516,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             </a>
           );
         }
-        if (response.result.association !== null) {
-            addAssociationDocuments(response.result.association);
-        }
+        // if (response.result.association !== null) {
+        //     addAssociationDocuments(response.result.association);
+        // }
 
         setForm({
           legalName: response.result.legalName,
@@ -802,8 +809,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               typeof item.content === "string"
                 ? item.content
                 : React.isValidElement(item.content)
-                ? item.content
-                : "", // تبدیل به string یا Element
+                  ? item.content
+                  : "", // تبدیل به string یا Element
           })),
         }))}
         downloadLink="/path/to/pdf"

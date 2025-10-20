@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import CircularChart from "../../../../components/Dashboard/CircularChart/CircularChart";
 import LineChartExample from "../../../../components/Dashboard/LinearChart/LinearChart";
 import MarketVolumeChart from "../../../../components/Dashboard/MarketVolumeChart/MarketVolumeChart";
+import ComingSoon from "../../../../components/ComingSoon/ComingSoon";
 export default function Page() {
 
   //دیتای تستی برای تعداد صرافی های ثبت شده
@@ -109,7 +110,7 @@ export default function Page() {
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      {/* <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <div>
           <CircularChart
             data={ChartData}
@@ -140,7 +141,9 @@ export default function Page() {
             data={ExTrNumber}
           />
         </div>
-      </div>
+      </div> */}
+
+      <ComingSoon/>
 
     </div>
   );
