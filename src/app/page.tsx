@@ -143,7 +143,7 @@ export default function Home() {
       document.cookie = `lastName=${user.lastName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
       document.cookie = `role=${user.role}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
   
-      router.push("/panel/dashboard")
+      router.push("/panel/exchanges-list")
     } else {
       SetUsernameError(true)
       SetHasError(true)
