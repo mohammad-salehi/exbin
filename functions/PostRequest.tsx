@@ -1,15 +1,13 @@
-// utils/http.ts
 export type PostOptions = {
     headers?: HeadersInit;
     asFormData?: boolean;
-    tokenCookieName?: string;        // 'token'
-    refreshCookieName?: string;      // 'refreshToken'
-    redirectOn403?: string | false;  // '/', یا false برای عدم ریدایرکت
+    tokenCookieName?: string;        
+    refreshCookieName?: string;      
+    redirectOn403?: string | false; 
     signal?: AbortSignal;
-    baseURL?: string;                // برای refresh؛ پیش‌فرض از ENV
+    baseURL?: string;               
   };
   
-  // --------------- helpers ---------------
   const getCookie = (name: string) =>
     document.cookie.split('; ').find(r => r.startsWith(name + '='))?.split('=')[1];
   
@@ -39,7 +37,6 @@ export type PostOptions = {
     return fd;
   }
   
-  // رفرش توکن (یک‌بار)
   async function refreshAuth(opts: {
     baseURL?: string;
     refreshCookieName: string;
@@ -59,10 +56,7 @@ export type PostOptions = {
     });
   
     if (!res.ok) {
-      // اگر رفرش شکست خورد، کوکی‌های حساس را پاک کن
       clearCookie('token');
-      // refreshToken را هم پاک کن اگر لازم داری:
-      // clearCookie(opts.refreshCookieName);
       const t = await res.text();
       throw new Error(t || `HTTP ${res.status}`);
     }
@@ -77,7 +71,6 @@ export type PostOptions = {
     };
     const data = (await res.json()) as RefreshResponse;
   
-    // ست‌کردن کوکی‌ها طبق قرارداد فعلی
     if (data.token) setCookie('token', data.token);
     if (data.refreshToken) setCookie('refreshToken', data.refreshToken);
     if (data.username) setCookie('username', data.username);
@@ -88,7 +81,6 @@ export type PostOptions = {
     return data.token;
   }
   
-  // --------------- POST ---------------
   export async function PostRequest<T = any>(
     url: string,
     data: Record<string, any> | FormData,
@@ -101,7 +93,7 @@ export type PostOptions = {
       signal,
       baseURL,
     }: PostOptions = {},
-    _retried = false // داخلی: فقط یک‌بار رفرش
+    _retried = false 
   ): Promise<T> {
     const token = getCookie(tokenCookieName);
     if (!token) throw new Error('Token not found');
@@ -125,11 +117,9 @@ export type PostOptions = {
     });
   
     if (!res.ok) {
-      // اگر توکن منقضی شده بود، یک‌بار رفرش و تکرار کن
       if ((res.status === 401 || res.status === 403) && !_retried) {
         try {
           const newToken = await refreshAuth({ baseURL, refreshCookieName });
-          // با توکن جدید دوباره امتحان کن
           const retryHeaders: HeadersInit = {
             ...finalHeaders,
             Authorization: `Bearer ${newToken}`,
@@ -153,14 +143,12 @@ export type PostOptions = {
             ? ((await retryRes.json()) as T)
             : ((await retryRes.text()) as unknown as T);
         } catch (refreshErr) {
-          // رفرش شکست خورد
           clearCookie(tokenCookieName);
           if (redirectOn403) window.location.assign(redirectOn403);
           throw refreshErr;
         }
       }
   
-      // سایر خطاها یا رفرش قبلاً انجام شده
       if (res.status === 403 || res.status === 401) {
         clearCookie(tokenCookieName);
         if (redirectOn403) window.location.assign(redirectOn403);

@@ -1,4 +1,3 @@
-// utils/http.ts (بخش GetRequest جدید)
 export const GetRequest = async (
     url: string,
     {
@@ -12,9 +11,8 @@ export const GetRequest = async (
       redirectOn403?: string | false;
       baseURL?: string;
     } = {},
-    _retried = false // برای کنترل فقط یک‌بار رفرش
+    _retried = false 
   ): Promise<any> => {
-    // --- helper ---
     const getCookie = (name: string) =>
       document.cookie.split("; ").find(r => r.startsWith(name + "="))?.split("=")[1];
   
@@ -28,7 +26,6 @@ export const GetRequest = async (
       document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
     };
   
-    // --- تابع رفرش ---
     const refreshAuth = async () => {
       const refreshToken = getCookie(refreshCookieName);
       if (!refreshToken) throw new Error("Refresh token not found");
@@ -61,7 +58,6 @@ export const GetRequest = async (
       return data.token;
     };
   
-    // --- اجرای درخواست ---
     const token = getCookie(tokenCookieName);
     if (!token) throw new Error("Token not found");
   
@@ -73,12 +69,10 @@ export const GetRequest = async (
       },
     });
   
-    // اگر توکن منقضی شده بود: یک‌بار رفرش و تکرار
     if (!response.ok) {
       if ((response.status === 401 || response.status === 403) && !_retried) {
         try {
           const newToken = await refreshAuth();
-          // تکرار با توکن جدید
           const retryRes = await fetch(url, {
             method: "GET",
             headers: {
@@ -103,7 +97,6 @@ export const GetRequest = async (
         }
       }
   
-      // اگر از قبل رفرش شده یا خطای دیگر
       if (response.status === 401 || response.status === 403) {
         clearCookie(tokenCookieName);
         if (redirectOn403) window.location.assign(redirectOn403);
@@ -113,7 +106,6 @@ export const GetRequest = async (
       throw new Error(text || `HTTP ${response.status}`);
     }
   
-    // ✅ موفق
     const data = await response.json();
     return data;
   };
