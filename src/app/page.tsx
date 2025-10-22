@@ -142,6 +142,7 @@ export default function Home() {
       document.cookie = `firstName=${user.firstName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
       document.cookie = `lastName=${user.lastName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
       document.cookie = `role=${user.role}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+      document.cookie = `refreshToken=${user.refreshToken}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
   
       router.push("/panel/exchanges-list")
     } else {

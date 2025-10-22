@@ -8,6 +8,7 @@ import { LoaderCircle } from '../../../Loader/Loader';
 
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
+import { PostRequest } from '../../../../functions/PostRequest';
 
 type Person = {
     id: string;
@@ -320,107 +321,91 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
     const handleAdd = async () => {
         const newId = (data.length + 1).toString();
-        const regex = /^\d{4}\/\d{2}\/\d{2}$/;
-
+      
         if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+          return;
         }
         if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+          return;
         }
         if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+          return;
         }
-
+      
+        // اعداد فارسی/عربی → انگلیسی
         const toEnglishDigits = (s: string) =>
-            s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
-                .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
-
-        // 2) نرمال‌سازی کلی تاریخ
+          s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
+           .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
+      
+        // نرمال‌سازی تاریخ ورودی
         const normalizeDateInput = (input?: string) => {
-            if (!input) return "";
-            return toEnglishDigits(input)
-                .replace(/[\u200c\u200e\u200f\ufeff]/g, "") // حذف ZWNJ/RTL marks/BOM
-                .replace(/[⁄∕／]/g, "/")                    // انواع slash به /
-                .replace(/\s+/g, "")                        // حذف فاصله‌ها
-                .trim();
+          if (!input) return "";
+          return toEnglishDigits(input)
+            .replace(/[\u200c\u200e\u200f\ufeff]/g, "") // حذف ZWNJ/RTL/BOM
+            .replace(/[⁄∕／]/g, "/")                    // اسلش‌های مختلف → /
+            .replace(/\s+/g, "")                        // حذف فاصله
+            .trim();
         };
-
-        // 3) regex روی الگوی yyyy/mm/dd با اعداد لاتین
+      
+        // yyyy/mm/dd
         const dateRegex = /^(\d{4})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/;
-
-        // استفاده:
+      
         const startIns = normalizeDateInput(form.insuranceStartDate);
         if (!dateRegex.test(startIns)) {
-            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
+          return;
         }
-
+      
         const endIns = normalizeDateInput(form.insuranceEndDate);
         if (!dateRegex.test(endIns)) {
-            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
+          return;
         }
-
+      
         const startWork = normalizeDateInput(form.startDate);
         if (!dateRegex.test(startWork)) {
-            toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
+          return;
         }
-        SetAddLoading(true)
-        let memberInfo = {
-            name: form.name !== null ? form.name : "",
-            jobPosition: form.jobPosition !== null ? form.jobPosition : "",
-            startDate: form.startDate !== null ? form.startDate : "",
-            educationalHistory: form.educationalHistory !== null ? form.educationalHistory : "",
-            careerHistory: form.careerHistory !== null ? form.careerHistory : "",
-            insuranceStartDate: form.insuranceStartDate !== null ? form.insuranceStartDate : "",
-            insuranceEndDate: form.insuranceEndDate !== null ? form.insuranceEndDate : "",
-            isSpecialAccess: form.isSpecialAccess !== null ? form.isSpecialAccess : "",
-            nationalCode: form.nationalCode !== null ? form.nationalCode : "",
-            phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
+      
+        // ساخت payload نهایی (با فیلدهای خالی به صورت "")
+        const memberInfo = {
+          name: form.name || "",
+          jobPosition: form.jobPosition ?? "",
+          startDate: startWork || "",
+          educationalHistory: form.educationalHistory || "",
+          careerHistory: form.careerHistory || "",
+          insuranceStartDate: startIns || "",
+          insuranceEndDate: endIns || "",
+          isSpecialAccess: (form as any).isSpecialAccess ?? "", // اگر boolean است، می‌توانید true/false بفرستید
+          nationalCode: form.nationalCode || "",
+          phoneNumber: form.phoneNumber || "",
+        };
+      
+        try {
+          SetAddLoading(true);
+      
+          await PostRequest(
+            `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/employees`,
+            memberInfo
+            // asFormData لازم نیست؛ JSON می‌فرستیم
+          );
+      
+          toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
+      
+          // به‌روزرسانی لیست محلی با داده‌های نرمال‌شده
+          setData(prev => [...prev, { ...form, ...memberInfo, id: newId }]);
+      
+          closeAddModal();
+        } catch (e: any) {
+          toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
+        } finally {
+          SetAddLoading(false);
         }
-        memberInfo = {
-            ...memberInfo,
-            educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
-            careerHistory: form.careerHistory || "",
-            jobPosition: form.jobPosition !== undefined ? form.jobPosition : "",
-        }
-        const token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('token='))
-            ?.split('=')[1];
-
-        if (!token) {
-            SetAddLoading(false)
-            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-            return;
-        }
-
-        const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}/employees`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(memberInfo),
-        });
-
-        if (!response.ok) {
-            SetAddLoading(false)
-            return toast.error(`خطا در ذخیره کارمند`);
-        }
-        const responseData = await response.json();
-        console.log(responseData);
-        SetAddLoading(false)
-        toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
-
-        setData((prev) => [...prev, { ...form, id: newId }]);
-        closeAddModal();
-    };
+      };
 
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees`)

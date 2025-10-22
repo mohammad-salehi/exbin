@@ -9,6 +9,7 @@ import { GetRequest } from '../../../../functions/GetRequest';
 import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../../components/Loader/Loader';
 import LoadingComponent from '../../../../components/LoadingComponent/LoadingComponent';
+import { PostRequest } from '../../../../functions/PostRequest';
 type Role = 'ADMIN' | 'USER';
 
 type Person = {
@@ -176,54 +177,47 @@ const Page: React.FC = () => {
         };
 
     const onAddSave = async () => {
-
         try {
+            if (!addForm) return;
 
-            if (addForm === null) return
-
-            const Member = {
-                firstName: addForm.firstName,
-                lastName: addForm.lastName,
-                username: addForm.username,
-                role: 'USER'
-            };
-            SetAddLoading(true)
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                SetAddLoading(false)
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+            // ✅ ولیدیشن‌های پایه
+            if (!addForm.firstName?.trim()) {
+                toast.error("نام را وارد کنید", { position: "bottom-left" });
+                return;
+            }
+            if (!addForm.username?.trim()) {
+                toast.error("نام کاربری را وارد کنید", { position: "bottom-left" });
                 return;
             }
 
-            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/v1/users`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(Member),
-            });
+            const Member = {
+                firstName: addForm.firstName,
+                lastName: addForm.lastName ?? "",
+                username: addForm.username,
+                role: addForm.role ?? "USER",
+            };
 
-            if (!response.ok) {
-                SetAddLoading(false)
-                return toast.error(`خطا در ذخیره کاربر`);
-            }
-            const responseData = await response.json();
-            console.log(responseData);
-            SetAddLoading(false)
+            SetAddLoading(true);
+
+            const res: any = await PostRequest(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users`,
+                Member // JSON ارسال می‌شود
+            );
+
             toast.success("کاربر باموفقیت افزوده شد.", { position: "bottom-left" });
-            if (!addForm.firstName.trim() || !addForm.username.trim() || !addForm.role) return;
+
+            // اگر لازم داری قبل از افزودن، دوباره چک کنی:
+            if (!addForm.firstName.trim() || !addForm.username.trim() || !Member.role) return;
+
             const newItem: Person = { ...addForm, id: Date.now().toString() };
             setRows(prev => [newItem, ...prev]);
+
             onAddClose();
-        } catch (error) {
-            SetAddLoading(false)
-            console.log(error)
-            return toast.error(`خطا در ذخیره کاربر`);
+        } catch (e: any) {
+            console.log(e);
+            toast.error(e?.message || "خطا در ذخیره کاربر", { position: "bottom-left" });
+        } finally {
+            SetAddLoading(false);
         }
     };
 

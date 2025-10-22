@@ -10,6 +10,7 @@ import { LoaderCircle } from '../../../Loader/Loader';
 
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
+import { PostRequest } from '../../../../functions/PostRequest';
 
 type Person = {
     id: string;
@@ -270,68 +271,53 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     const closeAddModal = () => setIsAddOpen(false);
 
     const handleAdd = async () => {
-
         if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+          return;
         }
         if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+          return;
         }
         if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+          return;
         }
         if (!validateEmail(form.email) && form.email !== '') {
-            toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+          return;
         }
-
+      
         const Member = {
-            careerHistory: form.careerHistory,
-            email: form.email,
-            name: form.name,
-            nationalCode: form.nationalCode,
-            phoneNumber: form.phoneNumber,
-            role: form.role,
-            sharePercentage: form.sharePercentage !== null ? Number(form.sharePercentage) : 0
+          careerHistory: form.careerHistory || "",
+          email: form.email || "",
+          name: form.name,
+          nationalCode: form.nationalCode,
+          phoneNumber: form.phoneNumber,
+          role: form.role || "",
+          sharePercentage: form.sharePercentage ? Number(form.sharePercentage) : 0,
         };
-        SetAddLoading(true)
-        const token = document.cookie
-            .split('; ')
-            .find(row => row.startsWith('token='))
-            ?.split('=')[1];
-
-        if (!token) {
-            SetAddLoading(false)
-            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-            return;
+      
+        try {
+          SetAddLoading(true);
+      
+          await PostRequest(
+            `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/board-members`,
+            Member
+            // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
+          );
+      
+          toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
+      
+          const newId = (data.length + 1).toString();
+          setData(prev => [...prev, { ...form, id: newId }]);
+          closeAddModal();
+        } catch (e: any) {
+          toast.error(e?.message || "خطا در ذخیره اعضای هیئت‌مدیره", { position: "bottom-left" });
+        } finally {
+          SetAddLoading(false);
         }
-
-        const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}/board-members`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(Member),
-        });
-
-        if (!response.ok) {
-            SetAddLoading(false)
-            return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
-        }
-        const responseData = await response.json();
-        console.log(responseData);
-        SetAddLoading(false)
-        toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
-
-        const newId = (data.length + 1).toString();
-        setData((prev) => [...prev, { ...form, id: newId }]);
-        closeAddModal();
-    };
-
+      };
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/board-members`)
             .then((response) => {

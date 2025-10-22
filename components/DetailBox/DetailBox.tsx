@@ -1,9 +1,5 @@
-import { Button, Label } from "@heathmont/moon-core-tw";
-import React, { JSX, useState } from "react";
+import React, { JSX } from "react";
 import toast from "react-hot-toast";
-import { Modal, Input } from "@heathmont/moon-core-tw";
-import { Dropdown, MenuItem } from "@heathmont/moon-core-tw";
-import { useParams } from "next/navigation";
 interface ColumnData {
     title?: string;
     content: string | JSX.Element;
@@ -19,70 +15,9 @@ interface DetailBoxProps {
 }
 
 const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
-    const params = useParams<{ id: string }>();
-    function closeModal(): void {
-        throw new Error("Function not implemented.");
-    }
-
-    const [type, Settype] = useState<string>("")
-    const [AddFileModal, SetAddFileModal] = useState<boolean>(false)
-    const handleSelectChange = (event: string) => {
-        Settype(event);
-    };
-
-    // ✅ NEW: نگهداری نام فایل و درصورت نیاز پیش‌نمایش
-    // بالا، کنار بقیه stateها
-    const [file, setFile] = useState<File | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [fileName, setFileName] = useState<string>("");
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const f = e.target.files?.[0] || null;
-        setFile(f);
-        setFileName(f ? f.name : "");
-    };
-    const uploadFile = async () => {
-        if (!file) { toast.error("فایلی انتخاب نشده"); return; }
-      
-        try {
-          setLoading(true);
-          const token = document.cookie
-          .split('; ')
-          .find(row => row.startsWith('token='))
-          ?.split('=')[1];
-      
-          const form = new FormData();
-          form.append("association", file); // اسم فیلد دقیقاً همینه
-      
-          const res = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/upload`,
-            {
-              method: "POST",
-              body: form,
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                Accept: "application/json",
-              },
-
-            }
-          );
-          if (!res.ok) {
-            const text = await res.text();
-            throw new Error(text || `HTTP ${res.status}`);
-          }
-          toast.success("اساسنامه با موفقیت بارگذاری شد");
-          window.location.reload()
-          setFile(null);
-          setFileName("");
-          SetAddFileModal(false);
-        } catch (e: any) {
-          toast.error(e?.message || "خطا در آپلود");
-        } finally {
-          setLoading(false);
-        }
-      };
     return (
         <div className="shadow-lg rounded-lg overflow-x-hidden bg-white dark:bg-bgColor-dark border border-gray-200 dark:border-boxColor-dark mt-2 pb-2">
-            <div className="w-full grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 bg-white dark:bg-bgColor-dark">
+            <div className="w-full grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-4 bg-white dark:bg-bgColor-dark">
                 {data.map((section, sectionIndex) => (
                     <div
                         key={sectionIndex}
@@ -144,7 +79,7 @@ const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
                                                 </div>
                                             </div>
                                         ) : (
-                                            <div className="flex flex-col min-w-0">
+                                            <div className="flex flex-col min-w-0 w-full">
                                                 {item.title ? (
                                                     <div className="flex items-center gap-1">
                                                         <span className="font-semibold break-words">
@@ -153,7 +88,7 @@ const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
                                                     </div>
                                                 ) : null}
                                                 <div className="flex items-center gap-1">
-                                                    <span className="whitespace-normal break-words">
+                                                    <span className={`whitespace-normal break-words ${sectionIndex === 2 ? 'w-full' : ''}`}>
                                                         {item.content}
                                                     </span>
                                                     {sectionIndex < 2 ? (
@@ -193,112 +128,12 @@ const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
                                     </li>
                                 ))
                                 :
-                                <div className="text-titleText dark:text-titleText-dark text-center mt-8">
-                                    موردی یافت نشد!
-                                    <Button variant="primary" className='text-primary dark:text-primary-dark border border-primary rounded-md w-full mt-8' onClick={() => { SetAddFileModal(true) }}>
-                                        افزودن مورد جدید
-                                    </Button>
-                                </div>
+                                null
                             }
                         </ul>
                     </div>
                 ))}
             </div>
-
-            <Modal open={AddFileModal} onClose={() => { SetAddFileModal(false); }}>
-                <Modal.Backdrop />
-                <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-                    <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
-                        <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <Modal.Title className="text-lg font-bold">افزودن فایل</Modal.Title>
-
-                            <Label className="mt-4">نوع فایل</Label>
-                            <Dropdown onChange={handleSelectChange} value={type}>
-                                <Dropdown.Trigger className="w-full">
-                                    <Button
-                                        as="span"
-                                        role="button"
-                                        variant="ghost"
-                                        className="flex items-center justify-between w-full pl-10
-                      text-gray-700 border border-gray-300 
-                      rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                      dark:text-gray-100 appearance-none relative bg-bgColor dark:bg-bgColor-dark"
-                                    >
-                                        <span>{type !== "" ? type : "انتخاب"}</span>
-                                    </Button>
-                                </Dropdown.Trigger>
-
-                                <Dropdown.Options
-                                    className="absolute left-0 mt-2 w-72 pl-2 pr-2
-                    text-gray-700 bg-white dark:bg-buttonColor-dark
-                    border border-gray-300 dark:border-buttonBorderColor-dark 
-                    rounded-lg dark:text-gray-100 appearance-none z-50
-                    max-h-60 overflow-y-auto"
-                                >
-                                    <Dropdown.Option value="اساسنامه" key="option1">
-                                        {({ selected, active }) => (
-                                            <MenuItem
-                                                isActive={active}
-                                                isSelected={selected}
-                                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "اساسنامه" ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""
-                                                    }`}
-                                            >
-                                                <MenuItem.Title>اساسنامه</MenuItem.Title>
-                                            </MenuItem>
-                                        )}
-                                    </Dropdown.Option>
-                                    {/* <Dropdown.Option value="صورت مالی" key="option2">
-                                        {({ active }) => (
-                                            <MenuItem
-                                                isActive={active}
-                                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "صورت مالی" ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""
-                                                    }`}
-                                            >
-                                                <MenuItem.Title>صورت مالی</MenuItem.Title>
-                                            </MenuItem>
-                                        )}
-                                    </Dropdown.Option> */}
-                                </Dropdown.Options>
-                            </Dropdown>
-
-                            {type === "صورت مالی" ? (
-                                <div>
-                                    <Label className="mt-4">عنوان</Label>
-                                    <Input
-                                        placeholder="عنوان صورت مالی(تاریخ)"
-                                        className="p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                    />
-                                </div>
-                            ) : null}
-
-                            {/* ✅ NEW: اینپوت فقط‌خوان برای نمایش نام فایل + دکمه انتخاب فایل */}
-                            <div className="items-center gap-2">
-                                <Label className="mt-4">بارگذاری</Label>
-                                <label className="block cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
-                                    <span className="block truncate text-start" title={fileName || "انتخاب فایل"}>
-                                        {fileName || "انتخاب فایل"}
-                                    </span>
-                                    <input
-                                        type="file"
-                                        accept="*/*"              // یا این خط رو کاملاً حذف کن
-                                        onChange={handleFileChange}
-                                        className="hidden"
-                                    />
-                                </label>
-                            </div>
-
-                            <Button
-                                variant="primary"
-                                className="bg-primary dark:bg-primary-dark border text-white border-primary rounded-md w-full mt-4"
-                                disabled={!file || loading}
-                                onClick={uploadFile}
-                            >
-                                {loading ? "در حال بارگذاری..." : "بارگذاری"}
-                            </Button>
-                        </div>
-                    </Modal.Panel>
-                </div>
-            </Modal>
 
         </div>
     );

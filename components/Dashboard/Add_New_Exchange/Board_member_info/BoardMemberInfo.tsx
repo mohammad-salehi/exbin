@@ -2,9 +2,7 @@ import React, { useState } from 'react'
 import ExpandableTable, { Column } from '../../../ExpandableTable/ExpandableTable';
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
 import toast from 'react-hot-toast';
-import { GetRequest } from '../../../../functions/GetRequest';
 import { LoaderCircle } from '../../../Loader/Loader';
-import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
 
 type Person = {

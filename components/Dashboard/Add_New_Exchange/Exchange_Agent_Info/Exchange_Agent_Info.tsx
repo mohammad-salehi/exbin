@@ -5,6 +5,7 @@ import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../Loader/Loader';
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
+import { PostRequest } from '../../../../functions/PostRequest';
 
 type Person = {
     id: string;
@@ -51,73 +52,54 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
     };
 
     const handleSave = async () => {
+        // ✅ ولیدیشن یک‌بار کافی است
         if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
-            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
-            return;
+          toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
+          return;
         }
-
-        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
-            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
-            return;
-        }
-
-        if (editingId) {
-            // 🟢 ویرایش
-            SetData(data.map(member =>
-                member.id === editingId ? { ...member, ...form } : member
-            ));
-        } else {
+      
+        try {
+          if (editingId) {
+            // 🟢 ویرایش محلی
+            SetData(data.map(member => (member.id === editingId ? { ...member, ...form } : member)));
+          } else {
+            // 🟢 ایجاد نماینده جدید
             const Member = {
-                name: form.name,
-                nationalCode: form.nationalCode,
-                phoneNumber: form.phoneNumber,
+              name: form.name,
+              nationalCode: form.nationalCode,
+              phoneNumber: form.phoneNumber,
             };
-            console.log()
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                return;
-            }
-
-            // ارسال درخواست به API
-            setLoading(true)
-            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/exchange-agents`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(Member),
-            });
-
-            if (!response.ok) {
-                setLoading(false)
-                return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
-            }
-            const responseData = await response.json();
-            console.log(responseData);
+      
+            setLoading(true);
+      
+            await PostRequest(
+              `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${ID}/exchange-agents`,
+              Member // JSON ارسال می‌شود
+            );
+      
             toast.success("نماینده صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
-
+      
             const newMember: Person = {
-                id: String(data.length + 1),
-                ...form,
+              id: String(data.length + 1),
+              ...form,
             };
-            SetData([...data, newMember]);
-            setLoading(false)
-        }
-
-        closeModal();
-        setEditingId(null); // بعد از ذخیره ریست می‌کنیم
-        setForm({
+            SetData(prev => [...prev, newMember]);
+          }
+      
+          // بستن مودال و ریست
+          closeModal();
+          setEditingId(null);
+          setForm({
             name: "",
             phoneNumber: "",
             nationalCode: "",
-        });
-    };
+          });
+        } catch (e: any) {
+          toast.error(e?.message || "خطا در ذخیره نماینده صرافی", { position: "bottom-left" });
+        } finally {
+          setLoading(false);
+        }
+      };
 
 
     return (

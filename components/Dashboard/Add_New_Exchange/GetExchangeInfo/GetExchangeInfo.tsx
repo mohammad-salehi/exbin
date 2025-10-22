@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 import { LoaderCircle } from '../../../Loader/Loader';
 
 import { addHttps, removeProtocolAndWWW, validateDomainExtension, validateEmail, validateNumbers } from '../../../../functions/Validations';
+import { PostRequest } from '../../../../functions/PostRequest';
 
 interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
@@ -53,127 +54,81 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     };
 
     const nextStep = async () => {
-
-        if (name === '') {
-            toast.error("نام صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (legalName === '') {
-            toast.error("نام حقوقی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (nationalCode === '') {
-            toast.error("شناسه ملی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (financialCode === '') {
-            toast.error("کد اقتصادی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (registrationNumber === '') {
-            toast.error("شماره ثبت صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (exchangeType === '') {
-            toast.error("شکل حقوقی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (type === '') {
-            toast.error("نوع صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (establishmentDate === '') {
-            toast.error("تاریخ تاسیس صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (logo === '') {
-            toast.error("لوگو صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (siteAddress === '') {
-            toast.error("وبسایت صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (phoneNumber === '') {
-            toast.error("شماره تماس صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-            return;
-        }
-        if (!validateEmail(email) && email !== '') {
-            toast.error("ایمیل صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (!validateDomainExtension(siteAddress)) {
-            toast.error("پسوند سایت صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
-        const data = {
-            name,
-            legalName,
-            nationalCode,
-            establishmentDate,
-            type,
-            exchangeType,
-            financialCode,
-            logo,
-            siteAddress: addHttps(removeProtocolAndWWW(siteAddress)),
-            emergencyPhoneNumber,
-            officeAddress,
-            phoneNumber,
-            registrationNumber,
-            email,
+        // ✅ ولیدیشن‌های ضروری (یک‌بار کافی است)
+        if (name === '') return toast.error("نام صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (legalName === '') return toast.error("نام حقوقی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (nationalCode === '') return toast.error("شناسه ملی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (financialCode === '') return toast.error("کد اقتصادی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (registrationNumber === '') return toast.error("شماره ثبت صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (exchangeType === '') return toast.error("شکل حقوقی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (type === '') return toast.error("نوع صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (establishmentDate === '') return toast.error("تاریخ تاسیس صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (logo === '') return toast.error("لوگو صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (siteAddress === '') return toast.error("وبسایت صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (phoneNumber === '') return toast.error("شماره تماس صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (!validateEmail(email) && email !== '') return toast.error("ایمیل صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+        if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+      
+        const payload = {
+          name,
+          legalName,
+          nationalCode,
+          establishmentDate,
+          type,
+          exchangeType,
+          financialCode,
+          logo,
+          siteAddress: addHttps(removeProtocolAndWWW(siteAddress)),
+          emergencyPhoneNumber,
+          officeAddress,
+          phoneNumber,
+          registrationNumber,
+          email,
         };
+      
         try {
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                return;
-            }
-
-            // ارسال درخواست به API
-            setLoading(true)
-            const response = await fetch('https://sand-em-api.bahfara.ir/api/exchanges', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                setLoading(false)
-                const errorData = await response.json();
-                if (errorData.error) {
-                    const errorMessage = errorData.error; // پیام خطا
-                    const financialCodeError = errorMessage.match(/Exchange with financial code '(.*?)' already exists/);
-                    if (financialCodeError) {
-                        const existingFinancialCode = financialCodeError[1]; // کد مالی موجود
-                        return toast.error(`صرافی با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد. لطفاً کد اقتصادی را اصلاح کنید.`, { position: "bottom-left" });
-                    }
-
-                    const nationalCodeError = errorMessage.match(/Exchange with national code '(.*?)' already exists/);
-                    if (nationalCodeError) {
-                        const existingNationalCode = nationalCodeError[1]; // شناسه ملی موجود
-                        return toast.error(`صرافی با شناسه ملی ${existingNationalCode} قبلاً وجود دارد. لطفاً شناسه ملی را اصلاح کنید.`, { position: "bottom-left" });
-                    }
-                }
-                return toast.error(`خطا در ذخیره صرافی`);
-            }
-
-            const responseData = await response.json();
-            toast.success("صرافی با موفقیت ذخیره شد.", { position: "bottom-left" });
-            setLoading(false)
-            setID(responseData.result.id)
-            SetStep(2)
-        } catch (err) {
-            console.error(err);
+          setLoading(true);
+      
+          // اگر خواستی تایپ پاسخ را مشخص کنی:
+          // type CreateExchangeResponse = { result: { id: string } };
+          // const res = await PostRequest<CreateExchangeResponse>(`${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges`, payload);
+      
+          const res: any = await PostRequest(
+            `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges`,
+            payload
+          );
+      
+          toast.success("صرافی با موفقیت ذخیره شد.", { position: "bottom-left" });
+          setID(res?.result?.id);
+          SetStep(2);
+        } catch (e: any) {
+          // PostRequest روی خطا متن پاسخ را داخل e.message می‌اندازد
+          const msg = String(e?.message ?? "");
+      
+          // تطبیق خطای تکراری بودن کد اقتصادی
+          const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
+          if (financialCodeError) {
+            const existingFinancialCode = financialCodeError[1];
+            toast.error(`صرافی با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد. لطفاً کد اقتصادی را اصلاح کنید.`, { position: "bottom-left" });
+            setLoading(false);
+            return;
+          }
+      
+          // تطبیق خطای تکراری بودن شناسه ملی
+          const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
+          if (nationalCodeError) {
+            const existingNationalCode = nationalCodeError[1];
+            toast.error(`صرافی با شناسه ملی ${existingNationalCode} قبلاً وجود دارد. لطفاً شناسه ملی را اصلاح کنید.`, { position: "bottom-left" });
+            setLoading(false);
+            return;
+          }
+      
+          toast.error("خطا در ذخیره صرافی", { position: "bottom-left" });
+          console.error(e);
+        } finally {
+          setLoading(false);
         }
-    };
+      };
 
     return (
         <div className='mt-4'>

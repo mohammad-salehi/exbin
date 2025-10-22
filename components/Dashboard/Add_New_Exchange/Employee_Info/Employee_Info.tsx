@@ -10,6 +10,7 @@ import { LoaderCircle } from "../../../Loader/Loader";
 
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
+import { PostRequest } from "../../../../functions/PostRequest";
 
 type Person = {
     id: string;
@@ -81,81 +82,52 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
     const handleChange = <K extends keyof EmployeeForm>(field: K, value: EmployeeForm[K]) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
-
     const handleSave = async () => {
+        // ✅ یک‌بار ولیدیشن کافی است
         if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
-            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
-            return;
+          toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
+          return;
         }
-
-        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
-            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
-            return;
-        }
-
-        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
-            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
-            return;
-        }
-
-        if (editingId) {
-            // 🟢 ویرایش
-            SetData(data.map(member =>
-                member.id === editingId ? { ...member, ...form } : member
-            ));
-        } else {
+      
+        try {
+          if (editingId) {
+            // 🟢 ویرایش در استیت محلی
+            SetData(data.map(member => (member.id === editingId ? { ...member, ...form } : member)));
+          } else {
+            // 🟢 افزودن جدید
             const Member = {
-                id: form.id,
-                name: form.name,
-                jobPosition: form.jobPosition,
-                startDate: form.startDate,
-                educationalHistory: form.educationalHistory,
-                careerHistory: form.careerHistory,
-                insuranceStartDate: form.insuranceStartDate,
-                insuranceEndDate: form.insuranceEndDate,
-                isSpecialAccess: form.isSpecialAccess === true ? true : false,
-                nationalCode: form.nationalCode,
-                phoneNumber: form.phoneNumber,
+              id: form.id,
+              name: form.name,
+              jobPosition: form.jobPosition,
+              startDate: form.startDate,
+              educationalHistory: form.educationalHistory,
+              careerHistory: form.careerHistory,
+              insuranceStartDate: form.insuranceStartDate,
+              insuranceEndDate: form.insuranceEndDate,
+              isSpecialAccess: form.isSpecialAccess === true, // boolean خالص
+              nationalCode: form.nationalCode,
+              phoneNumber: form.phoneNumber,
             };
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                return;
-            }
-
-            // ارسال درخواست به API
-            setLoading(true)
-            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/employees`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(Member),
-            });
-
-            if (!response.ok) {
-                setLoading(false)
-                return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
-            }
-            const responseData = await response.json();
-            console.log(responseData);
+      
+            setLoading(true);
+      
+            await PostRequest(
+              `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${ID}/employees`,
+              Member // JSON ارسال می‌شود
+            );
+      
             toast.success("کارمند صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
-
-            const newMember: Person = {
-                ...form,
-            };
+      
+            const newMember: Person = { ...form };
             SetData([...data, newMember]);
-            setLoading(false)
-        }
-
-        closeModal();
-        setEditingId(null); // بعد از ذخیره ریست می‌کنیم
-        setForm({
+          }
+      
+          // فقط بعد از موفقیت مودال را ببند
+          closeModal();
+          setEditingId(null);
+      
+          // ریست فرم
+          setForm({
             id: '',
             name: '',
             jobPosition: '',
@@ -167,8 +139,13 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             isSpecialAccess: null,
             nationalCode: '',
             phoneNumber: '',
-        });
-    };
+          });
+        } catch (e: any) {
+          toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
+        } finally {
+          setLoading(false);
+        }
+      };
 
     const nextStep = async () => {
         SetStep(1)

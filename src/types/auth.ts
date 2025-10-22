@@ -8,6 +8,7 @@ export interface LoginResponse {
       role: any;
       lastName: any;
       firstName: any;
+      refreshToken: any;
       username: any; token: string 
 };
     error: null;

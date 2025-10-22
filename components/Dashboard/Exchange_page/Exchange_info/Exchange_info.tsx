@@ -1,11 +1,11 @@
-import React, { JSX, useEffect, useState } from "react";
+import React, { JSX, useEffect, useRef, useState } from "react";
 import DetailBox from "../../../DetailBox/DetailBox";
-import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import { Modal, Button, Input, Label, Dropdown, MenuItem } from "@heathmont/moon-core-tw";
 import { GetRequest } from "../../../../functions/GetRequest";
 import { useParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { LoaderCircle } from "../../../Loader/Loader";
-
+import { PostRequest } from "../../../../functions/PostRequest";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
@@ -41,6 +41,31 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const [logo, SetLogo] = useState<string>("");
   const [name, SetName] = useState<string>("");
   const [DownloadLoading, SetDownloadLoading] = useState<boolean>(false);
+  const [AddFileModal, SetAddFileModal] = useState<boolean>(false)
+  const [type, Settype] = useState<string>("")
+  const [FinancialName, SetFinancialName] = useState<string>("")
+  const [composing, setComposing] = useState(false);
+  const [Loading, setLoading] = useState<boolean>(false);
+  const [form, setForm] = useState({
+    legalName: "",
+    establishmentDate: "",
+    nationalCode: "",
+    type: "",
+    exchangeType: "",
+    siteAddress: "",
+    phoneNumber: "",
+    emergencyPhoneNumber: "",
+    officeAddress: "",
+    email: "",
+    financialCode: "",
+    registrationNumber: "",
+  });
+  const [isOpen, setIsOpen] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [loading, setLoading2] = useState(false);
+  const [fileName, setFileName] = useState<string>("");
+
+  const didInit = useRef(false);
 
   async function generateCompanyExcel(data: AnyObj) {
     const wb = new ExcelJS.Workbook();
@@ -155,10 +180,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     const buf = await wb.xlsx.writeBuffer();
     saveAs(new Blob([buf]), `${data.name || "report"}.xlsx`);
   }
-
   const download = async () => {
     try {
-      SetDownloadLoading(true); 
       const res = await GetRequest(
         `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`
       );
@@ -172,10 +195,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       console.error(error);
       toast.error("خطا در دانلود داده‌ها");
     } finally {
-      SetDownloadLoading(false); 
     }
   };
-
   const [invoiceData, setInvoiceData] = useState<InvoiceSection[]>([
     {
       id: 1,
@@ -201,11 +222,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         { id: 5, title: "ایمیل", content: "" },
       ],
     },
-    // {
-    //   id: 3,
-    //   title: "اسناد",
-    //   content: [],
-    // },
+    {
+      id: 3,
+      title: "اسناد",
+      content: [],
+    },
     {
       id: 4,
       title: "عملیات",
@@ -305,7 +326,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       ],
     },
   ]);
-  const [Loading, setLoading] = useState<boolean>(false);
   const handleEdit = (
     sectionId: number,
     contentId: number,
@@ -328,9 +348,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       })
     );
   };
-
   const handleDownload = async () => {
     try {
+      SetDownloadLoading(true)
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("token="))
@@ -345,7 +365,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         }
       );
 
-      if (!res.ok) throw new Error("خطا در دریافت فایل");
+      if (!res.ok) { throw new Error("خطا در دریافت فایل") } else {
+        SetDownloadLoading(false)
+      };
 
       // باینری فایل رو بگیر و دانلود کن
       const blob = await res.blob();
@@ -358,120 +380,141 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 
       window.URL.revokeObjectURL(url);
     } catch (err) {
+      SetDownloadLoading(false)
       toast.error("خطا در دانلود فایل");
     }
   };
+  const addAssociationDocuments = (financialStatement?: string | null) => {
 
-  // const addAssociationDocuments = (financialStatement: string) => {
-  //   setInvoiceData((prevData) =>
-  //     prevData.map((section) => {
-  //       if (section.id === 3) {
-  //         return {
-  //           ...section,
-  //           content: [
-  //             {
-  //               id: Date.now(), // یه id یکتا
-  //               title: "",
-  //               content: (
-  //                 <div className="flex justify-between items-center mb-3 w-full">
-  //                   <div className="flex items-center">
-  //                     <h6 className="inline-block">اساسنامه</h6>
-  //                   </div>
+    const buildItem = () => ({
+      id: Date.now(),
+      title: "",
+      content: (
+        // اطمینان از تمام‌عرض بودن در هر دو حالت Grid و Flex
+        <div className="w-full col-span-full flex flex-col">
 
-  //                   <div className="flex items-center">
-  //                     <button
-  //                       onClick={handleDownload}
-  //                       className="text-titleText dark:text-titleText-dark mr-2"
-  //                     >
-  //                       <svg
-  //                         width="20"
-  //                         height="20"
-  //                         viewBox="0 0 24 24"
-  //                         fill="none"
-  //                         xmlns="http://www.w3.org/2000/svg"
-  //                       >
-  //                         <path
-  //                           d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
-  //                           stroke="currentColor"
-  //                           stroke-width="1.5"
-  //                           stroke-linecap="round"
-  //                           stroke-linejoin="round"
-  //                         />
-  //                         <path
-  //                           d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
-  //                           stroke="currentColor"
-  //                           stroke-width="1.5"
-  //                           stroke-linecap="round"
-  //                           stroke-linejoin="round"
-  //                         />
-  //                       </svg>
-  //                     </button>
-  //                     <button
-  //                       onClick={async () => {
-  //                           try {
-  //                               const token = document.cookie
-  //                                   .split('; ')
-  //                                   .find(row => row.startsWith('token='))
-  //                                   ?.split('=')[1];
+          {financialStatement && (
+            <div className="flex justify-between items-center w-full">
+              <div className="flex items-center">
+                <h6 className="inline-block">اساسنامه</h6>
+              </div>
+              <div className="flex items-center">
+                <button
+                  onClick={handleDownload}
+                  className="text-titleText dark:text-titleText-dark mr-2"
+                >
+                  {/* ... SVG دانلود ... */}
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
 
-  //                               if (!token) {
-  //                                   toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-  //                                   return;
-  //                               }
+                <button
+                  onClick={async () => {
+                    try {
+                      const token = document.cookie
+                        .split("; ")
+                        .find((row) => row.startsWith("token="))
+                        ?.split("=")[1];
 
-  //                               // setLoading(true)
-  //                               const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/association/delete`, {
-  //                                   method: 'DELETE',
-  //                                   headers: {
-  //                                       'Authorization': `Bearer ${token}`,
-  //                                       'Content-Type': 'application/json',
-  //                                   },
-  //                               });
+                      if (!token) {
+                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                        return;
+                      }
 
-  //                               if (!response.ok) {
-  //                                   console.log(response)
-  //                                   // setLoading(false)
-  //                                   return toast.error(`خطا در حذف اساسنامه`);
-  //                               } else {
-  //                                   toast.success("اساسنامه با موفقیت حذف شد.", { position: "bottom-left" });
-  //                                   window.location.reload()
-  //                               }
+                      const response = await fetch(
+                        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/delete`,
+                        {
+                          method: "DELETE",
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
 
-  //                           } catch (err) {
-  //                               console.error(err);
-  //                               return toast.error(`خطا در حذف اساسنامه`);
-  //                           }
-  //                       }}
-  //                       className="text-titleText dark:text-titleText-dark mr-1"
-  //                     >
-  //                       <svg
-  //                         width="20"
-  //                         height="20"
-  //                         viewBox="0 0 1024 1024"
-  //                         xmlns="http://www.w3.org/2000/svg"
-  //                         className=""
-  //                       >
-  //                         <path
-  //                           fill="currentColor"
-  //                           d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"
-  //                         />
-  //                       </svg>
-  //                     </button>
-  //                   </div>
-  //                 </div>
-  //               ),
-  //             },
-  //           ],
-  //         };
-  //       }
-  //       return section;
-  //     })
-  //   );
-  // };
+                      if (!response.ok) {
+                        return toast.error("خطا در حذف اساسنامه");
+                      } else {
+                        toast.success("اساسنامه با موفقیت حذف شد.", { position: "bottom-left" });
+                        window.location.reload();
+                      }
+                    } catch (err) {
+                      console.error(err);
+                      return toast.error("خطا در حذف اساسنامه");
+                    }
+                  }}
+                  className="text-titleText dark:text-titleText-dark mr-1"
+                >
+                  {/* ... SVG حذف ... */}
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 1024 1024"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          )}
+          {/* ردیف دوم: دکمه افزودن — همیشه زیرِ ردیف اول می‌آید */}
+          <div className="mt-4 w-full">
+            <Button
+              variant="primary"
+              className="text-primary dark:text-primary-dark border border-primary rounded-md w-full"
+              onClick={() => SetAddFileModal(true)}
+            >
+              افزودن مورد جدید
+            </Button>
+          </div>
+        </div>
+      ),
+    });
 
+
+    // الحاق (append) به سکشن ۳؛ نه جایگزینی کل content
+    setInvoiceData((prev) =>
+      prev.map((section) =>
+        section.id === 3
+          ? {
+            ...section,
+            content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
+          }
+          : section
+      )
+    );
+  };
   useEffect(() => {
+    if (didInit.current) return;   // ← جلوی بار دوم را می‌گیرد
+    didInit.current = true;
+
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
       .then((response) => {
+        console.log(response)
         SetLogo(response.result.logo);
         SetName(response.result.name);
         handleEdit(1, 1, response.result.legalName);
@@ -516,9 +559,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             </a>
           );
         }
-        // if (response.result.association !== null) {
-        //     addAssociationDocuments(response.result.association);
-        // }
+        addAssociationDocuments(response.result.association);
 
         setForm({
           legalName: response.result.legalName,
@@ -540,22 +581,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         SetC1(true);
       });
   }, []);
-
-  const [form, setForm] = useState({
-    legalName: "",
-    establishmentDate: "",
-    nationalCode: "",
-    type: "",
-    exchangeType: "",
-    siteAddress: "",
-    phoneNumber: "",
-    emergencyPhoneNumber: "",
-    officeAddress: "",
-    email: "",
-    financialCode: "",
-    registrationNumber: "",
-  });
-  const [isOpen, setIsOpen] = useState(false);
   const handleSave = () => {
     if (form.legalName === "") {
       toast.error("نام حقوقی صرافی مورد نظر را انتخاب کنید", {
@@ -644,7 +669,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         // managerInfo.exchangeAgentInfo = [];
         // managerInfo.boardMemberInfo = [];
         // managerInfo.employeeInfo = [];
-        console.log(managerInfo)
         try {
           const token = document.cookie
             .split("; ")
@@ -740,9 +764,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         return toast.error(`خطا در ذخیره اطلاعات صرافی`);
       });
   };
-
-  const [composing, setComposing] = useState(false);
-
   function handleEstablishmentDateChange(
     e: React.ChangeEvent<HTMLInputElement>
   ) {
@@ -767,6 +788,53 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       setForm((p) => ({ ...p, establishmentDate: value }));
     }
   }
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] || null;
+    setFile(f);
+    setFileName(f ? f.name : "");
+  };
+  const uploadFile = async () => {
+    try {
+      setLoading2(true);
+  
+      if (type === 'اساسنامه') {
+        if (!file) { toast.error("فایلی انتخاب نشده"); return; }
+  
+        await PostRequest(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/upload`,
+          { association: file },
+          { asFormData: true }
+        );
+  
+        toast.success("اساسنامه با موفقیت بارگذاری شد");
+  
+      } else if (type === 'صورت مالی') {
+        // اگر این endpoint multipart می‌خواهد، asFormData را true بگذار
+        await PostRequest(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
+          { date: FinancialName },
+          { asFormData: true }
+        );
+  
+        toast.success("صورت مالی با موفقیت بارگذاری شد");
+      }
+  
+      setFile(null);
+      setFileName("");
+      SetAddFileModal(false);
+  
+      // اگر واقعا نیاز به ریفرش داری، یک تاخیر کوتاه بده تا UI آپدیت شود
+      setTimeout(() => window.location.reload(), 300);
+  
+    } catch (e: any) {
+      toast.error(e?.message || "خطا در آپلود");
+    } finally {
+      setLoading2(false);
+    }
+  };
+  const handleSelectChange = (event: string) => {
+    Settype(event);
+  };
 
   return (
     <div>
@@ -997,6 +1065,103 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 ) : (
                   "ذخیره"
                 )}
+              </Button>
+            </div>
+          </Modal.Panel>
+        </div>
+      </Modal>
+
+      <Modal open={AddFileModal} onClose={() => { SetAddFileModal(false); }}>
+        <Modal.Backdrop />
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
+          <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
+            <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+              <Modal.Title className="text-lg font-bold">افزودن فایل</Modal.Title>
+
+              <Label className="mt-4">نوع فایل</Label>
+              <Dropdown onChange={handleSelectChange} value={type}>
+                <Dropdown.Trigger className="w-full">
+                  <Button
+                    as="span"
+                    role="button"
+                    variant="ghost"
+                    className="flex items-center justify-between w-full pl-10
+                      text-gray-700 border border-gray-300 
+                      rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+                      dark:text-gray-100 appearance-none relative bg-bgColor dark:bg-bgColor-dark"
+                  >
+                    <span>{type !== "" ? type : "انتخاب"}</span>
+                  </Button>
+                </Dropdown.Trigger>
+
+                <Dropdown.Options
+                  className="absolute left-0 mt-2 w-72 pl-2 pr-2
+                    text-gray-700 bg-white dark:bg-buttonColor-dark
+                    border border-gray-300 dark:border-buttonBorderColor-dark 
+                    rounded-lg dark:text-gray-100 appearance-none z-50
+                    max-h-60 overflow-y-auto"
+                >
+                  <Dropdown.Option value="اساسنامه" key="option1">
+                    {({ selected, active }) => (
+                      <MenuItem
+                        isActive={active}
+                        isSelected={selected}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "اساسنامه" ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""
+                          }`}
+                      >
+                        <MenuItem.Title>اساسنامه</MenuItem.Title>
+                      </MenuItem>
+                    )}
+                  </Dropdown.Option>
+                  <Dropdown.Option value="صورت مالی" key="option2">
+                    {({ active }) => (
+                      <MenuItem
+                        isActive={active}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "صورت مالی" ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""
+                          }`}
+                      >
+                        <MenuItem.Title>صورت مالی</MenuItem.Title>
+                      </MenuItem>
+                    )}
+                  </Dropdown.Option>
+                </Dropdown.Options>
+              </Dropdown>
+
+              {type === "صورت مالی" ? (
+                <div>
+                  <Label className="mt-4">عنوان</Label>
+                  <Input
+                    onChange={(e) => SetFinancialName(e.target.value)}
+                    value={FinancialName}
+                    placeholder="عنوان صورت مالی(تاریخ)"
+                    className="p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  />
+                </div>
+              ) : null}
+
+              {/* ✅ NEW: اینپوت فقط‌خوان برای نمایش نام فایل + دکمه انتخاب فایل */}
+              <div className="items-center gap-2">
+                <Label className="mt-4">بارگذاری</Label>
+                <label className="block cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
+                  <span className="block truncate text-start" title={fileName || "انتخاب فایل"}>
+                    {fileName || "انتخاب فایل"}
+                  </span>
+                  <input
+                    type="file"
+                    accept="*/*"              // یا این خط رو کاملاً حذف کن
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+              </div>
+
+              <Button
+                variant="primary"
+                className="bg-primary dark:bg-primary-dark border text-white border-primary rounded-md w-full mt-4"
+                disabled={!file || loading}
+                onClick={uploadFile}
+              >
+                {loading ? "در حال بارگذاری..." : "بارگذاری"}
               </Button>
             </div>
           </Modal.Panel>

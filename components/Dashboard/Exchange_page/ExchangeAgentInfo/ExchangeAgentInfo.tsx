@@ -8,6 +8,7 @@ import { LoaderCircle } from '../../../Loader/Loader';
 
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
+import { PostRequest } from '../../../../functions/PostRequest';
 
 type Person = {
     id: string;
@@ -231,61 +232,45 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     const closeAddModal = () => setIsAddOpen(false);
 
     const handleAdd = async () => {
-
         if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+          return;
         }
         if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+          return;
         }
         if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
+          toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+          return;
         }
-        
-
+      
+        const Member = {
+          name: form.name,
+          nationalCode: form.nationalCode,
+          phoneNumber: form.phoneNumber,
+        };
+      
         try {
-            const Member = {
-                name: form.name,
-                nationalCode: form.nationalCode,
-                phoneNumber: form.phoneNumber,
-            };
-            SetAddLoading(true)
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                SetAddLoading(false)
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                return;
-            }
-            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${params.id}/exchange-agents`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(Member),
-            });
-            if (!response.ok) {
-                SetAddLoading(false)
-                return toast.error(`خطا در ذخیره نماینده صرافی`);
-            }
-            const responseData = await response.json();
-            SetAddLoading(false)
-            toast.success("نماینده صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
-            const newId = (data.length + 1).toString();
-            setData((prev) => [...prev, { ...form, id: newId }]);
-            closeAddModal();
-        } catch (error) {
-            SetAddLoading(false)
-            return toast.error(`خطا در ذخیره نماینده صرافی`);
+          SetAddLoading(true);
+      
+          await PostRequest(
+            `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/exchange-agents`,
+            Member
+            // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
+          );
+      
+          toast.success("نماینده صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
+      
+          const newId = (data.length + 1).toString();
+          setData(prev => [...prev, { ...form, id: newId }]);
+          closeAddModal();
+        } catch (e: any) {
+          toast.error(e?.message || "خطا در ذخیره نماینده صرافی", { position: "bottom-left" });
+        } finally {
+          SetAddLoading(false);
         }
-    };
+      };
 
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents`)
