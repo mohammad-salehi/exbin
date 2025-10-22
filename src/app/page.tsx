@@ -102,56 +102,61 @@ export default function Home() {
       username,
       password
     }
-  
+
     if (validatePhoneNumber(username)) {
       setLoading(true)
-      const response = await fetch(`${ADDRESS}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(credentials),
-      });
-  
-      if (!response.ok) {
+      try {
+        const response = await fetch(`${ADDRESS}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(credentials),
+        });
+
+        if (!response.ok) {
+          setLoading(false)
+          SetHasError(true)
+          SetUsernameError(true)
+          SetErrorText('شماره موبایل یا رمزعبور اشتباه است')
+          return
+        }
+
         setLoading(false)
-        SetHasError(true)
-        SetUsernameError(true)
-        SetErrorText('شماره موبایل یا رمزعبور اشتباه است')
-        return
+        SetHasError(false)
+        SetUsernameError(false)
+
+        const data: LoginResponse = await response.json()
+        const token = data?.result?.token
+        const user = data?.result
+
+        if (!token || !user) {
+          SetHasError(true)
+          SetErrorText('خطا در پردازش')
+          return
+        }
+
+        const secure = location.protocol === "https:" ? "; Secure" : ""
+        const maxAge = 60 * 60 * 24 // 24 ساعت
+
+        // ذخیره‌ی کوکی‌ها
+        document.cookie = `token=${token}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+        document.cookie = `username=${user.username}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+        document.cookie = `firstName=${user.firstName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+        document.cookie = `lastName=${user.lastName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+        document.cookie = `role=${user.role}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+        document.cookie = `refreshToken=${user.refreshToken}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
+
+        router.push("/panel/exchanges-list")
+      } catch (error) {
+        setLoading(false)
       }
-  
-      setLoading(false)
-      SetHasError(false)
-      SetUsernameError(false)
-  
-      const data: LoginResponse = await response.json()
-      const token = data?.result?.token
-      const user = data?.result
-  
-      if (!token || !user) {
-        SetHasError(true)
-        SetErrorText('خطا در پردازش')
-        return
-      }
-  
-      const secure = location.protocol === "https:" ? "; Secure" : ""
-      const maxAge = 60 * 60 * 24 // 24 ساعت
-  
-      // ذخیره‌ی کوکی‌ها
-      document.cookie = `token=${token}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
-      document.cookie = `username=${user.username}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
-      document.cookie = `firstName=${user.firstName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
-      document.cookie = `lastName=${user.lastName}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
-      document.cookie = `role=${user.role}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
-      document.cookie = `refreshToken=${user.refreshToken}; Path=/; SameSite=Lax; Max-Age=${maxAge}${secure}`
-  
-      router.push("/panel/exchanges-list")
+
     } else {
       SetUsernameError(true)
       SetHasError(true)
       SetErrorText('شماره موبایل وارد شده اشتباه است')
     }
   }
-  
+
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
@@ -159,7 +164,7 @@ export default function Home() {
         {/* عنوان */}
         <div className="flex justify-between ">
           <DottedPatternLeft />
-          <img src="/images/pantaLogo.png" className="w-14 h-16" alt="image"/>
+          <img src="/images/pantaLogo.png" className="w-14 h-16" alt="image" />
           <DottedPatternRight />
         </div>
         {
