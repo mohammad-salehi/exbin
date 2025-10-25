@@ -281,11 +281,11 @@ const Page = () => {
                       }
                     });
                     if (!response.ok) {
+                      SetDeleteLoading(false)
                       toast.error("خطا در حذف صرافی.", { position: "bottom-left" });
                       if (response.status === 403) {
                         document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
                         window.location.assign('/')
-                        SetDeleteLoading(false)
                       }
                       throw new Error('Failed to fetch data');
                     } else {
