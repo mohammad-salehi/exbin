@@ -22,6 +22,7 @@ import Pagination from "../../../Pagination/Pagination";
 import { toJalaliDate } from "../../../../functions/toJalaliDate";
 import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
 import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
+import PersianYearSelect from "../../../YearSelection/YearSelection";
 
 type AnyObj = Record<string, any>;
 
@@ -48,7 +49,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const [DownloadLoading, SetDownloadLoading] = useState<boolean>(false);
   const [AddFileModal, SetAddFileModal] = useState<boolean>(false)
   const [type, Settype] = useState<string>("")
-  const [FinancialName, SetFinancialName] = useState<string>("")
+  const [FinancialName, SetFinancialName] = useState<number>(0)
   const [composing, setComposing] = useState(false);
   const [Loading, setLoading] = useState<boolean>(false);
   const [form, setForm] = useState({
@@ -836,13 +837,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         toast.success("اساسنامه با موفقیت بارگذاری شد");
 
       } else if (type === 'صورت مالی') {
-        // اگر این endpoint multipart می‌خواهد، asFormData را true بگذار
         await PostRequest(
           `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
-          { date: FinancialName },
-          { asFormData: true }
+          { date: String(FinancialName) }
         );
-
         toast.success("صورت مالی با موفقیت بارگذاری شد");
       }
 
@@ -1093,7 +1091,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         className="flex items-center justify-between w-full pl-10 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
                     border border-gray-300 
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                    appearance-none relative" 
+                    appearance-none relative"
                       >
                         <span>{form.exchangeType === "LIMITED_LIABILITY" ? 'مسئولیت محدود' : form.exchangeType === "STOCK" ? 'سهامی' : ''}</span>
                       </Button>
@@ -1285,12 +1283,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               {type === "صورت مالی" ? (
                 <div>
                   <Label className="mt-4">عنوان</Label>
-                  <Input
-                    onChange={(e) => SetFinancialName(e.target.value)}
-                    value={FinancialName}
-                    placeholder="عنوان صورت مالی(تاریخ)"
-                    className="p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  />
+                  <PersianYearSelect onChange={(e) => { if (e !== null) { SetFinancialName(e) } else { SetFinancialName(0) } }} value={FinancialName} />
                 </div>
               ) : null}
 
@@ -1363,4 +1356,3 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 };
 
 export default Exchange_info;
-
