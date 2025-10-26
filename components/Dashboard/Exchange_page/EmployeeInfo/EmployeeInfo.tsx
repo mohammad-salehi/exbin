@@ -9,6 +9,11 @@ import { LoaderCircle } from '../../../Loader/Loader';
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
 import { PostRequest } from '../../../../functions/PostRequest';
+import Pagination from '../../../Pagination/Pagination';
+import { LogViewer } from '../../../../functions/changesHandler';
+import LoadingComponent from '../../../LoadingComponent/LoadingComponent';
+import JalaliLocalDatePicker from '../../../DatePicker/JalaliLocalDatePicker';
+import { toJalaliDate } from '../../../../functions/toJalaliDate';
 
 type Person = {
     id: string;
@@ -52,6 +57,16 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 
+
+
+    const [isLogOpen, setisLogOpen] = useState(false);
+    const [LogNumber, setLogNumber] = useState(0);
+    const [LogPage, setLogPage] = useState(0);
+    const [LogLoading, setLogLoading] = useState(false);
+    const [Changes, setChanges] = useState<string[]>([]);
+
+
+
     const openModal = (row: Person) => {
         setForm(row);
         setEditingId(row.id);
@@ -93,24 +108,17 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 .trim();
         };
 
-        // 3) regex روی الگوی yyyy/mm/dd با اعداد لاتین
-        const dateRegex = /^(\d{4})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/;
-
-        // استفاده:
-        const startIns = normalizeDateInput(form.insuranceStartDate);
-        if (!dateRegex.test(startIns)) {
+        if (form.insuranceStartDate === '') {
             toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
 
-        const endIns = normalizeDateInput(form.insuranceEndDate);
-        if (!dateRegex.test(endIns)) {
+        if (form.insuranceEndDate === '') {
             toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
 
-        const startWork = normalizeDateInput(form.startDate);
-        if (!dateRegex.test(startWork)) {
+        if (form.startDate === '') {
             toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
@@ -191,9 +199,28 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
         { header: "کدملی", accessorKey: "nationalCode" },
         { header: "سوابق تحصیلی", accessorKey: "educationalHistory" },
         { header: "سوابق شغلی", accessorKey: "careerHistory" },
-        { header: "تاریخ شروع کار", accessorKey: "startDate" },
-        { header: "تاریخ شروع بیمه", accessorKey: "insuranceStartDate" },
-        { header: "تاریخ پایان بیمه", accessorKey: "insuranceEndDate" },
+        { header: "تاریخ شروع کار",
+            cell: (row: Person) => {
+                return (
+                    <span>{toJalaliDate(row.startDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
+                );
+            },
+         },
+        { header: "تاریخ شروع بیمه", 
+            cell: (row: Person) => {
+                return (
+                    <span>{toJalaliDate(row.insuranceStartDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
+                );
+            },
+         },
+        {
+            header: "تاریخ پایان بیمه",
+            cell: (row: Person) => {
+                return (
+                    <span>{toJalaliDate(row.insuranceEndDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
+                );
+            },
+        },
         {
             header: "دسترسی خاص",
             cell: (row: Person) => {
@@ -293,6 +320,10 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                         <path d="M10.8301 16.5H14.1601" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M10 12.5H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
+
+                    <svg onClick={() => { setEditingId(row.id), setisLogOpen(true) }} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer">
+                        <path d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                 </div>
             ),
         },
@@ -321,91 +352,85 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
     const handleAdd = async () => {
         const newId = (data.length + 1).toString();
-      
+
         if (form.name === '') {
-          toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
         }
         if (form.phoneNumber === '') {
-          toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
         }
         if (form.nationalCode === '') {
-          toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
         }
-      
+
         // اعداد فارسی/عربی → انگلیسی
         const toEnglishDigits = (s: string) =>
-          s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
-           .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
-      
+            s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
+                .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
+
         // نرمال‌سازی تاریخ ورودی
         const normalizeDateInput = (input?: string) => {
-          if (!input) return "";
-          return toEnglishDigits(input)
-            .replace(/[\u200c\u200e\u200f\ufeff]/g, "") // حذف ZWNJ/RTL/BOM
-            .replace(/[⁄∕／]/g, "/")                    // اسلش‌های مختلف → /
-            .replace(/\s+/g, "")                        // حذف فاصله
-            .trim();
+            if (!input) return "";
+            return toEnglishDigits(input)
+                .replace(/[\u200c\u200e\u200f\ufeff]/g, "") // حذف ZWNJ/RTL/BOM
+                .replace(/[⁄∕／]/g, "/")                    // اسلش‌های مختلف → /
+                .replace(/\s+/g, "")                        // حذف فاصله
+                .trim();
         };
-      
-        // yyyy/mm/dd
-        const dateRegex = /^(\d{4})\/(0[1-9]|1[0-2])\/(0[1-9]|[12]\d|3[01])$/;
-      
-        const startIns = normalizeDateInput(form.insuranceStartDate);
-        if (!dateRegex.test(startIns)) {
-          toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
-          return;
+
+        if (form.insuranceStartDate === '') {
+            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
+            return;
         }
-      
-        const endIns = normalizeDateInput(form.insuranceEndDate);
-        if (!dateRegex.test(endIns)) {
-          toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
-          return;
+
+        if (form.insuranceEndDate === '') {
+            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
+            return;
         }
-      
-        const startWork = normalizeDateInput(form.startDate);
-        if (!dateRegex.test(startWork)) {
-          toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
-          return;
+
+        if (form.startDate === '') {
+            toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
+            return;
         }
-      
+
         // ساخت payload نهایی (با فیلدهای خالی به صورت "")
         const memberInfo = {
-          name: form.name || "",
-          jobPosition: form.jobPosition ?? "",
-          startDate: startWork || "",
-          educationalHistory: form.educationalHistory || "",
-          careerHistory: form.careerHistory || "",
-          insuranceStartDate: startIns || "",
-          insuranceEndDate: endIns || "",
-          isSpecialAccess: (form as any).isSpecialAccess ?? "", // اگر boolean است، می‌توانید true/false بفرستید
-          nationalCode: form.nationalCode || "",
-          phoneNumber: form.phoneNumber || "",
+            name: form.name || "",
+            jobPosition: form.jobPosition ?? "",
+            startDate: form.startDate || "",
+            educationalHistory: form.educationalHistory || "",
+            careerHistory: form.careerHistory || "",
+            insuranceStartDate: form.insuranceStartDate || "",
+            insuranceEndDate: form.insuranceEndDate || "",
+            isSpecialAccess: (form as any).isSpecialAccess ?? "", // اگر boolean است، می‌توانید true/false بفرستید
+            nationalCode: form.nationalCode || "",
+            phoneNumber: form.phoneNumber || "",
         };
-      
+
         try {
-          SetAddLoading(true);
-      
-          await PostRequest(
-            `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/employees`,
-            memberInfo
-            // asFormData لازم نیست؛ JSON می‌فرستیم
-          );
-      
-          toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
-      
-          // به‌روزرسانی لیست محلی با داده‌های نرمال‌شده
-          setData(prev => [...prev, { ...form, ...memberInfo, id: newId }]);
-      
-          closeAddModal();
+            SetAddLoading(true);
+
+            await PostRequest(
+                `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/employees`,
+                memberInfo
+                // asFormData لازم نیست؛ JSON می‌فرستیم
+            );
+
+            toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
+
+            // به‌روزرسانی لیست محلی با داده‌های نرمال‌شده
+            setData(prev => [...prev, { ...form, ...memberInfo, id: newId }]);
+
+            closeAddModal();
         } catch (e: any) {
-          toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
+            toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
         } finally {
-          SetAddLoading(false);
+            SetAddLoading(false);
         }
-      };
+    };
 
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees`)
@@ -419,6 +444,30 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 SetC5(true)
             })
     }, [])
+
+
+
+    const Audit = () => {
+        setLogLoading(true)
+        GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/employees/${editingId}?page=${LogPage}&size=10`)
+            .then((response) => {
+                setLogLoading(false)
+                setChanges(response.result.content)
+                setLogNumber(response.result.totalElements)
+            })
+            .catch((err) => {
+                setLogLoading(false)
+                setChanges([])
+            })
+    }
+
+    useEffect(() => {
+        if (isLogOpen) {
+            Audit()
+        }
+    }, [isLogOpen, LogPage])
+
+
 
     return (
         <div className="mt-4">
@@ -491,80 +540,44 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
                             <div>
                                 <label>تاریخ شروع کار</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.startDate}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (!/^[0-9/]*$/.test(value)) return;
-                                        if (value.length > 10) return;
-                                        if (value.length <= 4) {
-                                            if (!/^\d{0,4}$/.test(value)) return;
-                                        } else if (value.length === 5) {
-                                            if (!/^\d{4}\/$/.test(value)) return;
-                                        } else if (value.length <= 7) {
-                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
-                                        } else if (value.length === 8) {
-                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
-                                        } else {
-                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
-                                        }
-                                        setForm({ ...form, startDate: e.target.value });
-                                    }
-                                    }
-                                    placeholder="تاریخ شروع کار" />
+                                <div className='mt-2'>
+                                    <JalaliLocalDatePicker
+                                        value={form.startDate}
+                                        onChange={(val) => setForm(p => ({ ...p, startDate: val !== null ? val : '' }))}
+                                        placeholder=""
+                                        clearable
+                                        min="2000-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
                             </div>
 
                             <div>
                                 <label>تاریخ شروع بیمه</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceStartDate}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (!/^[0-9/]*$/.test(value)) return;
-                                        if (value.length > 10) return;
-                                        if (value.length <= 4) {
-                                            if (!/^\d{0,4}$/.test(value)) return;
-                                        } else if (value.length === 5) {
-                                            if (!/^\d{4}\/$/.test(value)) return;
-                                        } else if (value.length <= 7) {
-                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
-                                        } else if (value.length === 8) {
-                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
-                                        } else {
-                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
-                                        }
-                                        setForm({ ...form, insuranceStartDate: value });
-                                    }
-                                    }
-                                    placeholder="تاریخ شروع بیمه" />
+                                <div className='mt-2'>
+                                    <JalaliLocalDatePicker
+                                        value={form.insuranceStartDate}
+                                        onChange={(val) => setForm(p => ({ ...p, insuranceStartDate: val !== null ? val : '' }))}
+                                        placeholder=""
+                                        clearable
+                                        min="2000-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
                             </div>
 
                             <div>
                                 <label>تاریخ پایان بیمه</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceEndDate}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (!/^[0-9/]*$/.test(value)) return;
-                                        if (value.length > 10) return;
-                                        if (value.length <= 4) {
-                                            if (!/^\d{0,4}$/.test(value)) return;
-                                        } else if (value.length === 5) {
-                                            if (!/^\d{4}\/$/.test(value)) return;
-                                        } else if (value.length <= 7) {
-                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
-                                        } else if (value.length === 8) {
-                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
-                                        } else {
-                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
-                                        }
-                                        setForm({ ...form, insuranceEndDate: e.target.value })
-                                    }
-
-                                    } placeholder="تاریخ پایان بیمه" />
+                                <div className='mt-2'>
+                                    <JalaliLocalDatePicker
+                                        value={form.insuranceEndDate}
+                                        onChange={(val) => setForm(p => ({ ...p, insuranceEndDate: val !== null ? val : '' }))}
+                                        placeholder=""
+                                        clearable
+                                        min="2000-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
                             </div>
 
                             <div>
@@ -660,77 +673,42 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
                             <div>
                                 <label>تاریخ شروع کار</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.startDate}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (!/^[0-9/]*$/.test(value)) return;
-                                        if (value.length > 10) return;
-                                        if (value.length <= 4) {
-                                            if (!/^\d{0,4}$/.test(value)) return;
-                                        } else if (value.length === 5) {
-                                            if (!/^\d{4}\/$/.test(value)) return;
-                                        } else if (value.length <= 7) {
-                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
-                                        } else if (value.length === 8) {
-                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
-                                        } else {
-                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
-                                        }
-                                        setForm({ ...form, startDate: e.target.value });
-                                    }
-                                    }
-                                    placeholder="تاریخ شروع کار" />
+                                <div className='mt-2'>
+                                    <JalaliLocalDatePicker
+                                        value={form.startDate}
+                                        onChange={(val) => setForm(p => ({ ...p, startDate: val !== null ? val : '' }))}
+                                        placeholder=""
+                                        clearable
+                                        min="1900-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label>تاریخ شروع بیمه</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceStartDate}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (!/^[0-9/]*$/.test(value)) return;
-                                        if (value.length > 10) return;
-                                        if (value.length <= 4) {
-                                            if (!/^\d{0,4}$/.test(value)) return;
-                                        } else if (value.length === 5) {
-                                            if (!/^\d{4}\/$/.test(value)) return;
-                                        } else if (value.length <= 7) {
-                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
-                                        } else if (value.length === 8) {
-                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
-                                        } else {
-                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
-                                        }
-                                        setForm({ ...form, insuranceStartDate: e.target.value });
-                                    }
-                                    }
-                                    placeholder="تاریخ شروع بیمه" />
+                                <div className='mt-2'>
+                                    <JalaliLocalDatePicker
+                                        value={form.insuranceStartDate}
+                                        onChange={(val) => setForm(p => ({ ...p, insuranceStartDate: val !== null ? val : '' }))}
+                                        placeholder=""
+                                        clearable
+                                        min="1900-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label>تاریخ پایان بیمه</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.insuranceEndDate}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        if (!/^[0-9/]*$/.test(value)) return;
-                                        if (value.length > 10) return;
-                                        if (value.length <= 4) {
-                                            if (!/^\d{0,4}$/.test(value)) return;
-                                        } else if (value.length === 5) {
-                                            if (!/^\d{4}\/$/.test(value)) return;
-                                        } else if (value.length <= 7) {
-                                            if (!/^\d{4}\/\d{0,2}$/.test(value)) return;
-                                        } else if (value.length === 8) {
-                                            if (!/^\d{4}\/\d{2}\/$/.test(value)) return;
-                                        } else {
-                                            if (!/^\d{4}\/\d{2}\/\d{0,2}$/.test(value)) return;
-                                        }
-                                        setForm({ ...form, insuranceEndDate: e.target.value });
-                                    }}
-                                    placeholder="تاریخ پایان بیمه" />
+                                <div className='mt-2'>
+                                    <JalaliLocalDatePicker
+                                        value={form.insuranceEndDate}
+                                        onChange={(val) => setForm(p => ({ ...p, insuranceEndDate: val !== null ? val : '' }))}
+                                        placeholder=""
+                                        clearable
+                                        min="1900-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
                             </div>
                             <div>
                                 <label>سوابق تحصیلی</label>
@@ -775,6 +753,41 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 </div>
             </Modal>
 
+            <Modal open={isLogOpen} onClose={() => { setisLogOpen(false) }}>
+                <Modal.Backdrop />
+                <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
+                    <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
+                        <h4 className="mb-2 mt-2">تغییرات مشخصات عضو هیئت‌مدیره</h4>
+                        {
+                            LogLoading ?
+                                <div className="mt-4">
+                                    <LoadingComponent />
+                                </div>
+                                :
+                                <LogViewer logs={Changes} />
+                        }
+                        <Pagination
+                            rtl
+                            totalItems={LogNumber}
+                            pageSize={10}
+                            currentPage={LogPage + 1}
+                            onPageChange={
+                                (e) => {
+                                    setLogPage(e - 1)
+                                }
+                            }
+                        />
+                        <div className="flex justify-end gap-4 w-full mt-2">
+                            <button
+                                onClick={() => { setisLogOpen(false) }}
+                                className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            >
+                                بستن
+                            </button>
+                        </div>
+                    </Modal.Panel>
+                </div>
+            </Modal>
         </div>
     );
 };

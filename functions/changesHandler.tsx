@@ -95,43 +95,56 @@ export function LogViewer({ logs }: { logs: any }) {
   const rows = getEntityChangesRows(logs);
 
   return (
-    <div className="">
-      {rows.length === 0 ? (
-        <p className="text-gray-500 text-sm">هیچ تغییری ثبت نشده است.</p>
-      ) : (
-        <div className="max-h-96 overflow-y-auto border border-boxBorderColor dark:border-boxBorderColor-dark rounded-md">
-          <table className="min-w-full text-sm">
-            <thead className="bg-boxBorderColor dark:bg-boxBorderColor-dark sticky top-0">
-              <tr>
-                <th className="px-3 py-2 text-right border-b   border-boxBorderColor dark:border-boxBorderColor-dark w-36">کاربر</th>
-                <th className="px-3 py-2 text-right border-b   border-boxBorderColor dark:border-boxBorderColor-dark w-48">تاریخ</th>
-                <th className="px-3 py-2 text-right border-b   border-boxBorderColor dark:border-boxBorderColor-dark w-40">پارامتر</th>
-                <th className="px-3 py-2 text-right border-b   border-boxBorderColor dark:border-boxBorderColor-dark">قبل</th>
-                <th className="px-3 py-2 text-right border-b   border-boxBorderColor dark:border-boxBorderColor-dark">بعد</th>
+    <div className="w-full"> {/* 👈 کل پهنا را بگیرد */}
+    {rows.length === 0 ? (
+      <p className="text-gray-500 text-sm">هیچ تغییری ثبت نشده است.</p>
+    ) : (
+      <div className="max-h-96 overflow-y-auto overflow-x-auto border border-boxBorderColor dark:border-boxBorderColor-dark rounded-md w-full">
+        {/* 👇 جدول تمام عرض */}
+        <table className="min-w-full w-full text-sm table-auto border-collapse">
+          <thead className="bg-boxBorderColor dark:bg-boxBorderColor-dark sticky top-0">
+            <tr>
+              <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-36">
+                کاربر
+              </th>
+              <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-48">
+                تاریخ
+              </th>
+              <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-40">
+                پارامتر
+              </th>
+              <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+                قبل
+              </th>
+              <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+                بعد
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={i}>
+                <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top">
+                  {r.username}
+                </td>
+                <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top whitespace-nowrap">
+                  {r.dateTime}
+                </td>
+                <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top font-semibold text-blue-700">
+                  {r.field}
+                </td>
+                <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top text-gray-600">
+                  {r.oldValue}
+                </td>
+                <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top text-green-700">
+                  {r.newValue}
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {rows.map((r, i) => (
-                <tr key={i} className="">
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top">{r.username}</td>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top whitespace-nowrap">
-                    {r.dateTime}
-                  </td>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top font-semibold text-blue-700">
-                    {r.field}
-                  </td>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top text-gray-600">
-                    {r.oldValue}
-                  </td>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top text-green-700">
-                    {r.newValue}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )}
+  </div>
   );
 }

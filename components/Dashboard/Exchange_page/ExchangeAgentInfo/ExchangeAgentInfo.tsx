@@ -9,6 +9,9 @@ import { LoaderCircle } from '../../../Loader/Loader';
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
 import { PostRequest } from '../../../../functions/PostRequest';
+import Pagination from '../../../Pagination/Pagination';
+import { LogViewer } from '../../../../functions/changesHandler';
+import LoadingComponent from '../../../LoadingComponent/LoadingComponent';
 
 type Person = {
     id: string;
@@ -43,6 +46,14 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editLoading, SetEditLoading] = useState<boolean>(false)
     const [addLoading, SetAddLoading] = useState<boolean>(false)
+
+
+    const [isLogOpen, setisLogOpen] = useState(false);
+    const [LogNumber, setLogNumber] = useState(0);
+    const [LogPage, setLogPage] = useState(0);
+    const [LogLoading, setLogLoading] = useState(false);
+    const [Changes, setChanges] = useState<string[]>([]);
+
 
     const openModal = (row: Person) => {
         setForm(row);
@@ -217,6 +228,10 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                         <path d="M10.8301 16.5H14.1601" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         <path d="M10 12.5H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
+
+                    <svg onClick={() => {setEditingId(row.id) ,setisLogOpen(true)}} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer">
+                        <path d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
                 </div>
             ),
         },
@@ -285,6 +300,26 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             })
     }, [])
 
+
+    const Audit = () => {
+        setLogLoading(true)
+        GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange-agents/${editingId}?page=${LogPage}&size=10`)
+          .then((response) => {
+            setLogLoading(false)
+            setChanges(response.result.content)
+            setLogNumber(response.result.totalElements)
+          })
+          .catch((err) => {
+            setLogLoading(false)
+            setChanges([])
+          })
+      }
+    
+      useEffect(() => {
+        if (isLogOpen) {
+          Audit()
+        }
+      }, [isLogOpen, LogPage])
 
     return (
         <div className="mt-4">
@@ -437,6 +472,41 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                 </div>
             </Modal>
 
+            <Modal open={isLogOpen} onClose={() => { setisLogOpen(false) }}>
+                <Modal.Backdrop />
+                <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
+                    <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
+                        <h4 className="mb-2 mt-2">تغییرات مشخصات عضو هیئت‌مدیره</h4>
+                        {
+                            LogLoading ?
+                                <div className="mt-4">
+                                    <LoadingComponent />
+                                </div>
+                                :
+                                <LogViewer logs={Changes} />
+                        }
+                        <Pagination
+                            rtl
+                            totalItems={LogNumber}
+                            pageSize={10}
+                            currentPage={LogPage + 1}
+                            onPageChange={
+                                (e) => {
+                                    setLogPage(e - 1)
+                                }
+                            }
+                        />
+                        <div className="flex justify-end gap-4 w-full mt-2">
+                            <button
+                                onClick={() => { setisLogOpen(false) }}
+                                className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
+                            >
+                                بستن
+                            </button>
+                        </div>
+                    </Modal.Panel>
+                </div>
+            </Modal>
         </div>
     );
 };

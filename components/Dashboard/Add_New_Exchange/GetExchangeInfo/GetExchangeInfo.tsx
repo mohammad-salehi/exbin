@@ -10,6 +10,8 @@ import { LoaderCircle } from '../../../Loader/Loader';
 
 import { addHttps, removeProtocolAndWWW, validateDomainExtension, validateEmail, validateNumbers } from '../../../../functions/Validations';
 import { PostRequest } from '../../../../functions/PostRequest';
+import { toEnglishDigits } from '../../../../functions/EnglishNumber';
+import { toLocalDate } from '../../../../functions/toLocalDate';
 
 interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
@@ -72,26 +74,22 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
         const payload = {
           name,
           legalName,
-          nationalCode,
-          establishmentDate,
+          nationalCode: toEnglishDigits(nationalCode),
+          establishmentDate:toLocalDate(establishmentDate),
           type,
-          exchangeType,
-          financialCode,
+          exchangeType: exchangeType==='سهامی' ? 'STOCK' : 'LIMITED_LIABILITY',
+          financialCode: toEnglishDigits(financialCode),
           logo,
           siteAddress: addHttps(removeProtocolAndWWW(siteAddress)),
-          emergencyPhoneNumber,
+          emergencyPhoneNumber: toEnglishDigits(emergencyPhoneNumber),
           officeAddress,
-          phoneNumber,
+          phoneNumber: toEnglishDigits(phoneNumber),
           registrationNumber,
           email,
         };
       
         try {
           setLoading(true);
-      
-          // اگر خواستی تایپ پاسخ را مشخص کنی:
-          // type CreateExchangeResponse = { result: { id: string } };
-          // const res = await PostRequest<CreateExchangeResponse>(`${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges`, payload);
       
           const res: any = await PostRequest(
             `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges`,

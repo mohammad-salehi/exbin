@@ -8,7 +8,6 @@ import { LoaderCircle } from "../../../Loader/Loader";
 import { PostRequest } from "../../../../functions/PostRequest";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-
 import {
   addHttps,
   removeProtocolAndWWW,
@@ -20,6 +19,9 @@ import { dateValidation } from "../../../../functions/Validations";
 import { LogViewer } from "../../../../functions/changesHandler";
 import LoadingComponent from "../../../LoadingComponent/LoadingComponent";
 import Pagination from "../../../Pagination/Pagination";
+import { toJalaliDate } from "../../../../functions/toJalaliDate";
+import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
+import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
 
 type AnyObj = Record<string, any>;
 
@@ -542,14 +544,13 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
       .then((response) => {
-        console.log(response)
         SetLogo(response.result.logo);
         SetName(response.result.name);
         handleEdit(1, 1, response.result.legalName);
-        handleEdit(1, 2, response.result.establishmentDate);
+        handleEdit(1, 2, toJalaliDate(response.result.establishmentDate));
         handleEdit(1, 3, response.result.nationalCode);
         handleEdit(1, 4, response.result.type);
-        handleEdit(1, 5, response.result.exchangeType);
+        handleEdit(1, 5, response.result.exchangeType === 'STOCK' ? 'سهامی' : response.result.exchangeType === 'LIMITED_LIABILITY' ? 'مسئولیت محدود' : '');
         handleEdit(1, 6, response.result.financialCode);
         handleEdit(1, 7, String(response.result.registrationNumber));
         if (
@@ -694,9 +695,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         managerInfo.email = form.email;
         managerInfo.financialCode = form.financialCode;
         managerInfo.registrationNumber = form.registrationNumber;
-        // managerInfo.exchangeAgentInfo = [];
-        // managerInfo.boardMemberInfo = [];
-        // managerInfo.employeeInfo = [];
+
         try {
           const token = document.cookie
             .split("; ")
@@ -955,15 +954,17 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               </div>
               <div>
                 <label>تاریخ تأسیس</label>
-                <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  value={form.establishmentDate ?? ""}
-                  onChange={handleEstablishmentDateChange}
-                  onCompositionStart={() => setComposing(true)}
-                  onCompositionEnd={() => setComposing(false)}
-                />
+                <div className="mt-2">
+                  <JalaliLocalDatePicker
+                    value={form.establishmentDate}
+                    onChange={(val) => setForm(p => ({ ...p, establishmentDate: val !== null ? val : '' }))}
+                    placeholder=""
+                    clearable
+                    min="2000-01-01"
+                    max="2030-12-31"
+                  />
+                </div>
+
               </div>
               <div>
                 <label>شناسه ملی صرافی</label>
@@ -981,13 +982,68 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               </div>
               <div>
                 <label>نوع صرافی</label>
-                <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  value={form.type}
-                  onChange={(e) => setForm({ ...form, type: e.target.value })}
-                />
+
+                <div className="relative w-full mt-2">
+                  <Dropdown
+                    value={form.type}
+                    onChange={(v: unknown) => {
+                      if (v === "P2P" || v === "OTC") {
+                        setForm((p) => ({ ...p, type: v }));
+                      }
+                    }}
+                  >
+                    <Dropdown.Trigger className="w-full">
+                      <Button
+                        as="span"
+                        role="button"
+                        variant="ghost"
+                        className="flex items-center justify-between w-full pl-10 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
+                    border border-gray-300 
+                   rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+                   appearance-none relative"
+                      >
+                        <span>{form.type !== "" ? form.type : "انتخاب"}</span>
+                      </Button>
+                    </Dropdown.Trigger>
+
+                    <Dropdown.Options
+                      className="absolute left-0 mt-2 w-72 pl-2 pr-2
+                 text-gray-700 bg-white dark:bg-buttonColor-dark
+                 border border-gray-300 dark:border-buttonBorderColor-dark 
+                 rounded-lg dark:text-gray-100 appearance-none z-50
+                 max-h-60 overflow-y-auto"
+                    >
+                      <Dropdown.Option value="P2P" key="option1">
+                        {({ selected, active }) => (
+                          <MenuItem
+                            isActive={active}
+                            isSelected={selected}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "P2P"
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                              }`}
+                          >
+                            <MenuItem.Title>P2P</MenuItem.Title>
+                          </MenuItem>
+                        )}
+                      </Dropdown.Option>
+                      <Dropdown.Option value="OTC" key="option2">
+                        {({ active }) => (
+                          <MenuItem
+                            isActive={active}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "OTC"
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                              }`}
+                          >
+                            <MenuItem.Title>OTC</MenuItem.Title>
+                          </MenuItem>
+                        )}
+                      </Dropdown.Option>
+                    </Dropdown.Options>
+                  </Dropdown>
+                  <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+                </div>
               </div>
               <div>
                 <label>کد اقتصادی</label>
@@ -1019,15 +1075,68 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               </div>
               <div>
                 <label>شکل حقوقی</label>
-                <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  value={form.exchangeType}
-                  onChange={(e) =>
-                    setForm({ ...form, exchangeType: e.target.value })
-                  }
-                />
+
+                <div className="relative w-full mt-2">
+                  <Dropdown
+                    value={form.exchangeType}
+                    onChange={(v: unknown) => {
+                      if (v === "STOCK" || v === "LIMITED_LIABILITY") {
+                        setForm((p) => ({ ...p, exchangeType: v }));
+                      }
+                    }}
+                  >
+                    <Dropdown.Trigger className="w-full">
+                      <Button
+                        as="span"
+                        role="button"
+                        variant="ghost"
+                        className="flex items-center justify-between w-full pl-10 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
+                    border border-gray-300 
+                   rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+                    appearance-none relative" 
+                      >
+                        <span>{form.exchangeType === "LIMITED_LIABILITY" ? 'مسئولیت محدود' : form.exchangeType === "STOCK" ? 'سهامی' : ''}</span>
+                      </Button>
+                    </Dropdown.Trigger>
+
+                    <Dropdown.Options
+                      className="absolute left-0 mt-2 w-72 pl-2 pr-2
+                 text-gray-700 bg-white dark:bg-buttonColor-dark
+                 border border-gray-300 dark:border-buttonBorderColor-dark 
+                 rounded-lg dark:text-gray-100 appearance-none z-50
+                 max-h-60 overflow-y-auto"
+                    >
+                      <Dropdown.Option value="LIMITED_LIABILITY" key="option1">
+                        {({ selected, active }) => (
+                          <MenuItem
+                            isActive={active}
+                            isSelected={selected}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === "LIMITED_LIABILITY"
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                              }`}
+                          >
+                            <MenuItem.Title>مسئولیت محدود</MenuItem.Title>
+                          </MenuItem>
+                        )}
+                      </Dropdown.Option>
+                      <Dropdown.Option value="STOCK" key="option2">
+                        {({ active }) => (
+                          <MenuItem
+                            isActive={active}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === "STOCK"
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                              }`}
+                          >
+                            <MenuItem.Title>سهامی</MenuItem.Title>
+                          </MenuItem>
+                        )}
+                      </Dropdown.Option>
+                    </Dropdown.Options>
+                  </Dropdown>
+                  <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+                </div>
               </div>
               <div>
                 <label>آدرس سایت</label>
@@ -1218,7 +1327,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
-            <h4 className="mb-2 mt-2">تغییرات مشخصات نوبیتکس</h4>
+            <h4 className="mb-2 mt-2">تغییرات مشخصات صرافی</h4>
             {
               LogLoading ?
                 <div className="mt-4">
@@ -1240,6 +1349,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             />
             <div className="flex justify-end gap-4 w-full mt-2">
               <button
+                onClick={() => { setisLogOpen(false) }}
                 className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
               >
                 بستن

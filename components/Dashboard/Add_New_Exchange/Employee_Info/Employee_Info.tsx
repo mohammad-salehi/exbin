@@ -11,6 +11,7 @@ import { LoaderCircle } from "../../../Loader/Loader";
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
 import { PostRequest } from "../../../../functions/PostRequest";
+import { toLocalDate } from '../../../../functions/toLocalDate';
 
 type Person = {
     id: string;
@@ -99,11 +100,11 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               id: form.id,
               name: form.name,
               jobPosition: form.jobPosition,
-              startDate: form.startDate,
+              startDate: toLocalDate(form.startDate),
               educationalHistory: form.educationalHistory,
               careerHistory: form.careerHistory,
-              insuranceStartDate: form.insuranceStartDate,
-              insuranceEndDate: form.insuranceEndDate,
+              insuranceStartDate: toLocalDate(form.insuranceStartDate),
+              insuranceEndDate: toLocalDate(form.insuranceEndDate),
               isSpecialAccess: form.isSpecialAccess === true, // boolean خالص
               nationalCode: form.nationalCode,
               phoneNumber: form.phoneNumber,
