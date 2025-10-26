@@ -1,6 +1,13 @@
 import React, { JSX, useEffect, useRef, useState } from "react";
 import DetailBox from "../../../DetailBox/DetailBox";
-import { Modal, Button, Input, Label, Dropdown, MenuItem } from "@heathmont/moon-core-tw";
+import {
+  Modal,
+  Button,
+  Input,
+  Label,
+  Dropdown,
+  MenuItem,
+} from "@heathmont/moon-core-tw";
 import { GetRequest } from "../../../../functions/GetRequest";
 import { useParams } from "next/navigation";
 import toast from "react-hot-toast";
@@ -47,9 +54,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const [logo, SetLogo] = useState<string>("");
   const [name, SetName] = useState<string>("");
   const [DownloadLoading, SetDownloadLoading] = useState<boolean>(false);
-  const [AddFileModal, SetAddFileModal] = useState<boolean>(false)
-  const [type, Settype] = useState<string>("")
-  const [FinancialName, SetFinancialName] = useState<number>(0)
+  const [AddFileModal, SetAddFileModal] = useState<boolean>(false);
+  const [type, Settype] = useState<string>("");
+  const [FinancialName, SetFinancialName] = useState<number>(0);
   const [composing, setComposing] = useState(false);
   const [Loading, setLoading] = useState<boolean>(false);
   const [form, setForm] = useState({
@@ -300,34 +307,32 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               }}
             >
               <span className="flex items-center ml-1">
-                {
-                  DownloadLoading ?
-                    <LoaderCircle size={8} color="border-white-500" />
-                    :
-                    <svg
-                      width="24px"
-                      height="24px"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                }
-
+                {DownloadLoading ? (
+                  <LoaderCircle size={8} color="border-white-500" />
+                ) : (
+                  <svg
+                    width="24px"
+                    height="24px"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
               </span>
               <p className="text-right">دریافت Excel</p>
             </div>
@@ -340,15 +345,28 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             <div
               className="flex justify-between items-center cursor-pointer"
               onClick={() => {
-                setisLogOpen(true)
-                setLogPage(0)
-                setLogNumber(0)
+                setisLogOpen(true);
+                setLogPage(0);
+                setLogNumber(0);
               }}
             >
               <span className="flex items-center ml-1 text-titleText dark:text-titleText-dark">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>           </span>
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>{" "}
+              </span>
               <p className="text-right">تاریخچه تغییرات</p>
             </div>
           ),
@@ -381,7 +399,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   };
   const handleDownload = async () => {
     try {
-      SetDownloadLoading(true)
+      SetDownloadLoading(true);
       const token = document.cookie
         .split("; ")
         .find((row) => row.startsWith("token="))
@@ -396,9 +414,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         }
       );
 
-      if (!res.ok) { throw new Error("خطا در دریافت فایل") } else {
-        SetDownloadLoading(false)
-      };
+      if (!res.ok) {
+        throw new Error("خطا در دریافت فایل");
+      } else {
+        SetDownloadLoading(false);
+      }
 
       // باینری فایل رو بگیر و دانلود کن
       const blob = await res.blob();
@@ -411,20 +431,60 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      SetDownloadLoading(false)
+      SetDownloadLoading(false);
       toast.error("خطا در دانلود فایل");
     }
   };
-  const addAssociationDocuments = (financialStatement?: string | null) => {
 
+  const handleDownloadFinancial = async (id:number, date:string) => {
+    try {
+      SetDownloadLoading(true);
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${id}/download`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("خطا در دریافت فایل");
+      } else {
+        SetDownloadLoading(false);
+      }
+
+      // باینری فایل رو بگیر و دانلود کن
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `صورت مالی ${date}.pdf`; // یا از header سرور بگیر
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      SetDownloadLoading(false);
+      toast.error("خطا در دانلود فایل");
+    }
+  };
+  const addAssociationDocuments = (
+    association?: string | null,
+    financialStatement: Array<{ id: number; date: string; file: string }> = []
+  ) => {
     const buildItem = () => ({
       id: Date.now(),
       title: "",
       content: (
         // اطمینان از تمام‌عرض بودن در هر دو حالت Grid و Flex
         <div className="w-full col-span-full flex flex-col">
-
-          {financialStatement && (
+          {association && (
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center">
                 <h6 className="inline-block">اساسنامه</h6>
@@ -468,7 +528,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         ?.split("=")[1];
 
                       if (!token) {
-                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+                          position: "bottom-left",
+                        });
                         return;
                       }
 
@@ -486,7 +548,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                       if (!response.ok) {
                         return toast.error("خطا در حذف اساسنامه");
                       } else {
-                        toast.success("اساسنامه با موفقیت حذف شد.", { position: "bottom-left" });
+                        toast.success("اساسنامه با موفقیت حذف شد.", {
+                          position: "bottom-left",
+                        });
                         window.location.reload();
                       }
                     } catch (err) {
@@ -512,6 +576,99 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               </div>
             </div>
           )}
+          {/* رندر آیتم‌های صورت‌های مالی؛ حتماً return بده و key یکتا بذار */}
+          {financialStatement.map((item) => (
+            <div className="flex justify-between items-center w-full">
+              <div className="flex items-center">
+                <h6 className="inline-block">صورت مالی {item.date}</h6>
+              </div>
+              <div className="flex items-center">
+                <button
+                  onClick={() => {handleDownloadFinancial(item.id, item.date)}}
+                  className="text-titleText dark:text-titleText-dark mr-2"
+                >
+                  {/* ... SVG دانلود ... */}
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+
+                <button
+                  onClick={async () => {
+                    try {
+                      const token = document.cookie
+                        .split("; ")
+                        .find((row) => row.startsWith("token="))
+                        ?.split("=")[1];
+
+                      if (!token) {
+                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+                          position: "bottom-left",
+                        });
+                        return;
+                      }
+
+                      const response = await fetch(
+                        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${item.id}/delete`,
+                        {
+                          method: "DELETE",
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        }
+                      );
+
+                      if (!response.ok) {
+                        return toast.error("خطا در حذف صورت مالی");
+                      } else {
+                        toast.success("صورت مالی با موفقیت حذف شد.", {
+                          position: "bottom-left",
+                        });
+                        window.location.reload();
+                      }
+                    } catch (err) {
+                      console.error(err);
+                      return toast.error("خطا در حذف صورت مالی");
+                    }
+                  }}
+                  className="text-titleText dark:text-titleText-dark mr-1"
+                >
+                  {/* ... SVG حذف ... */}
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 1024 1024"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ))}
           {/* ردیف دوم: دکمه افزودن — همیشه زیرِ ردیف اول می‌آید */}
           <div className="mt-4 w-full">
             <Button
@@ -526,21 +683,20 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       ),
     });
 
-
     // الحاق (append) به سکشن ۳؛ نه جایگزینی کل content
     setInvoiceData((prev) =>
       prev.map((section) =>
         section.id === 3
           ? {
-            ...section,
-            content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
-          }
+              ...section,
+              content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
+            }
           : section
       )
     );
   };
   useEffect(() => {
-    if (didInit.current) return;   // ← جلوی بار دوم را می‌گیرد
+    if (didInit.current) return; // ← جلوی بار دوم را می‌گیرد
     didInit.current = true;
 
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
@@ -551,7 +707,15 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         handleEdit(1, 2, toJalaliDate(response.result.establishmentDate));
         handleEdit(1, 3, response.result.nationalCode);
         handleEdit(1, 4, response.result.type);
-        handleEdit(1, 5, response.result.exchangeType === 'STOCK' ? 'سهامی' : response.result.exchangeType === 'LIMITED_LIABILITY' ? 'مسئولیت محدود' : '');
+        handleEdit(
+          1,
+          5,
+          response.result.exchangeType === "STOCK"
+            ? "سهامی"
+            : response.result.exchangeType === "LIMITED_LIABILITY"
+            ? "مسئولیت محدود"
+            : ""
+        );
         handleEdit(1, 6, response.result.financialCode);
         handleEdit(1, 7, String(response.result.registrationNumber));
         if (
@@ -589,7 +753,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             </a>
           );
         }
-        addAssociationDocuments(response.result.association);
+        console.log(response.result);
+        addAssociationDocuments(
+          response.result.association,
+          response.result.financialStatements
+        );
 
         setForm({
           legalName: response.result.legalName,
@@ -825,8 +993,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     try {
       setLoading2(true);
 
-      if (type === 'اساسنامه') {
-        if (!file) { toast.error("فایلی انتخاب نشده"); return; }
+      if (type === "اساسنامه") {
+        if (!file) {
+          toast.error("فایلی انتخاب نشده");
+          return;
+        }
 
         await PostRequest(
           `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/upload`,
@@ -835,11 +1006,16 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         );
 
         toast.success("اساسنامه با موفقیت بارگذاری شد");
-
-      } else if (type === 'صورت مالی') {
-        await PostRequest(
+      } else if (type === "صورت مالی") {
+        const result = await PostRequest(
           `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
           { date: String(FinancialName) }
+        );
+        const fileId = result.result.financialStatements.find((item: { date: any; }) => String(item.date) === String(FinancialName)).id
+        await PostRequest(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/upload`,
+          { financialFile: file },
+          { asFormData: true }
         );
         toast.success("صورت مالی با موفقیت بارگذاری شد");
       }
@@ -847,10 +1023,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       setFile(null);
       setFileName("");
       SetAddFileModal(false);
-
-      // اگر واقعا نیاز به ریفرش داری، یک تاخیر کوتاه بده تا UI آپدیت شود
       setTimeout(() => window.location.reload(), 500);
-
     } catch (e: any) {
       toast.error(e?.message || "خطا در آپلود");
     } finally {
@@ -861,24 +1034,26 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     Settype(event);
   };
   const Audit = () => {
-    setLogLoading(true)
-    GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange/${params.id}?page=${LogPage}&size=10`)
+    setLogLoading(true);
+    GetRequest(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange/${params.id}?page=${LogPage}&size=10`
+    )
       .then((response) => {
-        setLogLoading(false)
-        setChanges(response.result.content)
-        setLogNumber(response.result.totalElements)
+        setLogLoading(false);
+        setChanges(response.result.content);
+        setLogNumber(response.result.totalElements);
       })
       .catch((err) => {
-        setLogLoading(false)
-        setChanges([])
-      })
-  }
+        setLogLoading(false);
+        setChanges([]);
+      });
+  };
 
   useEffect(() => {
     if (isLogOpen) {
-      Audit()
+      Audit();
     }
-  }, [isLogOpen, LogPage])
+  }, [isLogOpen, LogPage]);
   return (
     <div>
       {logo !== null && logo !== "" ? (
@@ -920,8 +1095,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               typeof item.content === "string"
                 ? item.content
                 : React.isValidElement(item.content)
-                  ? item.content
-                  : "", // تبدیل به string یا Element
+                ? item.content
+                : "", // تبدیل به string یا Element
           })),
         }))}
         downloadLink="/path/to/pdf"
@@ -955,14 +1130,18 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 <div className="mt-2">
                   <JalaliLocalDatePicker
                     value={form.establishmentDate}
-                    onChange={(val) => setForm(p => ({ ...p, establishmentDate: val !== null ? val : '' }))}
+                    onChange={(val) =>
+                      setForm((p) => ({
+                        ...p,
+                        establishmentDate: val !== null ? val : "",
+                      }))
+                    }
                     placeholder=""
                     clearable
                     min="2000-01-01"
                     max="2030-12-31"
                   />
                 </div>
-
               </div>
               <div>
                 <label>شناسه ملی صرافی</label>
@@ -1016,10 +1195,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                           <MenuItem
                             isActive={active}
                             isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "P2P"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                              }`}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                              form.type === "P2P"
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
+                            }`}
                           >
                             <MenuItem.Title>P2P</MenuItem.Title>
                           </MenuItem>
@@ -1029,10 +1209,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         {({ active }) => (
                           <MenuItem
                             isActive={active}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "OTC"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                              }`}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                              form.type === "OTC"
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
+                            }`}
                           >
                             <MenuItem.Title>OTC</MenuItem.Title>
                           </MenuItem>
@@ -1093,7 +1274,13 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
                     appearance-none relative"
                       >
-                        <span>{form.exchangeType === "LIMITED_LIABILITY" ? 'مسئولیت محدود' : form.exchangeType === "STOCK" ? 'سهامی' : ''}</span>
+                        <span>
+                          {form.exchangeType === "LIMITED_LIABILITY"
+                            ? "مسئولیت محدود"
+                            : form.exchangeType === "STOCK"
+                            ? "سهامی"
+                            : ""}
+                        </span>
                       </Button>
                     </Dropdown.Trigger>
 
@@ -1109,10 +1296,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                           <MenuItem
                             isActive={active}
                             isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === "LIMITED_LIABILITY"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                              }`}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                              form.exchangeType === "LIMITED_LIABILITY"
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
+                            }`}
                           >
                             <MenuItem.Title>مسئولیت محدود</MenuItem.Title>
                           </MenuItem>
@@ -1122,10 +1310,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         {({ active }) => (
                           <MenuItem
                             isActive={active}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === "STOCK"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                              }`}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                              form.exchangeType === "STOCK"
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
+                            }`}
                           >
                             <MenuItem.Title>سهامی</MenuItem.Title>
                           </MenuItem>
@@ -1224,12 +1413,19 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         </div>
       </Modal>
 
-      <Modal open={AddFileModal} onClose={() => { SetAddFileModal(false); }}>
+      <Modal
+        open={AddFileModal}
+        onClose={() => {
+          SetAddFileModal(false);
+        }}
+      >
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
             <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-              <Modal.Title className="text-lg font-bold">افزودن فایل</Modal.Title>
+              <Modal.Title className="text-lg font-bold">
+                افزودن فایل
+              </Modal.Title>
 
               <Label className="mt-4">نوع فایل</Label>
               <Dropdown onChange={handleSelectChange} value={type}>
@@ -1259,8 +1455,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                       <MenuItem
                         isActive={active}
                         isSelected={selected}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "اساسنامه" ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""
-                          }`}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                          type === "اساسنامه"
+                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                            : ""
+                        }`}
                       >
                         <MenuItem.Title>اساسنامه</MenuItem.Title>
                       </MenuItem>
@@ -1270,8 +1469,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                     {({ active }) => (
                       <MenuItem
                         isActive={active}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "صورت مالی" ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""
-                          }`}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                          type === "صورت مالی"
+                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                            : ""
+                        }`}
                       >
                         <MenuItem.Title>صورت مالی</MenuItem.Title>
                       </MenuItem>
@@ -1283,7 +1485,16 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               {type === "صورت مالی" ? (
                 <div>
                   <Label className="mt-4">عنوان</Label>
-                  <PersianYearSelect onChange={(e) => { if (e !== null) { SetFinancialName(e) } else { SetFinancialName(0) } }} value={FinancialName} />
+                  <PersianYearSelect
+                    onChange={(e) => {
+                      if (e !== null) {
+                        SetFinancialName(e);
+                      } else {
+                        SetFinancialName(0);
+                      }
+                    }}
+                    value={FinancialName}
+                  />
                 </div>
               ) : null}
 
@@ -1291,12 +1502,15 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               <div className="items-center gap-2">
                 <Label className="mt-4">بارگذاری</Label>
                 <label className="block cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
-                  <span className="block truncate text-start" title={fileName || "انتخاب فایل"}>
+                  <span
+                    className="block truncate text-start"
+                    title={fileName || "انتخاب فایل"}
+                  >
                     {fileName || "انتخاب فایل"}
                   </span>
                   <input
                     type="file"
-                    accept="*/*"              // یا این خط رو کاملاً حذف کن
+                    accept="*/*" // یا این خط رو کاملاً حذف کن
                     onChange={handleFileChange}
                     className="hidden"
                   />
@@ -1316,33 +1530,37 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         </div>
       </Modal>
 
-      <Modal open={isLogOpen} onClose={() => { setisLogOpen(false) }}>
+      <Modal
+        open={isLogOpen}
+        onClose={() => {
+          setisLogOpen(false);
+        }}
+      >
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
             <h4 className="mb-2 mt-2">تغییرات مشخصات صرافی</h4>
-            {
-              LogLoading ?
-                <div className="mt-4">
-                  <LoadingComponent />
-                </div>
-                :
-                <LogViewer logs={Changes} />
-            }
+            {LogLoading ? (
+              <div className="mt-4">
+                <LoadingComponent />
+              </div>
+            ) : (
+              <LogViewer logs={Changes} />
+            )}
             <Pagination
               rtl
               totalItems={LogNumber}
               pageSize={10}
               currentPage={LogPage + 1}
-              onPageChange={
-                (e) => {
-                  setLogPage(e - 1)
-                }
-              }
+              onPageChange={(e) => {
+                setLogPage(e - 1);
+              }}
             />
             <div className="flex justify-end gap-4 w-full mt-2">
               <button
-                onClick={() => { setisLogOpen(false) }}
+                onClick={() => {
+                  setisLogOpen(false);
+                }}
                 className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
               >
                 بستن
