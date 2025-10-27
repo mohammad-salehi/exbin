@@ -48,6 +48,7 @@ const IGNORE_FIELDS = new Set([
   "exchangeAgentInfo",
   "managerInfo",
   "financialStatements",
+  "updatedAt"
 ]);
 
 function getEntityChangesRows(input: any): {

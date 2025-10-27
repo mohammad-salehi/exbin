@@ -72,7 +72,7 @@ const Page: React.FC = () => {
             }
 
             SetEditLoading(true)
-            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/v1/users/${form.id}`, {
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/users/${form.id}`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -124,7 +124,7 @@ const Page: React.FC = () => {
             }
 
             setDeleteLoading(true)
-            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/v1/users/${target.id}`, {
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/users/${target.id}`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -200,7 +200,7 @@ const Page: React.FC = () => {
             SetAddLoading(true);
 
             const res: any = await PostRequest(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/v1/users`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/users`,
                 Member // JSON ارسال می‌شود
             );
 
@@ -261,6 +261,28 @@ const Page: React.FC = () => {
                             <path d="M10.33 16.5h3.33M9.5 12.5h5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                     </button>
+
+                    <a
+
+                        type="button"
+                        href={`/panel/admin-panel/timeline/${10}`}
+                        className="cursor-pointer"
+                        aria-label={`خط زمانی ${row.firstName} ${row.lastName}`}
+                        title="خط زمانی"
+                    >
+                        <svg width="22" height="22" viewBox="0 0 48 48" version="1" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 48 48">
+                            <path fill="currentColor" d="M42,29H20.8c-0.5,0-1-0.2-1.4-0.6l-3.7-3.7c-0.4-0.4-0.4-1,0-1.4l3.7-3.7c0.4-0.4,0.9-0.6,1.4-0.6H42 c0.6,0,1,0.4,1,1v8C43,28.6,42.6,29,42,29z" />
+                            <rect x="9" y="6" fill="#CFD8DC" width="2" height="36" />
+                            <g fill="currentColor">
+                                <circle cx="10" cy="10" r="3" />
+                                <circle cx="10" cy="24" r="3" />
+                                <circle cx="10" cy="38" r="3" />
+                            </g>
+                            <path fill="currentColor" d="M34,43H20.8c-0.5,0-1-0.2-1.4-0.6l-3.7-3.7c-0.4-0.4-0.4-1,0-1.4l3.7-3.7c0.4-0.4,0.9-0.6,1.4-0.6H34 c0.6,0,1,0.4,1,1v8C35,42.6,34.6,43,34,43z" />
+                            <path fill="currentColor" d="M35,15H20.8c-0.5,0-1-0.2-1.4-0.6l-3.7-3.7c-0.4-0.4-0.4-1,0-1.4l3.7-3.7C19.8,5.2,20.3,5,20.8,5H35 c0.6,0,1,0.4,1,1v8C36,14.6,35.6,15,35,15z" />
+                        </svg>
+                    </a>
+
                 </div>
             ),
         },
@@ -268,7 +290,7 @@ const Page: React.FC = () => {
 
     useEffect(() => {
         setLoading(true)
-        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/v1/users`)
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/users`)
             .then((response) => {
                 setRows(response.result)
                 setLoading(false)

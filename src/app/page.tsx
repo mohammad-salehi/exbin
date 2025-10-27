@@ -97,7 +97,7 @@ export default function Home() {
 
   async function Login(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
-    const ADDRESS = process.env.NEXT_PUBLIC_API_URL + `/api/v1/auth/signin`
+    const ADDRESS = process.env.NEXT_PUBLIC_API_URL + `/api/auth/signin`
     const credentials: LoginRequest = {
       username,
       password
