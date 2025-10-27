@@ -17,7 +17,7 @@ interface DetailBoxProps {
 const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
     return (
         <div className="shadow-lg rounded-lg overflow-x-hidden bg-white dark:bg-bgColor-dark border border-gray-200 dark:border-boxColor-dark mt-2 pb-2">
-            <div className="w-full grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-4 bg-white dark:bg-bgColor-dark">
+            <div className="w-full grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 bg-white dark:bg-bgColor-dark">
                 {data.map((section, sectionIndex) => (
                     <div
                         key={sectionIndex}
@@ -88,7 +88,8 @@ const DetailBox: React.FC<DetailBoxProps> = ({ data, downloadLink }) => {
                                                     </div>
                                                 ) : null}
                                                 <div className="flex items-center gap-1">
-                                                    <span className={`whitespace-normal break-words ${sectionIndex === 2 ? 'w-full' : ''}`}>
+                                                    {/* <span className={`whitespace-normal break-words ${sectionIndex === 2 ? 'w-full' : ''}`}> */}
+                                                    <span className={`whitespace-normal break-words ${false ? 'w-full' : ''}`}>
                                                         {item.content}
                                                     </span>
                                                     {sectionIndex < 2 ? (

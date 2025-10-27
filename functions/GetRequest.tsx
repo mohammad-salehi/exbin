@@ -84,7 +84,8 @@ export const GetRequest = async (
           if (!retryRes.ok) {
             if (retryRes.status === 401 || retryRes.status === 403) {
               clearCookie(tokenCookieName);
-              if (redirectOn403) window.location.assign(redirectOn403);
+              if (redirectOn403) 
+                window.location.assign(redirectOn403);
             }
             throw new Error(`HTTP ${retryRes.status}`);
           }
@@ -92,14 +93,16 @@ export const GetRequest = async (
           return await retryRes.json();
         } catch (err) {
           clearCookie(tokenCookieName);
-          if (redirectOn403) window.location.assign(redirectOn403);
+          if (redirectOn403) 
+            window.location.assign(redirectOn403);
           throw err;
         }
       }
   
       if (response.status === 401 || response.status === 403) {
         clearCookie(tokenCookieName);
-        if (redirectOn403) window.location.assign(redirectOn403);
+        if (redirectOn403) 
+          window.location.assign(redirectOn403);
       }
   
       const text = await response.text();

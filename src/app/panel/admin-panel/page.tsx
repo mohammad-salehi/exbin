@@ -265,12 +265,12 @@ const Page: React.FC = () => {
                     <a
 
                         type="button"
-                        href={`/panel/admin-panel/timeline/${10}`}
+                        href={`/panel/admin-panel/timeline/${row.username}`}
                         className="cursor-pointer"
                         aria-label={`خط زمانی ${row.firstName} ${row.lastName}`}
                         title="خط زمانی"
                     >
-                        <svg width="22" height="22" viewBox="0 0 48 48" version="1" xmlns="http://www.w3.org/2000/svg" enable-background="new 0 0 48 48">
+                        <svg width="22" height="22" viewBox="0 0 48 48" version="1" xmlns="http://www.w3.org/2000/svg" enableBackground="new 0 0 48 48">
                             <path fill="currentColor" d="M42,29H20.8c-0.5,0-1-0.2-1.4-0.6l-3.7-3.7c-0.4-0.4-0.4-1,0-1.4l3.7-3.7c0.4-0.4,0.9-0.6,1.4-0.6H42 c0.6,0,1,0.4,1,1v8C43,28.6,42.6,29,42,29z" />
                             <rect x="9" y="6" fill="#CFD8DC" width="2" height="36" />
                             <g fill="currentColor">

@@ -90,11 +90,6 @@ export default function Home() {
   const [username, Setusername] = useState<string>('')
   const [password, Setpassword] = useState<string>('')
 
-  function validatePhoneNumber(phoneNumber: string) {
-    const phoneRegex = /^09\d{9}$/;
-    return phoneRegex.test(phoneNumber);
-  }
-
   async function Login(e: FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const ADDRESS = process.env.NEXT_PUBLIC_API_URL + `/api/auth/signin`
@@ -103,7 +98,7 @@ export default function Home() {
       password
     }
 
-    if (validatePhoneNumber(username)) {
+    if (true) {
       setLoading(true)
       try {
         const response = await fetch(`${ADDRESS}`, {

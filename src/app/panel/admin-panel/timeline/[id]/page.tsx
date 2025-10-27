@@ -1,22 +1,33 @@
-'use client'
+"use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { useParams } from "next/navigation";
+import JalaliLocalDatePicker from "../../../../../../components/DatePicker/JalaliLocalDatePicker";
 
 // ==========================
 // Types
 // ==========================
 export type TimelineItem = {
   id: string | number;
-  date: string; // ISO date (e.g. "2025-10-19")
-  time: string; // 24h (e.g. "08:30")
-  title?: string;
-  subtitle?: string;
-  meta?: string;
+  date: string; // YYYY-MM-DD
+  time: string; // HH:mm
+  subtitle?: string; // explain
 };
+
+// ==========================
+// Config
+// ==========================
+const PAGE_SIZE = 10;
 
 // ==========================
 // Helpers
 // ==========================
+const getCookie = (name: string) =>
+  document.cookie
+    .split("; ")
+    .find((r) => r.startsWith(name + "="))
+    ?.split("=")[1] || "";
+
 const persianDigits = (input: string | number) =>
   String(input).replace(/[0-9]/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[parseInt(d, 10)]);
 
@@ -26,7 +37,8 @@ const groupByDate = (items: TimelineItem[]) =>
     return acc;
   }, {});
 
-const byTimeAsc = (a: TimelineItem, b: TimelineItem) => a.time.localeCompare(b.time);
+const byTimeAsc = (a: TimelineItem, b: TimelineItem) =>
+  a.time.localeCompare(b.time);
 
 const fmtDateFa = (isoDate: string) => {
   const d = new Date(isoDate + "T00:00:00");
@@ -37,38 +49,47 @@ const fmtDateFa = (isoDate: string) => {
   }).format(d);
 };
 
-// ==========================
-// Demo data — replace with your API data
-// ==========================
-const DEMO: TimelineItem[] = Array.from({ length: 28 }).map((_, i) => {
-  const day = 19 - Math.floor(i / 4);
-  const times = ["08:00", "08:30", "10:00", "13:00"];
-  return {
-    id: i + 1,
-    date: `2025-10-${String(Math.max(1, day)).padStart(2, "0")}`,
-    time: times[i % 4],
-    title: "رویداد سیستم",
-    subtitle: "یادداشت دلخواه",
-    meta: "کد: ۹۹۹/XX",
-  };
-});
+/** خروجی DatePicker را به فرمت API برمی‌گرداند.
+ * از string یا object (مثلاً {gregorian: 'YYYY-MM-DD'}) پشتیبانی می‌کند.
+ * endOfDay=true => 'T23:59:59' وگرنه 'T00:00:00'
+ */
+const extractApiDateTime = (val: any, endOfDay = false): string | undefined => {
+  if (!val) return undefined;
+  const greg =
+    typeof val === "string"
+      ? val
+      : val.gregorian || val.value || val.date || "";
+  if (!greg) return undefined;
+  const base = greg.slice(0, 10);
+  return `${base}${endOfDay ? "T23:59:59" : "T00:00:00"}`;
+};
 
 // ==========================
-// Lightweight primitives (بدون کتابخانه UI و انیمیشن)
+// Tiny UI primitives
 // ==========================
-const Tile: React.FC<React.PropsWithChildren<{ className?: string }>> = ({ children, className }) => (
-  <div className={`rounded-2xl border border-gray-200 bg-white shadow-sm ${className || ""}`}>{children}</div>
+const Tile: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+  children,
+  className,
+}) => (
+  <div
+    className={`rounded-2xl border border-gray-200 bg-white shadow-sm ${
+      className || ""
+    }`}
+  >
+    {children}
+  </div>
 );
-
-const TileHeader: React.FC<React.PropsWithChildren<{ className?: string }>> = ({ children, className }) => (
-  <div className={`px-4 pt-4 pb-2 ${className || ""}`}>{children}</div>
-);
-
-const TileBody: React.FC<React.PropsWithChildren<{ className?: string }>> = ({ children, className }) => (
-  <div className={`px-4 pb-4 ${className || ""}`}>{children}</div>
-);
-
-const PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = ({ children, className, ...props }) => (
+const TileHeader: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+  children,
+  className,
+}) => <div className={`px-4 pt-4 pb-2 ${className || ""}`}>{children}</div>;
+const TileBody: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
+  children,
+  className,
+}) => <div className={`px-4 pb-4 ${className || ""}`}>{children}</div>;
+const PrimaryButton: React.FC<
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+> = ({ children, className, ...props }) => (
   <button
     {...props}
     className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2 text-sm font-medium text-white disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm ${
@@ -80,20 +101,109 @@ const PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = (
 );
 
 // ==========================
-// Component
+// API mapping
+// ==========================
+type ApiActivity = {
+  id: number;
+  timestamp: string; // "2025-10-26T09:58:37.214298"
+  explain: string | null; // توضیح
+};
+
+function mapApiToItems(list: ApiActivity[]): TimelineItem[] {
+  return list.map((a) => {
+    const [datePart, timePartRaw] = a.timestamp.split("T");
+    const timePart = (timePartRaw || "").slice(0, 5); // HH:mm
+    return {
+      id: a.id,
+      date: datePart,
+      time: timePart,
+      subtitle: a.explain || "",
+    };
+  });
+}
+
+// ==========================
+// Page Component
+// ==========================
 export default function TimelinePage({
-  initialItems = DEMO,
-  pageSize = 8,
-  fetchMore,
+  pageSize = PAGE_SIZE,
 }: {
-  initialItems?: TimelineItem[];
   pageSize?: number;
-  fetchMore?: (cursor: number) => Promise<TimelineItem[]>;
 }) {
-  const [cursor, setCursor] = useState(pageSize);
-  const [items, setItems] = useState<TimelineItem[]>(initialItems.slice(0, pageSize));
+  // username از مسیر: فرض /users/[id]/activities
+  const params = useParams();
+  const username = (params?.id as string) || "";
+
+  // pagination & data
+  const [page, setPage] = useState(0);
+  const [items, setItems] = useState<TimelineItem[]>([]);
   const [loading, setLoading] = useState(false);
-  const [done, setDone] = useState(initialItems.length <= pageSize);
+  const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // فیلتر تاریخ‌ها (JalaliLocalDatePicker)
+  const [startPicker, setStartPicker] = useState<any>();
+  const [endPicker, setEndPicker] = useState<any>();
+
+  // لود اولیه بدون فیلتر
+  useEffect(() => {
+    setItems([]);
+    setDone(false);
+    void loadPage(0, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [username]);
+
+  async function loadPage(nextPage: number, replace = false) {
+    if (loading || done) return;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = getCookie("token");
+
+      const qs = new URLSearchParams();
+      if (username) qs.set("username", username);
+      qs.set("page", String(nextPage));
+      qs.set("size", String(pageSize));
+
+      // فقط اگر کاربر تاریخ انتخاب کرده باشد:
+      const startTime = extractApiDateTime(startPicker, false); // 00:00:00
+      const endTime = extractApiDateTime(endPicker, true); // 23:59:59
+      if (startTime) qs.set("startTime", startTime);
+      if (endTime) qs.set("endTime", endTime);
+
+      const url = `${
+        process.env.NEXT_PUBLIC_API_URL
+      }/api/user-activities?${qs.toString()}`;
+      const res = await fetch(url, {
+        headers: {
+          accept: "*/*",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: "no-store",
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+      const json = await res.json();
+      const content: ApiActivity[] = json?.result?.content ?? [];
+      const mapped = mapApiToItems(content);
+
+      setItems((prev) => (replace ? mapped : [...prev, ...mapped]));
+      setPage(nextPage);
+      if (content.length < pageSize) setDone(true);
+    } catch (e: any) {
+      setError(e?.message || "خطا در دریافت داده");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // اعمال فیلتر ⇒ از صفحه ۰ دوباره بگیر
+  const applyFilters = () => {
+    setItems([]);
+    setDone(false);
+    void loadPage(0, true);
+  };
 
   const grouped = useMemo(() => {
     const g = groupByDate(items);
@@ -101,44 +211,67 @@ export default function TimelinePage({
     return Object.entries(g).sort((a, b) => b[0].localeCompare(a[0]));
   }, [items]);
 
-  const handleLoadMore = async () => {
-    if (loading || done) return;
-    setLoading(true);
-    try {
-      if (fetchMore) {
-        const next = await fetchMore(cursor);
-        setItems((prev) => [...prev, ...next]);
-        setCursor((c) => c + next.length);
-        if (!next.length) setDone(true);
-      } else {
-        const next = initialItems.slice(cursor, cursor + pageSize);
-        setItems((prev) => [...prev, ...next]);
-        setCursor(cursor + next.length);
-        if (cursor + pageSize >= initialItems.length) setDone(true);
-      }
-    } finally {
-      setLoading(false);
-    }
+  const handleLoadMore = () => {
+    if (!done && !loading) void loadPage(page + 1);
   };
 
   return (
-    <div dir="rtl" className="min-h-screen w-full  text-gray-900">
+    <div dir="rtl" className="min-h-screen w-full text-gray-900">
       <div className="mx-auto max-w-5xl px-6 py-8">
-        <div className="mb-8 flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-titleText dark:text-titleText-dark">خط زمانی</h1>
+        <div className="mb-6 flex items-center justify-between gap-3">
+          <h1 className="text-2xl font-bold text-titleText dark:text-titleText-dark">خط زمانی کاربر {params.id}</h1>
         </div>
 
+        {/* فیلترها با JalaliLocalDatePicker */}
+        <div className="mb-6 grid grid-cols-1 gap-3 md:grid-cols-3">
+          <div className="flex flex-col gap-1 text-sm text-titleText dark:text-titleText-dark">
+            شروع
+            <JalaliLocalDatePicker
+              value={startPicker}
+              onChange={(val: any) => setStartPicker(val ?? undefined)}
+              placeholder=""
+              clearable
+              min="2000-01-01"
+              max="2030-12-31"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1 text-sm text-titleText dark:text-titleText-dark">
+            پایان
+            <JalaliLocalDatePicker
+              value={endPicker}
+              onChange={(val: any) => setEndPicker(val ?? undefined)}
+              placeholder=""
+              clearable
+              min="2000-01-01"
+              max="2030-12-31"
+            />
+          </div>
+
+          <div className="flex items-end">
+            <PrimaryButton onClick={applyFilters} disabled={loading}>
+              اعمال فیلتر
+            </PrimaryButton>
+          </div>
+        </div>
+
+        {error && (
+          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-700">
+            {error}
+          </div>
+        )}
+
+        {/* تایم‌لاین */}
         <div className="relative">
-          {/* خط عمودی تایم‌لاین */}
+          {/* خط عمودی وسط */}
           <div className="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2 h-full w-px bg-gray-300" />
 
-          {/* گروه‌بندی روزها */}
           <div className="space-y-10">
             {grouped.map(([date, arr]) => (
               <section key={date} className="relative">
                 {/* عنوان روز در مرکز خط */}
                 <div className="relative mb-4 flex justify-center">
-                  <div className="rounded-full border-2 border-boxBorderColor bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark px-3 text-lg font-bold leading-8">
+                  <div className="rounded-full border-2 border-boxBorderColor dark:border-boxColor-dark bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark px-3 text-lg font-bold leading-8">
                     {persianDigits(fmtDateFa(date))}
                   </div>
                 </div>
@@ -146,28 +279,30 @@ export default function TimelinePage({
                 {/* آیتم‌ها: یکی چپ یکی راست */}
                 <div className="space-y-6">
                   {arr.map((it, idx) => {
-                    const leftSide = idx % 2 === 0; // true => چپ، false => راست
+                    const leftSide = idx % 2 === 0;
                     return (
                       <div key={it.id} className="relative">
-                        {/* نقطه وسط */}
+                        {/* نقطه روی خط */}
                         <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 inline-block h-4 w-4 rounded-full border-2 border-sky-500 bg-boxColor dark:bg-boxColor-dark" />
 
                         <div className="grid grid-cols-2 items-stretch gap-8">
                           {/* سمت چپ */}
                           {leftSide ? (
-                            <div className="col-start-1 justify-self-end pr-8 ">
-                              <Tile className="w-[min(440px,100%)] bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark">
+                            <div className="col-start-1 justify-self-end pr-8 text-titleText dark:text-titleText-dark">
+                              <Tile className="w-[min(440px,100%)] bg-boxColor dark:bg-boxColor-dark border-boxBorderColor dark:border-boxBorderColor-dark">
                                 <TileHeader>
-                                  <div className=" items-center justify-between">
-                                    <div className="text-base font-semibold">{it.title || "رویداد"}</div>
-                                    <div className="text-sm font-bold text-titleText dark:text-titleText-dark">{persianDigits(it.time)} <span className="font-normal">ساعت</span></div>
+                                  <div className="text-sm font-bold">
+                                    <span className="font-normal">ساعت</span>{" "}
+                                    {persianDigits(it.time)}
                                   </div>
                                 </TileHeader>
-                                <div className="mx-4 mb-2 h-px bg-gray-100" />
+                                <div className="mx-4 mb-2 h-px bg-boxBorderColor dark:bg-boxBorderColor-dark" />
                                 <TileBody>
-                                  <div className="text-sm text-titleText dark:text-titleText-dark">ورود به سیستم</div>
-                                  <div className="mt-1 text-sm text-titleText dark:text-titleText-dark">{persianDigits(it.meta || "۱۴۰۴/۷/۲")}</div>
-                                  {it.subtitle && <div className="mt-2 text-sm text-titleText dark:text-titleText-dark">{it.subtitle}</div>}
+                                  {it.subtitle && (
+                                    <div className="mt-2 text-sm">
+                                      {it.subtitle}
+                                    </div>
+                                  )}
                                 </TileBody>
                               </Tile>
                             </div>
@@ -177,19 +312,21 @@ export default function TimelinePage({
 
                           {/* سمت راست */}
                           {!leftSide ? (
-                            <div className="col-start-2 justify-self-start pl-8">
-                              <Tile className="w-[min(440px,100%)] bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark">
+                            <div className="col-start-2 justify-self-start pl-8 text-titleText dark:text-titleText-dark">
+                              <Tile className="w-[min(440px,100%)] bg-boxColor dark:bg-boxColor-dark border-boxBorderColor dark:border-boxBorderColor-dark">
                                 <TileHeader>
-                                  <div className=" items-center justify-between">
-                                    <div className="text-base font-semibold">{it.title || "رویداد"}</div>
-                                    <div className="text-sm font-bold text-titleText dark:text-titleText-dark">{persianDigits(it.time)} <span className="font-normal">ساعت</span></div>
+                                  <div className="text-sm font-bold">
+                                    <span className="font-normal">ساعت</span>{" "}
+                                    {persianDigits(it.time)}
                                   </div>
                                 </TileHeader>
-                                <div className="mx-4 mb-2 h-px bg-gray-100" />
+                                <div className="mx-4 mb-2 h-px bg-boxBorderColor dark:bg-boxBorderColor-dark" />
                                 <TileBody>
-                                  <div className="text-sm text-titleText dark:text-titleText-dark">ورود به سیستم</div>
-                                  <div className="mt-1 text-sm text-titleText dark:text-titleText-dark">{persianDigits(it.meta || "۱۴۰۴/۷/۱")}</div>
-                                  {it.subtitle && <div className="mt-2 text-sm text-titleText dark:text-titleText-dark">{it.subtitle}</div>}
+                                  {it.subtitle && (
+                                    <div className="mt-2 text-sm">
+                                      {it.subtitle}
+                                    </div>
+                                  )}
                                 </TileBody>
                               </Tile>
                             </div>
@@ -209,23 +346,14 @@ export default function TimelinePage({
         {/* Load more */}
         <div className="mt-10 flex justify-center">
           <PrimaryButton onClick={handleLoadMore} disabled={loading || done}>
-            {done ? "همه نمایش داده شد" : loading ? "در حال بارگذاری…" : "نمایش بیشتر"}
+            {done
+              ? "همه نمایش داده شد"
+              : loading
+              ? "در حال بارگذاری…"
+              : "نمایش بیشتر"}
           </PrimaryButton>
         </div>
       </div>
     </div>
   );
 }
-
-/* ---------------------------------------
-  اتصال به API واقعی (نمونه)
-
-  <TimelinePage
-    pageSize={6}
-    fetchMore={async (cursor) => {
-      const res = await fetch(`/api/timeline?offset=${cursor}&limit=6`);
-      const data: TimelineItem[] = await res.json();
-      return data; // اگر آرایه خالی باشد، دکمه غیرفعال می‌شود
-    }}
-  />
---------------------------------------- */

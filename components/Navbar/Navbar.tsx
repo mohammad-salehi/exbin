@@ -131,8 +131,8 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen, toggleDarkMo
                 )}
             >
                 <div className="flex items-center border-b dark:border-[#666] m-2 p-2 pb-4">
-                    <img src='../../images/pantaLogo.png' className="w-12" alt="image" />
-                    <span className="text-sm font-bold mr-4 text-titleText dark:text-titleText-dark">سامانه نظارت بر صرافی‌ها</span>
+                    <img src='../../../images/pantaLogo.png' className="w-12" alt="image" />
+                    <span className="text-sm font-bold mr-4 text-titleText dark:text-titleText-dark">سامانه نظارت بر سکوهای مبادله رمزارز</span>
                 </div>
 
                 <div className="p-4 space-y-4 block lg:hidden">
