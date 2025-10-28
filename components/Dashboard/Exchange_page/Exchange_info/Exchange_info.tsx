@@ -1105,7 +1105,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
             <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-              <Modal.Title className="text-lg font-bold">
+              <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                 ویرایش مشخصات سکو {"نوبیتکس"}
               </Modal.Title>
             </div>

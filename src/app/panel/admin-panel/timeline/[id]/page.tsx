@@ -281,6 +281,13 @@ export default function TimelinePage({ params, searchParams }: any) {
                 <div className="space-y-6">
                   {arr.map((it, idx) => {
                     const leftSide = idx % 2 === 0;
+
+                    // 👇 اگر subtitle شامل delete بود، کلاس قرمز بگذار
+                    const isDelete = /\bdeleted\b/i.test(it.subtitle ?? "");
+                    const borderClass = isDelete
+                      ? "border-redError"
+                      : "border-boxBorderColor dark:border-boxBorderColor-dark";
+
                     return (
                       <div key={it.id} className="relative">
                         {/* نقطه روی خط */}
@@ -290,7 +297,9 @@ export default function TimelinePage({ params, searchParams }: any) {
                           {/* سمت چپ */}
                           {leftSide ? (
                             <div className="col-start-1 justify-self-end pr-8 text-titleText dark:text-titleText-dark">
-                              <Tile className="w-[min(440px,100%)] bg-boxColor dark:bg-boxColor-dark border-boxBorderColor dark:border-boxBorderColor-dark">
+                              <Tile
+                                className={`w-[min(440px,100%)] bg-boxColor dark:bg-boxColor-dark ${borderClass}`}
+                              >
                                 <TileHeader>
                                   <div className="text-sm font-bold">
                                     <span className="font-normal">ساعت</span>{" "}
@@ -299,11 +308,7 @@ export default function TimelinePage({ params, searchParams }: any) {
                                 </TileHeader>
                                 <div className="mx-4 mb-2 h-px bg-boxBorderColor dark:bg-boxBorderColor-dark" />
                                 <TileBody>
-                                  {it.subtitle && (
-                                    <div className="mt-2 text-sm">
-                                      {it.subtitle}
-                                    </div>
-                                  )}
+                                  {it.subtitle && <div className="mt-2 text-sm">{it.subtitle}</div>}
                                 </TileBody>
                               </Tile>
                             </div>
@@ -314,7 +319,9 @@ export default function TimelinePage({ params, searchParams }: any) {
                           {/* سمت راست */}
                           {!leftSide ? (
                             <div className="col-start-2 justify-self-start pl-8 text-titleText dark:text-titleText-dark">
-                              <Tile className="w-[min(440px,100%)] bg-boxColor dark:bg-boxColor-dark border-boxBorderColor dark:border-boxBorderColor-dark">
+                              <Tile
+                                className={`w-[min(440px,100%)] bg-boxColor dark:bg-boxColor-dark ${borderClass}`}
+                              >
                                 <TileHeader>
                                   <div className="text-sm font-bold">
                                     <span className="font-normal">ساعت</span>{" "}
@@ -323,11 +330,7 @@ export default function TimelinePage({ params, searchParams }: any) {
                                 </TileHeader>
                                 <div className="mx-4 mb-2 h-px bg-boxBorderColor dark:bg-boxBorderColor-dark" />
                                 <TileBody>
-                                  {it.subtitle && (
-                                    <div className="mt-2 text-sm">
-                                      {it.subtitle}
-                                    </div>
-                                  )}
+                                  {it.subtitle && <div className="mt-2 text-sm">{it.subtitle}</div>}
                                 </TileBody>
                               </Tile>
                             </div>

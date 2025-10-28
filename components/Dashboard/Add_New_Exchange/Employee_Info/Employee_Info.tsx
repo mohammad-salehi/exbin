@@ -149,7 +149,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
       };
 
     const nextStep = async () => {
-        SetStep(1)
+        window.location.assign(`/panel/exchange/${ID}`)
     }
 
     return (

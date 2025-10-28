@@ -22,7 +22,7 @@ type Person = {
 
 type ExchangeInfoProps = {
     SetC4: React.Dispatch<React.SetStateAction<boolean>>;
-  };
+};
 
 
 const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
@@ -81,7 +81,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
             return;
         }
-        
+
         const memberInfo = {
             name: form.name !== null ? form.name : "",
             phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
@@ -112,10 +112,10 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             });
 
             if (!response.ok) {
-               
+
                 // setLoading(false)
                 SetEditLoading(false)
-                return toast.error(`خطا در حذف نماینده سکو`);
+                return toast.error(`خطا در ویرایش نماینده سکو`);
             } else {
                 const responseData = await response.json();
                 console.log(responseData);
@@ -185,41 +185,8 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
 
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
                         onClick={async () => {
-                            try {
-                                const token = document.cookie
-                                    .split('; ')
-                                    .find(row => row.startsWith('token='))
-                                    ?.split('=')[1];
-
-                                if (!token) {
-                                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                                    return;
-                                }
-
-                                // setLoading(true)
-                                const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents/${row.id}`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'Authorization': `Bearer ${token}`,
-                                        'Content-Type': 'application/json',
-                                    },
-                                });
-
-                                if (!response.ok) {
-                                    console.log(response)
-                                    // setLoading(false)
-                                    return toast.error(`خطا در حذف نماینده سکو`);
-                                } else {
-                                    const responseData = await response.json();
-                                    console.log(responseData);
-                                    toast.success("نماینده سکو با موفقیت حذف شد.", { position: "bottom-left" });
-                                    setData((prevData) => prevData.filter(person => person.id !== row.id));
-                                }
-
-                            } catch (err) {
-                                console.error(err);
-                                return toast.error(`خطا در ذخیره نماینده سکو`);
-                            }
+                            setdeleteForm(row)
+                            SetDeleteBox(true)
                         }}
                     >
                         <path d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -229,7 +196,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                         <path d="M10 12.5H15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
 
-                    <svg onClick={() => {setEditingId(row.id) ,setisLogOpen(true)}} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer">
+                    <svg onClick={() => { setEditingId(row.id), setisLogOpen(true) }} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer">
                         <path d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </div>
@@ -248,44 +215,45 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
 
     const handleAdd = async () => {
         if (form.name === '') {
-          toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
         }
         if (form.phoneNumber === '') {
-          toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
         }
         if (form.nationalCode === '') {
-          toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
         }
-      
+
         const Member = {
-          name: form.name,
-          nationalCode: form.nationalCode,
-          phoneNumber: form.phoneNumber,
+            name: form.name,
+            nationalCode: form.nationalCode,
+            phoneNumber: form.phoneNumber,
         };
-      
+
         try {
-          SetAddLoading(true);
-      
-          await PostRequest(
-            `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/exchange-agents`,
-            Member
-            // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
-          );
-      
-          toast.success("نماینده سکو باموفقیت افزوده شد.", { position: "bottom-left" });
-      
-          const newId = (data.length + 1).toString();
-          setData(prev => [...prev, { ...form, id: newId }]);
-          closeAddModal();
+            SetAddLoading(true);
+
+            await PostRequest(
+                `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/exchange-agents`,
+                Member
+                // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
+            );
+
+            toast.success("نماینده سکو باموفقیت افزوده شد.", { position: "bottom-left" });
+
+            const newId = (data.length + 1).toString();
+            setData(prev => [...prev, { ...form, id: newId }]);
+            setTimeout(() => window.location.reload(), 500);
+            closeAddModal();
         } catch (e: any) {
-          toast.error(e?.message || "خطا در ذخیره نماینده سکو", { position: "bottom-left" });
+            toast.error(e?.message || "خطا در ذخیره نماینده سکو", { position: "bottom-left" });
         } finally {
-          SetAddLoading(false);
+            SetAddLoading(false);
         }
-      };
+    };
 
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents`)
@@ -304,23 +272,68 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     const Audit = () => {
         setLogLoading(true)
         GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange-agents/${editingId}?page=${LogPage}&size=10&sort=updatedAt,DESC`)
-          .then((response) => {
-            setLogLoading(false)
-            setChanges(response.result.content)
-            setLogNumber(response.result.totalElements)
-          })
-          .catch((err) => {
-            setLogLoading(false)
-            setChanges([])
-          })
-      }
-    
-      useEffect(() => {
-        if (isLogOpen) {
-          Audit()
-        }
-      }, [isLogOpen, LogPage])
+            .then((response) => {
+                setLogLoading(false)
+                setChanges(response.result.content)
+                setLogNumber(response.result.totalElements)
+            })
+            .catch((err) => {
+                setLogLoading(false)
+                setChanges([])
+            })
+    }
 
+    useEffect(() => {
+        if (isLogOpen) {
+            Audit()
+        }
+    }, [isLogOpen, LogPage])
+
+    const [deleteBox, SetDeleteBox] = useState(false)
+    const deleteMember = async (row: Person) => {
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // setLoading(true)
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents/${row.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.log(response)
+                // setLoading(false)
+                return toast.error(`خطا در حذف نماینده سکو`);
+            } else {
+                const responseData = await response.json();
+                console.log(responseData);
+                toast.success("نماینده سکو با موفقیت حذف شد.", { position: "bottom-left" });
+                setData((prevData) => prevData.filter(person => person.id !== row.id));
+                SetDeleteBox(false)
+            }
+
+        } catch (err) {
+            console.error(err);
+            return toast.error(`خطا در ذخیره نماینده سکو`);
+        }
+    }
+    const [deleteform, setdeleteForm] = useState<Person>({
+        id: "",
+        name: "",
+        phoneNumber: "",
+        nationalCode: "",
+    });
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mt-2">
@@ -346,7 +359,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                 <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
                     <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <Modal.Title className="text-lg font-bold">
+                            <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                                 ویرایش مشخصات نماینده سکو
                             </Modal.Title>
                         </div>
@@ -421,7 +434,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                 <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
                     <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <Modal.Title className="text-lg font-bold">
+                            <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                                 افزودن نماینده جدید
                             </Modal.Title>
                         </div>
@@ -502,6 +515,38 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                                 className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                             >
                                 بستن
+                            </button>
+                        </div>
+                    </Modal.Panel>
+                </div>
+            </Modal>
+
+            {/* -------- مودال تأیید حذف -------- */}
+            <Modal open={deleteBox} onClose={() => { SetDeleteBox(false) }}>
+                {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
+                <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
+
+                {/* کانتینر مرکزی پنل، بالاتر از بک‌دراپ */}
+                <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
+                    <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
+                        <h3 className="text-lg font-semibold mb-3 text-center">
+                            حذف نماینده سکو
+                        </h3>
+
+                        <p className="text-sm mb-6 text-center leading-relaxed">
+                            {`آیا از حذف نماینده سکو مطمئن هستید؟`}
+                        </p>
+
+                        <div className="flex justify-center gap-4 w-full">
+
+                            <button
+                                onClick={() => { deleteMember(deleteform) }}
+                                className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
+                            >
+                                {
+                                    'حذف'
+                                }
+
                             </button>
                         </div>
                     </Modal.Panel>

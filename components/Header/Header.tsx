@@ -10,6 +10,7 @@ type NavbarProps = {
 };
 import { Dropdown, MenuItem, Modal } from "@heathmont/moon-core-tw";
 import { useEffect, useState } from "react";
+import { PostRequest } from "../../functions/PostRequest";
 
 export default function Header({
   isOpen,
@@ -26,7 +27,6 @@ export default function Header({
   const [name, setName] = useState<string>("");
   const [username, setUsername] = useState<string>("");
   const [role, setRole] = useState<string>("");
-  const [open, setOpen] = useState(false);
   // تابع امن برای خواندن کوکی
   const getCookie = (name: string): string => {
     if (typeof document === "undefined") return "";
@@ -47,16 +47,36 @@ export default function Header({
     setRole(getCookie("role"));
   }, []);
 
+  const openChangePassword = () => {
+    resetForm();
+    setOpen(true);
+  };
+
   // stateهای فرم
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
-
+  const [open, setOpen] = useState(false);
   // وضعیت ارسال
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const [formVersion, setFormVersion] = useState(0);
+
+  const resetForm = () => {
+    setOldPassword("");
+    setNewPassword("");
+    setShowOld(false);
+    setShowNew(false);
+    setLoading(false);
+    setError(null);
+    setSuccess(null);
+    // با هر ریست، نسخه فرم رو عوض کن تا submitهای قبلی بی‌اثر بشن
+    setFormVersion(v => v + 1);
+  };
+
 
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`;
 
@@ -73,42 +93,47 @@ export default function Header({
     e?.preventDefault();
     if (!validate()) return;
 
+    const v = formVersion;
+
     try {
       setLoading(true);
       setError(null);
       setSuccess(null);
 
-      const token = getCookie("token");
+      await PostRequest(
+        API_URL,
+        { oldPassword, newPassword },
+        {
+          // اختیاری ولی پیشنهادی:
+          baseURL: process.env.NEXT_PUBLIC_API_URL,
+          redirectOn403: false,
+          headers: { accept: "*/*" },
+        }
+      );
 
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "*/*",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ oldPassword, newPassword }),
-      });
-
-      if (!res.ok) {
-        let msg = `خطای سرور (${res.status})`;
-        try {
-          const j = await res.json();
-          msg = j?.message || j?.error || msg;
-        } catch {}
-        throw new Error(msg);
-      }
+      if (v !== formVersion) return;
 
       setSuccess("رمز با موفقیت تغییر کرد.");
       setOldPassword("");
       setNewPassword("");
-      setTimeout(() => () => {}, 1200);
     } catch (err: any) {
+      if (v !== formVersion) return;
       setError(err?.message || "خطا در تغییر رمز");
     } finally {
-      setLoading(false);
+      if (v === formVersion) setLoading(false);
     }
   };
+
+
+
+
+  useEffect(() => {
+    if (!open) {
+      resetForm();
+    }
+    console.log(error)
+    console.log(success)
+  }, [open]);
 
   return (
     <header
@@ -313,15 +338,16 @@ export default function Header({
         open={open}
         onClose={() => {
           setOpen(false);
+          setTimeout(() => resetForm(), 0);
         }}
       >
-        {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
         <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
 
-        {/* کانتینر مرکزی پنل، بالاتر از بک‌دراپ */}
         <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
-          <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
-            <div className="w-full">
+          <Modal.Panel
+            key={`${formVersion}-${open ? "open" : "closed"}`}
+            className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6"
+          >            <div className="w-full">
               <Modal.Title>
                 <h3 className="text-lg font-medium  text-titleText dark:text-titleText-dark text-center">
                   تغییر رمز عبور
@@ -382,12 +408,13 @@ export default function Header({
                   </p>
                 </div>
 
-                {error && (
+                {!!error && (
                   <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                     {error}
                   </div>
                 )}
-                {success && (
+
+                {!!success && (
                   <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
                     {success}
                   </div>
@@ -396,9 +423,8 @@ export default function Header({
                 <div className="mt-2 flex items-center justify-end gap-3">
                   <button
                     type="submit"
-                    className={`rounded-md px-4 py-2 text-sm font-medium text-white ${
-                      loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
+                    className={`rounded-md px-4 py-2 text-sm font-medium text-white ${loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+                      }`}
                     disabled={loading}
                   >
                     {loading ? "در حال ارسال…" : "تغییر رمز"}

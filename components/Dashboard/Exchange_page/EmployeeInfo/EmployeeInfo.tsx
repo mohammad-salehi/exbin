@@ -199,20 +199,22 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
         { header: "کدملی", accessorKey: "nationalCode" },
         { header: "سوابق تحصیلی", accessorKey: "educationalHistory" },
         { header: "سوابق شغلی", accessorKey: "careerHistory" },
-        { header: "تاریخ شروع کار",
+        {
+            header: "تاریخ شروع کار",
             cell: (row: Person) => {
                 return (
                     <span>{toJalaliDate(row.startDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
                 );
             },
-         },
-        { header: "تاریخ شروع بیمه", 
+        },
+        {
+            header: "تاریخ شروع بیمه",
             cell: (row: Person) => {
                 return (
                     <span>{toJalaliDate(row.insuranceStartDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
                 );
             },
-         },
+        },
         {
             header: "تاریخ پایان بیمه",
             cell: (row: Person) => {
@@ -277,41 +279,8 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                     </svg>
                     <svg xmlns="http://www.w3.org/2000/svg" width="25" height="24" viewBox="0 0 25 24" fill="none" className="cursor-pointer"
                         onClick={async () => {
-                            try {
-                                const token = document.cookie
-                                    .split('; ')
-                                    .find(row => row.startsWith('token='))
-                                    ?.split('=')[1];
-
-                                if (!token) {
-                                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                                    return;
-                                }
-
-                                // setLoading(true)
-                                const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees/${row.id}`, {
-                                    method: 'DELETE',
-                                    headers: {
-                                        'Authorization': `Bearer ${token}`,
-                                        'Content-Type': 'application/json',
-                                    },
-                                });
-
-                                if (!response.ok) {
-                                    console.log(response)
-                                    // setLoading(false)
-                                    return toast.error(`خطا در حذف کارمند`);
-                                } else {
-                                    const responseData = await response.json();
-                                    console.log(responseData);
-                                    toast.success("کارمند با موفقیت حذف شد.", { position: "bottom-left" });
-                                    setData((prevData) => prevData.filter(person => person.id !== row.id));
-                                }
-
-                            } catch (err) {
-                                console.error(err);
-                                return toast.error(`خطا در حذف کارمند`);
-                            }
+                            setdeleteForm(row)
+                            SetDeleteBox(true)
                         }}
                     >
                         <path d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
@@ -423,7 +392,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
             // به‌روزرسانی لیست محلی با داده‌های نرمال‌شده
             setData(prev => [...prev, { ...form, ...memberInfo, id: newId }]);
-
+            setTimeout(() => window.location.reload(), 500);
             closeAddModal();
         } catch (e: any) {
             toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
@@ -468,6 +437,58 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
     }, [isLogOpen, LogPage])
 
 
+    const [deleteBox, SetDeleteBox] = useState(false)
+    const deleteMember = async (row: Person) => {
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
+
+            // setLoading(true)
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees/${row.id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.log(response)
+                // setLoading(false)
+                return toast.error(`خطا در حذف کارمند`);
+            } else {
+                const responseData = await response.json();
+                console.log(responseData);
+                toast.success("کارمند با موفقیت حذف شد.", { position: "bottom-left" });
+                setData((prevData) => prevData.filter(person => person.id !== row.id));
+                SetDeleteBox(false)
+            }
+
+        } catch (err) {
+            console.error(err);
+            return toast.error(`خطا در حذف کارمند`);
+        }
+    }
+    const [deleteform, setdeleteForm] = useState<Person>({
+        id: "",
+        name: '',
+        jobPosition: '',
+        startDate: '',
+        educationalHistory: '',
+        careerHistory: '',
+        insuranceStartDate: '',
+        insuranceEndDate: '',
+        isSpecialAccess: false,
+        nationalCode: '',
+        phoneNumber: ''
+    });
 
     return (
         <div className="mt-4">
@@ -495,7 +516,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
                     <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <Modal.Title className="text-lg font-bold">
+                            <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                                 ویرایش مشخصات کارمند
                             </Modal.Title>
                         </div>
@@ -630,7 +651,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
                     <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <Modal.Title className="text-lg font-bold">
+                            <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                                 افزودن کارمند جدید
                             </Modal.Title>
                         </div>
@@ -783,6 +804,38 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                             >
                                 بستن
+                            </button>
+                        </div>
+                    </Modal.Panel>
+                </div>
+            </Modal>
+
+            {/* -------- مودال تأیید حذف -------- */}
+            <Modal open={deleteBox} onClose={() => { SetDeleteBox(false) }}>
+                {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
+                <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
+
+                {/* کانتینر مرکزی پنل، بالاتر از بک‌دراپ */}
+                <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
+                    <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
+                        <h3 className="text-lg font-semibold mb-3 text-center">
+                            حذف کارمند سکو
+                        </h3>
+
+                        <p className="text-sm mb-6 text-center leading-relaxed">
+                            {`آیا از حذف کارمند سکو مطمئن هستید؟`}
+                        </p>
+
+                        <div className="flex justify-center gap-4 w-full">
+
+                            <button
+                                onClick={() => { deleteMember(deleteform) }}
+                                className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
+                            >
+                                {
+                                    'حذف'
+                                }
+
                             </button>
                         </div>
                     </Modal.Panel>
