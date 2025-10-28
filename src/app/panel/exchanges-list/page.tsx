@@ -94,7 +94,7 @@ const Page = () => {
       ),
     },
     {
-      header: "نام صرافی", accessorKey: "name",
+      header: "نام سکو", accessorKey: "name",
 
       cell: (row: Person) => (
         <div>
@@ -248,7 +248,7 @@ const Page = () => {
           <div className="text-sm text-titleText dark:text-titleText-dark">
             <Link href={`/panel/add-new-exchange`}>
               <button className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg" >
-                افزودن صرافی جدید
+                افزودن سکو جدید
               </button>
             </Link>
           </div>
@@ -260,7 +260,7 @@ const Page = () => {
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
             <h6>
-              آیا از حذف صرافی {Deletedata?.name} مطمئن هستید؟
+              آیا از حذف سکو {Deletedata?.name} مطمئن هستید؟
             </h6>
             <div className="p-4  flex justify-end gap-2 mt-8">
 
@@ -282,7 +282,7 @@ const Page = () => {
                     });
                     if (!response.ok) {
                       SetDeleteLoading(false)
-                      toast.error("خطا در حذف صرافی.", { position: "bottom-left" });
+                      toast.error("خطا در حذف سکو.", { position: "bottom-left" });
                       if (response.status === 403) {
                         document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
                         window.location.assign('/')
@@ -291,13 +291,13 @@ const Page = () => {
                     } else {
                       if (response.status === 200) {
                         SetDeleteLoading(false)
-                        toast.success("صرافی با موفقیت حذف شد.", { position: "bottom-left" });
+                        toast.success("سکو با موفقیت حذف شد.", { position: "bottom-left" });
                         window.location.reload();
                       }
                     }
                   } else {
                     SetDeleteLoading(false)
-                    toast.error("خطا در حذف صرافی.", { position: "bottom-left" });
+                    toast.error("خطا در حذف سکو.", { position: "bottom-left" });
                   }
 
                 }}

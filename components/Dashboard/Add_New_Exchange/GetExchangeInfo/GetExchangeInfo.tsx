@@ -57,19 +57,19 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
     const nextStep = async () => {
         // ✅ ولیدیشن‌های ضروری (یک‌بار کافی است)
-        if (name === '') return toast.error("نام صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (legalName === '') return toast.error("نام حقوقی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (nationalCode === '') return toast.error("شناسه ملی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (financialCode === '') return toast.error("کد اقتصادی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (registrationNumber === '') return toast.error("شماره ثبت صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (exchangeType === '') return toast.error("شکل حقوقی صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (type === '') return toast.error("نوع صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (establishmentDate === '') return toast.error("تاریخ تاسیس صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (logo === '') return toast.error("لوگو صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (siteAddress === '') return toast.error("وبسایت صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (phoneNumber === '') return toast.error("شماره تماس صرافی مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (!validateEmail(email) && email !== '') return toast.error("ایمیل صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-        if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت صرافی مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+        if (name === '') return toast.error("نام سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (legalName === '') return toast.error("نام حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (nationalCode === '') return toast.error("شناسه ملی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (financialCode === '') return toast.error("کد اقتصادی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (registrationNumber === '') return toast.error("شماره ثبت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (exchangeType === '') return toast.error("شکل حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (type === '') return toast.error("نوع سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (establishmentDate === '') return toast.error("تاریخ تاسیس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (logo === '') return toast.error("لوگو سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (siteAddress === '') return toast.error("وبسایت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (phoneNumber === '') return toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
+        if (!validateEmail(email) && email !== '') return toast.error("ایمیل سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+        if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
       
         const payload = {
           name,
@@ -96,7 +96,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             payload
           );
       
-          toast.success("صرافی با موفقیت ذخیره شد.", { position: "bottom-left" });
+          toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" });
           setID(res?.result?.id);
           SetStep(2);
         } catch (e: any) {
@@ -107,7 +107,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
           const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
           if (financialCodeError) {
             const existingFinancialCode = financialCodeError[1];
-            toast.error(`صرافی با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد. لطفاً کد اقتصادی را اصلاح کنید.`, { position: "bottom-left" });
+            toast.error(`سکو با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد. لطفاً کد اقتصادی را اصلاح کنید.`, { position: "bottom-left" });
             setLoading(false);
             return;
           }
@@ -116,12 +116,12 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
           const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
           if (nationalCodeError) {
             const existingNationalCode = nationalCodeError[1];
-            toast.error(`صرافی با شناسه ملی ${existingNationalCode} قبلاً وجود دارد. لطفاً شناسه ملی را اصلاح کنید.`, { position: "bottom-left" });
+            toast.error(`سکو با شناسه ملی ${existingNationalCode} قبلاً وجود دارد. لطفاً شناسه ملی را اصلاح کنید.`, { position: "bottom-left" });
             setLoading(false);
             return;
           }
       
-          toast.error("خطا در ذخیره صرافی", { position: "bottom-left" });
+          toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
           console.error(e);
         } finally {
           setLoading(false);
@@ -131,30 +131,30 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     return (
         <div className='mt-4'>
             <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>
-                ثبت صرافی جدید
+                ثبت سکو جدید
             </h5>
             <div className='bg-boxColor dark:bg-boxColor-dark border border-boxBorderColor dark:border-boxBorderColor-dark rounded-xl mt-4 p-4'>
                 <h6 className='font-bold text-md text-titleText dark:text-titleText-dark'>
-                    مشخصات صرافی
+                    مشخصات سکو
                 </h6>
                 <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4'>
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نام صرافی *</label>
-                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام صرافی' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <label className='text-titleText dark: dark:text-titleText-dark'>نام سکو *</label>
+                        <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام سکو' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نام حقوقی صرافی *</label>
-                        <Input value={legalName} onChange={(e) => { SetlegalName(e.target.value) }} placeholder='نام حقوقی صرافی' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <label className='text-titleText dark: dark:text-titleText-dark'>نام حقوقی سکو *</label>
+                        <Input value={legalName} onChange={(e) => { SetlegalName(e.target.value) }} placeholder='نام حقوقی سکو' className="w-full p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شناسه ملی صرافی *</label>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شناسه ملی سکو *</label>
                         <Input value={nationalCode} onChange={(e) => {
                             if (validateNumbers(e.target.value)) {
                                 SetnationalCode(e.target.value)
                             }
-                        }} placeholder='شناسه ملی صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        }} placeholder='شناسه ملی سکو' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1">
@@ -221,7 +221,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                     </div>
 
                     <div className="col-span-1">
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شکل حقوقی صرافی *</label>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شکل حقوقی سکو *</label>
 
                         <div className="relative w-full mt-2">
                             <Dropdown onChange={SetexchangeType} value={exchangeType}>
@@ -283,7 +283,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                     </div>
 
                     <div className="col-span-1">
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نوع صرافی *</label>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>نوع سکو *</label>
 
                         <div className="relative w-full mt-2">
                             <Dropdown onChange={handleSelectChange} value={type}>
@@ -408,8 +408,8 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                     </div>
 
                     <div className="col-span-1">
-                        <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل صرافی</label>
-                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل صرافی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل سکو</label>
+                        <Input value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل سکو' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1 sm:col-span-2">

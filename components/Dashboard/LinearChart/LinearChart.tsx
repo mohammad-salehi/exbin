@@ -179,7 +179,7 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
                dark:text-gray-100 appearance-none"
                   variant="ghost"
                 >
-                  {Filter !== '' ? Filter : 'همه صرافی‌ها'}
+                  {Filter !== '' ? Filter : 'همه سکو‌ها'}
                   <ControlsChevronDown className="text-xl" />
                 </Button>
               </Dropdown.Trigger>
@@ -203,7 +203,7 @@ const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
                       isSelected={selected}
                       className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${Filter === '' ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}
                     >
-                      <MenuItem.Title>همه صرافی‌ها</MenuItem.Title>
+                      <MenuItem.Title>همه سکو‌ها</MenuItem.Title>
                     </MenuItem>
                   )}
                 </Dropdown.Option>

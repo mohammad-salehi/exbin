@@ -15,7 +15,7 @@ const Page = () => {
 
     const titles = [
         {
-            title: 'مشخصات صرافی'
+            title: 'مشخصات سکو'
         },
         {
             title: 'مدیرعامل'

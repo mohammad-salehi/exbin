@@ -117,7 +117,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               Member // JSON ارسال می‌شود
             );
       
-            toast.success("کارمند صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
+            toast.success("کارمند سکو باموفقیت افزوده شد.", { position: "bottom-left" });
       
             const newMember: Person = { ...form };
             SetData([...data, newMember]);

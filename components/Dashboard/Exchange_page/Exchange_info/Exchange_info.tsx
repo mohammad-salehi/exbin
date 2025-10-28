@@ -222,9 +222,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       content: [
         { id: 1, title: "نام حقوقی", content: "" },
         { id: 2, title: "تاریخ تاسیس", content: "" },
-        { id: 3, title: "شناسه ملی صرافی", content: "" },
-        { id: 4, title: "نوع صرافی", content: "" },
-        { id: 5, title: "شکل حقوقی صرافی", content: "" },
+        { id: 3, title: "شناسه ملی سکو", content: "" },
+        { id: 4, title: "نوع سکو", content: "" },
+        { id: 5, title: "شکل حقوقی سکو", content: "" },
         { id: 6, title: "کد اقتصادی", content: "" },
         { id: 7, title: "شماره ثبت", content: "" },
       ],
@@ -779,67 +779,67 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   }, []);
   const handleSave = () => {
     if (form.legalName === "") {
-      toast.error("نام حقوقی صرافی مورد نظر را انتخاب کنید", {
+      toast.error("نام حقوقی سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (form.nationalCode === "") {
-      toast.error("شناسه ملی صرافی مورد نظر را انتخاب کنید", {
+      toast.error("شناسه ملی سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (form.financialCode === "") {
-      toast.error("کد اقتصادی صرافی مورد نظر را انتخاب کنید", {
+      toast.error("کد اقتصادی سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (form.registrationNumber === "") {
-      toast.error("شماره ثبت صرافی مورد نظر را انتخاب کنید", {
+      toast.error("شماره ثبت سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (form.exchangeType === "") {
-      toast.error("شکل حقوقی صرافی مورد نظر را انتخاب کنید", {
+      toast.error("شکل حقوقی سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (form.type === "") {
-      toast.error("نوع صرافی مورد نظر را انتخاب کنید", {
+      toast.error("نوع سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (form.establishmentDate === "") {
-      toast.error("تاریخ تاسیس صرافی مورد نظر را انتخاب کنید", {
+      toast.error("تاریخ تاسیس سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (form.siteAddress === "") {
-      toast.error("وبسایت صرافی مورد نظر را انتخاب کنید", {
+      toast.error("وبسایت سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (form.phoneNumber === "") {
-      toast.error("شماره تماس صرافی مورد نظر را انتخاب کنید", {
+      toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (!validateEmail(form.email) && form.email !== "") {
-      toast.error("ایمیل صرافی مورد نظر را به درستی وارد کنید", {
+      toast.error("ایمیل سکو مورد نظر را به درستی وارد کنید", {
         position: "bottom-left",
       });
       return;
     }
     if (!validateDomainExtension(form.siteAddress)) {
-      toast.error("پسوند سایت صرافی مورد نظر را به درستی وارد کنید", {
+      toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", {
         position: "bottom-left",
       });
       return;
@@ -892,7 +892,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           if (!response.ok) {
             console.log(response);
             setLoading(false);
-            return toast.error(`خطا در ذخیره مشخصات صرافی`);
+            return toast.error(`خطا در ذخیره مشخصات سکو`);
           } else {
             const responseData = await response.json();
             console.log(responseData);
@@ -909,9 +909,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   title: "تاریخ تاسیس",
                   content: form.establishmentDate,
                 },
-                { id: 3, title: "شناسه ملی صرافی", content: form.nationalCode },
-                { id: 4, title: "نوع صرافی", content: form.type },
-                { id: 5, title: "شکل حقوقی صرافی", content: form.exchangeType },
+                { id: 3, title: "شناسه ملی سکو", content: form.nationalCode },
+                { id: 4, title: "نوع سکو", content: form.type },
+                { id: 5, title: "شکل حقوقی سکو", content: form.exchangeType },
                 { id: 6, title: "کد اقتصادی", content: form.financialCode },
                 {
                   id: 7,
@@ -950,12 +950,12 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         } catch (err) {
           setLoading(false);
           console.error(err);
-          return toast.error(`خطا در ذخیره اطلاعات صرافی`);
+          return toast.error(`خطا در ذخیره اطلاعات سکو`);
         }
       })
       .catch((err) => {
         console.log(err);
-        return toast.error(`خطا در ذخیره اطلاعات صرافی`);
+        return toast.error(`خطا در ذخیره اطلاعات سکو`);
       });
   };
   function handleEstablishmentDateChange(
@@ -1082,7 +1082,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         {name}
       </h3>
       <h5 className="font-bold text-lg text-titleText dark:text-titleText-dark mt-4">
-        مشخصات صرافی
+        مشخصات سکو
       </h5>
       <DetailBox
         data={invoiceData.map((section) => ({
@@ -1106,7 +1106,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
             <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-lg font-bold">
-                ویرایش مشخصات صرافی {"نوبیتکس"}
+                ویرایش مشخصات سکو {"نوبیتکس"}
               </Modal.Title>
             </div>
 
@@ -1142,7 +1142,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 </div>
               </div>
               <div>
-                <label>شناسه ملی صرافی</label>
+                <label>شناسه ملی سکو</label>
                 <Input
                   className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
@@ -1156,7 +1156,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 />
               </div>
               <div>
-                <label>نوع صرافی</label>
+                <label>نوع سکو</label>
 
                 <div className="relative w-full mt-2">
                   <Dropdown
@@ -1537,7 +1537,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
-            <h4 className="mb-2 mt-2">تغییرات مشخصات صرافی</h4>
+            <h4 className="mb-2 mt-2">تغییرات مشخصات سکو</h4>
             {LogLoading ? (
               <div className="mt-4">
                 <LoadingComponent />

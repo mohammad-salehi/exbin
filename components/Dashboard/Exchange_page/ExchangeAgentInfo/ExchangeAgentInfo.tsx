@@ -115,18 +115,18 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                
                 // setLoading(false)
                 SetEditLoading(false)
-                return toast.error(`خطا در حذف نماینده صرافی`);
+                return toast.error(`خطا در حذف نماینده سکو`);
             } else {
                 const responseData = await response.json();
                 console.log(responseData);
                 SetEditLoading(false)
-                toast.success("نماینده صرافی با موفقیت ویرایش شد.", { position: "bottom-left" });
+                toast.success("نماینده سکو با موفقیت ویرایش شد.", { position: "bottom-left" });
             }
 
         } catch (err) {
             console.error(err);
             SetEditLoading(false)
-            return toast.error(`خطا در ذخیره نماینده صرافی`);
+            return toast.error(`خطا در ذخیره نماینده سکو`);
         }
 
 
@@ -208,17 +208,17 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                                 if (!response.ok) {
                                     console.log(response)
                                     // setLoading(false)
-                                    return toast.error(`خطا در حذف نماینده صرافی`);
+                                    return toast.error(`خطا در حذف نماینده سکو`);
                                 } else {
                                     const responseData = await response.json();
                                     console.log(responseData);
-                                    toast.success("نماینده صرافی با موفقیت حذف شد.", { position: "bottom-left" });
+                                    toast.success("نماینده سکو با موفقیت حذف شد.", { position: "bottom-left" });
                                     setData((prevData) => prevData.filter(person => person.id !== row.id));
                                 }
 
                             } catch (err) {
                                 console.error(err);
-                                return toast.error(`خطا در ذخیره نماینده صرافی`);
+                                return toast.error(`خطا در ذخیره نماینده سکو`);
                             }
                         }}
                     >
@@ -275,13 +275,13 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
           );
       
-          toast.success("نماینده صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
+          toast.success("نماینده سکو باموفقیت افزوده شد.", { position: "bottom-left" });
       
           const newId = (data.length + 1).toString();
           setData(prev => [...prev, { ...form, id: newId }]);
           closeAddModal();
         } catch (e: any) {
-          toast.error(e?.message || "خطا در ذخیره نماینده صرافی", { position: "bottom-left" });
+          toast.error(e?.message || "خطا در ذخیره نماینده سکو", { position: "bottom-left" });
         } finally {
           SetAddLoading(false);
         }
@@ -325,7 +325,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
         <div className="mt-4">
             <div className="flex justify-between items-center mt-2">
                 <h5 className="font-bold text-lg text-titleText dark:text-titleText-dark mb-2">
-                    مشخصات نمایندگان صرافی
+                    مشخصات نمایندگان سکو
                 </h5>
                 <div className="flex justify-end mb-3">
                     <Button variant="primary" onClick={openAddModal} className='text-primary dark:text-primary-dark border border-primary rounded-md'>
@@ -347,7 +347,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                     <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
                             <Modal.Title className="text-lg font-bold">
-                                ویرایش مشخصات نماینده صرافی
+                                ویرایش مشخصات نماینده سکو
                             </Modal.Title>
                         </div>
                         <div className="p-4 grid grid-cols-1 gap-4">

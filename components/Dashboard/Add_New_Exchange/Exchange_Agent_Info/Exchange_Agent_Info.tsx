@@ -77,7 +77,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
               Member // JSON ارسال می‌شود
             );
       
-            toast.success("نماینده صرافی باموفقیت افزوده شد.", { position: "bottom-left" });
+            toast.success("نماینده سکو باموفقیت افزوده شد.", { position: "bottom-left" });
       
             const newMember: Person = {
               id: String(data.length + 1),
@@ -95,7 +95,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
             nationalCode: "",
           });
         } catch (e: any) {
-          toast.error(e?.message || "خطا در ذخیره نماینده صرافی", { position: "bottom-left" });
+          toast.error(e?.message || "خطا در ذخیره نماینده سکو", { position: "bottom-left" });
         } finally {
           setLoading(false);
         }
