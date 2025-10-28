@@ -1,5 +1,6 @@
 'use client';
 
+import { Modal } from "@heathmont/moon-core-tw";
 import clsx from "clsx";
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from "react";
@@ -44,19 +45,19 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen, toggleDarkMo
     }, [pathname,])
 
     const navItems = [
-        {
-            link: "dashboard",
-            label: "داشبورد",
-            access: '',
-            icon: (
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <mask id="path-1-inside-1_92_1581" fill="white">
-                        <path d="M14.825 18.9583H5.17496C2.89163 18.9583 1.04163 17.1 1.04163 14.8167V8.64166C1.04163 7.50833 1.74163 6.08333 2.64163 5.38333L7.13329 1.88333C8.48329 0.833332 10.6416 0.783332 12.0416 1.76667L17.1916 5.375C18.1833 6.06666 18.9583 7.55 18.9583 8.75833V14.825C18.9583 17.1 17.1083 18.9583 14.825 18.9583ZM7.89996 2.86667L3.40829 6.36666C2.81663 6.83333 2.29163 7.89166 2.29163 8.64166V14.8167C2.29163 16.4083 3.58329 17.7083 5.17496 17.7083H14.825C16.4166 17.7083 17.7083 16.4167 17.7083 14.825V8.75833C17.7083 7.95833 17.1333 6.85 16.475 6.4L11.325 2.79167C10.375 2.125 8.80829 2.15833 7.89996 2.86667Z" />
-                    </mask>
-                    <path d="M14.825 18.9583H5.17496C2.89163 18.9583 1.04163 17.1 1.04163 14.8167V8.64166C1.04163 7.50833 1.74163 6.08333 2.64163 5.38333L7.13329 1.88333C8.48329 0.833332 10.6416 0.783332 12.0416 1.76667L17.1916 5.375C18.1833 6.06666 18.9583 7.55 18.9583 8.75833V14.825C18.9583 17.1 17.1083 18.9583 14.825 18.9583ZM7.89996 2.86667L3.40829 6.36666C2.81663 6.83333 2.29163 7.89166 2.29163 8.64166V14.8167C2.29163 16.4083 3.58329 17.7083 5.17496 17.7083H14.825C16.4166 17.7083 17.7083 16.4167 17.7083 14.825V8.75833C17.7083 7.95833 17.1333 6.85 16.475 6.4L11.325 2.79167C10.375 2.125 8.80829 2.15833 7.89996 2.86667Z" fill="currentColor" />
-                </svg>
-            ),
-        },
+        // {
+        //     link: "dashboard",
+        //     label: "داشبورد",
+        //     access: '',
+        //     icon: (
+        //         <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        //             <mask id="path-1-inside-1_92_1581" fill="white">
+        //                 <path d="M14.825 18.9583H5.17496C2.89163 18.9583 1.04163 17.1 1.04163 14.8167V8.64166C1.04163 7.50833 1.74163 6.08333 2.64163 5.38333L7.13329 1.88333C8.48329 0.833332 10.6416 0.783332 12.0416 1.76667L17.1916 5.375C18.1833 6.06666 18.9583 7.55 18.9583 8.75833V14.825C18.9583 17.1 17.1083 18.9583 14.825 18.9583ZM7.89996 2.86667L3.40829 6.36666C2.81663 6.83333 2.29163 7.89166 2.29163 8.64166V14.8167C2.29163 16.4083 3.58329 17.7083 5.17496 17.7083H14.825C16.4166 17.7083 17.7083 16.4167 17.7083 14.825V8.75833C17.7083 7.95833 17.1333 6.85 16.475 6.4L11.325 2.79167C10.375 2.125 8.80829 2.15833 7.89996 2.86667Z" />
+        //             </mask>
+        //             <path d="M14.825 18.9583H5.17496C2.89163 18.9583 1.04163 17.1 1.04163 14.8167V8.64166C1.04163 7.50833 1.74163 6.08333 2.64163 5.38333L7.13329 1.88333C8.48329 0.833332 10.6416 0.783332 12.0416 1.76667L17.1916 5.375C18.1833 6.06666 18.9583 7.55 18.9583 8.75833V14.825C18.9583 17.1 17.1083 18.9583 14.825 18.9583ZM7.89996 2.86667L3.40829 6.36666C2.81663 6.83333 2.29163 7.89166 2.29163 8.64166V14.8167C2.29163 16.4083 3.58329 17.7083 5.17496 17.7083H14.825C16.4166 17.7083 17.7083 16.4167 17.7083 14.825V8.75833C17.7083 7.95833 17.1333 6.85 16.475 6.4L11.325 2.79167C10.375 2.125 8.80829 2.15833 7.89996 2.86667Z" fill="currentColor" />
+        //         </svg>
+        //     ),
+        // },
         {
             link: "exchanges-list",
             label: "لیست سکوها",
@@ -118,6 +119,71 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen, toggleDarkMo
         // },
     ];
 
+
+
+      // stateهای فرم
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [showOld, setShowOld] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [open, setOpen] = useState(false);
+  // وضعیت ارسال
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
+  const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`;
+
+  const validate = () => {
+    if (!oldPassword) return setError("رمز فعلی را وارد کنید"), false;
+    if (!newPassword) return setError("رمز جدید را وارد کنید"), false;
+    if (newPassword.length < 8)
+      return setError("رمز جدید باید حداقل ۸ کاراکتر باشد"), false;
+    setError(null);
+    return true;
+  };
+
+  const submit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!validate()) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+
+      const token = getCookie("token");
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "*/*",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
+
+      if (!res.ok) {
+        let msg = `خطای سرور (${res.status})`;
+        try {
+          const j = await res.json();
+          msg = j?.message || j?.error || msg;
+        } catch {}
+        throw new Error(msg);
+      }
+
+      setSuccess("رمز با موفقیت تغییر کرد.");
+      setOldPassword("");
+      setNewPassword("");
+      setTimeout(() => () => {}, 1200);
+    } catch (err: any) {
+      setError(err?.message || "خطا در تغییر رمز");
+    } finally {
+      setLoading(false);
+    }
+  };
+
     return (
         <div className="flex">
             {/* Sidebar */}
@@ -154,6 +220,57 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen, toggleDarkMo
 
                         }
                     </button>
+
+                    <div
+                  className="mt-4 cursor-pointer text-titleText dark:text-titleText-dark"
+                  onClick={() => {
+                    setOpen(true);
+                  }}
+                >
+                  <svg
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="inline-block ml-1"
+                  >
+                    <g id="Iconly/Curved/Password">
+                      <g id="Password">
+                        <path
+                          id="Stroke 1"
+
+                          d="M10.6887 11.9999C10.6887 13.0229 9.85974 13.8519 8.83674 13.8519C7.81374 13.8519 6.98474 13.0229 6.98474 11.9999C6.98474 10.9769 7.81374 10.1479 8.83674 10.1479H8.83974C9.86174 10.1489 10.6887 10.9779 10.6887 11.9999Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+          
+                        />
+                        <path
+                          id="Stroke 3"
+                          d="M10.6918 12H17.0098V13.852"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+ 
+                        />
+                        <path
+                          id="Stroke 5"
+                          d="M14.182 13.852V12"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+    
+                        />
+                        <path
+                          id="Stroke 7"
+                          d="M2.74988 12C2.74988 5.063 5.06288 2.75 11.9999 2.75C18.9369 2.75 21.2499 5.063 21.2499 12C21.2499 18.937 18.9369 21.25 11.9999 21.25C5.06288 21.25 2.74988 18.937 2.74988 12Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+ 
+                        />
+                      </g>
+                    </g>
+                  </svg>
+                  <span>تغییر رمزعبور</span>
+                </div>
                 </div>
 
 
@@ -193,6 +310,107 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen, toggleDarkMo
                     </div>
                 </nav>
             </div>
+
+            <Modal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+        }}
+      >
+        {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
+        <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
+
+        {/* کانتینر مرکزی پنل، بالاتر از بک‌دراپ */}
+        <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
+          <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
+            <div className="w-full">
+              <Modal.Title>
+                <h3 className="text-lg font-medium  text-titleText dark:text-titleText-dark text-center">
+                  تغییر رمز عبور
+                </h3>
+              </Modal.Title>
+
+              <form onSubmit={submit} className="mt-4 space-y-4">
+                {/* فیلد رمز فعلی */}
+                <div>
+                  <label className="block text-sm font-medium  text-titleText dark:text-titleText-dark">
+                    رمز فعلی
+                  </label>
+                  <div className="relative mt-1">
+                    <input
+                      type={showOld ? "text" : "password"}
+                      value={oldPassword}
+                      onChange={(e) => setOldPassword(e.target.value)}
+                      placeholder="رمز فعلی"
+                      className="w-full rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark "
+                      autoComplete="current-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowOld((s) => !s)}
+                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-titleText dark:text-titleText-dark"
+                    >
+                      {showOld ? "مخفی" : "نمایش"}
+                    </button>
+                  </div>
+                </div>
+
+                {/* فیلد رمز جدید */}
+                <div>
+                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
+                    رمز جدید
+                  </label>
+                  <div className="relative mt-1">
+                    <input
+                      type={showNew ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="رمز جدید"
+                      className="w-full rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-boxColor-dark"
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowNew((s) => !s)}
+                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-titleText dark:text-titleText-dark"
+                    >
+                      {showNew ? "مخفی" : "نمایش"}
+                    </button>
+                  </div>
+                  <p className="mt-1 text-xs text-titleText dark:text-titleText-dark">
+                    رمز جدید حداقل ۸ کاراکتر باشد.
+                  </p>
+                </div>
+
+                {error && (
+                  <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
+                {success && (
+                  <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                    {success}
+                  </div>
+                )}
+
+                <div className="mt-2 flex items-center justify-end gap-3">
+                  <button
+                    type="submit"
+                    className={`rounded-md px-4 py-2 text-sm font-medium text-white ${
+                      loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
+                    }`}
+                    disabled={loading}
+                  >
+                    {loading ? "در حال ارسال…" : "تغییر رمز"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </Modal.Panel>
+        </div>
+      </Modal>
         </div>
     );
 }
