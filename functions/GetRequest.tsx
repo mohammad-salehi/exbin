@@ -35,7 +35,7 @@ export const GetRequest = async (
         (typeof process !== "undefined" && (process as any).env?.NEXT_PUBLIC_API_URL) ||
         "";
   
-      const res = await fetch(`${base}/api/v1/auth/refresh`, {
+      const res = await fetch(`${base}/api/auth/refresh`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ refreshToken }),
@@ -47,15 +47,15 @@ export const GetRequest = async (
       }
   
       const data = await res.json();
+      console.log(data.result.token)
+      if (data.result.token) setCookie("token", data.result.token);
+      if (data.result.refreshToken) setCookie("refreshToken", data.result.refreshToken);
+      if (data.result.username) setCookie("username", data.result.username);
+      if (data.result.firstName) setCookie("firstName", data.result.firstName);
+      if (data.result.lastName) setCookie("lastName", data.result.lastName);
+      if (data.result.role) setCookie("role", data.result.role);
   
-      if (data.token) setCookie("token", data.token);
-      if (data.refreshToken) setCookie("refreshToken", data.refreshToken);
-      if (data.username) setCookie("username", data.username);
-      if (data.firstName) setCookie("firstName", data.firstName);
-      if (data.lastName) setCookie("lastName", data.lastName);
-      if (data.role) setCookie("role", data.role);
-  
-      return data.token;
+      return data.result.token;
     };
   
     const token = getCookie(tokenCookieName);
@@ -85,7 +85,8 @@ export const GetRequest = async (
             if (retryRes.status === 401 || retryRes.status === 403) {
               clearCookie(tokenCookieName);
               if (redirectOn403) 
-                window.location.assign(redirectOn403);
+                // window.location.assign(redirectOn403);
+              console.log(123)
             }
             throw new Error(`HTTP ${retryRes.status}`);
           }
@@ -94,7 +95,8 @@ export const GetRequest = async (
         } catch (err) {
           clearCookie(tokenCookieName);
           if (redirectOn403) 
-            window.location.assign(redirectOn403);
+            // window.location.assign(redirectOn403);
+          console.log(123)
           throw err;
         }
       }
@@ -102,7 +104,8 @@ export const GetRequest = async (
       if (response.status === 401 || response.status === 403) {
         clearCookie(tokenCookieName);
         if (redirectOn403) 
-          window.location.assign(redirectOn403);
+          // window.location.assign(redirectOn403);
+        console.log(123)
       }
   
       const text = await response.text();

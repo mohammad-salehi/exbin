@@ -37,49 +37,60 @@ export type PostOptions = {
     return fd;
   }
   
+  type RefreshPayload = {
+    token: string;
+    username?: string;
+    firstName?: string;
+    lastName?: string;
+    role?: string;
+    refreshToken?: string;
+  };
+  
+  type ApiRefreshResponse = {
+    result: RefreshPayload;
+    error?: unknown | null;
+  };
+  
   async function refreshAuth(opts: {
     baseURL?: string;
-    refreshCookieName: string;
-  }) {
+    refreshCookieName: string; 
+  }): Promise<string> {
     const refreshToken = getCookie(opts.refreshCookieName);
-    if (!refreshToken) throw new Error('Refresh token not found');
+    if (!refreshToken) throw new Error("Refresh token not found");
   
     const baseURL =
       opts.baseURL ||
-      (typeof process !== 'undefined' && (process as any).env?.NEXT_PUBLIC_API_URL) ||
-      '';
+      (typeof process !== "undefined" && (process as any).env?.NEXT_PUBLIC_API_URL) ||
+      "";
   
-    const res = await fetch(`${baseURL}/api/v1/auth/refresh`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    const res = await fetch(`${baseURL}/api/auth/refresh`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({ refreshToken }),
     });
   
     if (!res.ok) {
-      clearCookie('token');
+      clearCookie("token");
       const t = await res.text();
       throw new Error(t || `HTTP ${res.status}`);
     }
   
-    type RefreshResponse = {
-      token: string;
-      username?: string;
-      firstName?: string;
-      lastName?: string;
-      role?: string;
-      refreshToken?: string;
-    };
-    const data = (await res.json()) as RefreshResponse;
+    const data = (await res.json()) as ApiRefreshResponse;
   
-    if (data.token) setCookie('token', data.token);
-    if (data.refreshToken) setCookie('refreshToken', data.refreshToken);
-    if (data.username) setCookie('username', data.username);
-    if (data.firstName) setCookie('firstName', data.firstName);
-    if (data.lastName) setCookie('lastName', data.lastName);
-    if (data.role) setCookie('role', data.role);
+    if (!data?.result?.token) {
+      throw new Error("Invalid refresh response: missing result.token");
+    }
   
-    return data.token;
+    setCookie("token", data.result.token);
+    if (data.result.refreshToken) setCookie(opts.refreshCookieName, data.result.refreshToken);
+    if (data.result.username) setCookie("username", data.result.username);
+    if (data.result.firstName) setCookie("firstName", data.result.firstName);
+    if (data.result.lastName) setCookie("lastName", data.result.lastName);
+    if (data.result.role) setCookie("role", data.result.role);
+  
+    return data.result.token;
   }
+  
   
   export async function PostRequest<T = any>(
     url: string,
