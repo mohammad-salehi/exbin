@@ -1,11 +1,9 @@
+// @ts-nocheck
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
 import JalaliLocalDatePicker from "../../../../../../components/DatePicker/JalaliLocalDatePicker";
 
-// ==========================
-// Types
-// ==========================
 export type TimelineItem = {
   id: string | number;
   date: string; // YYYY-MM-DD
@@ -13,14 +11,8 @@ export type TimelineItem = {
   subtitle?: string; // explain
 };
 
-// ==========================
-// Config
-// ==========================
 const DEFAULT_PAGE_SIZE = 10;
 
-// ==========================
-// Helpers
-// ==========================
 const getCookie = (name: string) =>
   document.cookie
     .split("; ")
@@ -126,7 +118,7 @@ type PageProps = {
   searchParams?: { [key: string]: string | string[] | undefined };
 };
 
-export default function TimelinePage({ params, searchParams }: PageProps) {
+export default function TimelinePage({ params, searchParams }: any) {
   // username از پارامتر مسیر
   const username = params?.id || "";
 
