@@ -29,7 +29,7 @@ const groupByDate = (items: TimelineItem[]) =>
   }, {});
 
 const byTimeAsc = (a: TimelineItem, b: TimelineItem) =>
-  a.time.localeCompare(b.time);
+  b.time.localeCompare(a.time);
 
 const fmtDateFa = (isoDate: string) => {
   const d = new Date(isoDate + "T00:00:00");
@@ -60,9 +60,8 @@ const Tile: React.FC<React.PropsWithChildren<{ className?: string }>> = ({
   className,
 }) => (
   <div
-    className={`rounded-2xl border border-gray-200 bg-white shadow-sm ${
-      className || ""
-    }`}
+    className={`rounded-2xl border border-gray-200 bg-white shadow-sm ${className || ""
+      }`}
   >
     {children}
   </div>
@@ -80,9 +79,8 @@ const PrimaryButton: React.FC<
 > = ({ children, className, ...props }) => (
   <button
     {...props}
-    className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2 text-sm font-medium text-white disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm ${
-      className || ""
-    } bg-blue-600 hover:bg-blue-700`}
+    className={`inline-flex items-center gap-2 rounded-2xl px-5 py-2 text-sm font-medium text-white disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 shadow-sm ${className || ""
+      } bg-blue-600 hover:bg-blue-700`}
   >
     {children}
   </button>
@@ -159,16 +157,15 @@ export default function TimelinePage({ params, searchParams }: any) {
       if (username) qs.set("username", username);
       qs.set("page", String(nextPage));
       qs.set("size", String(pageSize));
-
+      qs.set("sort", "timestamp,DESC");
       // فقط اگر کاربر تاریخ انتخاب کرده باشد:
       const startTime = extractApiDateTime(startPicker, false); // 00:00:00
       const endTime = extractApiDateTime(endPicker, true); // 23:59:59
       if (startTime) qs.set("startTime", startTime);
       if (endTime) qs.set("endTime", endTime);
 
-      const url = `${
-        process.env.NEXT_PUBLIC_API_URL
-      }/api/user-activities?${qs.toString()}`;
+      const url = `${process.env.NEXT_PUBLIC_API_URL
+        }/api/user-activities?${qs.toString()}`;
       const res = await fetch(url, {
         headers: {
           accept: "*/*",
@@ -208,6 +205,14 @@ export default function TimelinePage({ params, searchParams }: any) {
   const handleLoadMore = () => {
     if (!done && !loading) void loadPage(page + 1);
   };
+
+  function addTimeOffset(time: string, hours = 3, minutes = 30) {
+    const [h, m] = time.split(":").map(Number);
+    const total = h * 60 + m + hours * 60 + minutes;
+    const newH = Math.floor((total / 60) % 24); // در صورت عبور از 24
+    const newM = total % 60;
+    return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
+  }
 
   return (
     <div dir="rtl" className="min-h-screen w-full text-gray-900">
@@ -289,7 +294,7 @@ export default function TimelinePage({ params, searchParams }: any) {
                                 <TileHeader>
                                   <div className="text-sm font-bold">
                                     <span className="font-normal">ساعت</span>{" "}
-                                    {persianDigits(it.time)}
+                                    {persianDigits(addTimeOffset(it.time))}
                                   </div>
                                 </TileHeader>
                                 <div className="mx-4 mb-2 h-px bg-boxBorderColor dark:bg-boxBorderColor-dark" />
@@ -313,7 +318,7 @@ export default function TimelinePage({ params, searchParams }: any) {
                                 <TileHeader>
                                   <div className="text-sm font-bold">
                                     <span className="font-normal">ساعت</span>{" "}
-                                    {persianDigits(it.time)}
+                                    {persianDigits(addTimeOffset(it.time))}
                                   </div>
                                 </TileHeader>
                                 <div className="mx-4 mb-2 h-px bg-boxBorderColor dark:bg-boxBorderColor-dark" />
@@ -345,8 +350,8 @@ export default function TimelinePage({ params, searchParams }: any) {
             {done
               ? "همه نمایش داده شد"
               : loading
-              ? "در حال بارگذاری…"
-              : "نمایش بیشتر"}
+                ? "در حال بارگذاری…"
+                : "نمایش بیشتر"}
           </PrimaryButton>
         </div>
       </div>

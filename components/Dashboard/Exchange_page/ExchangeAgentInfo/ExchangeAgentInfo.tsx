@@ -112,7 +112,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             });
 
             if (!response.ok) {
-                console.log(response)
+               
                 // setLoading(false)
                 SetEditLoading(false)
                 return toast.error(`خطا در حذف نماینده صرافی`);
@@ -230,7 +230,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                     </svg>
 
                     <svg onClick={() => {setEditingId(row.id) ,setisLogOpen(true)}} width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer">
-                        <path d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                 </div>
             ),
@@ -303,7 +303,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
 
     const Audit = () => {
         setLogLoading(true)
-        GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange-agents/${editingId}?page=${LogPage}&size=10`)
+        GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange-agents/${editingId}?page=${LogPage}&size=10&sort=updatedAt,DESC`)
           .then((response) => {
             setLogLoading(false)
             setChanges(response.result.content)

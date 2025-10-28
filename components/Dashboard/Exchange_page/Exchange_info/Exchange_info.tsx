@@ -1034,7 +1034,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const Audit = () => {
     setLogLoading(true);
     GetRequest(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange/${params.id}?page=${LogPage}&size=10`
+      `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange/${params.id}?page=${LogPage}&size=10&sort=updatedAt,DESC`
     )
       .then((response) => {
         setLogLoading(false);

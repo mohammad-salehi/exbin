@@ -232,7 +232,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
 
     const Audit = () => {
         setLogLoading(true)
-        GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/manager/${form.id}?page=${LogPage}&size=10`)
+        GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/manager/${form.id}?page=${LogPage}&size=10&sort=updatedAt,DESC`)
           .then((response) => {
             setLogLoading(false)
             setChanges(response.result.content)
