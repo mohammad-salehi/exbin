@@ -176,7 +176,7 @@ export default function Header({
                   {role}
                 </p>
                 <div
-                  className="mt-4 cursor-pointer border border-boxBorderColor dark:border-boxBorderColor-dark "
+                  className="mt-4 cursor-pointer"
                   onClick={() => {
                     setOpen(true);
                   }}
@@ -215,8 +215,6 @@ export default function Header({
                         />
                         <path
                           id="Stroke 7"
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
                           d="M2.74988 12C2.74988 5.063 5.06288 2.75 11.9999 2.75C18.9369 2.75 21.2499 5.063 21.2499 12C21.2499 18.937 18.9369 21.25 11.9999 21.25C5.06288 21.25 2.74988 18.937 2.74988 12Z"
                           stroke="currentColor"
                           strokeWidth="1.5"

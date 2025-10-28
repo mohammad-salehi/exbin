@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
 import JalaliLocalDatePicker from "../../../../../../components/DatePicker/JalaliLocalDatePicker";
 
 // ==========================
@@ -17,7 +16,7 @@ export type TimelineItem = {
 // ==========================
 // Config
 // ==========================
-const PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 10;
 
 // ==========================
 // Helpers
@@ -49,10 +48,7 @@ const fmtDateFa = (isoDate: string) => {
   }).format(d);
 };
 
-/** خروجی DatePicker را به فرمت API برمی‌گرداند.
- * از string یا object (مثلاً {gregorian: 'YYYY-MM-DD'}) پشتیبانی می‌کند.
- * endOfDay=true => 'T23:59:59' وگرنه 'T00:00:00'
- */
+/** خروجی DatePicker را به فرمت API برمی‌گرداند. */
 const extractApiDateTime = (val: any, endOfDay = false): string | undefined => {
   if (!val) return undefined;
   const greg =
@@ -123,16 +119,22 @@ function mapApiToItems(list: ApiActivity[]): TimelineItem[] {
 }
 
 // ==========================
-// Page Component
+// Page Component (Client Page but with correct signature)
 // ==========================
-export default function TimelinePage({
-  pageSize = PAGE_SIZE,
-}: {
-  pageSize?: number;
-}) {
-  // username از مسیر: فرض /users/[id]/activities
-  const params = useParams();
-  const username = (params?.id as string) || "";
+type PageProps = {
+  params: { id: string }; // از مسیر /panel/admin-panel/timeline/[id]
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+
+export default function TimelinePage({ params, searchParams }: PageProps) {
+  // username از پارامتر مسیر
+  const username = params?.id || "";
+
+  // اگر بخوای از query string اندازه صفحه بیاد:
+  const pageSize =
+    typeof searchParams?.pageSize === "string"
+      ? Number(searchParams!.pageSize) || DEFAULT_PAGE_SIZE
+      : DEFAULT_PAGE_SIZE;
 
   // pagination & data
   const [page, setPage] = useState(0);
@@ -151,7 +153,7 @@ export default function TimelinePage({
     setDone(false);
     void loadPage(0, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [username]);
+  }, [username, pageSize]);
 
   async function loadPage(nextPage: number, replace = false) {
     if (loading || done) return;
@@ -219,7 +221,9 @@ export default function TimelinePage({
     <div dir="rtl" className="min-h-screen w-full text-gray-900">
       <div className="mx-auto max-w-5xl px-6 py-8">
         <div className="mb-6 flex items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-titleText dark:text-titleText-dark">خط زمانی کاربر {params.id}</h1>
+          <h1 className="text-2xl font-bold text-titleText dark:text-titleText-dark">
+            خط زمانی کاربر {username}
+          </h1>
         </div>
 
         {/* فیلترها با JalaliLocalDatePicker */}
