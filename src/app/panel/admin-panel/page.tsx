@@ -238,7 +238,7 @@ const Page: React.FC = () => {
                 role: addForm.role,
             };
 
-            setRows(prev => [newItem, ...prev]);
+            setRows(prev => [...prev, { ...newItem, id: res.result.id }]);
             onAddClose();
 
         } catch (e: any) {

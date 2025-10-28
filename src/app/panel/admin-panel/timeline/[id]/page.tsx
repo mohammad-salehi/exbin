@@ -284,10 +284,10 @@ export default function TimelinePage({ params, searchParams }: any) {
 
                     // 👇 اگر subtitle شامل delete بود، کلاس قرمز بگذار
                     const isDelete = /\bdeleted\b/i.test(it.subtitle ?? "");
-                    const borderClass = isDelete
-                      ? "border-redError"
-                      : "border-boxBorderColor dark:border-boxBorderColor-dark";
-
+                    const isCreate = /\bcreated\b/i.test(it.subtitle ?? "");
+                    const isUpdate = /\updated\b/i.test(it.subtitle ?? "");
+                    let borderClass = isDelete ? "border-redError" : isCreate ? "border-GreenError-dark" : isUpdate ? 'border-primary' : "border-boxBorderColor dark:border-boxBorderColor-dark"
+                    
                     return (
                       <div key={it.id} className="relative">
                         {/* نقطه روی خط */}

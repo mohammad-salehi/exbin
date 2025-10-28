@@ -382,17 +382,15 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
         try {
             SetAddLoading(true);
 
-            await PostRequest(
+            const newResponse = await PostRequest(
                 `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/employees`,
                 memberInfo
                 // asFormData لازم نیست؛ JSON می‌فرستیم
             );
-
             toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
-
             // به‌روزرسانی لیست محلی با داده‌های نرمال‌شده
-            setData(prev => [...prev, { ...form, ...memberInfo, id: newId }]);
-            setTimeout(() => window.location.reload(), 500);
+            setData(prev => [...prev, { ...form, ...memberInfo, id: newResponse.result.id }]);
+            // setTimeout(() => window.location.reload(), 500);
             closeAddModal();
         } catch (e: any) {
             toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });

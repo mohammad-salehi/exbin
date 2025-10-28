@@ -29,6 +29,10 @@ const config: Config = {
           DEFAULT: "#ff0000", 
           dark: "#ff4d4d",
         },
+        GreenError: {
+          DEFAULT: "rgb(27,96,33)", 
+          dark: "rgb(38,250,175)",
+        },
         bgColor: {
           DEFAULT: "#FBFAFA",
           dark: "#343a3f",

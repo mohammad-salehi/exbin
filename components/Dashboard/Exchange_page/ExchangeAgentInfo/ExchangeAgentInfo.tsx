@@ -236,17 +236,14 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
         try {
             SetAddLoading(true);
 
-            await PostRequest(
+            const newResponse = await PostRequest(
                 `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/exchange-agents`,
                 Member
                 // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
             );
 
             toast.success("نماینده سکو باموفقیت افزوده شد.", { position: "bottom-left" });
-
-            const newId = (data.length + 1).toString();
-            setData(prev => [...prev, { ...form, id: newId }]);
-            setTimeout(() => window.location.reload(), 500);
+            setData(prev => [...prev, { ...form, id: newResponse.result.id }]);
             closeAddModal();
         } catch (e: any) {
             toast.error(e?.message || "خطا در ذخیره نماینده سکو", { position: "bottom-left" });
@@ -267,7 +264,6 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                 SetC4(true)
             })
     }, [])
-
 
     const Audit = () => {
         setLogLoading(true)

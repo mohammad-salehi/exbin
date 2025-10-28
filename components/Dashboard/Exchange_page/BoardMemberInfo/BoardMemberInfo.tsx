@@ -286,16 +286,14 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
         try {
             SetAddLoading(true);
 
-            await PostRequest(
+            const newResponse = await PostRequest(
                 `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/board-members`,
                 Member
                 // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
             );
-
             toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
             setTimeout(() => window.location.reload(), 500);
-            const newId = (data.length + 1).toString();
-            setData(prev => [...prev, { ...form, id: newId }]);
+            setData(prev => [...prev, { ...form, id: newResponse.result.id }]);
             closeAddModal();
         } catch (e: any) {
             toast.error(e?.message || "خطا در ذخیره اعضای هیئت‌مدیره", { position: "bottom-left" });
