@@ -126,11 +126,18 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                             return toast.error(`خطا در ذخیره مدیرعامل`);
                         } else {
                             toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
-                            setData((prev) =>
-                                prev.map((item) =>
-                                    item.id === editingId ? { ...form, id: editingId } : item
-                                )
-                            );
+                            if (data.length !== 0) {
+                                setData((prev) =>
+                                    prev.map((item) =>
+                                        item.id === editingId ? { ...form, id: editingId } : item
+                                    )
+                                );
+                            } else {
+                                const responseData = await response.json();
+                                console.log(responseData.result.managerInfo);
+                                setData([responseData.result.managerInfo])
+                            }
+
                             closeModal();
                             setLoading(false)
                             setIsOpen(false);

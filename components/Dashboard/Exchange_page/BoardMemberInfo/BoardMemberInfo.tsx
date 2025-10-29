@@ -146,7 +146,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 console.log(response)
                 // setLoading(false)
                 SetEditLoading(false)
-                return toast.error(`خطا در حذف عضو هیئت‌مدیره`);
+                return toast.error(`خطا در ذخیره عضو هیئت‌مدیره`);
             } else {
                 const responseData = await response.json();
                 console.log(responseData);
