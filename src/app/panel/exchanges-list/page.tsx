@@ -274,7 +274,7 @@ const Page = () => {
                     ?.split('=')[1];
                   if (Deletedata !== undefined) {
                     SetDeleteLoading(true)
-                    const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${Deletedata.id}`, {
+                    const response = await fetch(process.env.NEXT_PUBLIC_API_URL  + `/api/exchanges/${Deletedata.id}`, {
                       method: 'DELETE',
                       headers: {
                         'Authorization': `Bearer ${token}`,
