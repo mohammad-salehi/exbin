@@ -267,7 +267,8 @@ const Page = () => {
               <button
                 className="ml-4"
                 onClick={async () => {
-                  const token = document.cookie
+                  try {
+                    const token = document.cookie
                     .split('; ')
                     .find(Deletedata => Deletedata.startsWith('token='))
                     ?.split('=')[1];
@@ -299,6 +300,11 @@ const Page = () => {
                     SetDeleteLoading(false)
                     toast.error("خطا در حذف سکو.", { position: "bottom-left" });
                   }
+                  } catch (error) {
+                    SetDeleteLoading(false)
+                    toast.error("خطا در حذف سکو.", { position: "bottom-left" });
+                  }
+                  
 
                 }}
               >
