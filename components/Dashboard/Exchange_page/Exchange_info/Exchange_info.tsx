@@ -434,7 +434,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     }
   };
 
-  const handleDownloadFinancial = async (id:number, date:string) => {
+  const handleDownloadFinancial = async (id: number, date: string) => {
     try {
       SetDownloadLoading(true);
       const token = document.cookie
@@ -582,7 +582,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               </div>
               <div className="flex items-center">
                 <button
-                  onClick={() => {handleDownloadFinancial(item.id, item.date)}}
+                  onClick={() => { handleDownloadFinancial(item.id, item.date) }}
                   className="text-titleText dark:text-titleText-dark mr-2"
                 >
                   {/* ... SVG دانلود ... */}
@@ -686,9 +686,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       prev.map((section) =>
         section.id === 3
           ? {
-              ...section,
-              content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
-            }
+            ...section,
+            content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
+          }
           : section
       )
     );
@@ -711,8 +711,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           response.result.exchangeType === "STOCK"
             ? "سهامی"
             : response.result.exchangeType === "LIMITED_LIABILITY"
-            ? "مسئولیت محدود"
-            : ""
+              ? "مسئولیت محدود"
+              : ""
         );
         handleEdit(1, 6, response.result.financialCode);
         handleEdit(1, 7, String(response.result.registrationNumber));
@@ -832,11 +832,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       });
       return;
     }
-    if (!validateEmail(form.email) && form.email !== "") {
-      toast.error("ایمیل سکو مورد نظر را به درستی وارد کنید", {
-        position: "bottom-left",
-      });
-      return;
+    if (form.email !== '' && form.email !== null) {
+      if (!validateEmail(form.email)) {
+        toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+        return;
+      }
     }
     if (!validateDomainExtension(form.siteAddress)) {
       toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", {
@@ -1093,8 +1093,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               typeof item.content === "string"
                 ? item.content
                 : React.isValidElement(item.content)
-                ? item.content
-                : "", // تبدیل به string یا Element
+                  ? item.content
+                  : "", // تبدیل به string یا Element
           })),
         }))}
         downloadLink="/path/to/pdf"
@@ -1193,11 +1193,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                           <MenuItem
                             isActive={active}
                             isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                              form.type === "P2P"
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "P2P"
                                 ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
                                 : ""
-                            }`}
+                              }`}
                           >
                             <MenuItem.Title>P2P</MenuItem.Title>
                           </MenuItem>
@@ -1207,11 +1206,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         {({ active }) => (
                           <MenuItem
                             isActive={active}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                              form.type === "OTC"
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "OTC"
                                 ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
                                 : ""
-                            }`}
+                              }`}
                           >
                             <MenuItem.Title>OTC</MenuItem.Title>
                           </MenuItem>
@@ -1276,8 +1274,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                           {form.exchangeType === "LIMITED_LIABILITY"
                             ? "مسئولیت محدود"
                             : form.exchangeType === "STOCK"
-                            ? "سهامی"
-                            : ""}
+                              ? "سهامی"
+                              : ""}
                         </span>
                       </Button>
                     </Dropdown.Trigger>
@@ -1294,11 +1292,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                           <MenuItem
                             isActive={active}
                             isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                              form.exchangeType === "LIMITED_LIABILITY"
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === "LIMITED_LIABILITY"
                                 ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
                                 : ""
-                            }`}
+                              }`}
                           >
                             <MenuItem.Title>مسئولیت محدود</MenuItem.Title>
                           </MenuItem>
@@ -1308,11 +1305,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         {({ active }) => (
                           <MenuItem
                             isActive={active}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                              form.exchangeType === "STOCK"
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === "STOCK"
                                 ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
                                 : ""
-                            }`}
+                              }`}
                           >
                             <MenuItem.Title>سهامی</MenuItem.Title>
                           </MenuItem>
@@ -1453,11 +1449,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                       <MenuItem
                         isActive={active}
                         isSelected={selected}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                          type === "اساسنامه"
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "اساسنامه"
                             ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
                             : ""
-                        }`}
+                          }`}
                       >
                         <MenuItem.Title>اساسنامه</MenuItem.Title>
                       </MenuItem>
@@ -1467,11 +1462,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                     {({ active }) => (
                       <MenuItem
                         isActive={active}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                          type === "صورت مالی"
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "صورت مالی"
                             ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
                             : ""
-                        }`}
+                          }`}
                       >
                         <MenuItem.Title>صورت مالی</MenuItem.Title>
                       </MenuItem>

@@ -277,9 +277,11 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
             toast.error("نقش را وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (!validateEmail(form.email) && form.email !== '') {
-            toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-            return;
+        if (form.email !== '' && form.email !== null) {
+            if (!validateEmail(form.email)) {
+                toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+                return;
+            }
         }
 
         const Member = {

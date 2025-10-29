@@ -68,7 +68,12 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
         if (logo === '') return toast.error("لوگو سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (siteAddress === '') return toast.error("وبسایت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (phoneNumber === '') return toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (!validateEmail(email) && email !== '') return toast.error("ایمیل سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+        if (email !== '' && email !== null) {
+            if (!validateEmail(email)) {
+                toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+                return;
+            }
+        }
         if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
       
         const payload = {
