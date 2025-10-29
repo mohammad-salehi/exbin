@@ -6,7 +6,6 @@ import { useParams } from "next/navigation";
 import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../Loader/Loader';
 
-import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
 import { PostRequest } from '../../../../functions/PostRequest';
 import Pagination from '../../../Pagination/Pagination';
@@ -46,6 +45,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     const [editingId, setEditingId] = useState<string | null>(null);
     const [editLoading, SetEditLoading] = useState<boolean>(false)
     const [addLoading, SetAddLoading] = useState<boolean>(false)
+    const [deleteLoading, SetdeleteLoading] = useState<boolean>(false)
 
 
     const [isLogOpen, setisLogOpen] = useState(false);
@@ -287,6 +287,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
 
     const [deleteBox, SetDeleteBox] = useState(false)
     const deleteMember = async (row: Person) => {
+        SetdeleteLoading(true)
         try {
             const token = document.cookie
                 .split('; ')
@@ -295,6 +296,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
 
             if (!token) {
                 toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                SetdeleteLoading(false)
                 return;
             }
 
@@ -310,16 +312,20 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             if (!response.ok) {
                 console.log(response)
                 // setLoading(false)
+                SetdeleteLoading(false)
                 return toast.error(`خطا در حذف نماینده سکو`);
+
             } else {
                 const responseData = await response.json();
                 console.log(responseData);
                 toast.success("نماینده سکو با موفقیت حذف شد.", { position: "bottom-left" });
                 setData((prevData) => prevData.filter(person => person.id !== row.id));
                 SetDeleteBox(false)
+                SetdeleteLoading(false)
             }
 
         } catch (err) {
+            SetdeleteLoading(false)
             console.error(err);
             return toast.error(`خطا در ذخیره نماینده سکو`);
         }
@@ -536,10 +542,14 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                         <div className="flex justify-center gap-4 w-full">
 
                             <button
+                                disabled = {deleteLoading}
                                 onClick={() => { deleteMember(deleteform) }}
                                 className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
                             >
                                 {
+                                    deleteLoading?
+                                    'درحال حذف...'
+                                    :
                                     'حذف'
                                 }
 

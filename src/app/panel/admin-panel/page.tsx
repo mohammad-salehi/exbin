@@ -621,7 +621,7 @@ const Page: React.FC = () => {
                             >
                                 {
                                     DeleteLoading ?
-                                        <LoaderCircle size={8} color="border-white-500" />
+                                        'درحال حذف...'
                                         :
                                         'حذف'
                                 }

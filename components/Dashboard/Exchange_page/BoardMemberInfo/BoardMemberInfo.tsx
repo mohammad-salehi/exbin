@@ -53,7 +53,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const [editLoading, SetEditLoading] = useState<boolean>(false)
     const [addLoading, SetAddLoading] = useState<boolean>(false)
-
+    const [deleteLoading, SetdeleteLoading] = useState<boolean>(false)
 
     const [isLogOpen, setisLogOpen] = useState(false);
     const [LogNumber, setLogNumber] = useState(0);
@@ -268,6 +268,10 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
             toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
             return;
         }
+        if (form.role === '') {
+            toast.error("نقش را وارد کنید", { position: "bottom-left" });
+            return;
+        }
         if (!validateEmail(form.email) && form.email !== '') {
             toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
             return;
@@ -292,7 +296,6 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
             );
             toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
-            setTimeout(() => window.location.reload(), 500);
             setData(prev => [...prev, { ...form, id: newResponse.result.id }]);
             closeAddModal();
         } catch (e: any) {
@@ -337,7 +340,8 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     }, [isLogOpen, LogPage])
 
     const [deleteBox, SetDeleteBox] = useState(false)
-    const deleteMember = async (row:Person) => {
+    const deleteMember = async (row: Person) => {
+        SetdeleteLoading(true)
         try {
             const token = document.cookie
                 .split('; ')
@@ -346,6 +350,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
 
             if (!token) {
                 toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                SetdeleteLoading(false)
                 return;
             }
 
@@ -360,6 +365,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
 
             if (!response.ok) {
                 console.log(response)
+                SetdeleteLoading(false)
                 // setLoading(false)
                 return toast.error(`خطا در حذف عضو هیئت‌مدیره`);
             } else {
@@ -367,6 +373,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 console.log(responseData);
                 toast.success("عضو هیئت‌مدیره با موفقیت حذف شد.", { position: "bottom-left" });
                 setData((prevData) => prevData.filter(person => person.id !== row.id));
+                SetdeleteLoading(false)
                 SetDeleteBox(false)
             }
 
@@ -678,7 +685,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
             </Modal>
 
             {/* -------- مودال تأیید حذف -------- */}
-            <Modal open={deleteBox} onClose={() => {SetDeleteBox(false)}}>
+            <Modal open={deleteBox} onClose={() => { SetDeleteBox(false) }}>
                 {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
                 <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
 
@@ -694,13 +701,16 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                         </p>
 
                         <div className="flex justify-center gap-4 w-full">
-                            
+
                             <button
-                                onClick={() => {deleteMember(deleteform)}}
+                                onClick={() => { deleteMember(deleteform) }}
                                 className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
                             >
                                 {
-                                    'حذف'
+                                    deleteLoading ?
+                                        'درحال حذف...'
+                                        :
+                                        'حذف'
                                 }
 
                             </button>

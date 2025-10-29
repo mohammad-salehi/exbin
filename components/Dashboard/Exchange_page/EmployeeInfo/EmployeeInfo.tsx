@@ -64,7 +64,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
     const [LogPage, setLogPage] = useState(0);
     const [LogLoading, setLogLoading] = useState(false);
     const [Changes, setChanges] = useState<string[]>([]);
-
+    const [deleteLoading, SetdeleteLoading] = useState<boolean>(false)
 
 
     const openModal = (row: Person) => {
@@ -365,7 +365,6 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             return;
         }
 
-        // ساخت payload نهایی (با فیلدهای خالی به صورت "")
         const memberInfo = {
             name: form.name || "",
             jobPosition: form.jobPosition ?? "",
@@ -374,7 +373,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             careerHistory: form.careerHistory || "",
             insuranceStartDate: form.insuranceStartDate || "",
             insuranceEndDate: form.insuranceEndDate || "",
-            isSpecialAccess: (form as any).isSpecialAccess ?? "", // اگر boolean است، می‌توانید true/false بفرستید
+            isSpecialAccess: (form as any).isSpecialAccess ?? "",
             nationalCode: form.nationalCode || "",
             phoneNumber: form.phoneNumber || "",
         };
@@ -385,12 +384,9 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             const newResponse = await PostRequest(
                 `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/employees`,
                 memberInfo
-                // asFormData لازم نیست؛ JSON می‌فرستیم
             );
             toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
-            // به‌روزرسانی لیست محلی با داده‌های نرمال‌شده
             setData(prev => [...prev, { ...form, ...memberInfo, id: newResponse.result.id }]);
-            // setTimeout(() => window.location.reload(), 500);
             closeAddModal();
         } catch (e: any) {
             toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
@@ -437,6 +433,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
     const [deleteBox, SetDeleteBox] = useState(false)
     const deleteMember = async (row: Person) => {
+        SetdeleteLoading(true)
         try {
             const token = document.cookie
                 .split('; ')
@@ -445,6 +442,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
             if (!token) {
                 toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                SetdeleteLoading(false)
                 return;
             }
 
@@ -459,11 +457,12 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
             if (!response.ok) {
                 console.log(response)
+                SetdeleteLoading(false)
                 // setLoading(false)
                 return toast.error(`خطا در حذف کارمند`);
             } else {
                 const responseData = await response.json();
-                console.log(responseData);
+                SetdeleteLoading(false)
                 toast.success("کارمند با موفقیت حذف شد.", { position: "bottom-left" });
                 setData((prevData) => prevData.filter(person => person.id !== row.id));
                 SetDeleteBox(false)
@@ -471,6 +470,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
         } catch (err) {
             console.error(err);
+            SetdeleteLoading(false)
             return toast.error(`خطا در حذف کارمند`);
         }
     }
@@ -831,7 +831,10 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
                             >
                                 {
-                                    'حذف'
+                                    deleteLoading ?
+                                        'درحال حذف...'
+                                        :
+                                        'حذف'
                                 }
 
                             </button>

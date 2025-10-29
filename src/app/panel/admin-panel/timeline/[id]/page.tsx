@@ -286,7 +286,7 @@ export default function TimelinePage({ params, searchParams }: any) {
                     const isDelete = /\bdeleted\b/i.test(it.subtitle ?? "");
                     const isCreate = /\bcreated\b/i.test(it.subtitle ?? "");
                     const isUpdate = /\updated\b/i.test(it.subtitle ?? "");
-                    let borderClass = isDelete ? "border-redError" : isCreate ? "border-GreenError-dark" : isUpdate ? 'border-primary' : "border-boxBorderColor dark:border-boxBorderColor-dark"
+                    let borderClass = isDelete ? "border-redError" : isCreate ? "border-GreenError" : isUpdate ? 'border-primary' : "border-boxBorderColor dark:border-boxBorderColor-dark"
                     
                     return (
                       <div key={it.id} className="relative">

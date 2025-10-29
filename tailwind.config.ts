@@ -30,7 +30,7 @@ const config: Config = {
           dark: "#ff4d4d",
         },
         GreenError: {
-          DEFAULT: "rgb(27,96,33)", 
+          DEFAULT: "rgb(38,250,175)", 
           dark: "rgb(38,250,175)",
         },
         bgColor: {
