@@ -134,12 +134,12 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 </h6>
                 <div className='grid grid-cols-1 xl:grid-cols-3 md:grid-cols-2 gap-4 mt-4'>
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>نام و نام‌خانوادگی</label>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>نام و نام‌خانوادگی *</label>
                         <Input value={name} onChange={(e) => { Setname(e.target.value) }} placeholder='نام و نام‌خانوادگی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره همراه</label>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>شماره همراه *</label>
                         <Input value={phoneNumber} onChange={(e) => {
                             if (validateNumbers(e.target.value)) {
                                 SetphoneNumber(e.target.value)
@@ -148,7 +148,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                     </div>
 
                     <div>
-                        <label className='text-titleText dark: dark:text-titleText-dark'>کد ملی</label>
+                        <label className='text-titleText dark: dark:text-titleText-dark'>کد ملی *</label>
                         <Input value={nationalCode}
                             onChange={(e) => {
                                 if (validateNumbers(e.target.value)) {

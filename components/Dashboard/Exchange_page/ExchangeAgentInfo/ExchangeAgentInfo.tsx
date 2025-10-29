@@ -367,7 +367,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                         </div>
                         <div className="p-4 grid grid-cols-1 gap-4">
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input
 
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -379,7 +379,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                                 />
                             </div>
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input
 
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -396,7 +396,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                                 />
                             </div>
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input
 
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -442,13 +442,13 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                         </div>
                         <div className="p-4 grid grid-cols-1 gap-4">
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="نام و نام‌خانوادگی" />
                             </div>
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
@@ -459,7 +459,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                                     } placeholder="شماره همراه" />
                             </div>
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {

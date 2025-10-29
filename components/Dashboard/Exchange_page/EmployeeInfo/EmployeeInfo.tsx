@@ -93,6 +93,22 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
             return;
         }
+        if (form.jobPosition === '') {
+            toast.error("سمت را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.startDate === '') {
+            toast.error("تاریخ شروع کار را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.insuranceStartDate === '') {
+            toast.error("تاریخ شروع بیمه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (form.insuranceEndDate === '') {
+            toast.error("تاریخ پایان بیمه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
 
         const toEnglishDigits = (s: string) =>
             s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
@@ -202,6 +218,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
         {
             header: "تاریخ شروع کار",
             cell: (row: Person) => {
+                console.log(row.startDate)
                 return (
                     <span>{toJalaliDate(row.startDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
                 );
@@ -334,22 +351,10 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
             return;
         }
-
-        // اعداد فارسی/عربی → انگلیسی
-        const toEnglishDigits = (s: string) =>
-            s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
-                .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
-
-        // نرمال‌سازی تاریخ ورودی
-        const normalizeDateInput = (input?: string) => {
-            if (!input) return "";
-            return toEnglishDigits(input)
-                .replace(/[\u200c\u200e\u200f\ufeff]/g, "") // حذف ZWNJ/RTL/BOM
-                .replace(/[⁄∕／]/g, "/")                    // اسلش‌های مختلف → /
-                .replace(/\s+/g, "")                        // حذف فاصله
-                .trim();
-        };
-
+        if (form.jobPosition === '') {
+            toast.error("سمت را وارد کنید", { position: "bottom-left" });
+            return;
+        }
         if (form.insuranceStartDate === '') {
             toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
             return;
@@ -520,21 +525,21 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                         </div>
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="نام و نام‌خانوادگی" />
                             </div>
 
                             <div>
-                                <label>سمت</label>
+                                <label>سمت *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.jobPosition} onChange={(e) => setForm({ ...form, jobPosition: e.target.value })} placeholder="سمت" />
                             </div>
 
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
@@ -546,7 +551,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
@@ -558,7 +563,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>تاریخ شروع کار</label>
+                                <label>تاریخ شروع کار *</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.startDate}
@@ -572,7 +577,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>تاریخ شروع بیمه</label>
+                                <label>تاریخ شروع بیمه *</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.insuranceStartDate}
@@ -586,7 +591,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>تاریخ پایان بیمه</label>
+                                <label>تاریخ پایان بیمه *</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.insuranceEndDate}
@@ -657,19 +662,19 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                         {/* فرم اضافه کردن */}
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="نام و نام‌خانوادگی" />
                             </div>
                             <div>
-                                <label>سمت</label>
+                                <label>سمت *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.jobPosition} onChange={(e) => setForm({ ...form, jobPosition: e.target.value })} placeholder="سمت" />
                             </div>
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
@@ -680,7 +685,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                     } placeholder="شماره همراه" />
                             </div>
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
                                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
                                     shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
@@ -691,7 +696,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                     } placeholder="کد ملی" />
                             </div>
                             <div>
-                                <label>تاریخ شروع کار</label>
+                                <label>تاریخ شروع کار *</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.startDate}
@@ -704,7 +709,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 </div>
                             </div>
                             <div>
-                                <label>تاریخ شروع بیمه</label>
+                                <label>تاریخ شروع بیمه *</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.insuranceStartDate}
@@ -717,7 +722,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 </div>
                             </div>
                             <div>
-                                <label>تاریخ پایان بیمه</label>
+                                <label>تاریخ پایان بیمه *</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.insuranceEndDate}

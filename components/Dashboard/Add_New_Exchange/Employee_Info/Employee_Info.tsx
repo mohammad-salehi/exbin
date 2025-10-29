@@ -12,6 +12,8 @@ import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
 import { PostRequest } from "../../../../functions/PostRequest";
 import { toLocalDate } from '../../../../functions/toLocalDate';
+import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
+import { toJalaliDate } from "../../../../functions/toJalaliDate";
 
 type Person = {
     id: string;
@@ -45,9 +47,30 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
         { header: "سمت", accessorKey: "jobPosition", align: "center" },
-        { header: "تاریخ شروع به کار", accessorKey: "startDate", align: "center" },
-        { header: "تاریخ شروع بیمه", accessorKey: "insuranceStartDate", align: "center" },
-        { header: "تاریخ پایان بیمه", accessorKey: "insuranceEndDate", align: "center" },
+        {
+            header: "تاریخ شروع به کار *",
+            cell: (row: Person) => {
+                return (
+                    <span>{toJalaliDate(row.startDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
+                );
+            },
+        },
+        {
+            header: "تاریخ شروع بیمه *",
+            cell: (row: Person) => {
+                return (
+                    <span>{toJalaliDate(row.insuranceStartDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
+                );
+            },
+        },
+        {
+            header: "تاریخ پایان بیمه *",
+            cell: (row: Person) => {
+                return (
+                    <span>{toJalaliDate(row.insuranceEndDate)}</span> // محتوای دیگری که در صورت غیرفعال بودن دسترسی خاص می‌خواهید
+                );
+            },
+        },
         {
             header: "دسترسی خاص",
             cell: (row: Person) => {
@@ -85,73 +108,98 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
     };
     const handleSave = async () => {
         // ✅ یک‌بار ولیدیشن کافی است
-        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
-          toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
-          return;
+        if (!form.name.trim()) {
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
         }
-      
+        if (!form.phoneNumber.trim()) {
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!form.nationalCode.trim()) {
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!form.jobPosition.trim()) {
+            toast.error("سمت شغلی را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!form.startDate.trim()) {
+            toast.error("تاریخ شروع به کار را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!form.insuranceStartDate.trim()) {
+            toast.error("تاریخ شروع بیمه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+        if (!form.insuranceEndDate.trim()) {
+            toast.error("تاریخ پایان بیمه را وارد کنید", { position: "bottom-left" });
+            return;
+        }
+
         try {
-          if (editingId) {
-            // 🟢 ویرایش در استیت محلی
-            SetData(data.map(member => (member.id === editingId ? { ...member, ...form } : member)));
-          } else {
-            // 🟢 افزودن جدید
-            const Member = {
-              id: form.id,
-              name: form.name,
-              jobPosition: form.jobPosition,
-              startDate: toLocalDate(form.startDate),
-              educationalHistory: form.educationalHistory,
-              careerHistory: form.careerHistory,
-              insuranceStartDate: toLocalDate(form.insuranceStartDate),
-              insuranceEndDate: toLocalDate(form.insuranceEndDate),
-              isSpecialAccess: form.isSpecialAccess === true, // boolean خالص
-              nationalCode: form.nationalCode,
-              phoneNumber: form.phoneNumber,
-            };
-      
-            setLoading(true);
-      
-            await PostRequest(
-              `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${ID}/employees`,
-              Member // JSON ارسال می‌شود
-            );
-      
-            toast.success("کارمند سکو باموفقیت افزوده شد.", { position: "bottom-left" });
-      
-            const newMember: Person = { ...form };
-            SetData([...data, newMember]);
-          }
-      
-          // فقط بعد از موفقیت مودال را ببند
-          closeModal();
-          setEditingId(null);
-      
-          // ریست فرم
-          setForm({
-            id: '',
-            name: '',
-            jobPosition: '',
-            startDate: '',
-            educationalHistory: '',
-            careerHistory: '',
-            insuranceStartDate: '',
-            insuranceEndDate: '',
-            isSpecialAccess: null,
-            nationalCode: '',
-            phoneNumber: '',
-          });
+            if (editingId) {
+                // 🟢 ویرایش در استیت محلی
+                SetData(data.map(member => (member.id === editingId ? { ...member, ...form } : member)));
+            } else {
+                // 🟢 افزودن جدید
+                const Member = {
+                    id: form.id,
+                    name: form.name,
+                    jobPosition: form.jobPosition,
+                    startDate: (form.startDate),
+                    educationalHistory: form.educationalHistory,
+                    careerHistory: form.careerHistory,
+                    insuranceStartDate: (form.insuranceStartDate),
+                    insuranceEndDate: (form.insuranceEndDate),
+                    isSpecialAccess: form.isSpecialAccess === true, // boolean خالص
+                    nationalCode: form.nationalCode,
+                    phoneNumber: form.phoneNumber,
+                };
+                console.log(Member)
+                setLoading(true);
+
+                await PostRequest(
+                    `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${ID}/employees`,
+                    Member // JSON ارسال می‌شود
+                );
+
+                toast.success("کارمند سکو باموفقیت افزوده شد.", { position: "bottom-left" });
+
+                const newMember: Person = { ...form };
+                SetData([...data, newMember]);
+            }
+
+            // فقط بعد از موفقیت مودال را ببند
+            closeModal();
+            setEditingId(null);
+
+            // ریست فرم
+            setForm({
+                id: '',
+                name: '',
+                jobPosition: '',
+                startDate: '',
+                educationalHistory: '',
+                careerHistory: '',
+                insuranceStartDate: '',
+                insuranceEndDate: '',
+                isSpecialAccess: null,
+                nationalCode: '',
+                phoneNumber: '',
+            });
         } catch (e: any) {
-          toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
+            toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
     const nextStep = async () => {
         window.location.assign(`/panel/exchange/${ID}`)
     }
 
+    const [open, setOpen] = useState(false);
     return (
         <div className="mt-4">
             {/* تیتر و دکمه */}
@@ -197,7 +245,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 <div className="flex justify-between items-center w-full">
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
                     <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
-                    <button
+                        <button
                             className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
                             onClick={() => { nextStep() }}
                         >
@@ -213,7 +261,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
                     <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <Modal.Title className="text-lg font-bold">
+                            <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                                 {editingId ? "ویرایش کارمند" : "افزودن کارمند جدید"}
                             </Modal.Title>
                         </div>
@@ -221,7 +269,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* نام */}
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input
                                     className="p-0 pr-2 mt-2 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.name}
@@ -234,7 +282,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* شماره همراه */}
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input
                                     className="p-0 pr-2 mt-2 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.phoneNumber}
@@ -249,7 +297,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* کد ملی */}
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input
                                     className="p-0 pr-2 mt-2 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.nationalCode}
@@ -264,7 +312,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* سمت */}
                             <div>
-                                <label>سمت</label>
+                                <label>سمت *</label>
                                 <Input
                                     className="p-0 pr-2 mt-2 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     value={form.jobPosition}
@@ -298,175 +346,50 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                             {/* تاریخ شروع به کار */}
                             <div>
                                 <label>تاریخ شروع به کار</label>
-                                <DatePicker
-                                    value={form.startDate}
-                                    onChange={(date) => handleChange("startDate", date ? date.format("YYYY/MM/DD") : "")}
-                                    calendar={persian}
-                                    locale={persian_fa}
-                                    calendarPosition="bottom-right"
-                                    containerClassName="w-full"
-                                    render={(val, openCalendar) => (
-                                        <div className="relative flex items-center w-full mt-2 text-titleText dark:text-titleText-dark">
-                                            <Input
-                                                readOnly
-                                                value={val}
-                                                onClick={openCalendar}
-                                                placeholder="انتخاب تاریخ"
-                                                className="w-full pr-10 pl-10 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                            />
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="24"
-                                                height="25"
-                                                viewBox="0 0 24 25"
-                                                fill="none"
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                                            >
-                                                <path
-                                                    d="M19.125 10.4742H4.875M8.71154 7.73381V5.5415M15.2885 7.73381L15.2885 5.5415M4.875 8.82997L4.875 17.5992C4.875 18.81 5.85653 19.7915 7.06731 19.7915L16.9327 19.7915C18.1435 19.7915 19.125 18.81 19.125 17.5992V8.82999C19.125 7.61921 18.1435 6.63768 16.9327 6.63768L7.06731 6.63766C5.85653 6.63766 4.875 7.61919 4.875 8.82997Z"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
-                                            <svg
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleChange("startDate", "");
-                                                }}
-                                                className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:dark:text-gray-300 transition"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <path
-                                                    d="M6 6L18 18M6 18L18 6"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                />
-                                            </svg>
-                                        </div>
-                                    )}
-                                />
+                                <div className="mt-2">
+                                    <JalaliLocalDatePicker
+                                        value={form.startDate}
+                                        onChange={(val) => setForm(p => ({ ...p, startDate: val !== null ? val : '' }))}
+                                        placeholder=""
+                                        clearable
+                                        min="1900-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
+
                             </div>
 
                             {/* تاریخ شروع بیمه */}
                             <div>
                                 <label>تاریخ شروع بیمه</label>
-                                <DatePicker
-                                    value={form.insuranceStartDate}
-                                    onChange={(date) => handleChange("insuranceStartDate", date ? date.format("YYYY/MM/DD") : "")}
-                                    calendar={persian}
-                                    locale={persian_fa}
-                                    calendarPosition="bottom-right"
-                                    containerClassName="w-full"
-                                    render={(val, openCalendar) => (
-                                        <div className="relative flex items-center w-full mt-2 text-titleText dark:text-titleText-dark">
-                                            <Input
-                                                readOnly
-                                                value={val}
-                                                onClick={openCalendar}
-                                                placeholder="انتخاب تاریخ"
-                                                className="w-full pr-10 pl-10 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                            />
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="24"
-                                                height="25"
-                                                viewBox="0 0 24 25"
-                                                fill="none"
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                                            >
-                                                <path
-                                                    d="M19.125 10.4742H4.875M8.71154 7.73381V5.5415M15.2885 7.73381L15.2885 5.5415M4.875 8.82997L4.875 17.5992C4.875 18.81 5.85653 19.7915 7.06731 19.7915L16.9327 19.7915C18.1435 19.7915 19.125 18.81 19.125 17.5992V8.82999C19.125 7.61921 18.1435 6.63768 16.9327 6.63768L7.06731 6.63766C5.85653 6.63766 4.875 7.61919 4.875 8.82997Z"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
-                                            <svg
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleChange("insuranceStartDate", "");
-                                                }}
-                                                className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:dark:text-gray-300 transition"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <path
-                                                    d="M6 6L18 18M6 18L18 6"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                />
-                                            </svg>
-                                        </div>
-                                    )}
-                                />
+                                <div className="mt-2">
+                                    <JalaliLocalDatePicker
+                                        value={form.insuranceStartDate}
+                                        onChange={(val) => {
+                                            setForm(p => ({ ...p, insuranceStartDate: val !== null ? val : '' }))
+                                            console.log(val)
+                                        }}
+                                        placeholder=""
+                                        clearable
+                                        min="1900-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
                             </div>
 
                             {/* تاریخ پایان بیمه */}
                             <div>
                                 <label>تاریخ پایان بیمه</label>
-                                <DatePicker
-                                    value={form.insuranceEndDate}
-                                    onChange={(date) => handleChange("insuranceEndDate", date ? date.format("YYYY/MM/DD") : "")}
-                                    calendar={persian}
-                                    locale={persian_fa}
-                                    calendarPosition="bottom-right"
-                                    containerClassName="w-full"
-                                    render={(val, openCalendar) => (
-                                        <div className="relative flex items-center w-full mt-2 text-titleText dark:text-titleText-dark">
-                                            <Input
-                                                readOnly
-                                                value={val}
-                                                onClick={openCalendar}
-                                                placeholder="انتخاب تاریخ"
-                                                className="w-full pr-10 pl-10 flex-shrink-0 rounded-md bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                            />
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                width="24"
-                                                height="25"
-                                                viewBox="0 0 24 25"
-                                                fill="none"
-                                                className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"
-                                            >
-                                                <path
-                                                    d="M19.125 10.4742H4.875M8.71154 7.73381V5.5415M15.2885 7.73381L15.2885 5.5415M4.875 8.82997L4.875 17.5992C4.875 18.81 5.85653 19.7915 7.06731 19.7915L16.9327 19.7915C18.1435 19.7915 19.125 18.81 19.125 17.5992V8.82999C19.125 7.61921 18.1435 6.63768 16.9327 6.63768L7.06731 6.63766C5.85653 6.63766 4.875 7.61919 4.875 8.82997Z"
-                                                    stroke="currentColor"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
-                                            <svg
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleChange("insuranceEndDate", "");
-                                                }}
-                                                className="cursor-pointer absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:dark:text-gray-300 transition"
-                                                width="20"
-                                                height="20"
-                                                viewBox="0 0 24 24"
-                                                fill="none"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                            >
-                                                <path
-                                                    d="M6 6L18 18M6 18L18 6"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                />
-                                            </svg>
-                                        </div>
-                                    )}
-                                />
+                                <div className="mt-2">
+                                    <JalaliLocalDatePicker
+                                        value={form.insuranceEndDate}
+                                        onChange={(val) => setForm(p => ({ ...p, insuranceEndDate: val !== null ? val : '' }))}
+                                        placeholder=""
+                                        clearable
+                                        min="1900-01-01"
+                                        max="2030-12-31"
+                                    />
+                                </div>
                             </div>
 
                             {/* دسترسی خاص */}

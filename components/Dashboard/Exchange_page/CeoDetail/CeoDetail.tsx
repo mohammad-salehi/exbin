@@ -81,9 +81,11 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                 toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
                 return;
             }
-            if (!validateEmail(form.email) && form.email !== '') {
-                toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-                return;
+            if (form.email !== '' && form.email !== null) {
+                if (!validateEmail(form.email)) {
+                    toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+                    return;
+                }
             }
 
             const updatedForm = {
@@ -285,7 +287,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                         </div>
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input
 
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -297,7 +299,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                                 />
                             </div>
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input
 
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -313,7 +315,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                                 />
                             </div>
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input
 
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
@@ -377,7 +379,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                             <div>
                                 <label>ایمیل</label>
                                 <Input
-
+ style={{direction:'ltr'}}
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"

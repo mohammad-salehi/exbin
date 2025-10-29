@@ -57,8 +57,8 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
     };
 
     const handleSave = async () => {
-        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
-            toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
+        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim() || !form.role.trim()) {
+            toast.error("نام، شماره همراه ، کد ملی و نقش الزامی هستند", { position: "bottom-left" });
             return;
         }
 
@@ -181,18 +181,18 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
                     <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <Modal.Title className="text-lg font-bold">
+                            <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                                 {editingId ? "ویرایش عضو" : "افزودن عضو جدید"}
                             </Modal.Title>
                         </div>
 
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => handleChange("name", e.target.value)} placeholder='نام و نام‌خانوادگی' />
                             </div>
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
                                     if (validateNumbers(e.target.value)) {
                                         handleChange("phoneNumber", e.target.value)
@@ -200,7 +200,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                 }} placeholder='شماره همراه' />
                             </div>
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
                                     if (validateNumbers(e.target.value)) {
                                         handleChange("nationalCode", e.target.value)
@@ -208,7 +208,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                 }} placeholder='کد ملی' />
                             </div>
                             <div>
-                                <label>نقش</label>
+                                <label>نقش *</label>
                                 <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.role} onChange={(e) => handleChange("role", e.target.value)} placeholder='نقش' />
                             </div>
                             <div>

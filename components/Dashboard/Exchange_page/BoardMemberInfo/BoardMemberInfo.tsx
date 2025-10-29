@@ -92,11 +92,16 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
             toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (!validateEmail(form.email) && form.email !== '') {
-            toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+        if (form.role === '') {
+            toast.error("نقش را وارد کنید", { position: "bottom-left" });
             return;
         }
-
+        if (form.email !== '' && form.email !== null) {
+            if (!validateEmail(form.email)) {
+                toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+                return;
+            }
+        }
         let memberInfo = {
             name: form.name !== null ? form.name : "",
             phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
@@ -369,8 +374,6 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 // setLoading(false)
                 return toast.error(`خطا در حذف عضو هیئت‌مدیره`);
             } else {
-                const responseData = await response.json();
-                console.log(responseData);
                 toast.success("عضو هیئت‌مدیره با موفقیت حذف شد.", { position: "bottom-left" });
                 setData((prevData) => prevData.filter(person => person.id !== row.id));
                 SetdeleteLoading(false)
@@ -425,7 +428,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                         </div>
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
@@ -437,7 +440,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
@@ -453,7 +456,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
@@ -470,7 +473,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>نقش</label>
+                                <label>نقش *</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
@@ -526,6 +529,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             <div>
                                 <label>ایمیل</label>
                                 <Input
+                                 style={{direction:'ltr'}}
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
@@ -564,13 +568,13 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                         </div>
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label>نام و نام‌خانوادگی</label>
+                                <label>نام و نام‌خانوادگی *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="نام و نام‌خانوادگی" />
                             </div>
                             <div>
-                                <label>شماره همراه</label>
+                                <label>شماره همراه *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.phoneNumber} onChange={(e) => {
@@ -581,7 +585,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                                     } placeholder="شماره همراه" />
                             </div>
                             <div>
-                                <label>کد ملی</label>
+                                <label>کد ملی *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.nationalCode} onChange={(e) => {
@@ -592,7 +596,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                                     } placeholder="کد ملی" />
                             </div>
                             <div>
-                                <label>نقش</label>
+                                <label>نقش *</label>
                                 <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="نقش" />
@@ -626,7 +630,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             </div>
                             <div>
                                 <label>ایمیل</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input  style={{direction:'ltr'}} className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="ایمیل" />
                             </div>
