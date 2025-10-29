@@ -73,7 +73,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             email
         };
 
-        GetRequest(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}`)
+        GetRequest(process.env.NEXT_PUBLIC_API_URL  + `/api/exchanges/${ID}`)
             .then(async (response) => {
                 const managerInfo = response.result
                 managerInfo.managerInfo = data
@@ -91,7 +91,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                     // ارسال درخواست به API
                     setLoading(true)
-                    const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}`, {
+                    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${ID}`, {
                         method: 'PUT',
                         headers: {
                             'Authorization': `Bearer ${token}`,

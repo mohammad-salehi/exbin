@@ -95,7 +95,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
             // ارسال درخواست به API
             setLoading(true)
-            const response = await fetch(`https://sand-em-api.bahfara.ir/api/exchanges/${ID}/board-members`, {
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${ID}/board-members`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
