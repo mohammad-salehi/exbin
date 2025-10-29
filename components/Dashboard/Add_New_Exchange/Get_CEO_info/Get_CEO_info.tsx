@@ -21,7 +21,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
     const [nationalCode, SetnationalCode] = useState<string>("");
     const [educationalHistory, SeteducationalHistory] = useState<string>("");
     const [careerHistory, SetcareerHistory] = useState<string>("")
-    const [sharePercentage, SetsharePercentage] = useState<string | null>(null)
+    const [sharePercentage, SetsharePercentage] = useState<string | null>("")
     const [email, Setemail] = useState<string>("")
 
     const [Loading, setLoading] = useState<boolean>(false);
