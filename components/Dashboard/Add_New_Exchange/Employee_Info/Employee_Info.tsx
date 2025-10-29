@@ -345,7 +345,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* تاریخ شروع به کار */}
                             <div>
-                                <label>تاریخ شروع به کار</label>
+                                <label>تاریخ شروع به کار *</label>
                                 <div className="mt-2">
                                     <JalaliLocalDatePicker
                                         value={form.startDate}
@@ -361,7 +361,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* تاریخ شروع بیمه */}
                             <div>
-                                <label>تاریخ شروع بیمه</label>
+                                <label>تاریخ شروع بیمه *</label>
                                 <div className="mt-2">
                                     <JalaliLocalDatePicker
                                         value={form.insuranceStartDate}
@@ -379,7 +379,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* تاریخ پایان بیمه */}
                             <div>
-                                <label>تاریخ پایان بیمه</label>
+                                <label>تاریخ پایان بیمه *</label>
                                 <div className="mt-2">
                                     <JalaliLocalDatePicker
                                         value={form.insuranceEndDate}
