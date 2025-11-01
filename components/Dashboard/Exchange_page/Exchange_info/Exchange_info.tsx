@@ -22,7 +22,6 @@ import {
   validateEmail,
 } from "../../../../functions/Validations";
 import { validateNumbers } from "../../../../functions/Validations";
-import { dateValidation } from "../../../../functions/Validations";
 import { LogViewer } from "../../../../functions/changesHandler";
 import LoadingComponent from "../../../LoadingComponent/LoadingComponent";
 import Pagination from "../../../Pagination/Pagination";
@@ -57,7 +56,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const [AddFileModal, SetAddFileModal] = useState<boolean>(false);
   const [type, Settype] = useState<string>("");
   const [FinancialName, SetFinancialName] = useState<number>(0);
-  const [composing, setComposing] = useState(false);
   const [Loading, setLoading] = useState<boolean>(false);
   const [form, setForm] = useState({
     legalName: "",
@@ -958,30 +956,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         return toast.error(`خطا در ذخیره اطلاعات سکو`);
       });
   };
-  function handleEstablishmentDateChange(
-    e: React.ChangeEvent<HTMLInputElement>
-  ) {
-    const value = e.target.value;
-    const prev = form.establishmentDate ?? "";
-    const inputType = (e.nativeEvent as InputEvent | undefined)?.inputType;
-    if (value === "") {
-      setForm((p) => ({ ...p, establishmentDate: "" }));
-      return;
-    }
-    const isDeleting =
-      inputType?.startsWith("delete") || value.length < prev.length;
-    if (isDeleting) {
-      setForm((p) => ({ ...p, establishmentDate: value }));
-      return;
-    }
-    if (composing) {
-      setForm((p) => ({ ...p, establishmentDate: value }));
-      return;
-    }
-    if (dateValidation(value)) {
-      setForm((p) => ({ ...p, establishmentDate: value }));
-    }
-  }
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] || null;
     setFile(f);
@@ -1103,7 +1077,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       <Modal open={isOpen} onClose={() => setIsOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-          <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
+          <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[100px] text-titleText dark:text-titleText-dark">
             <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                 ویرایش مشخصات سکو {"نوبیتکس"}

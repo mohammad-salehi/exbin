@@ -201,9 +201,9 @@ const Page = () => {
         }
         <div>
           <ExpandableTable<Person>
-            data={filteredData.slice((First * 10), (First * 10) + 10)}          // ← فقط دیتای فیلترشده را بده
+            data={filteredData.slice((First * 10), (First * 10) + 10)}
             columns={columns}
-            defaultExpandedIds={[]}      // همه بسته شروع شوند
+            defaultExpandedIds={[]}
             rowDetails={(row) => (
               <div
                 className="
