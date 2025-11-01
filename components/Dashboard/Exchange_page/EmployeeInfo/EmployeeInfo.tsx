@@ -606,16 +606,18 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
                             <div>
                                 <label>سوابق تحصیلی</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.educationalHistory} onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })} placeholder="سوابق تحصیلی" />
+                                <textarea
+                                    className="w-full mt-2 pr-2 pt-2 focus:outline-none rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                    value={form.educationalHistory} onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })} placeholder="سوابق تحصیلی"
+                                />
                             </div>
 
                             <div>
                                 <label>سوابق شغلی</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.careerHistory} onChange={(e) => setForm({ ...form, careerHistory: e.target.value })} placeholder="سوابق شغلی" />
+                                <textarea
+                                    className="w-full mt-2 pr-2 pt-2 focus:outline-none rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                    value={form.careerHistory} onChange={(e) => setForm({ ...form, careerHistory: e.target.value })} placeholder="سوابق شغلی"
+                                />
                             </div>
 
                             <div className="flex items-center gap-2 mt-6">
@@ -736,15 +738,17 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
                             <div>
                                 <label>سوابق تحصیلی</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.educationalHistory} onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })} placeholder="سوابق تحصیلی" />
+                                <textarea
+                                    className="w-full mt-2 pr-2 pt-2 focus:outline-none rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                    value={form.educationalHistory} onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })} placeholder="سوابق تحصیلی"
+                                />
                             </div>
                             <div>
                                 <label>سوابق شغلی</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.careerHistory} onChange={(e) => setForm({ ...form, careerHistory: e.target.value })} placeholder="سوابق شغلی" />
+                                <textarea
+                                    className="w-full mt-2 pr-2 pt-2 focus:outline-none rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                    value={form.careerHistory} onChange={(e) => setForm({ ...form, careerHistory: e.target.value })} placeholder="سوابق شغلی"
+                                />
                             </div>
 
                             <div className="flex items-center gap-2 mt-6">

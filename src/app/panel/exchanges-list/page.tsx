@@ -8,8 +8,7 @@ import { GetRequest } from "../../../../functions/GetRequest";
 import Pagination from "../../../../components/Pagination/Pagination";
 import toast from "react-hot-toast";
 import AnimatedText from "../../../../components/AnimatedLoading/AnimatedLoading";
-import { Modal, Button, Input } from "@heathmont/moon-core-tw";
-import { LoaderCircle } from "../../../../components/Loader/Loader";
+import { Modal } from "@heathmont/moon-core-tw";
 
 type Person = {
   id: string;
@@ -113,7 +112,8 @@ const Page = () => {
     },
     { header: "نام حقوقی", accessorKey: "legalName", className: "tabular-nums" },
     { header: "شماره ثبت", accessorKey: "registrationNumber", className: "tabular-nums" },
-    { header: "وبسایت", accessorKey: "siteAddress",
+    {
+      header: "وبسایت", accessorKey: "siteAddress",
       cell: (row: Person) => (
         <div>
           <Link href={`${row.siteAddress}`}>
@@ -121,7 +121,8 @@ const Page = () => {
           </Link>
         </div>
       ),
-       className: "tabular-nums" },
+      className: "tabular-nums"
+    },
     {
       header: "عملیات",
       accessorKey: "progress",
@@ -156,16 +157,16 @@ const Page = () => {
       .then((response) => {
 
         const people: Person[] = response.result.content.map((item: Company) => ({
-          id: String(item.id),                     
+          id: String(item.id),
           name: item.name,
           logo: item.logo,
           legalName: item.legalName,
           registrationNumber: item.registrationNumber,
           siteAddress: item.siteAddress,
         }));
-        
+
         people.sort((a, b) => Number(b.id) - Number(a.id));
-        
+
         Setdata(people);
         SetLoading(false)
 
@@ -255,76 +256,79 @@ const Page = () => {
         </div>
       </div>
 
+      {/* -------- مودال تأیید حذف -------- */}
       <Modal open={isOpen} onClose={() => { SetisOpen(false) }}>
-        <Modal.Backdrop />
-        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-          <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
-            <h6>
+        {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
+        <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
+
+        {/* کانتینر مرکزی پنل، بالاتر از بک‌دراپ */}
+        <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
+          <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
+            <h3 className="text-lg font-semibold mb-3 text-center">
+              حذف سکو
+            </h3>
+            <p className="text-sm mb-6 text-center leading-relaxed mt-3">
               آیا از حذف سکو {Deletedata?.name} مطمئن هستید؟
-            </h6>
-            <div className="p-4  flex justify-end gap-2 mt-8">
+            </p>
+
+            <div className="flex justify-center gap-4 w-full">
 
               <button
-                className="ml-4"
                 onClick={async () => {
                   try {
                     const token = document.cookie
-                    .split('; ')
-                    .find(Deletedata => Deletedata.startsWith('token='))
-                    ?.split('=')[1];
-                  if (Deletedata !== undefined) {
-                    SetDeleteLoading(true)
-                    const response = await fetch(process.env.NEXT_PUBLIC_API_URL  + `/api/exchanges/${Deletedata.id}`, {
-                      method: 'DELETE',
-                      headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
+                      .split('; ')
+                      .find(Deletedata => Deletedata.startsWith('token='))
+                      ?.split('=')[1];
+                    if (Deletedata !== undefined) {
+                      SetDeleteLoading(true)
+                      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${Deletedata.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                          'Authorization': `Bearer ${token}`,
+                          'Content-Type': 'application/json',
+                        }
+                      });
+                      if (!response.ok) {
+                        SetDeleteLoading(false)
+                        toast.error("خطا در حذف سکو.", { position: "bottom-left" });
+                        if (response.status === 403) {
+                          document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                          window.location.assign('/')
+                        }
+                        throw new Error('Failed to fetch data');
+                      } else {
+                        if (response.status === 200) {
+                          SetDeleteLoading(false)
+                          toast.success("سکو با موفقیت حذف شد.", { position: "bottom-left" });
+                          window.location.reload();
+                        }
                       }
-                    });
-                    if (!response.ok) {
+                    } else {
                       SetDeleteLoading(false)
                       toast.error("خطا در حذف سکو.", { position: "bottom-left" });
-                      if (response.status === 403) {
-                        document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-                        window.location.assign('/')
-                      }
-                      throw new Error('Failed to fetch data');
-                    } else {
-                      if (response.status === 200) {
-                        SetDeleteLoading(false)
-                        toast.success("سکو با موفقیت حذف شد.", { position: "bottom-left" });
-                        window.location.reload();
-                      }
                     }
-                  } else {
-                    SetDeleteLoading(false)
-                    toast.error("خطا در حذف سکو.", { position: "bottom-left" });
-                  }
                   } catch (error) {
                     SetDeleteLoading(false)
                     toast.error("خطا در حذف سکو.", { position: "bottom-left" });
                   }
-                  
+
 
                 }}
+                className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
               >
-                {DeleteLoading ?
-                  <div>
-                    <LoaderCircle size={8} color="border-white-500" />
-                  </div>
-                  :
-                  "حذف"
+                {
+                  DeleteLoading ?
+                    'درحال حذف...'
+                    :
+                    'حذف'
                 }
-              </button>
-              <button onClick={() => { SetisOpen(false) }}>
-                بازگشت
+
               </button>
             </div>
-
           </Modal.Panel>
         </div>
       </Modal>
-
     </div>
   );
 };
