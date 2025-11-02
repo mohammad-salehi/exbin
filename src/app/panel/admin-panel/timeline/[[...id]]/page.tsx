@@ -6,10 +6,17 @@ import JalaliLocalDatePicker from "../../../../../../components/DatePicker/Jalal
 
 export type TimelineItem = {
   id: string | number;
-  date: string; // YYYY-MM-DD
-  time: string; // HH:mm
-  subtitle?: string; // explain
+  date: string;      // YYYY-MM-DD
+  time: string;      // HH:mm
+  subtitle?: string; // توضیح
+  exchange?: string; // نام صرافی
+  username?: string; // ⬅️ نام کاربری عامل تغییر
 };
+import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Dropdown, MenuItem } from "@heathmont/moon-core-tw";
+import { Button } from "@heathmont/moon-base-tw";
+import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -91,8 +98,10 @@ const PrimaryButton: React.FC<
 // ==========================
 type ApiActivity = {
   id: number;
-  timestamp: string; // "2025-10-26T09:58:37.214298"
-  explain: string | null; // توضیح
+  timestamp: string;
+  explain: string | null;
+  exchange?: string | null;
+  username?: string | null; // ⬅️ اضافه شد
 };
 
 function mapApiToItems(list: ApiActivity[]): TimelineItem[] {
@@ -104,6 +113,8 @@ function mapApiToItems(list: ApiActivity[]): TimelineItem[] {
       date: datePart,
       time: timePart,
       subtitle: a.explain || "",
+      exchange: a.exchange || "",
+      username: a.username || "", // ⬅️ اینجا
     };
   });
 }
@@ -112,19 +123,18 @@ function mapApiToItems(list: ApiActivity[]): TimelineItem[] {
 // Page Component (Client Page but with correct signature)
 // ==========================
 type PageProps = {
-  params: { id: string }; // از مسیر /panel/admin-panel/timeline/[id]
-  searchParams?: { [key: string]: string | string[] | undefined };
+  params?: { id?: string | string[] };  // ← اختیاری و سازگار با catch-all
+  searchParams?: Record<string, string | string[] | undefined>;
 };
 
-export default function TimelinePage({ params, searchParams }: any) {
-  // username از پارامتر مسیر
-  const username = params?.id || "";
+export default function TimelinePage({ params }) {
+  const searchParams = useSearchParams();
+  // اگر catch-all استفاده کرده‌ای، ممکنه آرایه باشه
+  const routeId = Array.isArray(params.id) ? params.id[0] : params.id;
+  const username = (routeId ?? "").trim(); // "" یعنی بدون فیلتر کاربر
 
   // اگر بخوای از query string اندازه صفحه بیاد:
-  const pageSize =
-    typeof searchParams?.pageSize === "string"
-      ? Number(searchParams!.pageSize) || DEFAULT_PAGE_SIZE
-      : DEFAULT_PAGE_SIZE;
+  const pageSize = Number(searchParams.get("pageSize")) || DEFAULT_PAGE_SIZE;
 
   // pagination & data
   const [page, setPage] = useState(0);
@@ -152,9 +162,8 @@ export default function TimelinePage({ params, searchParams }: any) {
 
     try {
       const token = getCookie("token");
-
       const qs = new URLSearchParams();
-      if (username) qs.set("username", username);
+      if (username) qs.set("username", username); // ← فقط وقتی مقدار دارد
       qs.set("page", String(nextPage));
       qs.set("size", String(pageSize));
       qs.set("sort", "timestamp,DESC");
@@ -214,12 +223,60 @@ export default function TimelinePage({ params, searchParams }: any) {
     return `${String(newH).padStart(2, "0")}:${String(newM).padStart(2, "0")}`;
   }
 
+  const router = useRouter();
+
+  // لیست کاربران
+  type User = { id: number; firstName?: string; lastName?: string; username: string; role?: string };
+  const [users, setUsers] = useState<User[]>([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [usersError, setUsersError] = useState<string | null>(null);
+
+  // مقدار انتخاب‌شدهٔ کاربر در UI
+  const [selectedUser, setSelectedUser] = useState<string>(""); // "" = همه
+
+  useEffect(() => {
+    // اگر روی صفحهٔ یک کاربر خاص هستیم، مقدار اولیهٔ dropdown را همان بگذار
+    setSelectedUser(username || "");
+  }, [username]);
+
+  useEffect(() => {
+    let abort = false;
+    const fetchUsers = async () => {
+      try {
+        setUsersLoading(true);
+        setUsersError(null);
+        const token = getCookie("token");
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/api/users`;
+        const res = await fetch(url, {
+          headers: {
+            accept: "*/*",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const json = await res.json();
+
+        // بعضی APIها مستقیم آرایه می‌دهند، بعضی داخل result:
+        const list: User[] = Array.isArray(json) ? json : (json?.result ?? []);
+        if (!abort) setUsers(list || []);
+      } catch (e: any) {
+        if (!abort) setUsersError(e?.message || "خطا در دریافت کاربران");
+      } finally {
+        if (!abort) setUsersLoading(false);
+      }
+    };
+    fetchUsers();
+    return () => { abort = true; };
+  }, []);
+
+
   return (
     <div dir="rtl" className="min-h-screen w-full text-gray-900">
       <div className="mx-auto max-w-5xl px-6 py-8">
         <div className="mb-6 flex items-center justify-between gap-3">
           <h1 className="text-2xl font-bold text-titleText dark:text-titleText-dark">
-            خط زمانی کاربر {username}
+            {username ? `خط زمانی کاربر ${username}` : "خط زمانی همه کاربران"}
           </h1>
         </div>
 
@@ -247,6 +304,82 @@ export default function TimelinePage({ params, searchParams }: any) {
               min="2000-01-01"
               max="2030-12-31"
             />
+          </div>
+
+          <div className="flex flex-col gap-1 text-sm text-titleText dark:text-titleText-dark">
+            کاربر
+            <div className="relative w-full">
+              <Dropdown
+                value={selectedUser} // "" = همه
+                onChange={(v: unknown) => {
+                  const val = (v as string) ?? "";
+                  setSelectedUser(val);
+
+                  // هدایت به مسیر مناسب
+                  if (!val) {
+                    // همه کاربران
+                    router.push("/panel/admin-panel/timeline");
+                  } else {
+                    router.push(`/panel/admin-panel/timeline/${encodeURIComponent(val)}`);
+                  }
+                }}
+              >
+                <Dropdown.Trigger className="w-full">
+                  <Button
+                    as="span"
+                    role="button"
+                    variant="ghost"
+                    className="flex items-center justify-between w-full pl-10 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
+            border border-gray-300 rounded-lg dark:border-buttonBorderColor-dark focus:outline-none appearance-none relative"
+                  >
+                    <span>
+                      {usersLoading
+                        ? "در حال بارگذاری..."
+                        : selectedUser
+                          ? (users.find(u => u.username === selectedUser)?.username ?? selectedUser)
+                          : "همه کاربران"}
+                    </span>
+                  </Button>
+                </Dropdown.Trigger>
+
+                <Dropdown.Options
+                  className="absolute left-0 mt-2 w-72 pl-2 pr-2 text-gray-700 bg-white dark:bg-buttonColor-dark
+          border border-gray-300 dark:border-buttonBorderColor-dark rounded-lg dark:text-gray-100 appearance-none z-50
+          max-h-60 overflow-y-auto"
+                >
+                  {/* گزینهٔ «همه کاربران» */}
+                  <Dropdown.Option value="">
+                    {({ selected, active }) => (
+                      <MenuItem isActive={active} isSelected={selected}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${selected ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}>
+                        <MenuItem.Title>همه کاربران</MenuItem.Title>
+                      </MenuItem>
+                    )}
+                  </Dropdown.Option>
+
+                  {/* کاربران از API */}
+                  {users.map((u) => {
+                    const label = u.username; // اگر خواستی: `${u.firstName ?? ""} ${u.lastName ?? ""} (${u.username})`
+                    return (
+                      <Dropdown.Option value={u.username} key={u.id}>
+                        {({ selected, active }) => (
+                          <MenuItem isActive={active} isSelected={selected}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${selected ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}>
+                            <MenuItem.Title>{label}</MenuItem.Title>
+                          </MenuItem>
+                        )}
+                      </Dropdown.Option>
+                    );
+                  })}
+                </Dropdown.Options>
+              </Dropdown>
+
+              <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+            </div>
+
+            {usersError && (
+              <span className="text-xs text-red-600 mt-1">{usersError}</span>
+            )}
           </div>
 
           <div className="flex items-end">
@@ -287,8 +420,8 @@ export default function TimelinePage({ params, searchParams }: any) {
                     const isCreate = /\bcreated\b/i.test(it.subtitle ?? "");
                     const isAdd = /\added\b/i.test(it.subtitle ?? "");
                     const isUpdate = /\updated\b/i.test(it.subtitle ?? "");
-                    let borderClass = isDelete ? "border-redError" : isCreate ? "border-green-500": isAdd ? "border-green-500" : isUpdate ? 'border-primary' : "border-boxBorderColor dark:border-boxBorderColor-dark"
-                    
+                    let borderClass = isDelete ? "border-redError" : isCreate ? "border-green-500" : isAdd ? "border-green-500" : isUpdate ? 'border-primary' : "border-boxBorderColor dark:border-boxBorderColor-dark"
+
                     return (
                       <div key={it.id} className="relative">
                         {/* نقطه روی خط */}
@@ -309,6 +442,20 @@ export default function TimelinePage({ params, searchParams }: any) {
                                 </TileHeader>
                                 <div className="mx-4 mb-2 h-px bg-boxBorderColor dark:bg-boxBorderColor-dark" />
                                 <TileBody>
+                                  <p className="mb-1">
+                                    <span className="inline-block">کاربر:</span>
+                                    <span className="inline-block mr-2">
+                                      {it.username && it.username.trim() !== "" ? persianDigits(it.username) : "—"}
+                                    </span>
+                                  </p>
+
+                                  <p className="mb-1">
+                                    <span className="inline-block">صرافی:</span>
+                                    <span className="inline-block mr-2">
+                                      {it.exchange && it.exchange.trim() !== "" ? it.exchange : "—"}
+                                    </span>
+                                  </p>
+
                                   {it.subtitle && <div className="mt-2 text-sm">{it.subtitle}</div>}
                                 </TileBody>
                               </Tile>
@@ -331,6 +478,20 @@ export default function TimelinePage({ params, searchParams }: any) {
                                 </TileHeader>
                                 <div className="mx-4 mb-2 h-px bg-boxBorderColor dark:bg-boxBorderColor-dark" />
                                 <TileBody>
+                                  <p className="mb-1">
+                                    <span className="inline-block">کاربر:</span>
+                                    <span className="inline-block mr-2">
+                                      {it.username && it.username.trim() !== "" ? persianDigits(it.username) : "—"}
+                                    </span>
+                                  </p>
+
+                                  <p className="mb-1">
+                                    <span className="inline-block">صرافی:</span>
+                                    <span className="inline-block mr-2">
+                                      {it.exchange && it.exchange.trim() !== "" ? it.exchange : "—"}
+                                    </span>
+                                  </p>
+
                                   {it.subtitle && <div className="mt-2 text-sm">{it.subtitle}</div>}
                                 </TileBody>
                               </Tile>
