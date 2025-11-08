@@ -29,7 +29,7 @@ import { toJalaliDate } from "../../../../functions/toJalaliDate";
 import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
 import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
 import PersianYearSelect from "../../../YearSelection/YearSelection";
-
+import { BoardmemderRoleTypes } from "../../../../functions/BoardmemberRoleTypes";
 type AnyObj = Record<string, any>;
 
 interface InvoiceContent {
@@ -100,7 +100,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       ["شماره ثبت", data.registrationNumber],
       ["شناسه ملی", data.nationalCode],
       ["کد اقتصادی", data.financialCode],
-      ["تاریخ تأسیس", data.establishmentDate],
+      ["تاریخ تأسیس", data.establishmentDate ? toJalaliDate( data.establishmentDate) : ''],
       ["تلفن", data.phoneNumber],
       ["تلفن اضطراری", data.emergencyPhoneNumber],
       ["ایمیل", data.email],
@@ -138,7 +138,16 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         { header: "ایمیل", key: "email", width: 30 },
         { header: "نقش", key: "role", width: 20 },
       ];
-      data.boardMemberInfo.forEach((m: AnyObj) => ws.addRow(m));
+    
+      data.boardMemberInfo.forEach((m: AnyObj) => {
+        const matchedRole =
+          BoardmemderRoleTypes.find((r) => r.value === m.role)?.label || "-";
+    
+        ws.addRow({
+          ...m,
+          role: matchedRole,
+        });
+      });
     }
 
     // نمایندگان
@@ -170,12 +179,20 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         { header: "پایان بیمه", key: "insuranceEndDate", width: 20 },
         { header: "دسترسی ویژه", key: "isSpecialAccess", width: 15 },
       ];
-      data.employeeInfo.forEach((e: AnyObj) =>
+    
+      data.employeeInfo.forEach((e: AnyObj) => {
         ws.addRow({
           ...e,
+          startDate: e.startDate ? toJalaliDate(e.startDate) : "",
+          insuranceStartDate: e.insuranceStartDate
+            ? toJalaliDate(e.insuranceStartDate)
+            : "",
+          insuranceEndDate: e.insuranceEndDate
+            ? toJalaliDate(e.insuranceEndDate)
+            : "",
           isSpecialAccess: e.isSpecialAccess ? "دارد" : "ندارد",
-        })
-      );
+        });
+      });
     }
 
     // صورت‌های مالی
@@ -893,7 +910,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             return toast.error(`خطا در ذخیره مشخصات سکو`);
           } else {
             const responseData = await response.json();
-            console.log(responseData);
             toast.success("مشخصات با موفقیت ذخیره شد.", {
               position: "bottom-left",
             });
@@ -905,7 +921,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 {
                   id: 2,
                   title: "تاریخ تاسیس",
-                  content: form.establishmentDate,
+                  content: toJalaliDate(form.establishmentDate),
                 },
                 { id: 3, title: "شناسه ملی سکو", content: form.nationalCode },
                 { id: 4, title: "نوع سکو", content: form.type },

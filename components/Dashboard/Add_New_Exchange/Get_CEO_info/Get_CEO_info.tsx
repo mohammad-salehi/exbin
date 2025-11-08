@@ -73,54 +73,44 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             email
         };
 
-        GetRequest(process.env.NEXT_PUBLIC_API_URL  + `/api/exchanges/${ID}`)
-            .then(async (response) => {
-                const managerInfo = response.result
-                managerInfo.managerInfo = data
-                console.log(managerInfo)
-                try {
-                    const token = document.cookie
-                        .split('; ')
-                        .find(row => row.startsWith('token='))
-                        ?.split('=')[1];
+        try {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
 
-                    if (!token) {
-                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                        return;
-                    }
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                return;
+            }
 
-                    // ارسال درخواست به API
-                    setLoading(true)
-                    const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${ID}`, {
-                        method: 'PUT',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(managerInfo),
-                    });
+            // ارسال درخواست به API
+            setLoading(true)
+            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${ID}/manager`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
 
-                    if (!response.ok) {
-                        console.log(response)
-                        setLoading(false)
-                        return toast.error(`خطا در ذخیره مدیرعامل`);
-                    } else {
-                        const responseData = await response.json();
-                        console.log(responseData);
-                        toast.success("مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
-                        setLoading(false)
-                        SetStep(3)
-                    }
-
-                } catch (err) {
-                    console.error(err);
-                    return toast.error(`خطا در ذخیره مدیرعامل`);
-                }
-            })
-            .catch((err) => {
-                console.log(err)
+            if (!response.ok) {
+                console.log(response)
+                setLoading(false)
                 return toast.error(`خطا در ذخیره مدیرعامل`);
-            })
+            } else {
+                const responseData = await response.json();
+                console.log(responseData);
+                toast.success("مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
+                setLoading(false)
+                SetStep(3)
+            }
+
+        } catch (err) {
+            console.error(err);
+            return toast.error(`خطا در ذخیره مدیرعامل`);
+        }
 
     }
     return (

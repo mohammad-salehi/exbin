@@ -97,19 +97,6 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             toast.error("سمت را وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (form.startDate === '') {
-            toast.error("تاریخ شروع کار را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.insuranceStartDate === '') {
-            toast.error("تاریخ شروع بیمه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.insuranceEndDate === '') {
-            toast.error("تاریخ پایان بیمه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
         const toEnglishDigits = (s: string) =>
             s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
                 .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
@@ -124,20 +111,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 .trim();
         };
 
-        if (form.insuranceStartDate === '') {
-            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
-            return;
-        }
 
-        if (form.insuranceEndDate === '') {
-            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
-        if (form.startDate === '') {
-            toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
-            return;
-        }
 
         let memberInfo = {
             name: form.name !== null ? form.name : "",
@@ -188,7 +162,6 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 return toast.error(`خطا در ویرایش کارمند`);
             } else {
                 const responseData = await response.json();
-                console.log(responseData);
                 SetEditLoading(false)
                 toast.success("کارمند با موفقیت ویرایش شد.", { position: "bottom-left" });
             }
@@ -337,8 +310,6 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
     const closeAddModal = () => setIsAddOpen(false);
 
     const handleAdd = async () => {
-        const newId = (data.length + 1).toString();
-
         if (form.name === '') {
             toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
             return;
@@ -353,20 +324,6 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
         }
         if (form.jobPosition === '') {
             toast.error("سمت را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.insuranceStartDate === '') {
-            toast.error("تاریخ شروع بیمه را به درستی وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
-        if (form.insuranceEndDate === '') {
-            toast.error("تاریخ پایان بیمه را به درستی وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
-        if (form.startDate === '') {
-            toast.error("تاریخ شروع کار را به درستی وارد کنید", { position: "bottom-left" });
             return;
         }
 
@@ -387,7 +344,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             SetAddLoading(true);
 
             const newResponse = await PostRequest(
-                `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/employees`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees`,
                 memberInfo
             );
             toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
@@ -563,7 +520,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>تاریخ شروع کار *</label>
+                                <label>تاریخ شروع کار</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.startDate}
@@ -577,7 +534,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>تاریخ شروع بیمه *</label>
+                                <label>تاریخ شروع بیمه</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.insuranceStartDate}
@@ -591,7 +548,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>تاریخ پایان بیمه *</label>
+                                <label>تاریخ پایان بیمه</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.insuranceEndDate}
@@ -698,7 +655,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                     } placeholder="کد ملی" />
                             </div>
                             <div>
-                                <label>تاریخ شروع کار *</label>
+                                <label>تاریخ شروع کار</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.startDate}
@@ -711,7 +668,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 </div>
                             </div>
                             <div>
-                                <label>تاریخ شروع بیمه *</label>
+                                <label>تاریخ شروع بیمه</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.insuranceStartDate}
@@ -724,7 +681,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                                 </div>
                             </div>
                             <div>
-                                <label>تاریخ پایان بیمه *</label>
+                                <label>تاریخ پایان بیمه</label>
                                 <div className='mt-2'>
                                     <JalaliLocalDatePicker
                                         value={form.insuranceEndDate}
@@ -785,7 +742,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 <Modal.Backdrop />
                 <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
                     <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
-                        <h4 className="mb-2 mt-2">تغییرات مشخصات عضو هیئت‌مدیره</h4>
+                        <h4 className="mb-2 mt-2">تغییرات مشخصات کارمند</h4>
                         {
                             LogLoading ?
                                 <div className="mt-4">

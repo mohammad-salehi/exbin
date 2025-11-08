@@ -7,6 +7,7 @@ import { Dropdown, MenuItem, Button, Input } from "@heathmont/moon-core-tw";
 import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 import toast from "react-hot-toast";
 import { LoaderCircle } from '../../../Loader/Loader';
+import { ExchangeLegalTypes } from '../../../../functions/ExchangeLegalTypes';
 
 import { addHttps, removeProtocolAndWWW, validateDomainExtension, validateEmail, validateNumbers } from '../../../../functions/Validations';
 import { PostRequest } from '../../../../functions/PostRequest';
@@ -75,63 +76,63 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             }
         }
         if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-      
+
         const payload = {
-          name,
-          legalName,
-          nationalCode: toEnglishDigits(nationalCode),
-          establishmentDate:toLocalDate(establishmentDate),
-          type,
-          exchangeType: exchangeType==='سهامی' ? 'STOCK' : 'LIMITED_LIABILITY',
-          financialCode: toEnglishDigits(financialCode),
-          logo,
-          siteAddress: addHttps(removeProtocolAndWWW(siteAddress)),
-          emergencyPhoneNumber: toEnglishDigits(emergencyPhoneNumber),
-          officeAddress,
-          phoneNumber: toEnglishDigits(phoneNumber),
-          registrationNumber,
-          email,
+            name,
+            legalName,
+            nationalCode: toEnglishDigits(nationalCode),
+            establishmentDate: toLocalDate(establishmentDate),
+            type,
+            exchangeType: ExchangeLegalTypes.find(item => item.label === exchangeType)?.value,
+            financialCode: toEnglishDigits(financialCode),
+            logo,
+            siteAddress: addHttps(removeProtocolAndWWW(siteAddress)),
+            emergencyPhoneNumber: toEnglishDigits(emergencyPhoneNumber),
+            officeAddress,
+            phoneNumber: toEnglishDigits(phoneNumber),
+            registrationNumber,
+            email,
         };
-      
+
         try {
-          setLoading(true);
-      
-          const res: any = await PostRequest(
-            `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges`,
-            payload
-          );
-      
-          toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" });
-          setID(res?.result?.id);
-          SetStep(2);
+            setLoading(true);
+
+            const res: any = await PostRequest(
+                `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges`,
+                payload
+            );
+
+            toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" });
+            setID(res?.result?.id);
+            SetStep(2);
         } catch (e: any) {
-          // PostRequest روی خطا متن پاسخ را داخل e.message می‌اندازد
-          const msg = String(e?.message ?? "");
-      
-          // تطبیق خطای تکراری بودن کد اقتصادی
-          const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
-          if (financialCodeError) {
-            const existingFinancialCode = financialCodeError[1];
-            toast.error(`سکو با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد. لطفاً کد اقتصادی را اصلاح کنید.`, { position: "bottom-left" });
-            setLoading(false);
-            return;
-          }
-      
-          // تطبیق خطای تکراری بودن شناسه ملی
-          const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
-          if (nationalCodeError) {
-            const existingNationalCode = nationalCodeError[1];
-            toast.error(`سکو با شناسه ملی ${existingNationalCode} قبلاً وجود دارد. لطفاً شناسه ملی را اصلاح کنید.`, { position: "bottom-left" });
-            setLoading(false);
-            return;
-          }
-      
-          toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
-          console.error(e);
+            // PostRequest روی خطا متن پاسخ را داخل e.message می‌اندازد
+            const msg = String(e?.message ?? "");
+
+            // تطبیق خطای تکراری بودن کد اقتصادی
+            const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
+            if (financialCodeError) {
+                const existingFinancialCode = financialCodeError[1];
+                toast.error(`سکو با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد. لطفاً کد اقتصادی را اصلاح کنید.`, { position: "bottom-left" });
+                setLoading(false);
+                return;
+            }
+
+            // تطبیق خطای تکراری بودن شناسه ملی
+            const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
+            if (nationalCodeError) {
+                const existingNationalCode = nationalCodeError[1];
+                toast.error(`سکو با شناسه ملی ${existingNationalCode} قبلاً وجود دارد. لطفاً شناسه ملی را اصلاح کنید.`, { position: "bottom-left" });
+                setLoading(false);
+                return;
+            }
+
+            toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
+            console.error(e);
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
     return (
         <div className='mt-4'>
@@ -251,30 +252,24 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                  rounded-lg dark:text-gray-100 appearance-none z-50
                  max-h-60 overflow-y-auto"
                                 >
-                                    <Dropdown.Option value="سهامی" key="option1">
-                                        {({ selected, active }) => (
-                                            <MenuItem isActive={active} isSelected={selected}
-                                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === "سهامی"
-                                                    ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                                    : ""
-                                                    }`}
-                                            >
-                                                <MenuItem.Title>سهامی</MenuItem.Title>
-                                            </MenuItem>
-                                        )}
-                                    </Dropdown.Option>
-                                    <Dropdown.Option value="مسئولیت محدود" key="option2">
-                                        {({ active }) => (
-                                            <MenuItem isActive={active}
-                                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === "مسئولیت محدود"
-                                                    ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                                    : ""
-                                                    }`}
-                                            >
-                                                <MenuItem.Title>مسئولیت محدود</MenuItem.Title>
-                                            </MenuItem>
-                                        )}
-                                    </Dropdown.Option>
+                                    {
+                                        ExchangeLegalTypes.map((item, index) => {
+                                            return (
+                                                <Dropdown.Option value={item.label} key={`option${index}`}>
+                                                    {({ selected, active }) => (
+                                                        <MenuItem isActive={active} isSelected={selected}
+                                                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${exchangeType === item.label
+                                                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                                                : ""
+                                                                }`}
+                                                        >
+                                                            <MenuItem.Title>{item.label}</MenuItem.Title>
+                                                        </MenuItem>
+                                                    )}
+                                                </Dropdown.Option>
+                                            )
+                                        })
+                                    }
                                 </Dropdown.Options>
                             </Dropdown>
 
@@ -414,7 +409,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
                     <div className="col-span-1">
                         <label className='text-titleText dark: dark:text-titleText-dark'>ایمیل سکو</label>
-                        <Input style={{direction:'ltr'}} value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل سکو' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                        <Input style={{ direction: 'ltr' }} value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل سکو' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div className="col-span-1 sm:col-span-2">

@@ -1,4 +1,6 @@
 import React from "react";
+import { toJalaliDate } from "./toJalaliDate";
+import { BoardmemderRoleTypes } from "./BoardmemberRoleTypes";
 
 function deepEqual(a: any, b: any): boolean {
   if (a === b) return true;
@@ -74,9 +76,22 @@ function getEntityChangesRows(input: any): {
     allKeys.forEach((key) => {
       if (IGNORE_FIELDS.has(key)) return;
 
-      const oldVal = prev[key];
-      const newVal = curr[key];
+      let oldVal = prev[key];
+      let newVal = curr[key];
 
+      // 🟢 اگر فیلد تاریخ بود و مقدار داشت، تبدیل کن
+      if (
+        ["startDate", "insuranceStartDate", "insuranceEndDate", "establishmentDate"].includes(key)
+      ) {
+        if (oldVal) oldVal = toJalaliDate(oldVal);
+        if (newVal) newVal = toJalaliDate(newVal);
+      }
+      if (key === "role") {
+        const findLabel = (v: any) =>
+          BoardmemderRoleTypes.find((r) => r.value === v)?.label || v;
+        if (oldVal) oldVal = findLabel(oldVal);
+        if (newVal) newVal = findLabel(newVal);
+      }
       if (!deepEqual(oldVal, newVal)) {
         rows.push({
           username,

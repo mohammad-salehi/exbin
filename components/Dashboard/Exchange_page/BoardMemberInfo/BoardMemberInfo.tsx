@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import ExpandableTable, { Column } from "../../../ExpandableTable/ExpandableTable";
-import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import { Modal, Button, Input, Dropdown, MenuItem } from "@heathmont/moon-core-tw";
 import { GetRequest } from '../../../../functions/GetRequest';
 import { useParams } from "next/navigation";
 import toast from 'react-hot-toast';
@@ -14,6 +14,9 @@ import { PostRequest } from '../../../../functions/PostRequest';
 import Pagination from '../../../Pagination/Pagination';
 import { LogViewer } from '../../../../functions/changesHandler';
 import LoadingComponent from '../../../LoadingComponent/LoadingComponent';
+
+import { BoardmemderRoleTypes } from '../../../../functions/BoardmemberRoleTypes';
+import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 
 type Person = {
     id: string;
@@ -174,7 +177,14 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
 
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
-        { header: "سمت", accessorKey: "role" },
+        { header: "سمت",             
+            cell: (row: Person) => (
+            <div
+                className="flex items-center gap-2 text-titleText dark:text-titleText-dark"
+            >
+                {BoardmemderRoleTypes.find(item => item.value === row.role)?.label}
+            </div>
+        ), },
         { header: "شماره همراه", accessorKey: "phoneNumber" },
         { header: "کدملی", accessorKey: "nationalCode" },
         { header: "سوابق تحصیلی", accessorKey: "educationalHistory" },
@@ -287,10 +297,11 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
         const Member = {
             careerHistory: form.careerHistory || "",
             email: form.email || "",
-            name: form.name,
-            nationalCode: form.nationalCode,
-            phoneNumber: form.phoneNumber,
-            role: form.role || "",
+            name: form.name || "",
+            nationalCode: form.nationalCode || "",
+            phoneNumber: form.phoneNumber || "",
+            educationalHistory: form.educationalHistory || "",
+            role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value || "",
             sharePercentage: form.sharePercentage ? Number(form.sharePercentage) : 0,
         };
 
@@ -298,12 +309,11 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
             SetAddLoading(true);
 
             const newResponse = await PostRequest(
-                `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/board-members`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`,
                 Member
-                // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
             );
             toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
-            setData(prev => [...prev, { ...form, id: newResponse.result.id }]);
+            setData(prev => [...prev, { ...form, role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value || "", id: newResponse.result.id }]);
             closeAddModal();
         } catch (e: any) {
             toast.error(e?.message || "خطا در ذخیره اعضای هیئت‌مدیره", { position: "bottom-left" });
@@ -476,14 +486,54 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
 
                             <div>
                                 <label>نقش *</label>
-                                <Input
-                                    className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-      bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                    value={form.role}
-                                    onChange={(e) => setForm({ ...form, role: e.target.value })}
-                                    placeholder="نقش"
-                                />
+                                <div className="relative w-full mt-2">
+                                    <Dropdown onChange={(e) => { if (typeof (e) === 'string') { setForm({ ...form, role: e }) } }} value={form.role}>
+                                        <Dropdown.Trigger className="w-full">
+                                            <Button
+                                                as="span"
+                                                role="button"
+                                                variant="ghost"
+                                                className="flex items-center justify-between w-full pl-10  py-2 
+                   text-gray-700 border border-gray-300 
+                   rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-bgColor-dark"
+                                            >
+                                                <span>{form.role !== "" ? BoardmemderRoleTypes.find(item => item.value === form.role)?.label : "انتخاب"}</span>
+                                            </Button>
+                                        </Dropdown.Trigger>
+
+                                        <Dropdown.Options
+                                            className="absolute left-0 mt-2 w-72 pl-2 pr-2
+                 text-gray-700 bg-white dark:bg-buttonColor-dark
+                 border border-gray-300 dark:border-buttonBorderColor-dark 
+                 rounded-lg dark:text-gray-100 appearance-none z-50
+                 max-h-60 overflow-y-auto"
+                                        >
+                                            {
+                                                BoardmemderRoleTypes.map((item, index) => {
+                                                    return (
+                                                        <Dropdown.Option value={item.value} key={`option${index}`}>
+                                                            {({ selected, active }) => (
+                                                                <MenuItem isActive={active} isSelected={selected}
+                                                                    className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.role === item.value
+                                                                        ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                                                        : ""
+                                                                        }`}
+                                                                >
+                                                                    <MenuItem.Title>{item.label}</MenuItem.Title>
+                                                                </MenuItem>
+                                                            )}
+                                                        </Dropdown.Option>
+                                                    )
+                                                })
+                                            }
+                                        </Dropdown.Options>
+                                    </Dropdown>
+
+                                    {/* فلش سمت راست */}
+                                    <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+
+                                </div>
                             </div>
 
                             <div>
@@ -531,7 +581,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             <div>
                                 <label>ایمیل</label>
                                 <Input
-                                 style={{direction:'ltr'}}
+                                    style={{ direction: 'ltr' }}
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
@@ -599,9 +649,54 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             </div>
                             <div>
                                 <label>نقش *</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-      bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} placeholder="نقش" />
+                                <div className="relative w-full mt-2">
+                                    <Dropdown onChange={(e) => { if (typeof (e) === 'string') { setForm({ ...form, role: e }) } }} value={form.role}>
+                                        <Dropdown.Trigger className="w-full">
+                                            <Button
+                                                as="span"
+                                                role="button"
+                                                variant="ghost"
+                                                className="flex items-center justify-between w-full pl-10  py-2 
+                   text-gray-700 border border-gray-300 
+                   rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-bgColor-dark"
+                                            >
+                                                <span>{form.role !== "" ? form.role : "انتخاب"}</span>
+                                            </Button>
+                                        </Dropdown.Trigger>
+
+                                        <Dropdown.Options
+                                            className="absolute left-0 mt-2 w-72 pl-2 pr-2
+                 text-gray-700 bg-white dark:bg-buttonColor-dark
+                 border border-gray-300 dark:border-buttonBorderColor-dark 
+                 rounded-lg dark:text-gray-100 appearance-none z-50
+                 max-h-60 overflow-y-auto"
+                                        >
+                                            {
+                                                BoardmemderRoleTypes.map((item, index) => {
+                                                    return (
+                                                        <Dropdown.Option value={item.label} key={`option${index}`}>
+                                                            {({ selected, active }) => (
+                                                                <MenuItem isActive={active} isSelected={selected}
+                                                                    className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.role === item.label
+                                                                        ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                                                        : ""
+                                                                        }`}
+                                                                >
+                                                                    <MenuItem.Title>{item.label}</MenuItem.Title>
+                                                                </MenuItem>
+                                                            )}
+                                                        </Dropdown.Option>
+                                                    )
+                                                })
+                                            }
+                                        </Dropdown.Options>
+                                    </Dropdown>
+
+                                    {/* فلش سمت راست */}
+                                    <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+
+                                </div>
                             </div>
                             <div>
                                 <label>سوابق تحصیلی</label>
@@ -632,7 +727,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             </div>
                             <div>
                                 <label>ایمیل</label>
-                                <Input  style={{direction:'ltr'}} className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                <Input style={{ direction: 'ltr' }} className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="ایمیل" />
                             </div>

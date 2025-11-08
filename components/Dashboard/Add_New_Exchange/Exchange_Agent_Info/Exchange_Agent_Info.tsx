@@ -72,13 +72,13 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
       
             setLoading(true);
       
-            await PostRequest(
-              `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${ID}/exchange-agents`,
+            const AgentData = await PostRequest(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/exchange-agents`,
               Member // JSON ارسال می‌شود
             );
       
             toast.success("نماینده سکو باموفقیت افزوده شد.", { position: "bottom-left" });
-      
+            console.log(AgentData)
             const newMember: Person = {
               id: String(data.length + 1),
               ...form,

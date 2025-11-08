@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
 import ExpandableTable, { Column } from '../../../ExpandableTable/ExpandableTable';
-import { Modal, Button, Input } from "@heathmont/moon-core-tw";
+import { Modal, Button, Input, Dropdown, MenuItem } from "@heathmont/moon-core-tw";
 import toast from 'react-hot-toast';
 import { LoaderCircle } from '../../../Loader/Loader';
 import { validateNumbers } from '../../../../functions/Validations';
+import { BoardmemderRoleTypes } from '../../../../functions/BoardmemberRoleTypes';
+import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 
 type Person = {
     id: string;
@@ -80,7 +82,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 name: form.name,
                 nationalCode: form.nationalCode,
                 phoneNumber: form.phoneNumber,
-                role: form.role,
+                role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value,
                 sharePercentage: form.sharePercentage !== null ? form.sharePercentage : 0
             };
             const token = document.cookie
@@ -109,7 +111,6 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 return toast.error(`خطا در ذخیره اعضای هیئت‌مدیره`);
             }
             const responseData = await response.json();
-            console.log(responseData);
             toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
 
             const newMember: Person = {
@@ -164,7 +165,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 <div className="flex justify-between items-center w-full">
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
                     <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
-                    <button
+                        <button
                             className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
                             onClick={() => { nextStep() }}
                         >
@@ -209,8 +210,57 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                             </div>
                             <div>
                                 <label>نقش *</label>
-                                <Input className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" value={form.role} onChange={(e) => handleChange("role", e.target.value)} placeholder='نقش' />
+                                <div className="relative w-full mt-2">
+                                    <Dropdown onChange={(e) => {if (typeof(e) === 'string') {handleChange("role", e)}}} value={form.role}>
+                                        <Dropdown.Trigger className="w-full">
+                                            <Button
+                                                as="span"
+                                                role="button"
+                                                variant="ghost"
+                                                className="flex items-center justify-between w-full pl-10  py-2 
+                   text-gray-700 border border-gray-300 
+                   rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-bgColor-dark"
+                                            >
+                                                <span>{form.role !== "" ? form.role : "انتخاب"}</span>
+                                            </Button>
+                                        </Dropdown.Trigger>
+
+                                        <Dropdown.Options
+                                            className="absolute left-0 mt-2 w-72 pl-2 pr-2
+                 text-gray-700 bg-white dark:bg-buttonColor-dark
+                 border border-gray-300 dark:border-buttonBorderColor-dark 
+                 rounded-lg dark:text-gray-100 appearance-none z-50
+                 max-h-60 overflow-y-auto"
+                                        >
+                                            {
+                                                BoardmemderRoleTypes.map((item, index) => {
+                                                    return (
+                                                        <Dropdown.Option value={item.label} key={`option${index}`}>
+                                                            {({ selected, active }) => (
+                                                                <MenuItem isActive={active} isSelected={selected}
+                                                                    className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.role === item.label
+                                                                        ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                                                        : ""
+                                                                        }`}
+                                                                >
+                                                                    <MenuItem.Title>{item.label}</MenuItem.Title>
+                                                                </MenuItem>
+                                                            )}
+                                                        </Dropdown.Option>
+                                                    )
+                                                })
+                                            }
+                                        </Dropdown.Options>
+                                    </Dropdown>
+
+                                    {/* فلش سمت راست */}
+                                    <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+
+                                </div>
                             </div>
+
+
                             <div>
                                 <label>سوابق تحصیلی</label>
                                 <textarea className="w-full p-0 pt-2 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark  focus:outline-none" value={form.educationalHistory} onChange={(e) => handleChange("educationalHistory", e.target.value)} placeholder='سوابق تحصیلی' />
@@ -255,7 +305,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                 }
                             </Button>
                         </div>
-                        
+
                     </Modal.Panel>
                 </div>
             </Modal>

@@ -66,8 +66,8 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
         setEditingId(null);
     };
 
-    const handleSave = () => {
-        if (editingId || data.length === 0) {
+    const handleSave = async () => {
+        if (editingId && data.length !== 0) {
 
             if (form.name === '') {
                 toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
@@ -94,63 +94,130 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                 careerHistory: form.careerHistory || "",
                 sharePercentage: form.sharePercentage || "0", // مثلا درصد سهام باید عدد باشد
             };
-
             setLoading(true)
-            GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
-                .then(async (response) => {
-                    let managerInfo = response.result
-                    managerInfo.managerInfo = updatedForm
-                    try {
-                        const token = document.cookie
-                            .split('; ')
-                            .find(row => row.startsWith('token='))
-                            ?.split('=')[1];
 
-                        if (!token) {
-                            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                            return;
-                        }
+            try {
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('token='))
+                    ?.split('=')[1];
 
-                        const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Authorization': `Bearer ${token}`,
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify(managerInfo),
-                        });
+                if (!token) {
+                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                    return;
+                }
 
-                        if (!response.ok) {
-                            console.log(response)
-                            setLoading(false)
-                            return toast.error(`خطا در ذخیره مدیرعامل`);
-                        } else {
-                            toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
-                            if (data.length !== 0) {
-                                setData((prev) =>
-                                    prev.map((item) =>
-                                        item.id === editingId ? { ...form, id: editingId } : item
-                                    )
-                                );
-                            } else {
-                                const responseData = await response.json();
-                                console.log(responseData.result.managerInfo);
-                                setData([responseData.result.managerInfo])
-                            }
+                const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/manager/${editingId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedForm),
+                });
 
-                            closeModal();
-                            setLoading(false)
-                            setIsOpen(false);
-                        }
-
-                    } catch (err) {
-                        console.error(err);
-                        return toast.error(`خطا در ذخیره مدیرعامل`);
-                    }
-                })
-                .catch((err) => {
+                if (!response.ok) {
+                    console.log(response)
                     setLoading(false)
-                })
+                    return toast.error(`خطا در ذخیره مدیرعامل`);
+                } else {
+                    toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
+                    if (data.length !== 0) {
+                        setData((prev) =>
+                            prev.map((item) =>
+                                item.id === editingId ? { ...form, id: editingId } : item
+                            )
+                        );
+                    } else {
+                        const responseData = await response.json();
+                        setData([responseData.result])
+                    }
+
+                    closeModal();
+                    setLoading(false)
+                    setIsOpen(false);
+                }
+
+            } catch (err) {
+                console.error(err);
+                return toast.error(`خطا در ذخیره مدیرعامل`);
+            }
+
+
+        } else if (data.length === 0) {
+            if (form.name === '') {
+                toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+                return;
+            }
+            if (form.phoneNumber === '') {
+                toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+                return;
+            }
+            if (form.nationalCode === '') {
+                toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+                return;
+            }
+            if (form.email !== '' && form.email !== null) {
+                if (!validateEmail(form.email)) {
+                    toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+                    return;
+                }
+            }
+
+            const updatedForm = {
+                ...form,
+                educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
+                careerHistory: form.careerHistory || "",
+                sharePercentage: form.sharePercentage || "0", // مثلا درصد سهام باید عدد باشد
+            };
+            setLoading(true)
+
+            try {
+                const token = document.cookie
+                    .split('; ')
+                    .find(row => row.startsWith('token='))
+                    ?.split('=')[1];
+
+                if (!token) {
+                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                    return;
+                }
+
+                const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/manager`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(updatedForm),
+                });
+
+                if (!response.ok) {
+                    console.log(response)
+                    setLoading(false)
+                    return toast.error(`خطا در ذخیره مدیرعامل`);
+                } else {
+                    toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
+                    if (data.length !== 0) {
+                        setData((prev) =>
+                            prev.map((item) =>
+                                item.id === editingId ? { ...form, id: editingId } : item
+                            )
+                        );
+                    } else {
+                        const responseData = await response.json();
+                        setData([responseData.result])
+                    }
+
+                    closeModal();
+                    setLoading(false)
+                    setIsOpen(false);
+                }
+
+            } catch (err) {
+                console.error(err);
+                return toast.error(`خطا در ذخیره مدیرعامل`);
+            }
         }
 
     };

@@ -124,19 +124,6 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             toast.error("سمت شغلی را وارد کنید", { position: "bottom-left" });
             return;
         }
-        if (!form.startDate.trim()) {
-            toast.error("تاریخ شروع به کار را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (!form.insuranceStartDate.trim()) {
-            toast.error("تاریخ شروع بیمه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (!form.insuranceEndDate.trim()) {
-            toast.error("تاریخ پایان بیمه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
         try {
             if (editingId) {
                 // 🟢 ویرایش در استیت محلی
@@ -345,7 +332,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* تاریخ شروع به کار */}
                             <div>
-                                <label>تاریخ شروع به کار *</label>
+                                <label>تاریخ شروع به کار</label>
                                 <div className="mt-2">
                                     <JalaliLocalDatePicker
                                         value={form.startDate}
@@ -361,7 +348,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* تاریخ شروع بیمه */}
                             <div>
-                                <label>تاریخ شروع بیمه *</label>
+                                <label>تاریخ شروع بیمه</label>
                                 <div className="mt-2">
                                     <JalaliLocalDatePicker
                                         value={form.insuranceStartDate}
@@ -379,7 +366,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
                             {/* تاریخ پایان بیمه */}
                             <div>
-                                <label>تاریخ پایان بیمه *</label>
+                                <label>تاریخ پایان بیمه</label>
                                 <div className="mt-2">
                                     <JalaliLocalDatePicker
                                         value={form.insuranceEndDate}
