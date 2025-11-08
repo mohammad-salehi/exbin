@@ -234,7 +234,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                       <td
                         key={ci}
                         className={classNames(
-                          "px-6 py-6 align-top bg-white dark:bg-bgColor-dark !border-0 ring-0 shadow-none",
+                          "px-6 py-6 align-middle  bg-white dark:bg-bgColor-dark !border-0 ring-0 shadow-none",
                           "first:rounded-r-xl last:rounded-l-xl",
                           getAlignClass(c.align),
                           c.className
@@ -312,7 +312,7 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
 
             {paginated.length === 0 && (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-8 text-center text-titleText dark:text-titleText-dark bg-none rounded-xl">
+                <td colSpan={columns.length} className="px-6 py-8 text-center text-titleText dark:text-titleText-dark bg-none rounded-xl align-middle">
                   <div className="flex justify-center items-center" style={{ height: '100px' }}>
                     <svg fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
                       width="50px" height="50px" viewBox="0 0 462.035 462.035"

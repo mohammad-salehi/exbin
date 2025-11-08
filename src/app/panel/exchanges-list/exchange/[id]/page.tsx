@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import CeoDetail from "../../../../../components/Dashboard/Exchange_page/CeoDetail/CeoDetail";
-import BoardMemberTable from "../../../../../components/Dashboard/Exchange_page/BoardMemberInfo/BoardMemberInfo";
-import ExchangeAgentInfo from "../../../../../components/Dashboard/Exchange_page/ExchangeAgentInfo/ExchangeAgentInfo";
-import EmployeeInfo from "../../../../../components/Dashboard/Exchange_page/EmployeeInfo/EmployeeInfo";
-import Exchange_info from "../../../../../components/Dashboard/Exchange_page/Exchange_info/Exchange_info";
-import AnimatedText from "../../../../../components/AnimatedLoading/AnimatedLoading";
+import CeoDetail from "../../../../../../components/Dashboard/Exchange_page/CeoDetail/CeoDetail";
+import BoardMemberTable from "../../../../../../components/Dashboard/Exchange_page/BoardMemberInfo/BoardMemberInfo";
+import ExchangeAgentInfo from "../../../../../../components/Dashboard/Exchange_page/ExchangeAgentInfo/ExchangeAgentInfo";
+import EmployeeInfo from "../../../../../../components/Dashboard/Exchange_page/EmployeeInfo/EmployeeInfo";
+import Exchange_info from "../../../../../../components/Dashboard/Exchange_page/Exchange_info/Exchange_info";
+import AnimatedText from "../../../../../../components/AnimatedLoading/AnimatedLoading";
 
 const Page = () => {
   const [C1, SetC1] = useState<boolean>(false);

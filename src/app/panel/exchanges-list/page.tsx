@@ -97,7 +97,7 @@ const Page = () => {
 
       cell: (row: Person) => (
         <div>
-          <Link href={`/panel/exchange/${row.id}`}>
+          <Link href={`/panel/exchanges-list/exchange/${row.id}`}>
             {row.name}
             <svg width="20px" height="20px" viewBox="0 0 512 512" version="1.1" xmlns="http://www.w3.org/2000/svg" style={{ display: 'inline-block' }} className="mr-1">
               <g id="Page-1" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">

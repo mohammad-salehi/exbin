@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: "اکس‌بین",
     template: "%s | اکس‌بین",
   },
-  description: "سامانه تحلیل، نظارت و مدیریت داده‌های رمزارزی",
+  description: "سامانه تحلیل، نظارت و مدیریت سکوهای رمزارزی",
   icons: {
     icon: "/images/pantaLogo.png",
   },
