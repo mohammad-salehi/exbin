@@ -18,5 +18,9 @@ export const BoardmemderRoleTypes = [
     {
         value: 'SUPERVISOR',
         label: 'بازرس'
+    },
+    {
+        value: 'NO_ROLE',
+        label: 'بدون نقش'
     }
 ]

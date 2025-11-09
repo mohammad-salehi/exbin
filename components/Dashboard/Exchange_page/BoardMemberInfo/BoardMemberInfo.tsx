@@ -241,9 +241,9 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 console.log(response)
                 SetdeleteLoading(false)
                 // setLoading(false)
-                return toast.error(`خطا در حذف عضو هیئت‌مدیره`);
+                return toast.error(`خطا در حذف عضو هیئت‌مدیره و سهامداران`);
             } else {
-                toast.success("عضو هیئت‌مدیره با موفقیت حذف شد.", { position: "bottom-left" });
+                toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت حذف شد.", { position: "bottom-left" });
                 setData((prevData) => prevData.filter(person => person.id !== row.id));
                 SetdeleteLoading(false)
                 SetDeleteBox(false)
@@ -251,7 +251,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
 
         } catch (err) {
             console.error(err);
-            return toast.error(`خطا در حذف عضو هیئت‌مدیره`);
+            return toast.error(`خطا در حذف عضو هیئت‌مدیره و سهامداران`);
         }
     }
     const [deleteform, setdeleteForm] = useState<Person>({
@@ -272,7 +272,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
     const hasNoSpecialChars = (val: string) => /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
 
-    // 🟢 ویرایش عضو هیئت‌مدیره
+    // 🟢 ویرایش عضو هیئت‌مدیره و سهامداران
     const handleSave = async () => {
         if (!editingId) return;
 
@@ -291,7 +291,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
         if (!role) return toast.error("سمت یا نقش الزامی است", { position: "bottom-left" });
         if (sharePercentage < 0 || sharePercentage > 100) return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
         if (email && !validateEmail(email)) return toast.error("ایمیل را به‌درستی وارد کنید", { position: "bottom-left" });
-
+        
         const payload = {
             name,
             phoneNumber,
@@ -302,7 +302,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
             sharePercentage,
             email,
         };
-
+        console.log(role)
         SetEditLoading(true);
         try {
             const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
@@ -335,10 +335,10 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                         return;
                     }
                 }
-                throw new Error("خطا در ذخیره اطلاعات عضو هیئت‌مدیره");
+                throw new Error("خطا در ذخیره اطلاعات عضو هیئت‌مدیره و سهامداران");
             }
 
-            toast.success("عضو هیئت‌مدیره با موفقیت ویرایش شد.", { position: "bottom-left" });
+            toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت ویرایش شد.", { position: "bottom-left" });
             setData((prevData) =>
                 prevData.map((item) =>
                     item.id === editingId ? { ...form, id: editingId } : item
@@ -352,89 +352,94 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
         }
     };
 
-    // 🟣 افزودن عضو جدید هیئت‌مدیره
-    const handleAdd = async () => {
-        const name = normalize(form.name);
-        const phoneNumber = normalize(form.phoneNumber);
-        const nationalCode = normalize(form.nationalCode);
-        const role = normalize(form.role);
-        const email = normalize(form.email);
-        const sharePercentage = Number(form.sharePercentage ?? 0);
-
-        // ✅ ولیدیشن‌ها
-        if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
-        if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
-        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
-        if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
-        if (!role) return toast.error("سمت یا نقش الزامی است", { position: "bottom-left" });
-        if (sharePercentage < 0 || sharePercentage > 100) return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
-        if (email && !validateEmail(email)) return toast.error("ایمیل را به‌درستی وارد کنید", { position: "bottom-left" });
-
-        const payload = {
-            name,
-            phoneNumber,
-            nationalCode,
-            role,
-            educationalHistory: normalize(form.educationalHistory),
-            careerHistory: normalize(form.careerHistory),
-            sharePercentage,
-            email,
-        };
-
-        SetAddLoading(true);
-        try {
-            const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
-            if (!token) throw new Error("توکن یافت نشد");
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
-
-            const dataRes = await res.json();
-
-            // ✅ هندل خطاهای 400
-            if (!res.ok) {
-                if (res.status === 400 || res.status === 409) {
-                    if (dataRes?.result) {
-                        Object.entries(dataRes.result).forEach(([_, msg]) => toast.error(String(msg), { position: "bottom-left" }));
-                        return;
-                    }
-                    if (dataRes?.error) {
-                        const match = dataRes.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
-                        if (match) {
-                            const [, field, value] = match;
-                            toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                        } else toast.error(dataRes.error, { position: "bottom-left" });
-                        return;
-                    }
-                }
-                throw new Error("خطا در افزودن عضو هیئت‌مدیره");
-            }
-
-            toast.success("عضو هیئت‌مدیره با موفقیت افزوده شد.", { position: "bottom-left" });
-            setData((prevData) =>
-                prevData.map((item) =>
-                    item.id === editingId ? { ...form, id: editingId } : item
-                )
-            );
-            closeAddModal();
-        } catch (err: any) {
-            toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
-        } finally {
-            SetAddLoading(false);
-        }
+    // 🟣 افزودن عضو جدید هیئت‌مدیره و سهامداران
+// 🟣 افزودن عضو جدید هیئت‌مدیره و سهامداران
+const handleAdd = async () => {
+    const name = normalize(form.name);
+    const phoneNumber = normalize(form.phoneNumber);
+    const nationalCode = normalize(form.nationalCode);
+    const role = normalize(form.role);
+    const email = normalize(form.email);
+    const sharePercentageNum = Number(form.sharePercentage ?? 0);
+  
+    // ولیدیشن‌ها...
+    if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
+    if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+    if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+    if (!role) return toast.error("سمت یا نقش الزامی است", { position: "bottom-left" });
+    if (sharePercentageNum < 0 || sharePercentageNum > 100) return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
+    if (email && !validateEmail(email)) return toast.error("ایمیل را به‌درستی وارد کنید", { position: "bottom-left" });
+  
+    // اینجا مقدار value نقش رو پیدا کن و اگر نبود خالی بذار
+    const roleValue =
+      BoardmemderRoleTypes.find((item) => item.label === role)?.value ?? "";
+  
+    // اینجا payload رو همون‌جوری بساز که با Person بخونه
+    const payload: Omit<Person, "id"> = {
+      name,
+      phoneNumber,
+      nationalCode,
+      role: roleValue,                  // 👈 حالا قطعا string شده
+      educationalHistory: normalize(form.educationalHistory),
+      careerHistory: normalize(form.careerHistory),
+      sharePercentage: String(sharePercentageNum), // 👈 Person می‌خواد string
+      email,
     };
+  
+    SetAddLoading(true);
+    try {
+      const token = document.cookie.split("; ").find((r) => r.startsWith("token="))?.split("=")[1];
+      if (!token) throw new Error("توکن یافت نشد");
+  
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            // این یکی بدنه‌ایه که به سرور می‌فرستی (اگر سرور number می‌خواد می‌تونی number بدی)
+            ...payload,
+            sharePercentage: sharePercentageNum,
+          }),
+        }
+      );
+  
+      const dataRes = await res.json();
+  
+      if (!res.ok) {
+        // همون هندل ارورهای قبلی...
+        throw new Error(dataRes?.error || "خطا در افزودن عضو هیئت‌مدیره و سهامداران");
+      }
+  
+      // اینجا دیگه payload طبق Person ـه، فقط id رو از سرور می‌گیری
+      setData((prev) => [
+        ...prev,
+        {
+          ...payload,
+          id: dataRes.result?.id ?? String(prev.length + 1),
+        },
+      ]);
+  
+      closeAddModal();
+      toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", {
+        position: "bottom-left",
+      });
+    } catch (err: any) {
+      toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
+    } finally {
+      SetAddLoading(false);
+    }
+  };
+  
 
     return (
         <div className='mt-4'>
             <div className="flex justify-between items-center mb-3">
                 <h5 className="font-bold text-lg text-titleText dark:text-titleText-dark">
-                    مشخصات اعضای هیئت‌مدیره
+                    مشخصات اعضای هیئت‌مدیره و سهامداران
                 </h5>
                 <Button
                     variant="primary"
@@ -457,7 +462,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                     <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
                             <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
-                                ویرایش عضو هیئت‌مدیره
+                                ویرایش عضو هیئت‌مدیره و سهامداران
                             </Modal.Title>
                         </div>
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -637,7 +642,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                     <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
                         <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
                             <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
-                                افزودن عضو جدید هیئت‌مدیره
+                                افزودن عضو جدید هیئت‌مدیره و سهامداران
                             </Modal.Title>
                         </div>
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -775,7 +780,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 <Modal.Backdrop />
                 <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
                     <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
-                        <h4 className="mb-2 mt-2">تغییرات مشخصات عضو هیئت‌مدیره</h4>
+                        <h4 className="mb-2 mt-2">تغییرات مشخصات عضو هیئت‌مدیره و سهامداران</h4>
                         {
                             LogLoading ?
                                 <div className="mt-4">
@@ -816,11 +821,11 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
                     <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
                         <h3 className="text-lg font-semibold mb-3 text-center">
-                            حذف عضو هیئت‌مدیره
+                            حذف عضو هیئت‌مدیره و سهامداران
                         </h3>
 
                         <p className="text-sm mb-6 text-center leading-relaxed">
-                            {`آیا از حذف عضو هیئت‌مدیره مطمئن هستید؟`}
+                            {`آیا از حذف عضو هیئت‌مدیره و سهامداران مطمئن هستید؟`}
                         </p>
 
                         <div className="flex justify-center gap-4 w-full">

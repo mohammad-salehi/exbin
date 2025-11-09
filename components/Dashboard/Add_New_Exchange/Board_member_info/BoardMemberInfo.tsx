@@ -153,7 +153,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               }
             }
       
-            toast.error("خطا در ذخیره عضو هیئت‌مدیره", { position: "bottom-left" });
+            toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", { position: "bottom-left" });
             setLoading(false);
             return;
           }
@@ -161,11 +161,11 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
           // === Success ===
           if (!response.ok) {
             setLoading(false);
-            return toast.error("خطا در ذخیره عضو هیئت‌مدیره", { position: "bottom-left" });
+            return toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", { position: "bottom-left" });
           }
       
           const responseData = await response.json();
-          toast.success("عضو هیئت‌مدیره با موفقیت افزوده شد.", { position: "bottom-left" });
+          toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", { position: "bottom-left" });
       
           const newMember: Person = {
             id: String(data.length + 1),
@@ -187,7 +187,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
           });
         } catch (e: any) {
           console.error(e);
-          toast.error("خطا در ذخیره عضو هیئت‌مدیره", { position: "bottom-left" });
+          toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", { position: "bottom-left" });
           setLoading(false);
         }
       };
@@ -202,7 +202,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             {/* تیتر و دکمه */}
             <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4">
                 <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>
-                    مشخصات اعضای هیئت‌مدیره
+                    مشخصات اعضای هیئت‌مدیره و سهامداران
                 </h5>
                 <button className='text-primary border border-primary px-4 py-2 rounded-md' onClick={openModal}>
                     افزودن عضو جدید
@@ -278,7 +278,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                                 className="flex items-center justify-between w-full pl-10  py-2 
                    text-gray-700 border border-gray-300 
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-bgColor-dark"
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-boxColor-dark"
                                             >
                                                 <span>{form.role !== "" ? form.role : "انتخاب"}</span>
                                             </Button>
