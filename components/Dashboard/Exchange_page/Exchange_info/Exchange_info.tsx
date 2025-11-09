@@ -258,11 +258,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         { id: 6, title: "ایمیل", content: "" },
       ],
     },
-    // {
-    //   id: 3,
-    //   title: "اسناد",
-    //   content: [],
-    // },
+    {
+      id: 3,
+      title: "اسناد",
+      content: [],
+    },
     {
       id: 4,
       title: "عملیات",
@@ -499,7 +499,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       title: "",
       content: (
         // اطمینان از تمام‌عرض بودن در هر دو حالت Grid و Flex
-        <div className="w-full col-span-full flex flex-col">
+        <div className="w-full col-span-full flex flex-col ">
           {association && (
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center">
@@ -644,7 +644,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                       }
 
                       const response = await fetch(
-                        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${item.id}/delete`,
+                        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${item.id}`,
                         {
                           method: "DELETE",
                           headers: {
@@ -766,7 +766,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             </a>
           );
         }
-        console.log(response.result);
         addAssociationDocuments(
           response.result.association,
           response.result.financialStatements
@@ -1380,7 +1379,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
             <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-              <Modal.Title className="text-lg font-bold">
+              <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
                 افزودن فایل
               </Modal.Title>
 

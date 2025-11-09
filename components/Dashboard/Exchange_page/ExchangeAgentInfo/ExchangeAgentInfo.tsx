@@ -28,11 +28,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
 
     const params = useParams<{ id: string }>();
 
-    const [data, setData] = useState<Person[]>([
-        { id: "1", name: "محمد", phoneNumber: "09121234567", nationalCode: "1400765432" },
-        { id: "2", name: "علی", phoneNumber: "09351234567", nationalCode: "1400123456" },
-        { id: "3", name: "رضا", phoneNumber: "09221234567", nationalCode: "1400987654" },
-    ]);
+    const [data, setData] = useState<Person[]>([]);
 
     const [form, setForm] = useState<Person>({
         id: "",
