@@ -490,6 +490,103 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       toast.error("خطا در دانلود فایل");
     }
   };
+
+  const [confirmAssociationOpen, setConfirmAssociationOpen] = useState(false);
+  const [confirmFinancialOpen, setConfirmFinancialOpen] = useState(false);
+  const [financialToDelete, setFinancialToDelete] = useState<{
+    id: number;
+    date: string;
+  } | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const handleConfirmDeleteAssociation = async () => {
+    try {
+      setDeleteLoading(true);
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
+
+      if (!token) {
+        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+          position: "bottom-left",
+        });
+        setDeleteLoading(false);
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/delete`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        toast.error("خطا در حذف اساسنامه", { position: "bottom-left" });
+      } else {
+        toast.success("اساسنامه با موفقیت حذف شد.", {
+          position: "bottom-left",
+        });
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("خطا در حذف اساسنامه", { position: "bottom-left" });
+    } finally {
+      setDeleteLoading(false);
+      setConfirmAssociationOpen(false);
+    }
+  };
+
+  const handleConfirmDeleteFinancial = async () => {
+    if (!financialToDelete) return;
+    try {
+      setDeleteLoading(true);
+      const token = document.cookie
+        .split("; ")
+        .find((row) => row.startsWith("token="))
+        ?.split("=")[1];
+
+      if (!token) {
+        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+          position: "bottom-left",
+        });
+        setDeleteLoading(false);
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${financialToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        toast.error("خطا در حذف صورت مالی", { position: "bottom-left" });
+      } else {
+        toast.success("صورت مالی با موفقیت حذف شد.", {
+          position: "bottom-left",
+        });
+        window.location.reload();
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("خطا در حذف صورت مالی", { position: "bottom-left" });
+    } finally {
+      setDeleteLoading(false);
+      setConfirmFinancialOpen(false);
+      setFinancialToDelete(null);
+    }
+  };
   const addAssociationDocuments = (
     association?: string | null,
     financialStatement: Array<{ id: number; date: string; file: string }> = []
@@ -536,46 +633,12 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 </button>
 
                 <button
-                  onClick={async () => {
-                    try {
-                      const token = document.cookie
-                        .split("; ")
-                        .find((row) => row.startsWith("token="))
-                        ?.split("=")[1];
-
-                      if (!token) {
-                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-                          position: "bottom-left",
-                        });
-                        return;
-                      }
-
-                      const response = await fetch(
-                        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/delete`,
-                        {
-                          method: "DELETE",
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                          },
-                        }
-                      );
-
-                      if (!response.ok) {
-                        return toast.error("خطا در حذف اساسنامه");
-                      } else {
-                        toast.success("اساسنامه با موفقیت حذف شد.", {
-                          position: "bottom-left",
-                        });
-                        window.location.reload();
-                      }
-                    } catch (err) {
-                      console.error(err);
-                      return toast.error("خطا در حذف اساسنامه");
-                    }
+                  onClick={() => {
+                    setConfirmAssociationOpen(true);
                   }}
                   className="text-titleText dark:text-titleText-dark mr-1"
                 >
+
                   {/* ... SVG حذف ... */}
                   <svg
                     width="20"
@@ -629,43 +692,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 </button>
 
                 <button
-                  onClick={async () => {
-                    try {
-                      const token = document.cookie
-                        .split("; ")
-                        .find((row) => row.startsWith("token="))
-                        ?.split("=")[1];
-
-                      if (!token) {
-                        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-                          position: "bottom-left",
-                        });
-                        return;
-                      }
-
-                      const response = await fetch(
-                        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${item.id}`,
-                        {
-                          method: "DELETE",
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                          },
-                        }
-                      );
-
-                      if (!response.ok) {
-                        return toast.error("خطا در حذف صورت مالی");
-                      } else {
-                        toast.success("صورت مالی با موفقیت حذف شد.", {
-                          position: "bottom-left",
-                        });
-                        window.location.reload();
-                      }
-                    } catch (err) {
-                      console.error(err);
-                      return toast.error("خطا در حذف صورت مالی");
-                    }
+                  onClick={() => {
+                    setFinancialToDelete({ id: item.id, date: item.date });
+                    setConfirmFinancialOpen(true);
                   }}
                   className="text-titleText dark:text-titleText-dark mr-1"
                 >
@@ -969,23 +998,30 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 
         toast.success("اساسنامه با موفقیت بارگذاری شد");
       } else if (type === "صورت مالی") {
-        const result = await PostRequest(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
-          { date: String(FinancialName) }
-        );
-        const fileId = result.result.financialStatements.find((item: { date: any; }) => String(item.date) === String(FinancialName)).id
-        await PostRequest(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/upload`,
-          { financialFile: file },
-          { asFormData: true }
-        );
-        toast.success("صورت مالی با موفقیت بارگذاری شد");
+        try {
+          const result = await PostRequest(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
+            { date: String(FinancialName) }
+          );
+          console.log(result)
+          const fileId = result.result.id
+          await PostRequest(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/upload`,
+            { financialFile: file },
+            { asFormData: true }
+          );
+          toast.success("صورت مالی با موفقیت بارگذاری شد");
+          setFile(null);
+          setFileName("");
+          SetAddFileModal(false);
+          setTimeout(() => window.location.reload(), 500);
+        } catch (error) {
+          console.log(error)
+        }
+
       }
 
-      setFile(null);
-      setFileName("");
-      SetAddFileModal(false);
-      setTimeout(() => window.location.reload(), 500);
+
     } catch (e: any) {
       toast.error(e?.message || "خطا در آپلود");
     } finally {
@@ -1519,6 +1555,83 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               >
                 بستن
               </button>
+            </div>
+          </Modal.Panel>
+        </div>
+      </Modal>
+
+      {/* Modal تأیید حذف اساسنامه */}
+      <Modal
+        open={confirmAssociationOpen}
+        onClose={() => {
+          if (!deleteLoading) setConfirmAssociationOpen(false);
+        }}
+      >
+        <Modal.Backdrop />
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
+          <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
+            <p className="mb-4">
+              آیا از حذف اساسنامه سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                disabled={deleteLoading}
+                onClick={() => setConfirmAssociationOpen(false)}
+              >
+                انصراف
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleConfirmDeleteAssociation}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? (
+                  <LoaderCircle size={8} color="border-white-500" />
+                ) : (
+                  "حذف"
+                )}
+              </Button>
+            </div>
+          </Modal.Panel>
+        </div>
+      </Modal>
+
+      {/* Modal تأیید حذف صورت مالی */}
+      <Modal
+        open={confirmFinancialOpen}
+        onClose={() => {
+          if (!deleteLoading) setConfirmFinancialOpen(false);
+        }}
+      >
+        <Modal.Backdrop />
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
+          <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
+            <p className="mb-4">
+              {`آیا از حذف صورت مالی ${financialToDelete?.date ?? ""} مطمئن هستید؟ این عملیات قابل بازگشت نیست.`}
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                disabled={deleteLoading}
+                onClick={() => {
+                  setConfirmFinancialOpen(false);
+                  setFinancialToDelete(null);
+                }}
+              >
+                انصراف
+              </Button>
+              <Button
+                variant="primary"
+                onClick={handleConfirmDeleteFinancial}
+                disabled={deleteLoading}
+              >
+                {deleteLoading ? (
+                  <LoaderCircle size={8} color="border-white-500" />
+                ) : (
+                  "حذف"
+                )}
+              </Button>
             </div>
           </Modal.Panel>
         </div>
