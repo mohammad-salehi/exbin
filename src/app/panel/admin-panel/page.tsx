@@ -506,7 +506,17 @@ const Page: React.FC = () => {
                                     <label className=''>
                                         نام کاربری
                                     </label>
-                                    <Input disabled className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="نام کاربری" value={form.username} onChange={onFormInputChange('username')} />
+                                    <Input
+                                        className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                        placeholder="نام کاربری"
+                                        value={addForm.username}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            // فقط حروف انگلیسی و عدد و _ و . و - (اگه نمی‌خوای، میشه حذفشون کرد)
+                                            const allowed = val.replace(/[^A-Za-z0-9._-]/g, "");
+                                            setAddForm((prev) => ({ ...prev, username: allowed }));
+                                        }}
+                                    />
                                 </div>
 
                                 <div className="relative w-full mt-4">
@@ -658,8 +668,17 @@ const Page: React.FC = () => {
                                 <label className='mt-2'>
                                     نام کاربری
                                 </label>
-                                <Input className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" placeholder="نام کاربری" value={addForm.username} onChange={onAddInputChange('username')} />
-                            </div>
+                                <Input
+                                    className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                    placeholder="نام کاربری"
+                                    value={addForm.username}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        // فقط حروف انگلیسی و عدد و _ و . و - (اگه نمی‌خوای، میشه حذفشون کرد)
+                                        const allowed = val.replace(/[^A-Za-z0-9._-]/g, "");
+                                        setAddForm((prev) => ({ ...prev, username: allowed }));
+                                    }}
+                                />                            </div>
                             <div className='mt-4'>
                                 <label className='mt-2'>
                                     رمز عبور

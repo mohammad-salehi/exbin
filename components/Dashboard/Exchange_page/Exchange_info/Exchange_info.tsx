@@ -420,7 +420,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         .split("; ")
         .find((row) => row.startsWith("token="))
         ?.split("=")[1];
-
+  
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/download`,
         {
@@ -429,28 +429,37 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           },
         }
       );
-
+  
       if (!res.ok) {
         throw new Error("خطا در دریافت فایل");
-      } else {
-        SetDownloadLoading(false);
       }
-
-      // باینری فایل رو بگیر و دانلود کن
+  
+      // تلاش برای گرفتن اسم فایل از هدر
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = "file";
+      if (disposition && disposition.includes("filename=")) {
+        const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          filename = match[1].replace(/['"]/g, "");
+        }
+      }
+  
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
-
+  
       const a = document.createElement("a");
       a.href = url;
-      a.download = "assasname.pdf"; // یا از header سرور بگیر
+      a.download = filename; // ← همونی که سرور گفت
       a.click();
-
+  
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      SetDownloadLoading(false);
       toast.error("خطا در دانلود فایل");
+    } finally {
+      SetDownloadLoading(false);
     }
   };
+  
 
   const handleDownloadFinancial = async (id: number, date: string) => {
     try {
@@ -459,7 +468,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         .split("; ")
         .find((row) => row.startsWith("token="))
         ?.split("=")[1];
-
+  
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${id}/download`,
         {
@@ -468,29 +477,36 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           },
         }
       );
-
+  
       if (!res.ok) {
         throw new Error("خطا در دریافت فایل");
-      } else {
-        SetDownloadLoading(false);
       }
-
-      // باینری فایل رو بگیر و دانلود کن
+  
+      // گرفتن اسم از سرور
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = "file";
+      if (disposition && disposition.includes("filename=")) {
+        const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) {
+          filename = match[1].replace(/['"]/g, "");
+        }
+      }
+  
       const blob = await res.blob();
       const url = window.URL.createObjectURL(blob);
-
+  
       const a = document.createElement("a");
       a.href = url;
-      a.download = `صورت مالی ${date}.pdf`; // یا از header سرور بگیر
+      a.download = filename; // ← همون اسم اصلی
       a.click();
-
+  
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      SetDownloadLoading(false);
       toast.error("خطا در دانلود فایل");
+    } finally {
+      SetDownloadLoading(false);
     }
   };
-
   const [confirmAssociationOpen, setConfirmAssociationOpen] = useState(false);
   const [confirmFinancialOpen, setConfirmFinancialOpen] = useState(false);
   const [financialToDelete, setFinancialToDelete] = useState<{
@@ -997,7 +1013,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         );
 
         toast.success("اساسنامه با موفقیت بارگذاری شد");
-      } else if (type === "صورت مالی") {
+          setTimeout(() => window.location.reload(), 500);
+        } else if (type === "صورت مالی") {
         try {
           const result = await PostRequest(
             `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
