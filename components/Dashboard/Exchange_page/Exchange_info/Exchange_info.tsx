@@ -30,6 +30,7 @@ import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
 import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
 import PersianYearSelect from "../../../YearSelection/YearSelection";
 import { BoardmemderRoleTypes } from "../../../../functions/BoardmemberRoleTypes";
+import { ExchangeLegalTypes } from "../../../../functions/ExchangeLegalTypes";
 type AnyObj = Record<string, any>;
 
 interface InvoiceContent {
@@ -70,6 +71,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     email: "",
     financialCode: "",
     registrationNumber: "",
+    zipCode: "",
   });
   const [LogNumber, setLogNumber] = useState(0);
   const [LogPage, setLogPage] = useState(0);
@@ -100,7 +102,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       ["شماره ثبت", data.registrationNumber],
       ["شناسه ملی", data.nationalCode],
       ["کد اقتصادی", data.financialCode],
-      ["تاریخ تأسیس", data.establishmentDate ? toJalaliDate( data.establishmentDate) : ''],
+      ["تاریخ تأسیس", data.establishmentDate ? toJalaliDate(data.establishmentDate) : ''],
       ["تلفن", data.phoneNumber],
       ["تلفن اضطراری", data.emergencyPhoneNumber],
       ["ایمیل", data.email],
@@ -138,11 +140,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         { header: "ایمیل", key: "email", width: 30 },
         { header: "نقش", key: "role", width: 20 },
       ];
-    
+
       data.boardMemberInfo.forEach((m: AnyObj) => {
         const matchedRole =
           BoardmemderRoleTypes.find((r) => r.value === m.role)?.label || "-";
-    
+
         ws.addRow({
           ...m,
           role: matchedRole,
@@ -179,7 +181,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         { header: "پایان بیمه", key: "insuranceEndDate", width: 20 },
         { header: "دسترسی ویژه", key: "isSpecialAccess", width: 15 },
       ];
-    
+
       data.employeeInfo.forEach((e: AnyObj) => {
         ws.addRow({
           ...e,
@@ -251,8 +253,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         { id: 1, title: "آدرس سایت", content: "" },
         { id: 2, title: "شماره تماس", content: "" },
         { id: 3, title: "شماره تماس اضطراری", content: "" },
-        { id: 4, title: "آدرس", content: "" },
-        { id: 5, title: "ایمیل", content: "" },
+        { id: 4, title: "آدرس پستی", content: "" },
+        { id: 5, title: "کد پستی", content: "" },
+        { id: 6, title: "ایمیل", content: "" },
       ],
     },
     // {
@@ -723,11 +726,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         handleEdit(
           1,
           5,
-          response.result.exchangeType === "STOCK"
-            ? "سهامی"
-            : response.result.exchangeType === "LIMITED_LIABILITY"
-              ? "مسئولیت محدود"
-              : ""
+          ExchangeLegalTypes.find(item => item.value === response.result.exchangeType)?.label
         );
         handleEdit(1, 6, response.result.financialCode);
         handleEdit(1, 7, String(response.result.registrationNumber));
@@ -750,7 +749,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         handleEdit(2, 2, response.result.phoneNumber);
         handleEdit(2, 3, response.result.emergencyPhoneNumber);
         handleEdit(2, 4, response.result.officeAddress);
-        handleEdit(2, 5, response.result.email);
+        handleEdit(2, 5, response.result.zipCode);
+        handleEdit(2, 6, response.result.email);
         if (
           response.result.association !== null &&
           response.result.association !== ""
@@ -785,6 +785,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           email: response.result.email,
           financialCode: response.result.financialCode,
           registrationNumber: response.result.registrationNumber,
+          zipCode: response.result.zipCode,
         });
         SetC1(true);
       })
@@ -792,186 +793,160 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         SetC1(true);
       });
   }, []);
-  const handleSave = () => {
-    if (form.legalName === "") {
-      toast.error("نام حقوقی سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+
+  //ادیت
+  const handleSave = async () => {
+    const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
+    const hasNoSpecialChars = (val: string) => /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
+
+    const legalName = String(form.legalName || "");
+    const nationalCode = String(form.nationalCode || "");
+    const financialCode = String(form.financialCode || "");
+    const registrationNumber = String(form.registrationNumber || "");
+    const phoneNumber = String(form.phoneNumber || "");
+    const emergencyPhoneNumber = String(form.emergencyPhoneNumber || "");
+    const zipCode = String(form.zipCode || "");
+    const email = String(form.email || "");
+    const siteAddress = String(form.siteAddress || "");
+
+    if (!legalName.trim()) {
+      toast.error("نام حقوقی سکو الزامی است", { position: "bottom-left" });
       return;
     }
-    if (form.nationalCode === "") {
-      toast.error("شناسه ملی سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+    if (!hasNoSpecialChars(legalName)) {
+      toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
       return;
     }
-    if (form.financialCode === "") {
-      toast.error("کد اقتصادی سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+    if (!isDigits(nationalCode, 11)) {
+      toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد", { position: "bottom-left" });
       return;
     }
-    if (form.registrationNumber === "") {
-      toast.error("شماره ثبت سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+    if (!/^\d{11,16}$/.test(financialCode)) {
+      toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد", { position: "bottom-left" });
       return;
     }
-    if (form.exchangeType === "") {
-      toast.error("شکل حقوقی سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+    if (!/^\d{6}$/.test(registrationNumber)) {
+      toast.error("شماره ثبت باید عددی ۶ رقمی باشد", { position: "bottom-left" });
       return;
     }
-    if (form.type === "") {
-      toast.error("نوع سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+    if (!form.type) {
+      toast.error("نوع سکو را انتخاب کنید", { position: "bottom-left" });
       return;
     }
-    if (form.establishmentDate === "") {
-      toast.error("تاریخ تاسیس سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+    if (!form.exchangeType) {
+      toast.error("شکل حقوقی سکو را انتخاب کنید", { position: "bottom-left" });
       return;
     }
-    if (form.siteAddress === "") {
-      toast.error("وبسایت سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+    if (!/^0\d{10}$/.test(phoneNumber)) {
+      toast.error("شماره تماس باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
       return;
     }
-    if (form.phoneNumber === "") {
-      toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", {
-        position: "bottom-left",
-      });
+    if (emergencyPhoneNumber && !/^0\d{10}$/.test(emergencyPhoneNumber)) {
+      toast.error("شماره تماس اضطراری باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
       return;
     }
-    if (form.email !== '' && form.email !== null) {
-      if (!validateEmail(form.email)) {
-        toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+    if (zipCode && !isDigits(zipCode, 10)) {
+      toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+      return;
+    }
+    if (email && !validateEmail(email)) {
+      toast.error("ایمیل وارد شده معتبر نیست", { position: "bottom-left" });
+      return;
+    }
+    if (!form.establishmentDate) {
+      toast.error("تاریخ تأسیس را وارد کنید", { position: "bottom-left" });
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const token = document.cookie.split("; ").find((r) => r.startsWith("token="))?.split("=")[1];
+
+      if (!token) {
+        toast.error("توکن موجود نیست، لطفاً دوباره وارد شوید.", { position: "bottom-left" });
+        setLoading(false);
         return;
       }
-    }
-    if (!validateDomainExtension(form.siteAddress)) {
-      toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", {
-        position: "bottom-left",
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(form),
       });
-      return;
-    }
 
-    setLoading(true);
-    GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
-      .then(async (response) => {
-        const managerInfo = response.result;
+      const data = await response.json();
 
-        managerInfo.legalName = form.legalName;
-        managerInfo.establishmentDate = form.establishmentDate;
-        managerInfo.nationalCode = form.nationalCode;
-        managerInfo.type = form.type;
-        managerInfo.exchangeType = form.exchangeType;
-        managerInfo.siteAddress = form.siteAddress;
-        managerInfo.phoneNumber = form.phoneNumber;
-        managerInfo.emergencyPhoneNumber = form.emergencyPhoneNumber;
-        managerInfo.officeAddress = form.officeAddress;
-        managerInfo.email = form.email;
-        managerInfo.financialCode = form.financialCode;
-        managerInfo.registrationNumber = form.registrationNumber;
-
-        try {
-          const token = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("token="))
-            ?.split("=")[1];
-
-          if (!token) {
-            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-              position: "bottom-left",
+      if (!response.ok) {
+        if (response.status === 400 || response.status === 409) {
+          if (data?.result && typeof data.result === "object") {
+            Object.entries(data.result).forEach(([_, message]) => {
+              toast.error(`${message}`, { position: "bottom-left" });
             });
+            setLoading(false);
             return;
           }
-
-          setLoading(true);
-          const response = await fetch(
-            process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`,
-            {
-              method: "PUT",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(managerInfo),
+          if (data?.error && typeof data.error === "string") {
+            const match = data.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+            if (match) {
+              const [, field, value] = match;
+              toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+            } else {
+              toast.error(data.error, { position: "bottom-left" });
             }
-          );
-
-          if (!response.ok) {
-            console.log(response);
             setLoading(false);
-            return toast.error(`خطا در ذخیره مشخصات سکو`);
-          } else {
-            const responseData = await response.json();
-            toast.success("مشخصات با موفقیت ذخیره شد.", {
-              position: "bottom-left",
-            });
-            setLoading(false);
-            setInvoiceData((prev) => {
-              const newData = [...prev];
-              newData[0].content = [
-                { id: 1, title: "نام حقوقی", content: form.legalName },
-                {
-                  id: 2,
-                  title: "تاریخ تاسیس",
-                  content: toJalaliDate(form.establishmentDate),
-                },
-                { id: 3, title: "شناسه ملی سکو", content: form.nationalCode },
-                { id: 4, title: "نوع سکو", content: form.type },
-                { id: 5, title: "شکل حقوقی سکو", content: form.exchangeType },
-                { id: 6, title: "کد اقتصادی", content: form.financialCode },
-                {
-                  id: 7,
-                  title: "شماره ثبت",
-                  content: String(form.registrationNumber),
-                },
-              ];
-              newData[1].content = [
-                {
-                  id: 1,
-                  title: "آدرس سایت",
-                  content: (
-                    <a
-                      href={form.siteAddress}
-                      className="text-primary dark:text-primary-dark"
-                    >
-                      {form.siteAddress}
-                    </a>
-                  ),
-                },
-                { id: 2, title: "شماره تماس", content: form.phoneNumber },
-                {
-                  id: 3,
-                  title: "شماره تماس اضطراری",
-                  content: form.emergencyPhoneNumber,
-                },
-                { id: 4, title: "آدرس", content: form.officeAddress },
-                { id: 5, title: "ایمیل", content: form.email },
-              ];
-
-              return newData;
-            });
-
-            setIsOpen(false);
+            return;
           }
-        } catch (err) {
-          setLoading(false);
-          console.error(err);
-          return toast.error(`خطا در ذخیره اطلاعات سکو`);
         }
-      })
-      .catch((err) => {
-        console.log(err);
-        return toast.error(`خطا در ذخیره اطلاعات سکو`);
-      });
+        toast.error("خطا در ذخیره مشخصات سکو", { position: "bottom-left" });
+        setLoading(false);
+        return;
+      }
+
+      toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", { position: "bottom-left" });
+
+      // ✅ بروز رسانی state در صفحه بدون نیاز به refresh
+      handleEdit(1, 1, form.legalName);
+      handleEdit(1, 2, toJalaliDate(form.establishmentDate));
+      handleEdit(1, 3, form.nationalCode);
+      handleEdit(1, 4, form.type);
+      handleEdit(
+        1,
+        5,
+        ExchangeLegalTypes.find((item) => item.value === form.exchangeType)?.label
+      );
+      handleEdit(1, 6, form.financialCode);
+      handleEdit(1, 7, form.registrationNumber);
+      handleEdit(
+        2,
+        1,
+        form.siteAddress ? (
+          <a
+            href={form.siteAddress}
+            className="text-primary dark:text-primary-dark"
+          >
+            {form.siteAddress}
+          </a>
+        ) : ""
+      );
+      handleEdit(2, 2, form.phoneNumber);
+      handleEdit(2, 3, form.emergencyPhoneNumber);
+      handleEdit(2, 4, form.officeAddress);
+      handleEdit(2, 5, form.zipCode);
+      handleEdit(2, 6, form.email);
+
+      setIsOpen(false);
+    } catch (err) {
+      console.error(err);
+      toast.error("خطا در ارتباط با سرور", { position: "bottom-left" });
+    } finally {
+      setLoading(false);
+    }
   };
+
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] || null;
     setFile(f);
@@ -1184,8 +1159,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                             isActive={active}
                             isSelected={selected}
                             className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "P2P"
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
                               }`}
                           >
                             <MenuItem.Title>P2P</MenuItem.Title>
@@ -1197,8 +1172,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                           <MenuItem
                             isActive={active}
                             className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "OTC"
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
                               }`}
                           >
                             <MenuItem.Title>OTC</MenuItem.Title>
@@ -1245,7 +1220,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   <Dropdown
                     value={form.exchangeType}
                     onChange={(v: unknown) => {
-                      if (v === "STOCK" || v === "LIMITED_LIABILITY") {
+                      if (typeof (v) === 'string') {
                         setForm((p) => ({ ...p, exchangeType: v }));
                       }
                     }}
@@ -1255,18 +1230,12 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         as="span"
                         role="button"
                         variant="ghost"
-                        className="flex items-center justify-between w-full pl-10 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
-                    border border-gray-300 
+                        className="flex items-center justify-between w-full pl-10  py-2 
+                   text-gray-700 border border-gray-300 
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                    appearance-none relative"
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-boxColor-dark"
                       >
-                        <span>
-                          {form.exchangeType === "LIMITED_LIABILITY"
-                            ? "مسئولیت محدود"
-                            : form.exchangeType === "STOCK"
-                              ? "سهامی"
-                              : ""}
-                        </span>
+                        <span>{form.exchangeType !== "" ? ExchangeLegalTypes.find(item => item.value === form.exchangeType)?.label : "انتخاب"}</span>
                       </Button>
                     </Dropdown.Trigger>
 
@@ -1277,35 +1246,28 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                  rounded-lg dark:text-gray-100 appearance-none z-50
                  max-h-60 overflow-y-auto"
                     >
-                      <Dropdown.Option value="LIMITED_LIABILITY" key="option1">
-                        {({ selected, active }) => (
-                          <MenuItem
-                            isActive={active}
-                            isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === "LIMITED_LIABILITY"
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
-                              }`}
-                          >
-                            <MenuItem.Title>مسئولیت محدود</MenuItem.Title>
-                          </MenuItem>
-                        )}
-                      </Dropdown.Option>
-                      <Dropdown.Option value="STOCK" key="option2">
-                        {({ active }) => (
-                          <MenuItem
-                            isActive={active}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === "STOCK"
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
-                              }`}
-                          >
-                            <MenuItem.Title>سهامی</MenuItem.Title>
-                          </MenuItem>
-                        )}
-                      </Dropdown.Option>
+                      {
+                        ExchangeLegalTypes.map((item, index) => {
+                          return (
+                            <Dropdown.Option value={item.value} key={`option${index}`}>
+                              {({ selected, active }) => (
+                                <MenuItem isActive={active} isSelected={selected}
+                                  className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === item.value
+                                    ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                    : ""
+                                    }`}
+                                >
+                                  <MenuItem.Title>{item.label}</MenuItem.Title>
+                                </MenuItem>
+                              )}
+                            </Dropdown.Option>
+                          )
+                        })
+                      }
                     </Dropdown.Options>
                   </Dropdown>
+
+                  {/* فلش سمت راست */}
                   <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
                 </div>
               </div>
@@ -1349,10 +1311,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   value={form.emergencyPhoneNumber}
                   onChange={(e) => {
                     if (validateNumbers(e.target.value)) {
-                      setForm({
-                        ...form,
-                        emergencyPhoneNumber: e.target.value,
-                      });
+                      setForm({ ...form, emergencyPhoneNumber: e.target.value });
                     }
                   }}
                 />
@@ -1367,6 +1326,20 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   onChange={(e) =>
                     setForm({ ...form, officeAddress: e.target.value })
                   }
+                />
+              </div>
+              <div>
+                <label>کد پستی</label>
+                <Input
+                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  value={form.zipCode}
+                  onChange={(e) => {
+                    if (validateNumbers(e.target.value)) {
+                      setForm({ ...form, zipCode: e.target.value });
+                    }
+                  }}
                 />
               </div>
               <div>
@@ -1440,8 +1413,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         isActive={active}
                         isSelected={selected}
                         className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "اساسنامه"
-                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                            : ""
+                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                          : ""
                           }`}
                       >
                         <MenuItem.Title>اساسنامه</MenuItem.Title>
@@ -1453,8 +1426,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                       <MenuItem
                         isActive={active}
                         className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "صورت مالی"
-                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                            : ""
+                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                          : ""
                           }`}
                       >
                         <MenuItem.Title>صورت مالی</MenuItem.Title>

@@ -80,111 +80,18 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
         openModal();
     };
 
-    const handleSave = async () => {
-        if (!editingId) return;
-
-        if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.role === '') {
-            toast.error("نقش را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.email !== '' && form.email !== null) {
-            if (!validateEmail(form.email)) {
-                toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-                return;
-            }
-        }
-        let memberInfo = {
-            name: form.name !== null ? form.name : "",
-            phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
-            nationalCode: form.nationalCode !== null ? form.nationalCode : "",
-            role: form.role !== null ? form.role : "",
-            careerHistory: form.careerHistory !== null ? form.careerHistory : "",
-            educationalHistory: form.educationalHistory !== null ? form.educationalHistory : "",
-            sharePercentage: form.sharePercentage !== null ? Number(form.sharePercentage) : 0,
-            email: form.email !== null ? form.email : "",
-        }
-        memberInfo = {
-            ...memberInfo,
-            educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
-            careerHistory: form.careerHistory || "",
-        }
-        SetEditLoading(true)
-
-        try {
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                SetEditLoading(false)
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                return;
-            }
-
-            // setLoading(true)
-            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/board-members/${editingId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(memberInfo),
-
-            });
-
-            if (!response.ok) {
-                console.log(response)
-                // setLoading(false)
-                SetEditLoading(false)
-                return toast.error(`خطا در ذخیره عضو هیئت‌مدیره`);
-            } else {
-                const responseData = await response.json();
-                console.log(responseData);
-                SetEditLoading(false)
-                toast.success("عضو هیئت‌مدیره با موفقیت ویرایش شد.", { position: "bottom-left" });
-            }
-
-        } catch (err) {
-            console.error(err);
-            SetEditLoading(false)
-            return toast.error(`خطا در ذخیره عضو هیئت‌مدیره`);
-        }
-
-
-        setData((prevData) =>
-            prevData.map((item) =>
-                item.id === editingId ? { ...form, id: editingId } : item
-            )
-        );
-
-        setEditingId(null);
-        closeModal();
-    };
-
-
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
-        { header: "سمت",             
+        {
+            header: "سمت",
             cell: (row: Person) => (
-            <div
-                className="flex items-center gap-2 text-titleText dark:text-titleText-dark"
-            >
-                {BoardmemderRoleTypes.find(item => item.value === row.role)?.label}
-            </div>
-        ), },
+                <div
+                    className="flex items-center gap-2 text-titleText dark:text-titleText-dark"
+                >
+                    {BoardmemderRoleTypes.find(item => item.value === row.role)?.label}
+                </div>
+            ),
+        },
         { header: "شماره همراه", accessorKey: "phoneNumber" },
         { header: "کدملی", accessorKey: "nationalCode" },
         { header: "سوابق تحصیلی", accessorKey: "educationalHistory" },
@@ -270,57 +177,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     };
     const closeAddModal = () => setIsAddOpen(false);
 
-    const handleAdd = async () => {
-        if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.role === '') {
-            toast.error("نقش را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.email !== '' && form.email !== null) {
-            if (!validateEmail(form.email)) {
-                toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-                return;
-            }
-        }
 
-        const Member = {
-            careerHistory: form.careerHistory || "",
-            email: form.email || "",
-            name: form.name || "",
-            nationalCode: form.nationalCode || "",
-            phoneNumber: form.phoneNumber || "",
-            educationalHistory: form.educationalHistory || "",
-            role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value || "",
-            sharePercentage: form.sharePercentage ? Number(form.sharePercentage) : 0,
-        };
-
-        try {
-            SetAddLoading(true);
-
-            const newResponse = await PostRequest(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`,
-                Member
-            );
-            toast.success("عضو هیئت‌مدیره باموفقیت افزوده شد.", { position: "bottom-left" });
-            setData(prev => [...prev, { ...form, role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value || "", id: newResponse.result.id }]);
-            closeAddModal();
-        } catch (e: any) {
-            toast.error(e?.message || "خطا در ذخیره اعضای هیئت‌مدیره", { position: "bottom-left" });
-        } finally {
-            SetAddLoading(false);
-        }
-    };
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/board-members`)
             .then((response) => {
@@ -408,6 +265,171 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
         sharePercentage: "",
         email: "",
     });
+
+
+    // 📘 Helper functions
+    const normalize = (val: any) => String(val ?? "").trim();
+    const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
+    const hasNoSpecialChars = (val: string) => /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
+
+    // 🟢 ویرایش عضو هیئت‌مدیره
+    const handleSave = async () => {
+        if (!editingId) return;
+
+        const name = normalize(form.name);
+        const phoneNumber = normalize(form.phoneNumber);
+        const nationalCode = normalize(form.nationalCode);
+        const role = normalize(form.role);
+        const email = normalize(form.email);
+        const sharePercentage = Number(form.sharePercentage ?? 0);
+
+        // ✅ ولیدیشن‌ها
+        if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
+        if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
+        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+        if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+        if (!role) return toast.error("سمت یا نقش الزامی است", { position: "bottom-left" });
+        if (sharePercentage < 0 || sharePercentage > 100) return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
+        if (email && !validateEmail(email)) return toast.error("ایمیل را به‌درستی وارد کنید", { position: "bottom-left" });
+
+        const payload = {
+            name,
+            phoneNumber,
+            nationalCode,
+            role,
+            educationalHistory: normalize(form.educationalHistory),
+            careerHistory: normalize(form.careerHistory),
+            sharePercentage,
+            email,
+        };
+
+        SetEditLoading(true);
+        try {
+            const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
+            if (!token) throw new Error("توکن یافت نشد");
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members/${editingId}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const dataRes = await res.json();
+
+            // ✅ هندل خطاهای 400
+            if (!res.ok) {
+                if (res.status === 400 || res.status === 409) {
+                    if (dataRes?.result) {
+                        Object.entries(dataRes.result).forEach(([_, msg]) => toast.error(String(msg), { position: "bottom-left" }));
+                        return;
+                    }
+                    if (dataRes?.error) {
+                        const match = dataRes.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+                        if (match) {
+                            const [, field, value] = match;
+                            toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                        } else toast.error(dataRes.error, { position: "bottom-left" });
+                        return;
+                    }
+                }
+                throw new Error("خطا در ذخیره اطلاعات عضو هیئت‌مدیره");
+            }
+
+            toast.success("عضو هیئت‌مدیره با موفقیت ویرایش شد.", { position: "bottom-left" });
+            setData((prevData) =>
+                prevData.map((item) =>
+                    item.id === editingId ? { ...form, id: editingId } : item
+                )
+            );
+            closeModal();
+        } catch (err: any) {
+            toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
+        } finally {
+            SetEditLoading(false);
+        }
+    };
+
+    // 🟣 افزودن عضو جدید هیئت‌مدیره
+    const handleAdd = async () => {
+        const name = normalize(form.name);
+        const phoneNumber = normalize(form.phoneNumber);
+        const nationalCode = normalize(form.nationalCode);
+        const role = normalize(form.role);
+        const email = normalize(form.email);
+        const sharePercentage = Number(form.sharePercentage ?? 0);
+
+        // ✅ ولیدیشن‌ها
+        if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
+        if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
+        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+        if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+        if (!role) return toast.error("سمت یا نقش الزامی است", { position: "bottom-left" });
+        if (sharePercentage < 0 || sharePercentage > 100) return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
+        if (email && !validateEmail(email)) return toast.error("ایمیل را به‌درستی وارد کنید", { position: "bottom-left" });
+
+        const payload = {
+            name,
+            phoneNumber,
+            nationalCode,
+            role,
+            educationalHistory: normalize(form.educationalHistory),
+            careerHistory: normalize(form.careerHistory),
+            sharePercentage,
+            email,
+        };
+
+        SetAddLoading(true);
+        try {
+            const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
+            if (!token) throw new Error("توکن یافت نشد");
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const dataRes = await res.json();
+
+            // ✅ هندل خطاهای 400
+            if (!res.ok) {
+                if (res.status === 400 || res.status === 409) {
+                    if (dataRes?.result) {
+                        Object.entries(dataRes.result).forEach(([_, msg]) => toast.error(String(msg), { position: "bottom-left" }));
+                        return;
+                    }
+                    if (dataRes?.error) {
+                        const match = dataRes.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+                        if (match) {
+                            const [, field, value] = match;
+                            toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                        } else toast.error(dataRes.error, { position: "bottom-left" });
+                        return;
+                    }
+                }
+                throw new Error("خطا در افزودن عضو هیئت‌مدیره");
+            }
+
+            toast.success("عضو هیئت‌مدیره با موفقیت افزوده شد.", { position: "bottom-left" });
+            setData((prevData) =>
+                prevData.map((item) =>
+                    item.id === editingId ? { ...form, id: editingId } : item
+                )
+            );
+            closeAddModal();
+        } catch (err: any) {
+            toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
+        } finally {
+            SetAddLoading(false);
+        }
+    };
+
     return (
         <div className='mt-4'>
             <div className="flex justify-between items-center mb-3">
@@ -496,7 +518,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                                                 className="flex items-center justify-between w-full pl-10  py-2 
                    text-gray-700 border border-gray-300 
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-bgColor-dark"
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-boxColor-dark"
                                             >
                                                 <span>{form.role !== "" ? BoardmemderRoleTypes.find(item => item.value === form.role)?.label : "انتخاب"}</span>
                                             </Button>
@@ -659,7 +681,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                                                 className="flex items-center justify-between w-full pl-10  py-2 
                    text-gray-700 border border-gray-300 
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-bgColor-dark"
+                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-boxColor-dark"
                                             >
                                                 <span>{form.role !== "" ? form.role : "انتخاب"}</span>
                                             </Button>

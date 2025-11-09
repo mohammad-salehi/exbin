@@ -34,6 +34,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     const [siteAddress, SetsiteAddress] = useState<string>("");
     const [emergencyPhoneNumber, SetemergencyPhoneNumber] = useState<string>("");
     const [officeAddress, SetofficeAddress] = useState<string>("");
+    const [zipCode, SetzipCode] = useState<string>("");
     const [email, Setemail] = useState<string>("");
     const [registrationNumber, SetregistrationNumber] = useState<string>("");
     const [phoneNumber, SetphoneNumber] = useState<string>("");
@@ -76,6 +77,25 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             }
         }
         if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
+        if (/[@#!]/.test(name)) return toast.error("نام سکو نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (name.length > 200) return toast.error("طول نام سکو نباید بیشتر از ۲۰۰ کاراکتر باشد");
+        if (/[@#!]/.test(legalName)) return toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (legalName.length > 200) return toast.error("طول نام حقوقی نباید بیشتر از ۲۰۰ کاراکتر باشد");
+        if (!/^\d{11}$/.test(nationalCode))
+            return toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد");
+        if (!/^\d{11,16}$/.test(financialCode))
+            return toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد");
+        const regNum = Number(registrationNumber);
+        if (!/^\d{6}$/.test(registrationNumber) || regNum < 100000 || regNum > 999999)
+            return toast.error("شماره ثبت باید ۶ رقم و بین ۱۰۰۰۰۰ تا ۹۹۹۹۹۹ باشد");
+        if (phoneNumber && !/^0\d{10}$/.test(phoneNumber))
+            return toast.error("شماره تماس باید ۱۱ رقم و با ۰ شروع شود");
+        if (emergencyPhoneNumber && !/^0\d{10}$/.test(emergencyPhoneNumber))
+            return toast.error("شماره تماس اضطراری باید ۱۱ رقم و با ۰ شروع شود");
+        if (zipCode && !/^\d{10}$/.test(zipCode))
+            return toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد");
+        if (officeAddress.length > 1000)
+            return toast.error("طول آدرس دفتر نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
 
         const payload = {
             name,
@@ -98,7 +118,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             setLoading(true);
 
             const res: any = await PostRequest(
-                `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges`,
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges`,
                 payload
             );
 
@@ -106,32 +126,69 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             setID(res?.result?.id);
             SetStep(2);
         } catch (e: any) {
-            // PostRequest روی خطا متن پاسخ را داخل e.message می‌اندازد
             const msg = String(e?.message ?? "");
+            const status = e?.response?.status;
+            const data = e?.response?.data;
 
-            // تطبیق خطای تکراری بودن کد اقتصادی
+            // ✅ حالت 1: Validation error (result شامل چند فیلد)
+            if (status === 400 && data?.result && typeof data.result === "object") {
+                const errors = data.result;
+                Object.entries(errors).forEach(([field, message]) => {
+                    if (message) {
+                        toast.error(`${field} : ${message}`, { position: "bottom-left" });
+                    }
+                });
+                setLoading(false);
+                return;
+            }
+
+            // ⚠️ حالت 2: Duplicate error (result = null, error = "Exchange already exists with identifier: ...")
+            if ((status === 400 || status === 409) && data?.error) {
+                const duplicateMatch = data.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
+                if (duplicateMatch) {
+                    const field = duplicateMatch[1];
+                    const value = duplicateMatch[2];
+                    const fieldLabels: Record<string, string> = {
+                        nationalCode: "شناسه ملی",
+                        financialCode: "کد اقتصادی",
+                        phoneNumber: "شماره تماس",
+                        emergencyPhoneNumber: "شماره تماس اضطراری",
+                        zipCode: "کد پستی",
+                        legalName: "نام حقوقی",
+                        name: "نام سکو",
+                        siteAddress: "آدرس سایت"
+                    };
+                    const label = fieldLabels[field] || field;
+                    toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // ✳️ خطای تکراری بودن که در body نیامده ولی در message هست (fallback)
             const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
             if (financialCodeError) {
                 const existingFinancialCode = financialCodeError[1];
-                toast.error(`سکو با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد. لطفاً کد اقتصادی را اصلاح کنید.`, { position: "bottom-left" });
+                toast.error(`سکو با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد.`);
                 setLoading(false);
                 return;
             }
 
-            // تطبیق خطای تکراری بودن شناسه ملی
             const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
             if (nationalCodeError) {
                 const existingNationalCode = nationalCodeError[1];
-                toast.error(`سکو با شناسه ملی ${existingNationalCode} قبلاً وجود دارد. لطفاً شناسه ملی را اصلاح کنید.`, { position: "bottom-left" });
+                toast.error(`سکو با شناسه ملی ${existingNationalCode} قبلاً وجود دارد.`);
                 setLoading(false);
                 return;
             }
 
+            // ❌ سایر خطاها
             toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
             console.error(e);
         } finally {
             setLoading(false);
         }
+
     };
 
     return (
@@ -275,11 +332,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
                             {/* فلش سمت راست */}
                             <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
-
                         </div>
-
-
-
                     </div>
 
                     <div className="col-span-1">
@@ -412,9 +465,18 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                         <Input style={{ direction: 'ltr' }} value={email} onChange={(e) => { Setemail(e.target.value) }} placeholder='ایمیل سکو' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
-                    <div className="col-span-1 sm:col-span-2">
+                    <div className="col-span-1 sm:col-span-1">
                         <label className='text-titleText dark: dark:text-titleText-dark'>آدرس دفتر رسمی</label>
                         <Input value={officeAddress} onChange={(e) => { SetofficeAddress(e.target.value) }} placeholder='آدرس دفتر رسمی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    </div>
+
+                    <div className="col-span-1 sm:col-span-1">
+                        <label className='text-titleText dark: dark:text-titleText-dark'>کد پستی</label>
+                        <Input value={zipCode} onChange={(e) => {
+                            if (validateNumbers(e.target.value)) {
+                                SetzipCode(e.target.value)
+                            }
+                        }} placeholder='کد پستی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
                     </div>
 
                     <div>

@@ -107,83 +107,150 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
     const handleSave = async () => {
-        // ✅ یک‌بار ولیدیشن کافی است
-        if (!form.name.trim()) {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
+        // === Local Validations ===
+        if (!form.name.trim()) return toast.error("نام و نام‌خانوادگی الزامی است");
+        if (/[@#!]/.test(form.name))
+          return toast.error("نام نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (form.name.length > 200)
+          return toast.error("طول نام نباید بیشتر از ۲۰۰ کاراکتر باشد");
+        if (form.jobPosition && form.jobPosition.length > 100)
+          return toast.error("طول سمت نباید بیشتر از ۱۰۰ کاراکتر باشد");
+        if (form.jobPosition && /[@#!]/.test(form.jobPosition))
+          return toast.error("سمت نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (!form.phoneNumber.trim()) return toast.error("شماره همراه الزامی است");
+        if (!/^0\d{10}$/.test(form.phoneNumber))
+          return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود");
+        if (!form.nationalCode.trim()) return toast.error("کد ملی الزامی است");
+        if (!/^\d{10}$/.test(form.nationalCode))
+          return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
+        const today = new Date().toISOString().split("T")[0];
+        if (form.startDate && form.startDate > today)
+          return toast.error("تاریخ شروع به کار نمی‌تواند در آینده باشد");
+        if (form.insuranceStartDate && form.insuranceStartDate > today)
+          return toast.error("تاریخ شروع بیمه نمی‌تواند در آینده باشد");
+        if (form.insuranceEndDate && form.insuranceEndDate > today)
+          return toast.error("تاریخ پایان بیمه نمی‌تواند در آینده باشد");
+        if (form.insuranceStartDate && form.insuranceEndDate &&
+            form.insuranceStartDate > form.insuranceEndDate)
+          return toast.error("تاریخ شروع بیمه باید قبل از تاریخ پایان بیمه باشد");
+        if (form.educationalHistory && form.educationalHistory.length > 1000)
+          return toast.error("طول سوابق تحصیلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+        if (form.educationalHistory && /[@#!]/.test(form.educationalHistory))
+          return toast.error("سوابق تحصیلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (form.careerHistory && form.careerHistory.length > 1000)
+          return toast.error("طول سوابق شغلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+        if (form.careerHistory && /[@#!]/.test(form.careerHistory))
+          return toast.error("سوابق شغلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+      
+        // === Prepare Data ===
+        const Member = {
+          name: form.name,
+          jobPosition: form.jobPosition,
+          startDate: form.startDate,
+          educationalHistory: form.educationalHistory,
+          careerHistory: form.careerHistory,
+          insuranceStartDate: form.insuranceStartDate,
+          insuranceEndDate: form.insuranceEndDate,
+          isSpecialAccess: form.isSpecialAccess === true,
+          nationalCode: form.nationalCode,
+          phoneNumber: form.phoneNumber,
+        };
+      
+        const token = document.cookie
+          .split("; ")
+          .find((r) => r.startsWith("token="))
+          ?.split("=")[1];
+      
+        if (!token) {
+          toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+          return;
         }
-        if (!form.phoneNumber.trim()) {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (!form.nationalCode.trim()) {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (!form.jobPosition.trim()) {
-            toast.error("سمت شغلی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
+      
         try {
-            if (editingId) {
-                // 🟢 ویرایش در استیت محلی
-                SetData(data.map(member => (member.id === editingId ? { ...member, ...form } : member)));
-            } else {
-                // 🟢 افزودن جدید
-                const Member = {
-                    id: form.id,
-                    name: form.name,
-                    jobPosition: form.jobPosition,
-                    startDate: (form.startDate),
-                    educationalHistory: form.educationalHistory,
-                    careerHistory: form.careerHistory,
-                    insuranceStartDate: (form.insuranceStartDate),
-                    insuranceEndDate: (form.insuranceEndDate),
-                    isSpecialAccess: form.isSpecialAccess === true, // boolean خالص
-                    nationalCode: form.nationalCode,
-                    phoneNumber: form.phoneNumber,
-                };
-                console.log(Member)
-                setLoading(true);
-
-                await PostRequest(
-                    `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${ID}/employees`,
-                    Member // JSON ارسال می‌شود
-                );
-
-                toast.success("کارمند سکو باموفقیت افزوده شد.", { position: "bottom-left" });
-
-                const newMember: Person = { ...form };
-                SetData([...data, newMember]);
+          setLoading(true);
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/employees`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(Member),
             }
-
-            // فقط بعد از موفقیت مودال را ببند
-            closeModal();
-            setEditingId(null);
-
-            // ریست فرم
-            setForm({
-                id: '',
-                name: '',
-                jobPosition: '',
-                startDate: '',
-                educationalHistory: '',
-                careerHistory: '',
-                insuranceStartDate: '',
-                insuranceEndDate: '',
-                isSpecialAccess: null,
-                nationalCode: '',
-                phoneNumber: '',
-            });
-        } catch (e: any) {
-            toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
-        } finally {
+          );
+      
+          // === Handle 400 ===
+          if (response.status === 400 || response.status === 409) {
+            const resData = await response.json();
+      
+            // حالت ۱: result شامل چند فیلد
+            if (resData?.result && typeof resData.result === "object") {
+              Object.entries(resData.result).forEach(([field, message]) => {
+                if (message)
+                  toast.error(`${field} : ${message}`, { position: "bottom-left" });
+              });
+              setLoading(false);
+              return;
+            }
+      
+            // حالت ۲: error شامل identifier تکراری
+            if (resData?.error) {
+              const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
+              if (duplicateMatch) {
+                const field = duplicateMatch[1];
+                const value = duplicateMatch[2];
+                const fieldLabels: Record<string, string> = {
+                  nationalCode: "کد ملی",
+                  phoneNumber: "شماره تماس",
+                };
+                const label = fieldLabels[field] || field;
+                toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                setLoading(false);
+                return;
+              }
+            }
+      
+            toast.error("خطا در ذخیره کارمند", { position: "bottom-left" });
             setLoading(false);
+            return;
+          }
+      
+          // === Success ===
+          if (!response.ok) {
+            setLoading(false);
+            return toast.error("خطا در ذخیره کارمند", { position: "bottom-left" });
+          }
+      
+          const responseData = await response.json();
+          toast.success("کارمند با موفقیت افزوده شد.", { position: "bottom-left" });
+          SetData([...data, { ...form, id: String(data.length + 1) }]);
+          closeModal();
+          setEditingId(null);
+          setForm({
+            id: "",
+            name: "",
+            jobPosition: "",
+            startDate: "",
+            educationalHistory: "",
+            careerHistory: "",
+            insuranceStartDate: "",
+            insuranceEndDate: "",
+            isSpecialAccess: null,
+            nationalCode: "",
+            phoneNumber: "",
+          });
+        } catch (e: any) {
+          console.error(e);
+          toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
+        } finally {
+          setLoading(false);
         }
-    };
+      };
+      
 
     const nextStep = async () => {
-        window.location.assign(`/panel/exchange/${ID}`)
+        window.location.assign(`/panel/exchanges-list/exchange/${ID}`)
     }
 
     const [open, setOpen] = useState(false);

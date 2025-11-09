@@ -66,78 +66,6 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
         setEditingId(null);
     };
 
-    const handleSave = async () => {
-        if (!editingId) return;
-
-        if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
-        const memberInfo = {
-            name: form.name !== null ? form.name : "",
-            phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
-            nationalCode: form.nationalCode !== null ? form.nationalCode : "",
-        }
-        SetEditLoading(true)
-        try {
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                SetEditLoading(false)
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                return;
-            }
-
-            // setLoading(true)
-            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents/${editingId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(memberInfo),
-
-            });
-
-            if (!response.ok) {
-
-                // setLoading(false)
-                SetEditLoading(false)
-                return toast.error(`خطا در ویرایش نماینده سکو`);
-            } else {
-                const responseData = await response.json();
-                console.log(responseData);
-                SetEditLoading(false)
-                toast.success("نماینده سکو با موفقیت ویرایش شد.", { position: "bottom-left" });
-            }
-
-        } catch (err) {
-            console.error(err);
-            SetEditLoading(false)
-            return toast.error(`خطا در ذخیره نماینده سکو`);
-        }
-
-
-        setData((prev) =>
-            prev.map((item) =>
-                item.id === editingId ? { ...form, id: editingId } : item
-            )
-        );
-        closeModal();
-    };
-
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
         { header: "شماره همراه", accessorKey: "phoneNumber" },
@@ -212,45 +140,6 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     };
 
     const closeAddModal = () => setIsAddOpen(false);
-
-    const handleAdd = async () => {
-        if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
-        const Member = {
-            name: form.name,
-            nationalCode: form.nationalCode,
-            phoneNumber: form.phoneNumber,
-        };
-
-        try {
-            SetAddLoading(true);
-
-            const newResponse = await PostRequest(
-                `${process.env.NEXT_PUBLIC_API_URL ?? "https://sand-em-api.bahfara.ir"}/api/exchanges/${params.id}/exchange-agents`,
-                Member
-                // JSON ارسال می‌کنیم؛ نیازی به asFormData نیست
-            );
-
-            toast.success("نماینده سکو باموفقیت افزوده شد.", { position: "bottom-left" });
-            setData(prev => [...prev, { ...form, id: newResponse.result.id }]);
-            closeAddModal();
-        } catch (e: any) {
-            toast.error(e?.message || "خطا در ذخیره نماینده سکو", { position: "bottom-left" });
-        } finally {
-            SetAddLoading(false);
-        }
-    };
 
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/exchange-agents`)
@@ -336,6 +225,137 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
         phoneNumber: "",
         nationalCode: "",
     });
+
+    // 🔹 Helper Functions
+    const normalize = (val: any) => String(val ?? "").trim();
+    const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
+    const hasNoSpecialChars = (val: string) => /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
+
+    // 🟢 ویرایش نماینده سکو
+    const handleSave = async () => {
+        if (!editingId) return;
+
+        const name = normalize(form.name);
+        const phoneNumber = normalize(form.phoneNumber);
+        const nationalCode = normalize(form.nationalCode);
+
+        // ✅ اعتبارسنجی‌ها
+        if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
+        if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
+        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+        if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+
+        const payload = { name, phoneNumber, nationalCode };
+
+        SetEditLoading(true);
+        try {
+            const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
+            if (!token) throw new Error("توکن یافت نشد");
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${editingId}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const dataRes = await res.json();
+
+            // ✅ ارور هندلینگ برای status=400
+            if (!res.ok) {
+                if (res.status === 400 || res.status === 409) {
+                    if (dataRes?.result) {
+                        Object.entries(dataRes.result).forEach(([_, msg]) =>
+                            toast.error(String(msg), { position: "bottom-left" })
+                        );
+                        return;
+                    }
+                    if (dataRes?.error) {
+                        const match = dataRes.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+                        if (match) {
+                            const [, field, value] = match;
+                            toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                        } else toast.error(dataRes.error, { position: "bottom-left" });
+                        return;
+                    }
+                }
+                throw new Error("خطا در ویرایش نماینده سکو");
+            }
+
+            toast.success("نماینده سکو با موفقیت ویرایش شد.", { position: "bottom-left" });
+            setData(prev => prev.map(p => (p.id === editingId ? { ...p, ...payload } : p)));
+            closeModal();
+        } catch (err: any) {
+            toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
+        } finally {
+            SetEditLoading(false);
+        }
+    };
+
+    // 🟣 افزودن نماینده سکو
+    const handleAdd = async () => {
+        const name = normalize(form.name);
+        const phoneNumber = normalize(form.phoneNumber);
+        const nationalCode = normalize(form.nationalCode);
+
+        // ✅ اعتبارسنجی‌ها
+        if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
+        if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
+        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+        if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+
+        const payload = { name, phoneNumber, nationalCode };
+
+        SetAddLoading(true);
+        try {
+            const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
+            if (!token) throw new Error("توکن یافت نشد");
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const dataRes = await res.json();
+
+            // ✅ ارور هندلینگ برای status=400
+            if (!res.ok) {
+                if (res.status === 400 || res.status === 409) {
+                    if (dataRes?.result) {
+                        Object.entries(dataRes.result).forEach(([_, msg]) =>
+                            toast.error(String(msg), { position: "bottom-left" })
+                        );
+                        return;
+                    }
+                    if (dataRes?.error) {
+                        const match = dataRes.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+                        if (match) {
+                            const [, field, value] = match;
+                            toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                        } else toast.error(dataRes.error, { position: "bottom-left" });
+                        return;
+                    }
+                }
+                throw new Error("خطا در افزودن نماینده سکو");
+            }
+
+            toast.success("نماینده سکو با موفقیت افزوده شد.", { position: "bottom-left" });
+            setData(prev => [...prev, { ...payload, id: dataRes?.result?.id || String(prev.length + 1) }]);
+            closeAddModal();
+        } catch (err: any) {
+            toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
+        } finally {
+            SetAddLoading(false);
+        }
+    };
+
+
     return (
         <div className="mt-4">
             <div className="flex justify-between items-center mt-2">
@@ -542,15 +562,15 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                         <div className="flex justify-center gap-4 w-full">
 
                             <button
-                                disabled = {deleteLoading}
+                                disabled={deleteLoading}
                                 onClick={() => { deleteMember(deleteform) }}
                                 className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
                             >
                                 {
-                                    deleteLoading?
-                                    'درحال حذف...'
-                                    :
-                                    'حذف'
+                                    deleteLoading ?
+                                        'درحال حذف...'
+                                        :
+                                        'حذف'
                                 }
 
                             </button>

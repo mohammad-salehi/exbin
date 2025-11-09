@@ -52,54 +52,133 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
     };
 
     const handleSave = async () => {
-        // ✅ ولیدیشن یک‌بار کافی است
-        if (!form.name.trim() || !form.phoneNumber.trim() || !form.nationalCode.trim()) {
-          toast.error("نام، شماره همراه و کد ملی الزامی هستند", { position: "bottom-left" });
-          return;
-        }
-      
+        if (!form.name.trim()) return toast.error("نام و نام‌خانوادگی الزامی است");
+        if (/[@#!]/.test(form.name))
+            return toast.error("نام نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (form.name.length > 200)
+            return toast.error("طول نام نباید بیشتر از ۲۰۰ کاراکتر باشد");
+        if (!form.phoneNumber.trim()) return toast.error("شماره همراه الزامی است");
+        if (!/^0\d{10}$/.test(form.phoneNumber))
+            return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود");
+        if (!form.nationalCode.trim()) return toast.error("کد ملی الزامی است");
+        if (!/^\d{10}$/.test(form.nationalCode))
+            return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
+
         try {
-          if (editingId) {
-            // 🟢 ویرایش محلی
-            SetData(data.map(member => (member.id === editingId ? { ...member, ...form } : member)));
-          } else {
-            // 🟢 ایجاد نماینده جدید
-            const Member = {
-              name: form.name,
-              nationalCode: form.nationalCode,
-              phoneNumber: form.phoneNumber,
-            };
-      
-            setLoading(true);
-      
-            const AgentData = await PostRequest(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/exchange-agents`,
-              Member // JSON ارسال می‌شود
-            );
-      
-            toast.success("نماینده سکو باموفقیت افزوده شد.", { position: "bottom-left" });
-            console.log(AgentData)
-            const newMember: Person = {
-              id: String(data.length + 1),
-              ...form,
-            };
-            SetData(prev => [...prev, newMember]);
-          }
-      
-          // بستن مودال و ریست
-          closeModal();
-          setEditingId(null);
-          setForm({
-            name: "",
-            phoneNumber: "",
-            nationalCode: "",
-          });
+            if (editingId) {
+                // ویرایش محلی
+                SetData((prev) =>
+                    prev.map((member) =>
+                        member.id === editingId ? { ...member, ...form } : member
+                    )
+                );
+            } else {
+                // ایجاد نماینده جدید
+                const Member = {
+                    name: form.name,
+                    nationalCode: form.nationalCode,
+                    phoneNumber: form.phoneNumber,
+                };
+
+                setLoading(true);
+                const token = document.cookie
+                    .split("; ")
+                    .find((r) => r.startsWith("token="))
+                    ?.split("=")[1];
+
+                if (!token) {
+                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+                    return;
+                }
+
+                const response = await fetch(
+                    `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/exchange-agents`,
+                    {
+                        method: "POST",
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(Member),
+                    }
+                );
+
+                // === Handle 400 ===
+                if (response.status === 400 || response.status === 409) {
+                    const resData = await response.json();
+
+                    // حالت ۱: result شامل چند فیلد خطا
+                    if (resData?.result && typeof resData.result === "object") {
+                        Object.entries(resData.result).forEach(([field, message]) => {
+                            if (message)
+                                toast.error(`${field} : ${message}`, { position: "bottom-left" });
+                        });
+                        setLoading(false);
+                        return;
+                    }
+
+                    // حالت ۲: error شامل identifier تکراری
+                    if (resData?.error) {
+                        const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
+                        if (duplicateMatch) {
+                            const field = duplicateMatch[1];
+                            const value = duplicateMatch[2];
+                            const fieldLabels: Record<string, string> = {
+                                nationalCode: "کد ملی",
+                                phoneNumber: "شماره تماس",
+                            };
+                            const label = fieldLabels[field] || field;
+                            toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
+                                position: "bottom-left",
+                            });
+                            setLoading(false);
+                            return;
+                        }
+                    }
+
+                    toast.error("خطا در ذخیره نماینده سکو", { position: "bottom-left" });
+                    setLoading(false);
+                    return;
+                }
+
+                // === Success ===
+                if (!response.ok) {
+                    setLoading(false);
+                    return toast.error("خطا در ذخیره نماینده سکو", {
+                        position: "bottom-left",
+                    });
+                }
+
+                const responseData = await response.json();
+                toast.success("نماینده سکو با موفقیت افزوده شد.", {
+                    position: "bottom-left",
+                });
+                console.log(responseData);
+
+                const newMember: Person = {
+                    id: String(data.length + 1),
+                    ...form,
+                };
+                SetData((prev) => [...prev, newMember]);
+            }
+
+            // بستن مودال و ریست فرم
+            closeModal();
+            setEditingId(null);
+            setForm({
+                name: "",
+                phoneNumber: "",
+                nationalCode: "",
+            });
         } catch (e: any) {
-          toast.error(e?.message || "خطا در ذخیره نماینده سکو", { position: "bottom-left" });
+            console.error(e);
+            toast.error(e?.message || "خطا در ذخیره نماینده سکو", {
+                position: "bottom-left",
+            });
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
+    };
 
 
     return (
@@ -123,12 +202,12 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
                     columns={columns}
                 />
             </div>
-            
+
             <div className="relative w-full mt-4">
                 <div className="flex justify-between items-center w-full">
                     <div className="text-sm text-titleText dark:text-titleText-dark"></div>
                     <div className="text-sm text-titleText dark:text-titleText-dark w-full sm:w-auto">
-                    <button
+                        <button
                             className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
                             onClick={() => { nextStep() }}
                         >
@@ -161,7 +240,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
                                     if (validateNumbers(e.target.value)) {
                                         handleChange("phoneNumber", e.target.value)
                                     }
-                                    }} placeholder='شماره همراه' />
+                                }} placeholder='شماره همراه' />
                             </div>
                             <div>
                                 <label>کد ملی *</label>

@@ -28,91 +28,113 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
 
     const nextStep = async () => {
-        if (name === '') {
-            return (
-                toast.error("نام و نام‌خانوادگی مورد نظر را انتخاب کنید", {
-                    position: "bottom-left",
-                })
-            )
-        }
-        if (phoneNumber === '') {
-            return (
-                toast.error("شماره همراه مورد نظر را انتخاب کنید", {
-                    position: "bottom-left",
-                })
-            )
-        }
-        if (nationalCode === '') {
-            return (
-                toast.error("کد ملی مورد نظر را انتخاب کنید", {
-                    position: "bottom-left",
-                })
-            )
-        }
-        if (sharePercentage !== null && (Number(sharePercentage) < 0 || Number(sharePercentage) > 100)) {
-            return toast.error("درصد سهام باید بین 0 تا 100 باشد", {
-                position: "bottom-left",
-            });
-        }
-
-        if (!validateEmail(email) && email !== "") {
-            return (
-                toast.error("ایمیل مورد نظر را به درستی وارد کنید", {
-                    position: "bottom-left",
-                })
-            )
-        }
-
+        // === Local Validations ===
+        if (!name.trim()) return toast.error("نام و نام‌خانوادگی الزامی است");
+        if (/[@#!]/.test(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (name.length > 200) return toast.error("طول نام نباید بیشتر از ۲۰۰ کاراکتر باشد");
+        if (!phoneNumber.trim()) return toast.error("شماره همراه الزامی است");
+        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود");
+        if (!nationalCode.trim()) return toast.error("کد ملی الزامی است");
+        if (!/^\d{10}$/.test(nationalCode)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
+        if (educationalHistory && educationalHistory.length > 1000)
+          return toast.error("طول سوابق تحصیلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+        if (educationalHistory && /[@#!]/.test(educationalHistory))
+          return toast.error("سوابق تحصیلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (careerHistory && careerHistory.length > 1000)
+          return toast.error("طول سوابق شغلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+        if (careerHistory && /[@#!]/.test(careerHistory))
+          return toast.error("سوابق شغلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+        if (sharePercentage === "" || sharePercentage === null)
+          return toast.error("درصد سهام الزامی است");
+        const share = Number(sharePercentage);
+        if (isNaN(share) || share < 0 || share > 100)
+          return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد");
+        if (email && !validateEmail(email))
+          return toast.error("ایمیل وارد شده معتبر نیست");
+      
         const data = {
-            name,
-            phoneNumber,
-            nationalCode,
-            educationalHistory,
-            careerHistory,
-            sharePercentage: sharePercentage !== null ? Number(sharePercentage) : 0,
-            email
+          name,
+          phoneNumber,
+          nationalCode,
+          educationalHistory,
+          careerHistory,
+          sharePercentage: share,
+          email,
         };
-
+      
         try {
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+          const token = document.cookie
+            .split("; ")
+            .find((row) => row.startsWith("token="))
+            ?.split("=")[1];
+      
+          if (!token) {
+            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+            return;
+          }
+      
+          setLoading(true);
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/manager`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+          });
+      
+          // === Handle 400 response ===
+          if (response.status === 400 || response.status === 409) {
+            const resData = await response.json();
+      
+            // حالت ۱: result شامل چند فیلد
+            if (resData?.result && typeof resData.result === "object") {
+              Object.entries(resData.result).forEach(([field, message]) => {
+                if (message) toast.error(`${field} : ${message}`, { position: "bottom-left" });
+              });
+              setLoading(false);
+              return;
+            }
+      
+            // حالت ۲: error شامل identifier تکراری
+            if (resData?.error) {
+              const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
+              if (duplicateMatch) {
+                const field = duplicateMatch[1];
+                const value = duplicateMatch[2];
+                const fieldLabels: Record<string, string> = {
+                  nationalCode: "کد ملی",
+                  phoneNumber: "شماره تماس",
+                  email: "ایمیل",
+                };
+                const label = fieldLabels[field] || field;
+                toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                setLoading(false);
                 return;
+              }
             }
-
-            // ارسال درخواست به API
-            setLoading(true)
-            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${ID}/manager`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            if (!response.ok) {
-                console.log(response)
-                setLoading(false)
-                return toast.error(`خطا در ذخیره مدیرعامل`);
-            } else {
-                const responseData = await response.json();
-                console.log(responseData);
-                toast.success("مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
-                setLoading(false)
-                SetStep(3)
-            }
-
-        } catch (err) {
-            console.error(err);
-            return toast.error(`خطا در ذخیره مدیرعامل`);
+      
+            toast.error("خطا در ذخیره مدیرعامل", { position: "bottom-left" });
+            setLoading(false);
+            return;
+          }
+      
+          // === Success ===
+          if (!response.ok) {
+            setLoading(false);
+            return toast.error("خطا در ذخیره مدیرعامل", { position: "bottom-left" });
+          }
+      
+          toast.success("مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
+          setLoading(false);
+          SetStep(3);
+        } catch (e: any) {
+          console.error(e);
+          toast.error("خطا در ذخیره مدیرعامل", { position: "bottom-left" });
+          setLoading(false);
         }
-
-    }
+      };
+      
     return (
         <div className='mt-4'>
             <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>

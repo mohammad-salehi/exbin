@@ -78,109 +78,6 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
         setEditingId(null);
     };
 
-    const handleSave = async () => {
-        if (!editingId) return;
-
-        if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.jobPosition === '') {
-            toast.error("سمت را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        const toEnglishDigits = (s: string) =>
-            s.replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)])
-                .replace(/[٠-٩]/g, d => "0123456789"["٠١٢٣٤٥٦٧٨٩".indexOf(d)]);
-
-        // 2) نرمال‌سازی کلی تاریخ
-        const normalizeDateInput = (input?: string) => {
-            if (!input) return "";
-            return toEnglishDigits(input)
-                .replace(/[\u200c\u200e\u200f\ufeff]/g, "") // حذف ZWNJ/RTL marks/BOM
-                .replace(/[⁄∕／]/g, "/")                    // انواع slash به /
-                .replace(/\s+/g, "")                        // حذف فاصله‌ها
-                .trim();
-        };
-
-
-
-        let memberInfo = {
-            name: form.name !== null ? form.name : "",
-            jobPosition: form.jobPosition !== null ? form.jobPosition : "",
-            startDate: form.startDate !== null ? form.startDate : "",
-            educationalHistory: form.educationalHistory !== null ? form.educationalHistory : "",
-            careerHistory: form.careerHistory !== null ? form.careerHistory : "",
-            insuranceStartDate: form.insuranceStartDate !== null ? form.insuranceStartDate : "",
-            insuranceEndDate: form.insuranceEndDate !== null ? form.insuranceEndDate : "",
-            isSpecialAccess: form.isSpecialAccess !== null ? form.isSpecialAccess : "",
-            nationalCode: form.nationalCode !== null ? form.nationalCode : "",
-            phoneNumber: form.phoneNumber !== null ? form.phoneNumber : "",
-        }
-        memberInfo = {
-            ...memberInfo,
-            educationalHistory: form.educationalHistory || "", // اگر خالی بود، "" قرار بده
-            careerHistory: form.careerHistory || "",
-            jobPosition: form.jobPosition !== undefined ? form.jobPosition : "",
-        }
-        SetEditLoading(true)
-        try {
-            const token = document.cookie
-                .split('; ')
-                .find(row => row.startsWith('token='))
-                ?.split('=')[1];
-
-            if (!token) {
-                SetEditLoading(false)
-                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                return;
-            }
-
-            // setLoading(true)
-            const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees/${editingId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(memberInfo),
-
-            });
-
-            if (!response.ok) {
-                console.log(response)
-                // setLoading(false)
-                SetEditLoading(false)
-                return toast.error(`خطا در ویرایش کارمند`);
-            } else {
-                const responseData = await response.json();
-                SetEditLoading(false)
-                toast.success("کارمند با موفقیت ویرایش شد.", { position: "bottom-left" });
-            }
-
-        } catch (err) {
-            console.error(err);
-            SetEditLoading(false)
-            return toast.error(`خطا در ذخیره کارمند`);
-        }
-
-
-        setData((prev) =>
-            prev.map((item) =>
-                item.id === editingId ? { ...form, id: editingId } : item
-            )
-        );
-        closeModal();
-    };
-
     const columns: Column<Person>[] = [
         { header: "نام و نام‌خانوادگی", accessorKey: "name" },
         { header: "سمت", accessorKey: "jobPosition" },
@@ -309,54 +206,6 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
     const closeAddModal = () => setIsAddOpen(false);
 
-    const handleAdd = async () => {
-        if (form.name === '') {
-            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.phoneNumber === '') {
-            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.nationalCode === '') {
-            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-        if (form.jobPosition === '') {
-            toast.error("سمت را وارد کنید", { position: "bottom-left" });
-            return;
-        }
-
-        const memberInfo = {
-            name: form.name || "",
-            jobPosition: form.jobPosition ?? "",
-            startDate: form.startDate || "",
-            educationalHistory: form.educationalHistory || "",
-            careerHistory: form.careerHistory || "",
-            insuranceStartDate: form.insuranceStartDate || "",
-            insuranceEndDate: form.insuranceEndDate || "",
-            isSpecialAccess: (form as any).isSpecialAccess ?? "",
-            nationalCode: form.nationalCode || "",
-            phoneNumber: form.phoneNumber || "",
-        };
-
-        try {
-            SetAddLoading(true);
-
-            const newResponse = await PostRequest(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees`,
-                memberInfo
-            );
-            toast.success("کارمند باموفقیت افزوده شد.", { position: "bottom-left" });
-            setData(prev => [...prev, { ...form, ...memberInfo, id: newResponse.result.id }]);
-            closeAddModal();
-        } catch (e: any) {
-            toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
-        } finally {
-            SetAddLoading(false);
-        }
-    };
-
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}/employees`)
             .then((response) => {
@@ -371,6 +220,146 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
     }, [])
 
 
+    // ✅ Helper functions
+    const normalize = (val: any) => String(val ?? "").trim();
+    const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
+    const hasNoSpecialChars = (val: string) => /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
+
+    // ✅ ویرایش (handleSave)
+    const handleSave = async () => {
+        if (!editingId) return;
+
+        const name = normalize(form.name);
+        const jobPosition = normalize(form.jobPosition);
+        const phoneNumber = normalize(form.phoneNumber);
+        const nationalCode = normalize(form.nationalCode);
+
+        if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
+        if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
+        if (!jobPosition) return toast.error("سمت الزامی است", { position: "bottom-left" });
+        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+        if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+
+        const payload = {
+            ...form,
+            name,
+            jobPosition,
+            phoneNumber,
+            nationalCode,
+            educationalHistory: normalize(form.educationalHistory),
+            careerHistory: normalize(form.careerHistory),
+        };
+
+        SetEditLoading(true);
+        try {
+            const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
+            if (!token) throw new Error("توکن یافت نشد");
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees/${editingId}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                if (res.status === 400 || res.status === 409) {
+                    if (data?.result) {
+                        Object.entries(data.result).forEach(([_, msg]) => toast.error(String(msg), { position: "bottom-left" }));
+                        return;
+                    }
+                    if (data?.error) {
+                        const match = data.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+                        if (match) {
+                            const [, field, value] = match;
+                            toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                        } else toast.error(data.error, { position: "bottom-left" });
+                        return;
+                    }
+                }
+                throw new Error("خطا در ویرایش اطلاعات کارمند");
+            }
+
+            toast.success("کارمند با موفقیت ویرایش شد.", { position: "bottom-left" });
+            setData(prev => prev.map(p => (p.id === editingId ? { ...p, ...payload } : p)));
+            closeModal();
+        } catch (err: any) {
+            toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
+        } finally {
+            SetEditLoading(false);
+        }
+    };
+
+    // ✅ افزودن (handleAdd)
+    const handleAdd = async () => {
+        const name = normalize(form.name);
+        const jobPosition = normalize(form.jobPosition);
+        const phoneNumber = normalize(form.phoneNumber);
+        const nationalCode = normalize(form.nationalCode);
+
+        if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
+        if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
+        if (!jobPosition) return toast.error("سمت الزامی است", { position: "bottom-left" });
+        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+        if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+
+        const payload = {
+            name,
+            jobPosition,
+            startDate: form.startDate || "",
+            educationalHistory: normalize(form.educationalHistory),
+            careerHistory: normalize(form.careerHistory),
+            insuranceStartDate: form.insuranceStartDate || "",
+            insuranceEndDate: form.insuranceEndDate || "",
+            isSpecialAccess: !!form.isSpecialAccess,
+            nationalCode,
+            phoneNumber,
+        };
+
+        SetAddLoading(true);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees`, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1]}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                if (res.status === 400 || res.status === 409) {
+                    if (data?.result) {
+                        Object.entries(data.result).forEach(([_, msg]) => toast.error(String(msg), { position: "bottom-left" }));
+                        return;
+                    }
+                    if (data?.error) {
+                        const match = data.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+                        if (match) {
+                            const [, field, value] = match;
+                            toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                        } else toast.error(data.error, { position: "bottom-left" });
+                        return;
+                    }
+                }
+                throw new Error("خطا در افزودن کارمند");
+            }
+
+            toast.success("کارمند با موفقیت افزوده شد.", { position: "bottom-left" });
+            setData(prev => [...prev, { ...payload, id: data.result?.id || String(prev.length + 1) }]);
+            closeAddModal();
+        } catch (err: any) {
+            toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
+        } finally {
+            SetAddLoading(false);
+        }
+    };
 
     const Audit = () => {
         setLogLoading(true)
