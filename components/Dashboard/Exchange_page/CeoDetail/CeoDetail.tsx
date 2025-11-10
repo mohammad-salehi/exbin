@@ -96,7 +96,16 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
             toast.error("ایمیل وارد شده معتبر نیست", { position: "bottom-left" });
             return;
         }
-
+        const rawShare = form.sharePercentage ?? "";
+        const share = rawShare === "" ? NaN : Number(rawShare);
+        
+        if (isNaN(share)) {
+          return toast.error("درصد سهام را به‌درستی وارد کنید", { position: "bottom-left" });
+        }
+        if (share < 0 || share > 100) {
+          return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
+        }
+        
         const updatedForm = {
             ...form,
             educationalHistory: form.educationalHistory || "",
@@ -402,18 +411,26 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                             <div>
                                 <label>درصد سهام</label>
                                 <Input
-
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                    type="number"
-                                    value={form.sharePercentage}
+                                    type="text"
+                                    value={form.sharePercentage ?? ""}
                                     onChange={(e) => {
-                                        if (validateNumbers(e.target.value)) {
-                                            setForm({ ...form, sharePercentage: e.target.value })
+                                        const value = e.target.value;
+
+                                        // اجازه خالی
+                                        if (value === "") {
+                                            setForm({ ...form, sharePercentage: "" });
+                                            return;
                                         }
-                                    }
-                                    }
+
+                                        // فقط عدد + یک نقطه
+                                        const decimalRegex = /^\d*\.?\d*$/;
+                                        if (decimalRegex.test(value)) {
+                                            setForm({ ...form, sharePercentage: value });
+                                        }
+                                    }}
                                     placeholder="درصد سهام"
                                 />
                             </div>
