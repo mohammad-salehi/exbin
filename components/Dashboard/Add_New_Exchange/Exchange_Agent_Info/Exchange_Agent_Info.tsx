@@ -6,6 +6,7 @@ import { LoaderCircle } from '../../../Loader/Loader';
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
 import { PostRequest } from '../../../../functions/PostRequest';
+import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 type Person = {
     id: string;
@@ -65,119 +66,132 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
             return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
 
         try {
+            // حالت ویرایش فقط لوکاله
             if (editingId) {
-                // ویرایش محلی
-                SetData((prev) =>
-                    prev.map((member) =>
-                        member.id === editingId ? { ...member, ...form } : member
-                    )
-                );
+              SetData((prev) =>
+                prev.map((member) =>
+                  member.id === editingId ? { ...member, ...form } : member
+                )
+              );
             } else {
-                // ایجاد نماینده جدید
-                const Member = {
-                    name: form.name,
-                    nationalCode: form.nationalCode,
-                    phoneNumber: form.phoneNumber,
-                };
-
-                setLoading(true);
-                const token = document.cookie
-                    .split("; ")
-                    .find((r) => r.startsWith("token="))
-                    ?.split("=")[1];
-
-                if (!token) {
-                    toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-                    return;
-                }
-
-                const response = await fetch(
-                    `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/exchange-agents`,
-                    {
-                        method: "POST",
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(Member),
-                    }
-                );
-
-                // === Handle 400 ===
-                if (response.status === 400 || response.status === 409) {
-                    const resData = await response.json();
-
-                    // حالت ۱: result شامل چند فیلد خطا
-                    if (resData?.result && typeof resData.result === "object") {
-                        Object.entries(resData.result).forEach(([field, message]) => {
-                            if (message)
-                                toast.error(`${field} : ${message}`, { position: "bottom-left" });
-                        });
-                        setLoading(false);
-                        return;
-                    }
-
-                    // حالت ۲: error شامل identifier تکراری
-                    if (resData?.error) {
-                        const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
-                        if (duplicateMatch) {
-                            const field = duplicateMatch[1];
-                            const value = duplicateMatch[2];
-                            const fieldLabels: Record<string, string> = {
-                                nationalCode: "کد ملی",
-                                phoneNumber: "شماره تماس",
-                            };
-                            const label = fieldLabels[field] || field;
-                            toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
-                                position: "bottom-left",
-                            });
-                            setLoading(false);
-                            return;
-                        }
-                    }
-
-                    toast.error("خطا در ذخیره نماینده سکو", { position: "bottom-left" });
-                    setLoading(false);
-                    return;
-                }
-
-                // === Success ===
-                if (!response.ok) {
-                    setLoading(false);
-                    return toast.error("خطا در ذخیره نماینده سکو", {
-                        position: "bottom-left",
-                    });
-                }
-
-                const responseData = await response.json();
-                toast.success("نماینده سکو با موفقیت افزوده شد.", {
-                    position: "bottom-left",
+              // ایجاد نماینده جدید
+              const Member = {
+                name: form.name,
+                nationalCode: form.nationalCode,
+                phoneNumber: form.phoneNumber,
+              };
+        
+              setLoading(true);
+        
+              const token = document.cookie
+                .split("; ")
+                .find((r) => r.startsWith("token="))
+                ?.split("=")[1];
+        
+              if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+                  position: "bottom-left",
                 });
-                console.log(responseData);
-
-                const newMember: Person = {
-                    id: String(data.length + 1),
-                    ...form,
-                };
-                SetData((prev) => [...prev, newMember]);
+                setLoading(false);
+                return;
+              }
+        
+              const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/exchange-agents`,
+                {
+                  method: "POST",
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify(Member),
+                }
+              );
+        
+              // 👈 اول 403
+              if (response.status === 403) {
+                await refreshTokenOnly();
+                setLoading(false);
+              }
+        
+              // بعدش 400/409
+              if (response.status === 400 || response.status === 409) {
+                const resData = await response.json();
+        
+                if (resData?.result && typeof resData.result === "object") {
+                  Object.entries(resData.result).forEach(([field, message]) => {
+                    if (message)
+                      toast.error(`${field} : ${message}`, {
+                        position: "bottom-left",
+                      });
+                  });
+                  setLoading(false);
+                  return;
+                }
+        
+                if (resData?.error) {
+                  const duplicateMatch = resData.error.match(
+                    /identifier:\s*(\w+):\s*(\d+)/i
+                  );
+                  if (duplicateMatch) {
+                    const field = duplicateMatch[1];
+                    const value = duplicateMatch[2];
+                    const fieldLabels: Record<string, string> = {
+                      nationalCode: "کد ملی",
+                      phoneNumber: "شماره تماس",
+                    };
+                    const label = fieldLabels[field] || field;
+                    toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
+                      position: "bottom-left",
+                    });
+                    setLoading(false);
+                    return;
+                  }
+                }
+        
+                toast.error("خطا در ذخیره نماینده سکو", {
+                  position: "bottom-left",
+                });
+                setLoading(false);
+                return;
+              }
+        
+              // موفق نبود ولی 400/403 هم نبود
+              if (!response.ok) {
+                setLoading(false);
+                return toast.error("خطا در ذخیره نماینده سکو", {
+                  position: "bottom-left",
+                });
+              }
+        
+              const responseData = await response.json();
+              toast.success("نماینده سکو با موفقیت افزوده شد.", {
+                position: "bottom-left",
+              });
+        
+              const newMember: Person = {
+                id: String(data.length + 1),
+                ...form,
+              };
+              SetData((prev) => [...prev, newMember]);
             }
-
+        
             // بستن مودال و ریست فرم
             closeModal();
             setEditingId(null);
             setForm({
-                name: "",
-                phoneNumber: "",
-                nationalCode: "",
+              name: "",
+              phoneNumber: "",
+              nationalCode: "",
             });
-        } catch (e: any) {
+          } catch (e: any) {
             console.error(e);
             toast.error(e?.message || "خطا در ذخیره نماینده سکو", {
-                position: "bottom-left",
+              position: "bottom-left",
             });
-        } finally {
+          } finally {
             setLoading(false);
-        }
+          }
     };
 
 

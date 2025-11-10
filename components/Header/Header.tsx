@@ -11,6 +11,7 @@ type NavbarProps = {
 import { Dropdown, MenuItem, Modal } from "@heathmont/moon-core-tw";
 import { useEffect, useState } from "react";
 import { PostRequest } from "../../functions/PostRequest";
+import toast from "react-hot-toast";
 
 export default function Header({
   isOpen,
@@ -113,9 +114,10 @@ export default function Header({
 
       if (v !== formVersion) return;
 
-      setSuccess("رمز با موفقیت تغییر کرد.");
+      toast.success("رمزعبور با موفقیت تغییر کرد");
       setOldPassword("");
       setNewPassword("");
+      setOpen(false);
     } catch (err: any) {
       if (v !== formVersion) return;
       setError(err?.message || "خطا در تغییر رمز");

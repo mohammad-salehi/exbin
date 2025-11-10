@@ -11,6 +11,7 @@ import { PostRequest } from '../../../../functions/PostRequest';
 import Pagination from '../../../Pagination/Pagination';
 import { LogViewer } from '../../../../functions/changesHandler';
 import LoadingComponent from '../../../LoadingComponent/LoadingComponent';
+import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 type Person = {
     id: string;
@@ -248,18 +249,26 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
             if (!token) throw new Error("توکن یافت نشد");
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${editingId}`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
+            let res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${editingId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            // ⛔️ اول 403
+            if (res.status === 403) {
+                await refreshTokenOnly();
+                SetEditLoading(false);
+            }
 
             const dataRes = await res.json();
 
-            // ✅ ارور هندلینگ برای status=400
             if (!res.ok) {
                 if (res.status === 400 || res.status === 409) {
                     if (dataRes?.result) {
@@ -273,7 +282,9 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                         if (match) {
                             const [, field, value] = match;
                             toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                        } else toast.error(dataRes.error, { position: "bottom-left" });
+                        } else {
+                            toast.error(dataRes.error, { position: "bottom-left" });
+                        }
                         return;
                     }
                 }
@@ -309,18 +320,27 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
             if (!token) throw new Error("توکن یافت نشد");
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents`, {
-                method: "POST",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
+            let res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            // ⛔️ اول 403
+            if (res.status === 403) {
+                await refreshTokenOnly();
+                SetAddLoading(false);
+                return;
+            }
 
             const dataRes = await res.json();
 
-            // ✅ ارور هندلینگ برای status=400
             if (!res.ok) {
                 if (res.status === 400 || res.status === 409) {
                     if (dataRes?.result) {
@@ -334,7 +354,9 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
                         if (match) {
                             const [, field, value] = match;
                             toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                        } else toast.error(dataRes.error, { position: "bottom-left" });
+                        } else {
+                            toast.error(dataRes.error, { position: "bottom-left" });
+                        }
                         return;
                     }
                 }
@@ -342,7 +364,10 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
             }
 
             toast.success("نماینده سکو با موفقیت افزوده شد.", { position: "bottom-left" });
-            setData(prev => [...prev, { ...payload, id: dataRes?.result?.id || String(prev.length + 1) }]);
+            setData(prev => [
+                ...prev,
+                { ...payload, id: dataRes?.result?.id || String(prev.length + 1) },
+            ]);
             closeAddModal();
         } catch (err: any) {
             toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });

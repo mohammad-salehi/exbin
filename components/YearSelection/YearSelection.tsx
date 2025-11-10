@@ -11,8 +11,8 @@ interface PersianYearSelectProps {
 const PersianYearSelect: React.FC<PersianYearSelectProps> = ({
   value,
   onChange,
-  startYear = 1300,
-  endYear = 1420,
+  startYear = 1380,
+  endYear = 1405,
   className = "",
 }) => {
   const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);

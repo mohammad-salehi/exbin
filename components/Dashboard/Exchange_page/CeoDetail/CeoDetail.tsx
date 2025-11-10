@@ -11,6 +11,7 @@ import { validateNumbers } from '../../../../functions/Validations';
 import Pagination from '../../../Pagination/Pagination';
 import { LogViewer } from '../../../../functions/changesHandler';
 import LoadingComponent from '../../../LoadingComponent/LoadingComponent';
+import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 type Person = {
     id: string;
@@ -70,116 +71,123 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
         // ✅ Validation مشترک برای هر دو حالت
         const isEmpty = (val?: string) => !val || val.trim() === "";
         const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
-      
+
         if (isEmpty(form.name)) {
-          toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("نام و نام‌خانوادگی را وارد کنید", { position: "bottom-left" });
+            return;
         }
         if (isEmpty(form.phoneNumber)) {
-          toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("شماره همراه را وارد کنید", { position: "bottom-left" });
+            return;
         }
         if (!/^0\d{10}$/.test(form.phoneNumber)) {
-          toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
-          return;
+            toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+            return;
         }
         if (isEmpty(form.nationalCode)) {
-          toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
-          return;
+            toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+            return;
         }
         if (!isDigits(form.nationalCode, 10)) {
-          toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
-          return;
+            toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+            return;
         }
         if (form.email && !validateEmail(form.email)) {
-          toast.error("ایمیل وارد شده معتبر نیست", { position: "bottom-left" });
-          return;
+            toast.error("ایمیل وارد شده معتبر نیست", { position: "bottom-left" });
+            return;
         }
-      
+
         const updatedForm = {
-          ...form,
-          educationalHistory: form.educationalHistory || "",
-          careerHistory: form.careerHistory || "",
-          sharePercentage: form.sharePercentage || "0",
+            ...form,
+            educationalHistory: form.educationalHistory || "",
+            careerHistory: form.careerHistory || "",
+            sharePercentage: form.sharePercentage || "0",
         };
-      
+
         setLoading(true);
-      
+
         try {
-          const token = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("token="))
-            ?.split("=")[1];
-      
-          if (!token) {
-            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-            setLoading(false);
-            return;
-          }
-      
-          // ✅ مسیر و متد بر اساس حالت (افزودن یا ویرایش)
-          const isEdit = !!editingId && data.length !== 0;
-          const url = isEdit
-            ? `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager/${editingId}`
-            : `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager`;
-      
-          const method = isEdit ? "PUT" : "POST";
-      
-          const response = await fetch(url, {
-            method,
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(updatedForm),
-          });
-      
-          const dataRes = await response.json();
-      
-          if (!response.ok) {
-            // ✅ هندل خطاهای ۴۰۰ / ۴۰۹ (Bad Request / Conflict)
-            if (response.status === 400 || response.status === 409) {
-              if (dataRes?.result && typeof dataRes.result === "object") {
-                Object.entries(dataRes.result).forEach(([_, msg]) => {
-                  toast.error(String(msg), { position: "bottom-left" });
+            const token = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("token="))
+                ?.split("=")[1];
+
+            if (!token) {
+                toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+                    position: "bottom-left",
                 });
-              } else if (dataRes?.error) {
-                toast.error(dataRes.error, { position: "bottom-left" });
-              } else {
-                toast.error("خطا در ذخیره مشخصات مدیرعامل", { position: "bottom-left" });
-              }
-            } else {
-              toast.error("خطا در ذخیره مشخصات مدیرعامل", { position: "bottom-left" });
+                setLoading(false);
+                return;
             }
-            setLoading(false);
-            return;
-          }
-      
-          // ✅ موفقیت در ذخیره
-          toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", { position: "bottom-left" });
-      
-          // ✅ به‌روزرسانی state محلی بدون نیاز به reload
-          if (isEdit) {
-            setData((prev) =>
-              prev.map((item) =>
-                item.id === editingId ? { ...form, id: editingId } : item
-              )
-            );
-          } else {
-            // حالت افزودن
-            const newManager = dataRes?.result || updatedForm;
-            setData([newManager]);
-          }
-      
-          closeModal();
+
+            const isEdit = !!editingId && data.length !== 0;
+            const url = isEdit
+                ? `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager/${editingId}`
+                : `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager`;
+
+            const method = isEdit ? "PUT" : "POST";
+
+            const response = await fetch(url, {
+                method,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(updatedForm),
+            });
+
+            // ⛔️ اول 403 رو چک کن
+            if (response.status === 403) {
+                await refreshTokenOnly();
+                setLoading(false);
+            }
+
+            // حالا که مطمئن شدیم 403 نیست، بریم سراغ بادی
+            const dataRes = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 400 || response.status === 409) {
+                    if (dataRes?.result && typeof dataRes.result === "object") {
+                        Object.entries(dataRes.result).forEach(([_, msg]) => {
+                            toast.error(String(msg), { position: "bottom-left" });
+                        });
+                    } else if (dataRes?.error) {
+                        toast.error(dataRes.error, { position: "bottom-left" });
+                    } else {
+                        toast.error("خطا در ذخیره مشخصات مدیرعامل", { position: "bottom-left" });
+                    }
+                } else {
+                    toast.error("خطا در ذخیره مشخصات مدیرعامل", { position: "bottom-left" });
+                }
+                setLoading(false);
+                return;
+            }
+
+            // ✅ موفقیت
+            toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", {
+                position: "bottom-left",
+            });
+
+            if (isEdit) {
+                setData((prev) =>
+                    prev.map((item) =>
+                        item.id === editingId ? { ...form, id: editingId } : item
+                    )
+                );
+            } else {
+                const newManager = dataRes?.result || updatedForm;
+                setData([newManager]);
+            }
+
+            closeModal();
         } catch (err) {
-          console.error(err);
-          toast.error("خطا در ارتباط با سرور", { position: "bottom-left" });
+            console.error(err);
+            toast.error("خطا در ارتباط با سرور", { position: "bottom-left" });
         } finally {
-          setLoading(false);
+            setLoading(false);
         }
-      };
-      
+    };
+
 
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
@@ -412,7 +420,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                             <div>
                                 <label>ایمیل</label>
                                 <Input
- style={{direction:'ltr'}}
+                                    style={{ direction: 'ltr' }}
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
       shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"

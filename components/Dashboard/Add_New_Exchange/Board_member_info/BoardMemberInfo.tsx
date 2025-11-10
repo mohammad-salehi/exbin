@@ -6,6 +6,7 @@ import { LoaderCircle } from '../../../Loader/Loader';
 import { validateNumbers } from '../../../../functions/Validations';
 import { BoardmemderRoleTypes } from '../../../../functions/BoardmemberRoleTypes';
 import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
+import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 type Person = {
     id: string;
@@ -65,133 +66,151 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         if (form.name.length > 200) return toast.error("طول نام نباید بیشتر از ۲۰۰ کاراکتر باشد");
         if (!form.phoneNumber.trim()) return toast.error("شماره همراه الزامی است");
         if (!/^0\d{10}$/.test(form.phoneNumber))
-          return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود");
+            return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود");
         if (!form.nationalCode.trim()) return toast.error("کد ملی الزامی است");
         if (!/^\d{10}$/.test(form.nationalCode))
-          return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
+            return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
         if (!form.role.trim()) return toast.error("سمت (نقش) الزامی است");
         if (form.sharePercentage === null || form.sharePercentage === "")
-          return toast.error("درصد سهام الزامی است");
-        const share = Number(form.sharePercentage);
-        if (isNaN(share) || share < 0 || share > 100)
-          return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد");
+            return toast.error("درصد سهام الزامی است");
+        const share = parseFloat(String(form.sharePercentage));
+        if (isNaN(share) || share < 0 || share > 100) {
+            return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد");
+        }
         if (form.educationalHistory && form.educationalHistory.length > 1000)
-          return toast.error("طول سوابق تحصیلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+            return toast.error("طول سوابق تحصیلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
         if (form.educationalHistory && /[@#!]/.test(form.educationalHistory))
-          return toast.error("سوابق تحصیلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+            return toast.error("سوابق تحصیلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
         if (form.careerHistory && form.careerHistory.length > 1000)
-          return toast.error("طول سوابق شغلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+            return toast.error("طول سوابق شغلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
         if (form.careerHistory && /[@#!]/.test(form.careerHistory))
-          return toast.error("سوابق شغلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+            return toast.error("سوابق شغلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
         if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-          return toast.error("ایمیل وارد شده معتبر نیست");
-      
+            return toast.error("ایمیل وارد شده معتبر نیست");
+
         // === Prepare Data ===
         const Member = {
-          name: form.name,
-          phoneNumber: form.phoneNumber,
-          nationalCode: form.nationalCode,
-          role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value,
-          careerHistory: form.careerHistory,
-          educationalHistory: form.educationalHistory,
-          sharePercentage: share,
-          email: form.email,
+            name: form.name,
+            phoneNumber: form.phoneNumber,
+            nationalCode: form.nationalCode,
+            role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value,
+            careerHistory: form.careerHistory,
+            educationalHistory: form.educationalHistory,
+            sharePercentage: share,
+            email: form.email,
         };
-      
+
         const token = document.cookie
-          .split("; ")
-          .find((row) => row.startsWith("token="))
-          ?.split("=")[1];
-      
+            .split("; ")
+            .find((row) => row.startsWith("token="))
+            ?.split("=")[1];
+
         if (!token) {
-          toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-          return;
+            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+            return;
         }
-      
+
         try {
-          setLoading(true);
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/board-members`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(Member),
+            setLoading(true);
+        
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/board-members`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(Member),
+              }
+            );
+        
+            // 👈 اول 403
+            if (response.status === 403) {
+              await refreshTokenOnly();
+              setLoading(false);
             }
-          );
-      
-          // === Handle 400 errors ===
-          if (response.status === 400 || response.status === 409) {
-            const resData = await response.json();
-      
-            // حالت ۱: result شامل چند فیلد خطا
-            if (resData?.result && typeof resData.result === "object") {
-              Object.entries(resData.result).forEach(([field, message]) => {
-                if (message) toast.error(`${field} : ${message}`, { position: "bottom-left" });
+        
+            // === Handle 400 / 409 ===
+            if (response.status === 400 || response.status === 409) {
+              const resData = await response.json();
+        
+              if (resData?.result && typeof resData.result === "object") {
+                Object.entries(resData.result).forEach(([field, message]) => {
+                  if (message)
+                    toast.error(`${field} : ${message}`, { position: "bottom-left" });
+                });
+                setLoading(false);
+                return;
+              }
+        
+              if (resData?.error) {
+                const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
+                if (duplicateMatch) {
+                  const field = duplicateMatch[1];
+                  const value = duplicateMatch[2];
+                  const fieldLabels: Record<string, string> = {
+                    nationalCode: "کد ملی",
+                    phoneNumber: "شماره تماس",
+                    email: "ایمیل",
+                  };
+                  const label = fieldLabels[field] || field;
+                  toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
+                    position: "bottom-left",
+                  });
+                  setLoading(false);
+                  return;
+                }
+              }
+        
+              toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
+                position: "bottom-left",
               });
               setLoading(false);
               return;
             }
-      
-            // حالت ۲: error شامل identifier تکراری
-            if (resData?.error) {
-              const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
-              if (duplicateMatch) {
-                const field = duplicateMatch[1];
-                const value = duplicateMatch[2];
-                const fieldLabels: Record<string, string> = {
-                  nationalCode: "کد ملی",
-                  phoneNumber: "شماره تماس",
-                  email: "ایمیل",
-                };
-                const label = fieldLabels[field] || field;
-                toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                setLoading(false);
-                return;
-              }
+        
+            // === Success ===
+            if (!response.ok) {
+              setLoading(false);
+              return toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
+                position: "bottom-left",
+              });
             }
-      
-            toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", { position: "bottom-left" });
+        
+            const responseData = await response.json();
+            toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", {
+              position: "bottom-left",
+            });
+        
+            const newMember: Person = {
+              id: String(data.length + 1),
+              ...form,
+            };
+            SetData([...data, newMember]);
+        
+            closeModal();
+            setEditingId(null);
+            setForm({
+              name: "",
+              phoneNumber: "",
+              nationalCode: "",
+              role: "",
+              careerHistory: "",
+              educationalHistory: "",
+              sharePercentage: null,
+              email: "",
+            });
+          } catch (e: any) {
+            console.error(e);
+            toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
+              position: "bottom-left",
+            });
+          } finally {
             setLoading(false);
-            return;
           }
-      
-          // === Success ===
-          if (!response.ok) {
-            setLoading(false);
-            return toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", { position: "bottom-left" });
-          }
-      
-          const responseData = await response.json();
-          toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", { position: "bottom-left" });
-      
-          const newMember: Person = {
-            id: String(data.length + 1),
-            ...form,
-          };
-          SetData([...data, newMember]);
-          setLoading(false);
-          closeModal();
-          setEditingId(null);
-          setForm({
-            name: "",
-            phoneNumber: "",
-            nationalCode: "",
-            role: "",
-            careerHistory: "",
-            educationalHistory: "",
-            sharePercentage: null,
-            email: "",
-          });
-        } catch (e: any) {
-          console.error(e);
-          toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", { position: "bottom-left" });
-          setLoading(false);
-        }
-      };
-      
+    };
+
 
     const nextStep = async () => {
         SetStep(4)
@@ -269,7 +288,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                             <div>
                                 <label>نقش *</label>
                                 <div className="relative w-full mt-2">
-                                    <Dropdown onChange={(e) => {if (typeof(e) === 'string') {handleChange("role", e)}}} value={form.role}>
+                                    <Dropdown onChange={(e) => { if (typeof (e) === 'string') { handleChange("role", e) } }} value={form.role}>
                                         <Dropdown.Trigger className="w-full">
                                             <Button
                                                 as="span"
@@ -331,19 +350,27 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                 <label>درصد سهام</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-             bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-             shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+      bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
+      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                                     type="text"
                                     value={form.sharePercentage ?? ""}
                                     onChange={(e) => {
-                                        const value = (e.target.value);
-                                        if (validateNumbers(e.target.value)) {
-                                            handleChange("sharePercentage", value)
+                                        const value = e.target.value;
+
+                                        // اجازه بده خالی باشه
+                                        if (value === "") {
+                                            handleChange("sharePercentage", value);
+                                            return;
+                                        }
+
+                                        // فقط عدد و یک نقطه
+                                        const decimalRegex = /^\d*\.?\d*$/;
+                                        if (decimalRegex.test(value)) {
+                                            handleChange("sharePercentage", value);
                                         }
                                     }}
                                     placeholder="درصد سهام"
                                 />
-
                             </div>
                             <div>
                                 <label>ایمیل</label>

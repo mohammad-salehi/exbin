@@ -17,6 +17,7 @@ import LoadingComponent from '../../../LoadingComponent/LoadingComponent';
 
 import { BoardmemderRoleTypes } from '../../../../functions/BoardmemberRoleTypes';
 import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
+import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 type Person = {
     id: string;
@@ -49,9 +50,6 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
         sharePercentage: "",
         email: "",
     });
-
-
-
 
     const [isOpen, setIsOpen] = useState(false);
     const [editLoading, SetEditLoading] = useState<boolean>(false)
@@ -267,12 +265,10 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     });
 
 
-    // 📘 Helper functions
     const normalize = (val: any) => String(val ?? "").trim();
     const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
     const hasNoSpecialChars = (val: string) => /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
 
-    // 🟢 ویرایش عضو هیئت‌مدیره و سهامداران
     const handleSave = async () => {
         if (!editingId) return;
 
@@ -289,9 +285,14 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
         if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
         if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
         if (!role) return toast.error("سمت یا نقش الزامی است", { position: "bottom-left" });
-        if (sharePercentage < 0 || sharePercentage > 100) return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
+        if (isNaN(sharePercentage)) {
+            return toast.error("درصد سهام را به‌درستی وارد کنید", { position: "bottom-left" });
+        }
+        if (sharePercentage < 0 || sharePercentage > 100) {
+            return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
+        }
         if (email && !validateEmail(email)) return toast.error("ایمیل را به‌درستی وارد کنید", { position: "bottom-left" });
-        
+
         const payload = {
             name,
             phoneNumber,
@@ -302,138 +303,154 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
             sharePercentage,
             email,
         };
-        console.log(role)
+
         SetEditLoading(true);
         try {
             const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
             if (!token) throw new Error("توکن یافت نشد");
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members/${editingId}`, {
+        
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members/${editingId}`,
+              {
                 method: "PUT",
                 headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
                 },
                 body: JSON.stringify(payload),
-            });
-
-            const dataRes = await res.json();
-
-            // ✅ هندل خطاهای 400
-            if (!res.ok) {
-                if (res.status === 400 || res.status === 409) {
-                    if (dataRes?.result) {
-                        Object.entries(dataRes.result).forEach(([_, msg]) => toast.error(String(msg), { position: "bottom-left" }));
-                        return;
-                    }
-                    if (dataRes?.error) {
-                        const match = dataRes.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
-                        if (match) {
-                            const [, field, value] = match;
-                            toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                        } else toast.error(dataRes.error, { position: "bottom-left" });
-                        return;
-                    }
-                }
-                throw new Error("خطا در ذخیره اطلاعات عضو هیئت‌مدیره و سهامداران");
+              }
+            );
+        
+            // ⛔️ اول 403
+            if (res.status === 403) {
+              await refreshTokenOnly();
+              SetEditLoading(false);
             }
-
+        
+            const dataRes = await res.json();
+        
+            // ✅ هندل خطا
+            if (!res.ok) {
+              if (res.status === 400 || res.status === 409) {
+                if (dataRes?.result) {
+                  Object.entries(dataRes.result).forEach(([_, msg]) =>
+                    toast.error(String(msg), { position: "bottom-left" })
+                  );
+                  return;
+                }
+                if (dataRes?.error) {
+                  const match = dataRes.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+                  if (match) {
+                    const [, field, value] = match;
+                    toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+                  } else {
+                    toast.error(dataRes.error, { position: "bottom-left" });
+                  }
+                  return;
+                }
+              }
+              throw new Error("خطا در ذخیره اطلاعات عضو هیئت‌مدیره و سهامداران");
+            }
+        
+            // ✅ موفق
             toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت ویرایش شد.", { position: "bottom-left" });
-            setData((prevData) =>
-                prevData.map((item) =>
-                    item.id === editingId ? { ...form, id: editingId } : item
-                )
+            setData(prev =>
+              prev.map(item => (item.id === editingId ? { ...form, id: editingId } : item))
             );
             closeModal();
-        } catch (err: any) {
+          } catch (err: any) {
             toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
-        } finally {
+          } finally {
             SetEditLoading(false);
-        }
+          }
     };
 
-    // 🟣 افزودن عضو جدید هیئت‌مدیره و سهامداران
-// 🟣 افزودن عضو جدید هیئت‌مدیره و سهامداران
-const handleAdd = async () => {
-    const name = normalize(form.name);
-    const phoneNumber = normalize(form.phoneNumber);
-    const nationalCode = normalize(form.nationalCode);
-    const role = normalize(form.role);
-    const email = normalize(form.email);
-    const sharePercentageNum = Number(form.sharePercentage ?? 0);
-  
-    // ولیدیشن‌ها...
-    if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
-    if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
-    if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
-    if (!role) return toast.error("سمت یا نقش الزامی است", { position: "bottom-left" });
-    if (sharePercentageNum < 0 || sharePercentageNum > 100) return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
-    if (email && !validateEmail(email)) return toast.error("ایمیل را به‌درستی وارد کنید", { position: "bottom-left" });
-  
-    // اینجا مقدار value نقش رو پیدا کن و اگر نبود خالی بذار
-    const roleValue =
-      BoardmemderRoleTypes.find((item) => item.label === role)?.value ?? "";
-  
-    // اینجا payload رو همون‌جوری بساز که با Person بخونه
-    const payload: Omit<Person, "id"> = {
-      name,
-      phoneNumber,
-      nationalCode,
-      role: roleValue,                  // 👈 حالا قطعا string شده
-      educationalHistory: normalize(form.educationalHistory),
-      careerHistory: normalize(form.careerHistory),
-      sharePercentage: String(sharePercentageNum), // 👈 Person می‌خواد string
-      email,
-    };
-  
-    SetAddLoading(true);
-    try {
-      const token = document.cookie.split("; ").find((r) => r.startsWith("token="))?.split("=")[1];
-      if (!token) throw new Error("توکن یافت نشد");
-  
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            // این یکی بدنه‌ایه که به سرور می‌فرستی (اگر سرور number می‌خواد می‌تونی number بدی)
-            ...payload,
-            sharePercentage: sharePercentageNum,
-          }),
+    const handleAdd = async () => {
+        const name = normalize(form.name);
+        const phoneNumber = normalize(form.phoneNumber);
+        const nationalCode = normalize(form.nationalCode);
+        const role = normalize(form.role);
+        const email = normalize(form.email);
+        // ولیدیشن‌ها...
+        if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
+        if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+        if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+        if (!role) return toast.error("سمت یا نقش الزامی است", { position: "bottom-left" });
+        const sharePercentageNum = parseFloat(String(form.sharePercentage ?? "").trim());
+        if (isNaN(sharePercentageNum)) {
+            return toast.error("درصد سهام را به‌درستی وارد کنید", { position: "bottom-left" });
         }
-      );
-  
-      const dataRes = await res.json();
-  
-      if (!res.ok) {
-        // همون هندل ارورهای قبلی...
-        throw new Error(dataRes?.error || "خطا در افزودن عضو هیئت‌مدیره و سهامداران");
-      }
-  
-      // اینجا دیگه payload طبق Person ـه، فقط id رو از سرور می‌گیری
-      setData((prev) => [
-        ...prev,
-        {
-          ...payload,
-          id: dataRes.result?.id ?? String(prev.length + 1),
-        },
-      ]);
-  
-      closeAddModal();
-      toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", {
-        position: "bottom-left",
-      });
-    } catch (err: any) {
-      toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
-    } finally {
-      SetAddLoading(false);
-    }
-  };
-  
+        if (sharePercentageNum < 0 || sharePercentageNum > 100) {
+            return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
+        }
+        if (email && !validateEmail(email)) return toast.error("ایمیل را به‌درستی وارد کنید", { position: "bottom-left" });
+
+        const roleValue =
+            BoardmemderRoleTypes.find((item) => item.label === role)?.value ?? "";
+
+        const payload: Omit<Person, "id"> = {
+            name,
+            phoneNumber,
+            nationalCode,
+            role: roleValue,
+            educationalHistory: normalize(form.educationalHistory),
+            careerHistory: normalize(form.careerHistory),
+            sharePercentage: String(sharePercentageNum),
+            email,
+        };
+
+        SetAddLoading(true);
+        try {
+            const token = document.cookie.split("; ").find((r) => r.startsWith("token="))?.split("=")[1];
+            if (!token) throw new Error("توکن یافت نشد");
+        
+            const res = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  ...payload,
+                  sharePercentage: sharePercentageNum, // بک‌اندت اینو عدد میخواد
+                }),
+              }
+            );
+        
+            // ⛔️ اول 403
+            if (res.status === 403) {
+              await refreshTokenOnly();
+              SetAddLoading(false);
+            }
+        
+            const dataRes = await res.json();
+        
+            if (!res.ok) {
+              // اگه دوست داری اینجا هم 400/409 رو مثل بالا ریزتر هندل کن
+              throw new Error(dataRes?.error || "خطا در افزودن عضو هیئت‌مدیره و سهامداران");
+            }
+        
+            setData((prev) => [
+              ...prev,
+              {
+                ...payload,
+                id: dataRes.result?.id ?? String(prev.length + 1),
+              },
+            ]);
+        
+            closeAddModal();
+            toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", {
+              position: "bottom-left",
+            });
+          } catch (err: any) {
+            toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });
+          } finally {
+            SetAddLoading(false);
+          }
+    };
+
 
     return (
         <div className='mt-4'>
@@ -591,16 +608,25 @@ const handleAdd = async () => {
                                 <label>درصد سهام</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-      bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                                    type="number"
+    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
+    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                    type="text"
                                     value={form.sharePercentage}
                                     onChange={(e) => {
-                                        if (validateNumbers(e.target.value)) {
-                                            setForm({ ...form, sharePercentage: e.target.value })
+                                        const value = e.target.value;
+
+                                        // اجازه خالی
+                                        if (value === "") {
+                                            setForm({ ...form, sharePercentage: "" });
+                                            return;
                                         }
-                                    }
-                                    }
+
+                                        // فقط عدد + یک اعشار
+                                        const decimalRegex = /^\d*\.?\d*$/;
+                                        if (decimalRegex.test(value)) {
+                                            setForm({ ...form, sharePercentage: value });
+                                        }
+                                    }}
                                     placeholder="درصد سهام"
                                 />
                             </div>
@@ -743,14 +769,29 @@ const handleAdd = async () => {
                             </div>
                             <div>
                                 <label>درصد سهام</label>
-                                <Input className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-      bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-      shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" type="number" value={form.sharePercentage} onChange={(e) => {
-                                        if (validateNumbers(e.target.value)) {
-                                            setForm({ ...form, sharePercentage: e.target.value })
+                                <Input
+                                    className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
+    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                                    type="text"
+                                    value={form.sharePercentage}
+                                    onChange={(e) => {
+                                        const value = e.target.value;
+
+                                        // اجازه خالی
+                                        if (value === "") {
+                                            setForm({ ...form, sharePercentage: "" });
+                                            return;
                                         }
-                                    }
-                                    } placeholder="درصد سهام" />
+
+                                        // فقط عدد + یک اعشار
+                                        const decimalRegex = /^\d*\.?\d*$/;
+                                        if (decimalRegex.test(value)) {
+                                            setForm({ ...form, sharePercentage: value });
+                                        }
+                                    }}
+                                    placeholder="درصد سهام"
+                                />
                             </div>
                             <div>
                                 <label>ایمیل</label>

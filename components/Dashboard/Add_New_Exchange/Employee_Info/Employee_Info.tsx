@@ -14,6 +14,7 @@ import { PostRequest } from "../../../../functions/PostRequest";
 import { toLocalDate } from '../../../../functions/toLocalDate';
 import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
 import { toJalaliDate } from "../../../../functions/toJalaliDate";
+import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
 
 type Person = {
     id: string;
@@ -167,85 +168,102 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         }
       
         try {
-          setLoading(true);
-          const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/employees`,
-            {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${token}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(Member),
-            }
-          );
-      
-          // === Handle 400 ===
-          if (response.status === 400 || response.status === 409) {
-            const resData = await response.json();
-      
-            // حالت ۱: result شامل چند فیلد
-            if (resData?.result && typeof resData.result === "object") {
-              Object.entries(resData.result).forEach(([field, message]) => {
-                if (message)
-                  toast.error(`${field} : ${message}`, { position: "bottom-left" });
-              });
+            setLoading(true);
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/employees`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(Member),
+              }
+            );
+        
+            // 👈 اول 403
+            if (response.status === 403) {
+              await refreshTokenOnly();
               setLoading(false);
-              return;
             }
-      
-            // حالت ۲: error شامل identifier تکراری
-            if (resData?.error) {
-              const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
-              if (duplicateMatch) {
-                const field = duplicateMatch[1];
-                const value = duplicateMatch[2];
-                const fieldLabels: Record<string, string> = {
-                  nationalCode: "کد ملی",
-                  phoneNumber: "شماره تماس",
-                };
-                const label = fieldLabels[field] || field;
-                toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+        
+            // === Handle 400 / 409 ===
+            if (response.status === 400 || response.status === 409) {
+              const resData = await response.json();
+        
+              if (resData?.result && typeof resData.result === "object") {
+                Object.entries(resData.result).forEach(([field, message]) => {
+                  if (message)
+                    toast.error(`${field} : ${message}`, {
+                      position: "bottom-left",
+                    });
+                });
                 setLoading(false);
                 return;
               }
+        
+              if (resData?.error) {
+                const duplicateMatch = resData.error.match(
+                  /identifier:\s*(\w+):\s*(\d+)/i
+                );
+                if (duplicateMatch) {
+                  const field = duplicateMatch[1];
+                  const value = duplicateMatch[2];
+                  const fieldLabels: Record<string, string> = {
+                    nationalCode: "کد ملی",
+                    phoneNumber: "شماره تماس",
+                  };
+                  const label = fieldLabels[field] || field;
+                  toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
+                    position: "bottom-left",
+                  });
+                  setLoading(false);
+                  return;
+                }
+              }
+        
+              toast.error("خطا در ذخیره کارمند", { position: "bottom-left" });
+              setLoading(false);
+              return;
             }
-      
-            toast.error("خطا در ذخیره کارمند", { position: "bottom-left" });
+        
+            // ✅ Success
+            if (!response.ok) {
+              setLoading(false);
+              return toast.error("خطا در ذخیره کارمند", {
+                position: "bottom-left",
+              });
+            }
+        
+            const responseData = await response.json();
+            toast.success("کارمند با موفقیت افزوده شد.", {
+              position: "bottom-left",
+            });
+        
+            SetData([...data, { ...form, id: String(data.length + 1) }]);
+            closeModal();
+            setEditingId(null);
+            setForm({
+              id: "",
+              name: "",
+              jobPosition: "",
+              startDate: "",
+              educationalHistory: "",
+              careerHistory: "",
+              insuranceStartDate: "",
+              insuranceEndDate: "",
+              isSpecialAccess: null,
+              nationalCode: "",
+              phoneNumber: "",
+            });
+          } catch (e: any) {
+            console.error(e);
+            toast.error(e?.message || "خطا در ذخیره کارمند", {
+              position: "bottom-left",
+            });
+          } finally {
             setLoading(false);
-            return;
           }
-      
-          // === Success ===
-          if (!response.ok) {
-            setLoading(false);
-            return toast.error("خطا در ذخیره کارمند", { position: "bottom-left" });
-          }
-      
-          const responseData = await response.json();
-          toast.success("کارمند با موفقیت افزوده شد.", { position: "bottom-left" });
-          SetData([...data, { ...form, id: String(data.length + 1) }]);
-          closeModal();
-          setEditingId(null);
-          setForm({
-            id: "",
-            name: "",
-            jobPosition: "",
-            startDate: "",
-            educationalHistory: "",
-            careerHistory: "",
-            insuranceStartDate: "",
-            insuranceEndDate: "",
-            isSpecialAccess: null,
-            nationalCode: "",
-            phoneNumber: "",
-          });
-        } catch (e: any) {
-          console.error(e);
-          toast.error(e?.message || "خطا در ذخیره کارمند", { position: "bottom-left" });
-        } finally {
-          setLoading(false);
-        }
       };
       
 

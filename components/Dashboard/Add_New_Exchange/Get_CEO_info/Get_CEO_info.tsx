@@ -7,6 +7,7 @@ import { LoaderCircle } from '../../../Loader/Loader';
 import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
 import { validateWebsite } from '../../../../functions/Validations';
+import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
@@ -74,20 +75,28 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
           }
       
           setLoading(true);
-          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/manager`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(data),
-          });
+          const response = await fetch(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/manager`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            }
+          );
       
-          // === Handle 400 response ===
+          // 👈 اول 403
+          if (response.status === 403) {
+            await refreshTokenOnly();
+            setLoading(false);
+          }
+      
+          // بعدش بقیه رو بخون
           if (response.status === 400 || response.status === 409) {
             const resData = await response.json();
       
-            // حالت ۱: result شامل چند فیلد
             if (resData?.result && typeof resData.result === "object") {
               Object.entries(resData.result).forEach(([field, message]) => {
                 if (message) toast.error(`${field} : ${message}`, { position: "bottom-left" });
@@ -96,7 +105,6 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               return;
             }
       
-            // حالت ۲: error شامل identifier تکراری
             if (resData?.error) {
               const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
               if (duplicateMatch) {
@@ -119,7 +127,6 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             return;
           }
       
-          // === Success ===
           if (!response.ok) {
             setLoading(false);
             return toast.error("خطا در ذخیره مدیرعامل", { position: "bottom-left" });

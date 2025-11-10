@@ -13,6 +13,7 @@ import { addHttps, removeProtocolAndWWW, validateDomainExtension, validateEmail,
 import { PostRequest } from '../../../../functions/PostRequest';
 import { toEnglishDigits } from '../../../../functions/EnglishNumber';
 import { toLocalDate } from '../../../../functions/toLocalDate';
+import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
@@ -88,10 +89,10 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
         const regNum = Number(registrationNumber);
         if (!/^\d{6}$/.test(registrationNumber) || regNum < 100000 || regNum > 999999)
             return toast.error("شماره ثبت باید ۶ رقم و بین ۱۰۰۰۰۰ تا ۹۹۹۹۹۹ باشد");
-        if (phoneNumber && !/^0\d{10}$/.test(phoneNumber))
-            return toast.error("شماره تماس باید ۱۱ رقم و با ۰ شروع شود");
-        if (emergencyPhoneNumber && !/^0\d{10}$/.test(emergencyPhoneNumber))
-            return toast.error("شماره تماس اضطراری باید ۱۱ رقم و با ۰ شروع شود");
+        // if (phoneNumber && !/^0\d{10}$/.test(phoneNumber))
+        //     return toast.error("شماره تماس باید ۱۱ رقم و با ۰ شروع شود");
+        // if (emergencyPhoneNumber && !/^0\d{10}$/.test(emergencyPhoneNumber))
+        //     return toast.error("شماره تماس اضطراری باید ۱۱ رقم و با ۰ شروع شود");
         if (zipCode && !/^\d{10}$/.test(zipCode))
             return toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد");
         if (officeAddress.length > 1000)
@@ -116,79 +117,84 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
         try {
             setLoading(true);
-
+        
             const res: any = await PostRequest(
-                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges`,
-                payload
+              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges`,
+              payload
             );
-
+        
             toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" });
             setID(res?.result?.id);
             SetStep(2);
-        } catch (e: any) {
+          } catch (e: any) {
             const msg = String(e?.message ?? "");
             const status = e?.response?.status;
             const data = e?.response?.data;
-
-            // ✅ حالت 1: Validation error (result شامل چند فیلد)
+        
+            // ⛔️ این قسمت رو جابه‌جا کردیم
+            if (status === 403) {
+              await refreshTokenOnly();
+              setLoading(false);
+            }
+        
+            // ✅ 1) خطاهای ولیدیشن
             if (status === 400 && data?.result && typeof data.result === "object") {
-                const errors = data.result;
-                Object.entries(errors).forEach(([field, message]) => {
-                    if (message) {
-                        toast.error(`${field} : ${message}`, { position: "bottom-left" });
-                    }
-                });
+              const errors = data.result;
+              Object.entries(errors).forEach(([field, message]) => {
+                if (message) {
+                  toast.error(`${field} : ${message}`, { position: "bottom-left" });
+                }
+              });
+              setLoading(false);
+              return;
+            }
+        
+            // ✅ 2) خطاهای duplicate از سمت بک‌اند
+            if ((status === 400 || status === 409) && data?.error) {
+              const duplicateMatch = data.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
+              if (duplicateMatch) {
+                const field = duplicateMatch[1];
+                const value = duplicateMatch[2];
+                const fieldLabels: Record<string, string> = {
+                  nationalCode: "شناسه ملی",
+                  financialCode: "کد اقتصادی",
+                  phoneNumber: "شماره تماس",
+                  emergencyPhoneNumber: "شماره تماس اضطراری",
+                  zipCode: "کد پستی",
+                  legalName: "نام حقوقی",
+                  name: "نام سکو",
+                  siteAddress: "آدرس سایت"
+                };
+                const label = fieldLabels[field] || field;
+                toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
                 setLoading(false);
                 return;
+              }
             }
-
-            // ⚠️ حالت 2: Duplicate error (result = null, error = "Exchange already exists with identifier: ...")
-            if ((status === 400 || status === 409) && data?.error) {
-                const duplicateMatch = data.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
-                if (duplicateMatch) {
-                    const field = duplicateMatch[1];
-                    const value = duplicateMatch[2];
-                    const fieldLabels: Record<string, string> = {
-                        nationalCode: "شناسه ملی",
-                        financialCode: "کد اقتصادی",
-                        phoneNumber: "شماره تماس",
-                        emergencyPhoneNumber: "شماره تماس اضطراری",
-                        zipCode: "کد پستی",
-                        legalName: "نام حقوقی",
-                        name: "نام سکو",
-                        siteAddress: "آدرس سایت"
-                    };
-                    const label = fieldLabels[field] || field;
-                    toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                    setLoading(false);
-                    return;
-                }
-            }
-
-            // ✳️ خطای تکراری بودن که در body نیامده ولی در message هست (fallback)
+        
+            // ✅ 3) fallbackهای متنی
             const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
             if (financialCodeError) {
-                const existingFinancialCode = financialCodeError[1];
-                toast.error(`سکو با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد.`);
-                setLoading(false);
-                return;
+              const existingFinancialCode = financialCodeError[1];
+              toast.error(`سکو با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد.`);
+              setLoading(false);
+              return;
             }
-
+        
             const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
             if (nationalCodeError) {
-                const existingNationalCode = nationalCodeError[1];
-                toast.error(`سکو با شناسه ملی ${existingNationalCode} قبلاً وجود دارد.`);
-                setLoading(false);
-                return;
+              const existingNationalCode = nationalCodeError[1];
+              toast.error(`سکو با شناسه ملی ${existingNationalCode} قبلاً وجود دارد.`);
+              setLoading(false);
+              return;
             }
-
+        
             // ❌ سایر خطاها
             toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
             console.error(e);
-        } finally {
+          } finally {
             setLoading(false);
-        }
-
+          }
     };
 
     return (
@@ -421,7 +427,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
                             <input
                                 type="file"
-                                accept="image/*"
+                                accept="image/png, image/jpeg, image/jpg, image/gif"
                                 onChange={handleFileChange}
                                 className="hidden"
                             />

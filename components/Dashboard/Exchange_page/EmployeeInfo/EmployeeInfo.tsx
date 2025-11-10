@@ -14,6 +14,7 @@ import { LogViewer } from '../../../../functions/changesHandler';
 import LoadingComponent from '../../../LoadingComponent/LoadingComponent';
 import JalaliLocalDatePicker from '../../../DatePicker/JalaliLocalDatePicker';
 import { toJalaliDate } from '../../../../functions/toJalaliDate';
+import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 type Person = {
     id: string;
@@ -255,21 +256,32 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
             if (!token) throw new Error("توکن یافت نشد");
 
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees/${editingId}`, {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees/${editingId}`,
+                {
+                    method: "PUT",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            // ⛔ اول 403
+            if (res.status === 403) {
+                await refreshTokenOnly();
+                SetEditLoading(false);
+            }
 
             const data = await res.json();
 
             if (!res.ok) {
                 if (res.status === 400 || res.status === 409) {
                     if (data?.result) {
-                        Object.entries(data.result).forEach(([_, msg]) => toast.error(String(msg), { position: "bottom-left" }));
+                        Object.entries(data.result).forEach(([_, msg]) =>
+                            toast.error(String(msg), { position: "bottom-left" })
+                        );
                         return;
                     }
                     if (data?.error) {
@@ -277,7 +289,9 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                         if (match) {
                             const [, field, value] = match;
                             toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                        } else toast.error(data.error, { position: "bottom-left" });
+                        } else {
+                            toast.error(data.error, { position: "bottom-left" });
+                        }
                         return;
                     }
                 }
@@ -322,21 +336,35 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
         SetAddLoading(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1]}`,
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(payload),
-            });
+            const token = document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1];
+            if (!token) throw new Error("توکن یافت نشد");
+
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees`,
+                {
+                    method: "POST",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(payload),
+                }
+            );
+
+            // ⛔ اول 403
+            if (res.status === 403) {
+                await refreshTokenOnly();
+                SetAddLoading(false);
+            }
 
             const data = await res.json();
 
             if (!res.ok) {
                 if (res.status === 400 || res.status === 409) {
                     if (data?.result) {
-                        Object.entries(data.result).forEach(([_, msg]) => toast.error(String(msg), { position: "bottom-left" }));
+                        Object.entries(data.result).forEach(([_, msg]) =>
+                            toast.error(String(msg), { position: "bottom-left" })
+                        );
                         return;
                     }
                     if (data?.error) {
@@ -344,7 +372,9 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                         if (match) {
                             const [, field, value] = match;
                             toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                        } else toast.error(data.error, { position: "bottom-left" });
+                        } else {
+                            toast.error(data.error, { position: "bottom-left" });
+                        }
                         return;
                     }
                 }
@@ -352,7 +382,10 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             }
 
             toast.success("کارمند با موفقیت افزوده شد.", { position: "bottom-left" });
-            setData(prev => [...prev, { ...payload, id: data.result?.id || String(prev.length + 1) }]);
+            setData(prev => [
+                ...prev,
+                { ...payload, id: data.result?.id || String(prev.length + 1) },
+            ]);
             closeAddModal();
         } catch (err: any) {
             toast.error(err.message || "خطا در ارتباط با سرور", { position: "bottom-left" });

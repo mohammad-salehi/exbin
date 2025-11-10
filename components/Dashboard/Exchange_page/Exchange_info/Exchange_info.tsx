@@ -31,6 +31,7 @@ import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
 import PersianYearSelect from "../../../YearSelection/YearSelection";
 import { BoardmemderRoleTypes } from "../../../../functions/BoardmemberRoleTypes";
 import { ExchangeLegalTypes } from "../../../../functions/ExchangeLegalTypes";
+import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
 type AnyObj = Record<string, any>;
 
 interface InvoiceContent {
@@ -357,37 +358,37 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           ),
           title: "",
         },
-        {
-          id: 3,
-          content: (
-            <div
-              className="flex justify-between items-center cursor-pointer"
-              onClick={() => {
-                setisLogOpen(true);
-                setLogPage(0);
-                setLogNumber(0);
-              }}
-            >
-              <span className="flex items-center ml-1 text-titleText dark:text-titleText-dark">
-                <svg
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  />
-                </svg>{" "}
-              </span>
-              <p className="text-right">تاریخچه تغییرات</p>
-            </div>
-          ),
-          title: "",
-        },
+        // {
+        //   id: 3,
+        //   content: (
+        //     <div
+        //       className="flex justify-between items-center cursor-pointer"
+        //       onClick={() => {
+        //         setisLogOpen(true);
+        //         setLogPage(0);
+        //         setLogNumber(0);
+        //       }}
+        //     >
+        //       <span className="flex items-center ml-1 text-titleText dark:text-titleText-dark">
+        //         <svg
+        //           width="24"
+        //           height="24"
+        //           viewBox="0 0 24 24"
+        //           fill="none"
+        //           xmlns="http://www.w3.org/2000/svg"
+        //         >
+        //           <path
+        //             d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10"
+        //             stroke="currentColor"
+        //             strokeWidth="2"
+        //           />
+        //         </svg>{" "}
+        //       </span>
+        //       <p className="text-right">تاریخچه تغییرات</p>
+        //     </div>
+        //   ),
+        //   title: "",
+        // },
       ],
     },
   ]);
@@ -905,24 +906,34 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     try {
       setLoading(true);
       const token = document.cookie.split("; ").find((r) => r.startsWith("token="))?.split("=")[1];
-
+  
       if (!token) {
         toast.error("توکن موجود نیست، لطفاً دوباره وارد شوید.", { position: "bottom-left" });
         setLoading(false);
         return;
       }
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(form),
-      });
-
+  
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`,
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      );
+  
+      // 🔴 اول 403 رو چک کن
+      if (response.status === 403) {
+        await refreshTokenOnly();
+        setLoading(false);
+      }
+  
       const data = await response.json();
-
+  
+      // بقیه‌ی هندل ارورها
       if (!response.ok) {
         if (response.status === 400 || response.status === 409) {
           if (data?.result && typeof data.result === "object") {
@@ -948,10 +959,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         setLoading(false);
         return;
       }
-
+  
+      // ✅ موفق
       toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", { position: "bottom-left" });
-
-      // ✅ بروز رسانی state در صفحه بدون نیاز به refresh
+  
+      // آپدیت UI
       handleEdit(1, 1, form.legalName);
       handleEdit(1, 2, toJalaliDate(form.establishmentDate));
       handleEdit(1, 3, form.nationalCode);
@@ -962,15 +974,12 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         ExchangeLegalTypes.find((item) => item.value === form.exchangeType)?.label
       );
       handleEdit(1, 6, form.financialCode);
-      handleEdit(1, 7, form.registrationNumber);
+      handleEdit(1, 7, form.registrationNumber ? String(form.registrationNumber) : "");
       handleEdit(
         2,
         1,
         form.siteAddress ? (
-          <a
-            href={form.siteAddress}
-            className="text-primary dark:text-primary-dark"
-          >
+          <a href={form.siteAddress} className="text-primary dark:text-primary-dark">
             {form.siteAddress}
           </a>
         ) : ""
@@ -980,7 +989,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       handleEdit(2, 4, form.officeAddress);
       handleEdit(2, 5, form.zipCode);
       handleEdit(2, 6, form.email);
-
+  
       setIsOpen(false);
     } catch (err) {
       console.error(err);
@@ -999,52 +1008,83 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const uploadFile = async () => {
     try {
       setLoading2(true);
-
+  
+      // اساسنامه
       if (type === "اساسنامه") {
         if (!file) {
           toast.error("فایلی انتخاب نشده");
           return;
         }
-
+  
         await PostRequest(
           `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/upload`,
           { association: file },
           { asFormData: true }
         );
-
+  
         toast.success("اساسنامه با موفقیت بارگذاری شد");
-          setTimeout(() => window.location.reload(), 500);
-        } else if (type === "صورت مالی") {
+        setTimeout(() => window.location.reload(), 500);
+        return; // مهم: که ادامه اجرا نشه
+      }
+  
+      // صورت مالی
+      if (type === "صورت مالی") {
+        // 1. چک کن فایل هست؟
+        if (!file) {
+          toast.error("فایل صورت مالی انتخاب نشده");
+          return;
+        }
+  
+        // 2. چک کن نام/تاریخ وارد شده؟
+        if (!FinancialName) {
+          toast.error("عنوان یا تاریخ صورت مالی مشخص نشده");
+          return;
+        }
+  
         try {
+          // اول ردیف صورت مالی رو بساز
           const result = await PostRequest(
             `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
             { date: String(FinancialName) }
           );
-          console.log(result)
-          const fileId = result.result.id
+  
+          // اگر API ساختن ردیف به هر دلیلی چیزی برنگردوند
+          const fileId = result?.result?.id;
+          if (!fileId) {
+            toast.error("خطا در ایجاد رکورد صورت مالی");
+            return;
+          }
+  
+          // حالا خود فایل رو آپلود کن
           await PostRequest(
             `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/upload`,
             { financialFile: file },
             { asFormData: true }
           );
+  
           toast.success("صورت مالی با موفقیت بارگذاری شد");
           setFile(null);
           setFileName("");
           SetAddFileModal(false);
           setTimeout(() => window.location.reload(), 500);
-        } catch (error) {
-          console.log(error)
+        } catch (error: any) {
+          console.log(error);
+          // اگر هر کدوم از دو درخواست بالا خورد به خطا
+          toast.error(
+            error?.message || "خطا در بارگذاری صورت مالی. دوباره تلاش کنید."
+          );
         }
-
+  
+        return;
       }
-
-
+  
     } catch (e: any) {
       toast.error(e?.message || "خطا در آپلود");
     } finally {
       setLoading2(false);
     }
   };
+  
   const handleSelectChange = (event: string) => {
     Settype(event);
   };

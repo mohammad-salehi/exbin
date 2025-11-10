@@ -47,7 +47,6 @@ export const GetRequest = async (
       }
   
       const data = await res.json();
-      console.log(data.result.token)
       if (data.result.token) setCookie("token", data.result.token);
       if (data.result.refreshToken) setCookie("refreshToken", data.result.refreshToken);
       if (data.result.username) setCookie("username", data.result.username);
