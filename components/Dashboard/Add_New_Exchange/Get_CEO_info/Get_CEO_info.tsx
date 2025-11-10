@@ -187,7 +187,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
           </div>
 
           <div>
-            <label className='text-titleText dark: dark:text-titleText-dark'>درصد سهام</label>
+            <label className='text-titleText dark: dark:text-titleText-dark'>درصد سهام *</label>
             <Input
               type="text"
               value={sharePercentage ?? ""}

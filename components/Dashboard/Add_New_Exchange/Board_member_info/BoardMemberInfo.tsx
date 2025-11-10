@@ -347,7 +347,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                                 <textarea className="w-full p-0 pt-2 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark  focus:outline-none" value={form.careerHistory} onChange={(e) => handleChange("careerHistory", e.target.value)} placeholder='سوابق شغلی' />
                             </div>
                             <div>
-                                <label>درصد سهام</label>
+                                <label>درصد سهام *</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 

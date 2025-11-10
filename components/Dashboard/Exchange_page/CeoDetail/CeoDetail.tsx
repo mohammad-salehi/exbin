@@ -105,7 +105,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
         if (share < 0 || share > 100) {
           return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", { position: "bottom-left" });
         }
-        
+
         const updatedForm = {
             ...form,
             educationalHistory: form.educationalHistory || "",
@@ -409,7 +409,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
                                 />
                             </div>
                             <div>
-                                <label>درصد سهام</label>
+                                <label>درصد سهام *</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
       bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 

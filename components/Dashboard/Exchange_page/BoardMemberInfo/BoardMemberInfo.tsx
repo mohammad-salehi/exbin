@@ -605,7 +605,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                             </div>
 
                             <div>
-                                <label>درصد سهام</label>
+                                <label>درصد سهام *</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
@@ -768,7 +768,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                                     value={form.careerHistory} onChange={(e) => setForm({ ...form, careerHistory: e.target.value })} placeholder="سوابق شغلی" />
                             </div>
                             <div>
-                                <label>درصد سهام</label>
+                                <label>درصد سهام *</label>
                                 <Input
                                     className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
