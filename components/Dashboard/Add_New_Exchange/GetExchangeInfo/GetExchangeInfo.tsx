@@ -113,6 +113,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             phoneNumber: toEnglishDigits(phoneNumber),
             registrationNumber,
             email,
+            zipCode
         };
 
         try {

@@ -882,12 +882,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       toast.error("شکل حقوقی سکو را انتخاب کنید", { position: "bottom-left" });
       return;
     }
-    if (!/^0\d{10}$/.test(phoneNumber)) {
-      toast.error("شماره تماس باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
-      return;
-    }
-    if (emergencyPhoneNumber && !/^0\d{10}$/.test(emergencyPhoneNumber)) {
-      toast.error("شماره تماس اضطراری باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
+    if (phoneNumber === '') {
+      toast.error("شماره تماس اشتباه وارد شده است", { position: "bottom-left" });
       return;
     }
     if (zipCode && !isDigits(zipCode, 10)) {
