@@ -17,6 +17,7 @@ import { useSearchParams } from "next/navigation";
 import { Dropdown, MenuItem } from "@heathmont/moon-core-tw";
 import { Button } from "@heathmont/moon-base-tw";
 import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
+import { refreshTokenOnly } from "../../../../../../functions/TokenRefresh";
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -25,6 +26,28 @@ const getCookie = (name: string) =>
     .split("; ")
     .find((r) => r.startsWith(name + "="))
     ?.split("=")[1] || "";
+
+
+
+    type InitFactory = () => RequestInit;
+
+/** یک‌بار تلاش + اگر 401/403 شد: refresh و یک‌بار retry */
+async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
+  let res = await fetch(url, initFactory());
+  if (res.status === 401 || res.status === 403) {
+    try {
+      await refreshTokenOnly();              // کوکی‌ها به‌روزرسانی می‌شن
+      res = await fetch(url, initFactory()); // تلاش دوم با توکن تازه
+    } catch {
+      // اگر رفرش شکست خورد همون پاسخ قبلی رو برگردونیم تا هندل ارور انجام بشه
+      return res;
+    }
+  }
+  return res;
+}
+
+
+
 
 const persianDigits = (input: string | number) =>
   String(input).replace(/[0-9]/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[parseInt(d, 10)]);
@@ -159,35 +182,38 @@ export default function TimelinePage({ params }) {
     if (loading || done) return;
     setLoading(true);
     setError(null);
-
+  
     try {
-      const token = getCookie("token");
       const qs = new URLSearchParams();
-      if (username) qs.set("username", username); // ← فقط وقتی مقدار دارد
+      if (username) qs.set("username", username);
       qs.set("page", String(nextPage));
       qs.set("size", String(pageSize));
       qs.set("sort", "timestamp,DESC");
-      // فقط اگر کاربر تاریخ انتخاب کرده باشد:
-      const startTime = extractApiDateTime(startPicker, false); // 00:00:00
-      const endTime = extractApiDateTime(endPicker, true); // 23:59:59
+  
+      const startTime = extractApiDateTime(startPicker, false);
+      const endTime = extractApiDateTime(endPicker, true);
       if (startTime) qs.set("startTime", startTime);
       if (endTime) qs.set("endTime", endTime);
-
-      const url = `${process.env.NEXT_PUBLIC_API_URL
-        }/api/user-activities?${qs.toString()}`;
-      const res = await fetch(url, {
-        headers: {
-          accept: "*/*",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        cache: "no-store",
+  
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/user-activities?${qs.toString()}`;
+  
+      const res = await fetchWithAuthRetry(url, () => {
+        const token = getCookie("token"); // هر بار تازه بخون
+        return {
+          headers: {
+            accept: "*/*",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          cache: "no-store",
+        };
       });
+  
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
+  
       const json = await res.json();
       const content: ApiActivity[] = json?.result?.content ?? [];
       const mapped = mapApiToItems(content);
-
+  
       setItems((prev) => (replace ? mapped : [...prev, ...mapped]));
       setPage(nextPage);
       if (content.length < pageSize) setDone(true);
@@ -197,6 +223,7 @@ export default function TimelinePage({ params }) {
       setLoading(false);
     }
   }
+  
 
   // اعمال فیلتر ⇒ از صفحه ۰ دوباره بگیر
   const applyFilters = () => {
@@ -245,20 +272,24 @@ export default function TimelinePage({ params }) {
       try {
         setUsersLoading(true);
         setUsersError(null);
-        const token = getCookie("token");
+  
         const url = `${process.env.NEXT_PUBLIC_API_URL}/api/users`;
-        const res = await fetch(url, {
-          headers: {
-            accept: "*/*",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          cache: "no-store",
+        const res = await fetchWithAuthRetry(url, () => {
+          const token = getCookie("token");
+          return {
+            headers: {
+              accept: "*/*",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            cache: "no-store",
+          };
         });
+  
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  
         const json = await res.json();
-
-        // بعضی APIها مستقیم آرایه می‌دهند، بعضی داخل result:
         const list: User[] = Array.isArray(json) ? json : (json?.result ?? []);
+  
         if (!abort) setUsers(list || []);
       } catch (e: any) {
         if (!abort) setUsersError(e?.message || "خطا در دریافت کاربران");
@@ -269,6 +300,7 @@ export default function TimelinePage({ params }) {
     fetchUsers();
     return () => { abort = true; };
   }, []);
+  
 
 
   return (

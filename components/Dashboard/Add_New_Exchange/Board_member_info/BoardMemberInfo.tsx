@@ -59,157 +59,174 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         setForm((prev) => ({ ...prev, [field]: value }));
     };
 
-    const handleSave = async () => {
-        // === Local Validations ===
-        if (!form.name.trim()) return toast.error("نام و نام‌خانوادگی الزامی است");
-        if (/[@#!]/.test(form.name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد (#, @, !)");
-        if (form.name.length > 200) return toast.error("طول نام نباید بیشتر از ۲۰۰ کاراکتر باشد");
-        if (!form.phoneNumber.trim()) return toast.error("شماره همراه الزامی است");
-        if (!/^0\d{10}$/.test(form.phoneNumber))
-            return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود");
-        if (!form.nationalCode.trim()) return toast.error("کد ملی الزامی است");
-        if (!/^\d{10}$/.test(form.nationalCode))
-            return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
-        if (!form.role.trim()) return toast.error("سمت (نقش) الزامی است");
-        if (form.sharePercentage === null || form.sharePercentage === "")
-            return toast.error("درصد سهام الزامی است");
-        const share = parseFloat(String(form.sharePercentage));
-        if (isNaN(share) || share < 0 || share > 100) {
-            return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد");
-        }
-        if (form.educationalHistory && form.educationalHistory.length > 1000)
-            return toast.error("طول سوابق تحصیلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
-        if (form.educationalHistory && /[@#!]/.test(form.educationalHistory))
-            return toast.error("سوابق تحصیلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
-        if (form.careerHistory && form.careerHistory.length > 1000)
-            return toast.error("طول سوابق شغلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
-        if (form.careerHistory && /[@#!]/.test(form.careerHistory))
-            return toast.error("سوابق شغلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
-        if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-            return toast.error("ایمیل وارد شده معتبر نیست");
-
-        // === Prepare Data ===
-        const Member = {
-            name: form.name,
-            phoneNumber: form.phoneNumber,
-            nationalCode: form.nationalCode,
-            role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value,
-            careerHistory: form.careerHistory,
-            educationalHistory: form.educationalHistory,
-            sharePercentage: share,
-            email: form.email,
-        };
-
-        const token = document.cookie
-            .split("; ")
-            .find((row) => row.startsWith("token="))
-            ?.split("=")[1];
-
-        if (!token) {
-            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-            return;
-        }
-
-        try {
-            setLoading(true);
-        
-            const response = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/board-members`,
-              {
-                method: "POST",
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify(Member),
-              }
-            );
-        
-            // 👈 اول 403
-            if (response.status === 403) {
-              await refreshTokenOnly();
-              setLoading(false);
-            }
-        
-            // === Handle 400 / 409 ===
-            if (response.status === 400 || response.status === 409) {
-              const resData = await response.json();
-        
-              if (resData?.result && typeof resData.result === "object") {
-                Object.entries(resData.result).forEach(([field, message]) => {
-                  if (message)
-                    toast.error(`${field} : ${message}`, { position: "bottom-left" });
-                });
-                setLoading(false);
-                return;
-              }
-        
-              if (resData?.error) {
-                const duplicateMatch = resData.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
-                if (duplicateMatch) {
-                  const field = duplicateMatch[1];
-                  const value = duplicateMatch[2];
-                  const fieldLabels: Record<string, string> = {
-                    nationalCode: "کد ملی",
-                    phoneNumber: "شماره تماس",
-                    email: "ایمیل",
-                  };
-                  const label = fieldLabels[field] || field;
-                  toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
-                    position: "bottom-left",
-                  });
-                  setLoading(false);
-                  return;
-                }
-              }
-        
-              toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
-                position: "bottom-left",
-              });
-              setLoading(false);
-              return;
-            }
-        
-            // === Success ===
-            if (!response.ok) {
-              setLoading(false);
-              return toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
-                position: "bottom-left",
-              });
-            }
-        
-            const responseData = await response.json();
-            toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", {
-              position: "bottom-left",
-            });
-        
-            const newMember: Person = {
-              id: String(data.length + 1),
-              ...form,
-            };
-            SetData([...data, newMember]);
-        
-            closeModal();
-            setEditingId(null);
-            setForm({
-              name: "",
-              phoneNumber: "",
-              nationalCode: "",
-              role: "",
-              careerHistory: "",
-              educationalHistory: "",
-              sharePercentage: null,
-              email: "",
-            });
-          } catch (e: any) {
-            console.error(e);
-            toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
-              position: "bottom-left",
-            });
-          } finally {
-            setLoading(false);
-          }
+// کمک‌تابع: اجرای یک بار درخواست POST با توکن فعلی از کوکی
+async function postBoardMemberOnce(baseUrl: string, member: any) {
+    const token = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("token="))
+      ?.split("=")[1];
+  
+    if (!token) {
+      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+      return { response: null as Response | null };
+    }
+  
+    const res = await fetch(`${baseUrl}/api/exchanges/${ID}/board-members`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(member),
+    });
+  
+    return { response: res };
+  }
+  
+  const handleSave = async () => {
+    // === Local Validations ===
+    if (!form.name.trim()) return toast.error("نام و نام‌خانوادگی الزامی است");
+    if (/[@#!]/.test(form.name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد (#, @, !)");
+    if (form.name.length > 200) return toast.error("طول نام نباید بیشتر از ۲۰۰ کاراکتر باشد");
+    if (!form.phoneNumber.trim()) return toast.error("شماره همراه الزامی است");
+    if (!/^0\d{10}$/.test(form.phoneNumber))
+      return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود");
+    if (!form.nationalCode.trim()) return toast.error("کد ملی الزامی است");
+    if (!/^\d{10}$/.test(form.nationalCode))
+      return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
+    if (!form.role.trim()) return toast.error("سمت (نقش) الزامی است");
+    if (form.sharePercentage === null || form.sharePercentage === "")
+      return toast.error("درصد سهام الزامی است");
+    const share = parseFloat(String(form.sharePercentage));
+    if (isNaN(share) || share < 0 || share > 100)
+      return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد");
+    if (form.educationalHistory && form.educationalHistory.length > 1000)
+      return toast.error("طول سوابق تحصیلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+    if (form.educationalHistory && /[@#!]/.test(form.educationalHistory))
+      return toast.error("سوابق تحصیلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+    if (form.careerHistory && form.careerHistory.length > 1000)
+      return toast.error("طول سوابق شغلی نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+    if (form.careerHistory && /[@#!]/.test(form.careerHistory))
+      return toast.error("سوابق شغلی نباید شامل کاراکترهای خاص باشد (#, @, !)");
+    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      return toast.error("ایمیل وارد شده معتبر نیست");
+  
+    // === Prepare Data ===
+    const Member = {
+      name: form.name,
+      phoneNumber: form.phoneNumber,
+      nationalCode: form.nationalCode,
+      role: BoardmemderRoleTypes.find(item => item.label === form.role)?.value,
+      careerHistory: form.careerHistory,
+      educationalHistory: form.educationalHistory,
+      sharePercentage: share,
+      email: form.email,
     };
+  
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
+  
+    try {
+      setLoading(true);
+  
+      // تلاش اول
+      let { response } = await postBoardMemberOnce(baseUrl, Member);
+  
+      // اگر 401/403 → رفرش و یک‌بار ری‌تری
+      if (response && (response.status === 401 || response.status === 403)) {
+        try {
+          await refreshTokenOnly(); // کوکی‌ها آپدیت می‌شوند
+          ({ response } = await postBoardMemberOnce(baseUrl, Member)); // تلاش دوم با توکن تازه
+        } catch (e) {
+          setLoading(false);
+          return toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", {
+            position: "bottom-left",
+          });
+        }
+      }
+  
+      if (!response) {
+        setLoading(false);
+        return; // پیام مناسب قبلاً نمایش داده شده
+      }
+  
+      // === Handle 400 / 409 ===
+      if (response.status === 400 || response.status === 409) {
+        const resData = await response.json();
+  
+        if (resData?.result && typeof resData.result === "object") {
+          Object.entries(resData.result).forEach(([field, message]) => {
+            if (message)
+              toast.error(`${field} : ${message as string}`, { position: "bottom-left" });
+          });
+          setLoading(false);
+          return;
+        }
+  
+        if (resData?.error) {
+          const duplicateMatch = String(resData.error).match(/identifier:\s*(\w+):\s*(\d+)/i);
+          if (duplicateMatch) {
+            const field = duplicateMatch[1];
+            const value = duplicateMatch[2];
+            const fieldLabels: Record<string, string> = {
+              nationalCode: "کد ملی",
+              phoneNumber: "شماره تماس",
+              email: "ایمیل",
+            };
+            const label = fieldLabels[field] || field;
+            toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+            setLoading(false);
+            return;
+          }
+        }
+  
+        toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
+          position: "bottom-left",
+        });
+        setLoading(false);
+        return;
+      }
+  
+      // === Success / Other errors ===
+      if (!response.ok) {
+        setLoading(false);
+        return toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
+          position: "bottom-left",
+        });
+      }
+  
+      const responseData = await response.json();
+      toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", {
+        position: "bottom-left",
+      });
+  
+      const newMember: Person = {
+        id: String(data.length + 1),
+        ...form,
+      };
+      SetData([...data, newMember]);
+  
+      closeModal();
+      setEditingId(null);
+      setForm({
+        name: "",
+        phoneNumber: "",
+        nationalCode: "",
+        role: "",
+        careerHistory: "",
+        educationalHistory: "",
+        sharePercentage: null,
+        email: "",
+      });
+    } catch (e) {
+      console.error(e);
+      toast.error("خطا در ذخیره عضو هیئت‌مدیره و سهامداران", {
+        position: "bottom-left",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  
 
 
     const nextStep = async () => {

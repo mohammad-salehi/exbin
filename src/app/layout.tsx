@@ -4,8 +4,8 @@ import ClientLayout from "./ClientLayout";
 
 export const metadata: Metadata = {
   title: {
-    default: "اکس‌بین",
-    template: "%s | اکس‌بین",
+    default: "CedPortal",
+    template: "%s | CedPortal",
   },
   description: "سامانه تحلیل، نظارت و مدیریت سکوهای رمزارزی",
   icons: {

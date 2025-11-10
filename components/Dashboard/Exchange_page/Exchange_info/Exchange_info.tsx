@@ -18,7 +18,6 @@ import { saveAs } from "file-saver";
 import {
   addHttps,
   removeProtocolAndWWW,
-  validateDomainExtension,
   validateEmail,
 } from "../../../../functions/Validations";
 import { validateNumbers } from "../../../../functions/Validations";
@@ -49,6 +48,8 @@ interface InvoiceSection {
 type ExchangeInfoProps = {
   SetC1: React.Dispatch<React.SetStateAction<boolean>>;
 };
+
+type InitFactory = () => RequestInit;
 
 const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const params = useParams<{ id: string }>();
@@ -103,7 +104,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       ["شماره ثبت", data.registrationNumber],
       ["شناسه ملی", data.nationalCode],
       ["کد اقتصادی", data.financialCode],
-      ["تاریخ تأسیس", data.establishmentDate ? toJalaliDate(data.establishmentDate) : ''],
+      [
+        "تاریخ تأسیس",
+        data.establishmentDate ? toJalaliDate(data.establishmentDate) : "",
+      ],
       ["تلفن", data.phoneNumber],
       ["تلفن اضطراری", data.emergencyPhoneNumber],
       ["ایمیل", data.email],
@@ -414,100 +418,127 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       })
     );
   };
-  const handleDownload = async () => {
-    try {
-      SetDownloadLoading(true);
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
-  
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/download`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      if (!res.ok) {
-        throw new Error("خطا در دریافت فایل");
-      }
-  
-      // تلاش برای گرفتن اسم فایل از هدر
-      const disposition = res.headers.get("Content-Disposition");
-      let filename = "file";
-      if (disposition && disposition.includes("filename=")) {
-        const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-          filename = match[1].replace(/['"]/g, "");
-        }
-      }
-  
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-  
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename; // ← همونی که سرور گفت
-      a.click();
-  
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      toast.error("خطا در دانلود فایل");
-    } finally {
-      SetDownloadLoading(false);
-    }
-  };
-  
 
-  const handleDownloadFinancial = async (id: number, date: string) => {
-    try {
-      SetDownloadLoading(true);
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
-  
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${id}/download`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      if (!res.ok) {
-        throw new Error("خطا در دریافت فایل");
-      }
-  
-      // گرفتن اسم از سرور
-      const disposition = res.headers.get("Content-Disposition");
-      let filename = "file";
-      if (disposition && disposition.includes("filename=")) {
-        const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-        if (match && match[1]) {
-          filename = match[1].replace(/['"]/g, "");
-        }
-      }
-  
-      const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
-  
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = filename; // ← همون اسم اصلی
-      a.click();
-  
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      toast.error("خطا در دانلود فایل");
-    } finally {
-      SetDownloadLoading(false);
+
+
+// استخراج اسم فایل از هدر (اگر بود)
+function filenameFromContentDisposition(res: Response, fallback: string) {
+  const cd = res.headers.get("Content-Disposition") || "";
+  const m = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i.exec(cd);
+  const rawName = m?.[1] || m?.[2];
+  if (!rawName) return fallback;
+  try {
+    return decodeURIComponent(rawName);
+  } catch {
+    return rawName;
+  }
+}
+
+// دانلودِ blob و ذخیره‌سازی
+async function saveBlobResponse(res: Response, fallbackName: string) {
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  const name = filenameFromContentDisposition(res, fallbackName);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+const handleDownload = async () => {
+  try {
+    const token = getTokenFromCookie();
+    if (!token) {
+      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+      return;
     }
-  };
+
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/download`;
+
+    const res = await fetchWithAuthRetry(url, () => {
+      const fresh = getTokenFromCookie();
+      if (!fresh) throw new Error("NO_TOKEN");
+      return {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${fresh}`,
+          Accept: "*/*",
+        },
+      };
+    });
+
+    if (!res.ok) {
+      // تلاش برای خواندن پیام خطا
+      try {
+        const data = await res.json();
+        toast.error(data?.error || "خطا در دانلود اساسنامه", { position: "bottom-left" });
+      } catch {
+        toast.error("خطا در دانلود اساسنامه", { position: "bottom-left" });
+      }
+      return;
+    }
+
+    await saveBlobResponse(res, `association-${params.id}.pdf`);
+    toast.success("دانلود اساسنامه آغاز شد.", { position: "bottom-left" });
+  } catch (e: any) {
+    if (e?.message === "NO_TOKEN") {
+      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+    } else {
+      console.error(e);
+      toast.error("خطا در دانلود اساسنامه", { position: "bottom-left" });
+    }
+  }
+};
+
+
+const handleDownloadFinancial = async (fileId: number, date: string) => {
+  try {
+    const token = getTokenFromCookie();
+    if (!token) {
+      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+      return;
+    }
+
+    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/download`;
+
+    const res = await fetchWithAuthRetry(url, () => {
+      const fresh = getTokenFromCookie();
+      if (!fresh) throw new Error("NO_TOKEN");
+      return {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${fresh}`,
+          Accept: "*/*",
+        },
+      };
+    });
+
+    if (!res.ok) {
+      try {
+        const data = await res.json();
+        toast.error(data?.error || "خطا در دانلود صورت مالی", { position: "bottom-left" });
+      } catch {
+        toast.error("خطا در دانلود صورت مالی", { position: "bottom-left" });
+      }
+      return;
+    }
+
+    // نام فایل: از هدر اگر بود، وگرنه از تاریخ
+    await saveBlobResponse(res, `financial-${date || fileId}.pdf`);
+    toast.success("دانلود صورت مالی آغاز شد.", { position: "bottom-left" });
+  } catch (e: any) {
+    if (e?.message === "NO_TOKEN") {
+      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
+    } else {
+      console.error(e);
+      toast.error("خطا در دانلود صورت مالی", { position: "bottom-left" });
+    }
+  }
+};
+
   const [confirmAssociationOpen, setConfirmAssociationOpen] = useState(false);
   const [confirmFinancialOpen, setConfirmFinancialOpen] = useState(false);
   const [financialToDelete, setFinancialToDelete] = useState<{
@@ -515,14 +546,37 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     date: string;
   } | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  const getTokenFromCookie = () =>
+    document.cookie
+      .split("; ")
+      .find((r) => r.startsWith("token="))
+      ?.split("=")[1] || "";
+
+  type InitFactory = () => RequestInit;
+
+  /** یک‌بار تلاش + در صورت 401/403 رفرش و یک‌بار ری‌تری */
+  async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
+    let res = await fetch(url, initFactory());
+
+    if (res.status === 401 || res.status === 403) {
+      try {
+        await refreshTokenOnly(); // کوکی‌ها آپدیت می‌شوند
+        res = await fetch(url, initFactory()); // تلاش دوم با توکن تازه
+      } catch {
+        // اگر رفرش شکست خورد همون پاسخ قبلی رو برگردون
+        return res;
+      }
+    }
+
+    return res;
+  }
+
   const handleConfirmDeleteAssociation = async () => {
     try {
       setDeleteLoading(true);
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
 
+      const token = getTokenFromCookie();
       if (!token) {
         toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
           position: "bottom-left",
@@ -531,14 +585,18 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         return;
       }
 
-      const response = await fetch(
+      const response = await fetchWithAuthRetry(
         `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/delete`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+        () => {
+          const fresh = getTokenFromCookie();
+          if (!fresh) throw new Error("NO_TOKEN");
+          return {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${fresh}`,
+              "Content-Type": "application/json",
+            },
+          };
         }
       );
 
@@ -550,9 +608,15 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         });
         window.location.reload();
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("خطا در حذف اساسنامه", { position: "bottom-left" });
+    } catch (err: any) {
+      if (err?.message === "NO_TOKEN") {
+        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+          position: "bottom-left",
+        });
+      } else {
+        console.error(err);
+        toast.error("خطا در حذف اساسنامه", { position: "bottom-left" });
+      }
     } finally {
       setDeleteLoading(false);
       setConfirmAssociationOpen(false);
@@ -561,13 +625,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 
   const handleConfirmDeleteFinancial = async () => {
     if (!financialToDelete) return;
+
     try {
       setDeleteLoading(true);
-      const token = document.cookie
-        .split("; ")
-        .find((row) => row.startsWith("token="))
-        ?.split("=")[1];
 
+      const token = getTokenFromCookie();
       if (!token) {
         toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
           position: "bottom-left",
@@ -576,14 +638,18 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         return;
       }
 
-      const response = await fetch(
+      const response = await fetchWithAuthRetry(
         `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${financialToDelete.id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+        () => {
+          const fresh = getTokenFromCookie();
+          if (!fresh) throw new Error("NO_TOKEN");
+          return {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${fresh}`,
+              "Content-Type": "application/json",
+            },
+          };
         }
       );
 
@@ -595,15 +661,22 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         });
         window.location.reload();
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("خطا در حذف صورت مالی", { position: "bottom-left" });
+    } catch (err: any) {
+      if (err?.message === "NO_TOKEN") {
+        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+          position: "bottom-left",
+        });
+      } else {
+        console.error(err);
+        toast.error("خطا در حذف صورت مالی", { position: "bottom-left" });
+      }
     } finally {
       setDeleteLoading(false);
       setConfirmFinancialOpen(false);
       setFinancialToDelete(null);
     }
   };
+
   const addAssociationDocuments = (
     association?: string | null,
     financialStatement: Array<{ id: number; date: string; file: string }> = []
@@ -655,7 +728,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   }}
                   className="text-titleText dark:text-titleText-dark mr-1"
                 >
-
                   {/* ... SVG حذف ... */}
                   <svg
                     width="20"
@@ -680,7 +752,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               </div>
               <div className="flex items-center">
                 <button
-                  onClick={() => { handleDownloadFinancial(item.id, item.date) }}
+                  onClick={() => {
+                    handleDownloadFinancial(item.id, item.date);
+                  }}
                   className="text-titleText dark:text-titleText-dark mr-2"
                 >
                   {/* ... SVG دانلود ... */}
@@ -750,12 +824,304 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       prev.map((section) =>
         section.id === 3
           ? {
-            ...section,
-            content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
-          }
+              ...section,
+              content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
+            }
           : section
       )
     );
+  };
+
+  //ادیت
+  const handleSave = async () => {
+    const isDigits = (val: string, len?: number) =>
+      /^\d+$/.test(val) && (!len || val.length === len);
+    const hasNoSpecialChars = (val: string) =>
+      /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
+
+    const legalName = String(form.legalName || "");
+    const nationalCode = String(form.nationalCode || "");
+    const financialCode = String(form.financialCode || "");
+    const registrationNumber = String(form.registrationNumber || "");
+    const phoneNumber = String(form.phoneNumber || "");
+    const emergencyPhoneNumber = String(form.emergencyPhoneNumber || "");
+    const zipCode = String(form.zipCode || "");
+    const email = String(form.email || "");
+    const siteAddress = String(form.siteAddress || "");
+
+    if (!legalName.trim()) {
+      toast.error("نام حقوقی سکو الزامی است", { position: "bottom-left" });
+      return;
+    }
+    if (!hasNoSpecialChars(legalName)) {
+      toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد", {
+        position: "bottom-left",
+      });
+      return;
+    }
+    if (!isDigits(nationalCode, 11)) {
+      toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد", {
+        position: "bottom-left",
+      });
+      return;
+    }
+    if (!/^\d{11,16}$/.test(financialCode)) {
+      toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد", {
+        position: "bottom-left",
+      });
+      return;
+    }
+    if (!/^\d{6}$/.test(registrationNumber)) {
+      toast.error("شماره ثبت باید عددی ۶ رقمی باشد", {
+        position: "bottom-left",
+      });
+      return;
+    }
+    if (!form.type) {
+      toast.error("نوع سکو را انتخاب کنید", { position: "bottom-left" });
+      return;
+    }
+    if (!form.exchangeType) {
+      toast.error("شکل حقوقی سکو را انتخاب کنید", { position: "bottom-left" });
+      return;
+    }
+    if (phoneNumber === "") {
+      toast.error("شماره تماس اشتباه وارد شده است", {
+        position: "bottom-left",
+      });
+      return;
+    }
+    if (zipCode && !isDigits(zipCode, 10)) {
+      toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد", {
+        position: "bottom-left",
+      });
+      return;
+    }
+    if (email && !validateEmail(email)) {
+      toast.error("ایمیل وارد شده معتبر نیست", { position: "bottom-left" });
+      return;
+    }
+    if (!form.establishmentDate) {
+      toast.error("تاریخ تأسیس را وارد کنید", { position: "bottom-left" });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const firstToken = getTokenFromCookie();
+      if (!firstToken) {
+        toast.error("توکن موجود نیست، لطفاً دوباره وارد شوید.", {
+          position: "bottom-left",
+        });
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetchWithAuthRetry(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`,
+        () => {
+          const fresh = getTokenFromCookie();
+          if (!fresh) throw new Error("NO_TOKEN");
+          return {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${fresh}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(form),
+          };
+        }
+      );
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        if (response.status === 400 || response.status === 409) {
+          if (data?.result && typeof data.result === "object") {
+            Object.entries(data.result).forEach(([_, message]) => {
+              toast.error(`${message}`, { position: "bottom-left" });
+            });
+            setLoading(false);
+            return;
+          }
+          if (data?.error && typeof data.error === "string") {
+            const match = data.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
+            if (match) {
+              const [, field, value] = match;
+              toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, {
+                position: "bottom-left",
+              });
+            } else {
+              toast.error(data.error, { position: "bottom-left" });
+            }
+            setLoading(false);
+            return;
+          }
+        }
+        toast.error("خطا در ذخیره مشخصات سکو", { position: "bottom-left" });
+        setLoading(false);
+        return;
+      }
+
+      // ✅ موفق
+      toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", {
+        position: "bottom-left",
+      });
+
+      // --- آپدیت UI (همان کد قبلی تو) ---
+      handleEdit(1, 1, form.legalName);
+      handleEdit(1, 2, toJalaliDate(form.establishmentDate));
+      handleEdit(1, 3, form.nationalCode);
+      handleEdit(1, 4, form.type);
+      handleEdit(
+        1,
+        5,
+        ExchangeLegalTypes.find((item) => item.value === form.exchangeType)
+          ?.label
+      );
+      handleEdit(1, 6, form.financialCode);
+      handleEdit(
+        1,
+        7,
+        form.registrationNumber ? String(form.registrationNumber) : ""
+      );
+      handleEdit(
+        2,
+        1,
+        form.siteAddress ? (
+          <a
+            href={form.siteAddress}
+            className="text-primary dark:text-primary-dark"
+          >
+            {form.siteAddress}
+          </a>
+        ) : (
+          ""
+        )
+      );
+      handleEdit(2, 2, form.phoneNumber);
+      handleEdit(2, 3, form.emergencyPhoneNumber);
+      handleEdit(2, 4, form.officeAddress);
+      handleEdit(2, 5, form.zipCode);
+      handleEdit(2, 6, form.email);
+
+      setIsOpen(false);
+    } catch (err: any) {
+      if (err?.message === "NO_TOKEN") {
+        toast.error("توکن موجود نیست، لطفاً دوباره وارد شوید.", {
+          position: "bottom-left",
+        });
+      } else {
+        console.error(err);
+        toast.error("خطا در ارتباط با سرور", { position: "bottom-left" });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] || null;
+    setFile(f);
+    setFileName(f ? f.name : "");
+  };
+  const uploadFile = async () => {
+    try {
+      setLoading2(true);
+
+      // اساسنامه
+      if (type === "اساسنامه") {
+        if (!file) {
+          toast.error("فایلی انتخاب نشده");
+          return;
+        }
+
+        await PostRequest(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/upload`,
+          { association: file },
+          { asFormData: true }
+        );
+
+        toast.success("اساسنامه با موفقیت بارگذاری شد");
+        setTimeout(() => window.location.reload(), 500);
+        return; // مهم: که ادامه اجرا نشه
+      }
+
+      // صورت مالی
+      if (type === "صورت مالی") {
+        // 1. چک کن فایل هست؟
+        if (!file) {
+          toast.error("فایل صورت مالی انتخاب نشده");
+          return;
+        }
+
+        // 2. چک کن نام/تاریخ وارد شده؟
+        if (!FinancialName) {
+          toast.error("عنوان یا تاریخ صورت مالی مشخص نشده");
+          return;
+        }
+
+        try {
+          // اول ردیف صورت مالی رو بساز
+          const result = await PostRequest(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
+            { date: String(FinancialName) }
+          );
+
+          // اگر API ساختن ردیف به هر دلیلی چیزی برنگردوند
+          const fileId = result?.result?.id;
+          if (!fileId) {
+            toast.error("خطا در ایجاد رکورد صورت مالی");
+            return;
+          }
+
+          // حالا خود فایل رو آپلود کن
+          await PostRequest(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/upload`,
+            { financialFile: file },
+            { asFormData: true }
+          );
+
+          toast.success("صورت مالی با موفقیت بارگذاری شد");
+          setFile(null);
+          setFileName("");
+          SetAddFileModal(false);
+          setTimeout(() => window.location.reload(), 500);
+        } catch (error: any) {
+          console.log(error);
+          // اگر هر کدوم از دو درخواست بالا خورد به خطا
+          toast.error(
+            error?.message || "خطا در بارگذاری صورت مالی. دوباره تلاش کنید."
+          );
+        }
+
+        return;
+      }
+    } catch (e: any) {
+      toast.error(e?.message || "خطا در آپلود");
+    } finally {
+      setLoading2(false);
+    }
+  };
+
+  const handleSelectChange = (event: string) => {
+    Settype(event);
+  };
+  const Audit = () => {
+    setLogLoading(true);
+    GetRequest(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange/${params.id}?page=${LogPage}&size=10&sort=updatedAt,DESC`
+    )
+      .then((response) => {
+        setLogLoading(false);
+        setChanges(response.result.content);
+        setLogNumber(response.result.totalElements);
+      })
+      .catch((err) => {
+        setLogLoading(false);
+        setChanges([]);
+      });
   };
   useEffect(() => {
     if (didInit.current) return; // ← جلوی بار دوم را می‌گیرد
@@ -772,7 +1138,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         handleEdit(
           1,
           5,
-          ExchangeLegalTypes.find(item => item.value === response.result.exchangeType)?.label
+          ExchangeLegalTypes.find(
+            (item) => item.value === response.result.exchangeType
+          )?.label
         );
         handleEdit(1, 6, response.result.financialCode);
         handleEdit(1, 7, String(response.result.registrationNumber));
@@ -838,268 +1206,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         SetC1(true);
       });
   }, []);
-
-  //ادیت
-  const handleSave = async () => {
-    const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
-    const hasNoSpecialChars = (val: string) => /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
-
-    const legalName = String(form.legalName || "");
-    const nationalCode = String(form.nationalCode || "");
-    const financialCode = String(form.financialCode || "");
-    const registrationNumber = String(form.registrationNumber || "");
-    const phoneNumber = String(form.phoneNumber || "");
-    const emergencyPhoneNumber = String(form.emergencyPhoneNumber || "");
-    const zipCode = String(form.zipCode || "");
-    const email = String(form.email || "");
-    const siteAddress = String(form.siteAddress || "");
-
-    if (!legalName.trim()) {
-      toast.error("نام حقوقی سکو الزامی است", { position: "bottom-left" });
-      return;
-    }
-    if (!hasNoSpecialChars(legalName)) {
-      toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
-      return;
-    }
-    if (!isDigits(nationalCode, 11)) {
-      toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد", { position: "bottom-left" });
-      return;
-    }
-    if (!/^\d{11,16}$/.test(financialCode)) {
-      toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد", { position: "bottom-left" });
-      return;
-    }
-    if (!/^\d{6}$/.test(registrationNumber)) {
-      toast.error("شماره ثبت باید عددی ۶ رقمی باشد", { position: "bottom-left" });
-      return;
-    }
-    if (!form.type) {
-      toast.error("نوع سکو را انتخاب کنید", { position: "bottom-left" });
-      return;
-    }
-    if (!form.exchangeType) {
-      toast.error("شکل حقوقی سکو را انتخاب کنید", { position: "bottom-left" });
-      return;
-    }
-    if (phoneNumber === '') {
-      toast.error("شماره تماس اشتباه وارد شده است", { position: "bottom-left" });
-      return;
-    }
-    if (zipCode && !isDigits(zipCode, 10)) {
-      toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
-      return;
-    }
-    if (email && !validateEmail(email)) {
-      toast.error("ایمیل وارد شده معتبر نیست", { position: "bottom-left" });
-      return;
-    }
-    if (!form.establishmentDate) {
-      toast.error("تاریخ تأسیس را وارد کنید", { position: "bottom-left" });
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const token = document.cookie.split("; ").find((r) => r.startsWith("token="))?.split("=")[1];
-  
-      if (!token) {
-        toast.error("توکن موجود نیست، لطفاً دوباره وارد شوید.", { position: "bottom-left" });
-        setLoading(false);
-        return;
-      }
-  
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`,
-        {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(form),
-        }
-      );
-  
-      // 🔴 اول 403 رو چک کن
-      if (response.status === 403) {
-        await refreshTokenOnly();
-        setLoading(false);
-      }
-  
-      const data = await response.json();
-  
-      // بقیه‌ی هندل ارورها
-      if (!response.ok) {
-        if (response.status === 400 || response.status === 409) {
-          if (data?.result && typeof data.result === "object") {
-            Object.entries(data.result).forEach(([_, message]) => {
-              toast.error(`${message}`, { position: "bottom-left" });
-            });
-            setLoading(false);
-            return;
-          }
-          if (data?.error && typeof data.error === "string") {
-            const match = data.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
-            if (match) {
-              const [, field, value] = match;
-              toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-            } else {
-              toast.error(data.error, { position: "bottom-left" });
-            }
-            setLoading(false);
-            return;
-          }
-        }
-        toast.error("خطا در ذخیره مشخصات سکو", { position: "bottom-left" });
-        setLoading(false);
-        return;
-      }
-  
-      // ✅ موفق
-      toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", { position: "bottom-left" });
-  
-      // آپدیت UI
-      handleEdit(1, 1, form.legalName);
-      handleEdit(1, 2, toJalaliDate(form.establishmentDate));
-      handleEdit(1, 3, form.nationalCode);
-      handleEdit(1, 4, form.type);
-      handleEdit(
-        1,
-        5,
-        ExchangeLegalTypes.find((item) => item.value === form.exchangeType)?.label
-      );
-      handleEdit(1, 6, form.financialCode);
-      handleEdit(1, 7, form.registrationNumber ? String(form.registrationNumber) : "");
-      handleEdit(
-        2,
-        1,
-        form.siteAddress ? (
-          <a href={form.siteAddress} className="text-primary dark:text-primary-dark">
-            {form.siteAddress}
-          </a>
-        ) : ""
-      );
-      handleEdit(2, 2, form.phoneNumber);
-      handleEdit(2, 3, form.emergencyPhoneNumber);
-      handleEdit(2, 4, form.officeAddress);
-      handleEdit(2, 5, form.zipCode);
-      handleEdit(2, 6, form.email);
-  
-      setIsOpen(false);
-    } catch (err) {
-      console.error(err);
-      toast.error("خطا در ارتباط با سرور", { position: "bottom-left" });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0] || null;
-    setFile(f);
-    setFileName(f ? f.name : "");
-  };
-  const uploadFile = async () => {
-    try {
-      setLoading2(true);
-  
-      // اساسنامه
-      if (type === "اساسنامه") {
-        if (!file) {
-          toast.error("فایلی انتخاب نشده");
-          return;
-        }
-  
-        await PostRequest(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/upload`,
-          { association: file },
-          { asFormData: true }
-        );
-  
-        toast.success("اساسنامه با موفقیت بارگذاری شد");
-        setTimeout(() => window.location.reload(), 500);
-        return; // مهم: که ادامه اجرا نشه
-      }
-  
-      // صورت مالی
-      if (type === "صورت مالی") {
-        // 1. چک کن فایل هست؟
-        if (!file) {
-          toast.error("فایل صورت مالی انتخاب نشده");
-          return;
-        }
-  
-        // 2. چک کن نام/تاریخ وارد شده؟
-        if (!FinancialName) {
-          toast.error("عنوان یا تاریخ صورت مالی مشخص نشده");
-          return;
-        }
-  
-        try {
-          // اول ردیف صورت مالی رو بساز
-          const result = await PostRequest(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
-            { date: String(FinancialName) }
-          );
-  
-          // اگر API ساختن ردیف به هر دلیلی چیزی برنگردوند
-          const fileId = result?.result?.id;
-          if (!fileId) {
-            toast.error("خطا در ایجاد رکورد صورت مالی");
-            return;
-          }
-  
-          // حالا خود فایل رو آپلود کن
-          await PostRequest(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/upload`,
-            { financialFile: file },
-            { asFormData: true }
-          );
-  
-          toast.success("صورت مالی با موفقیت بارگذاری شد");
-          setFile(null);
-          setFileName("");
-          SetAddFileModal(false);
-          setTimeout(() => window.location.reload(), 500);
-        } catch (error: any) {
-          console.log(error);
-          // اگر هر کدوم از دو درخواست بالا خورد به خطا
-          toast.error(
-            error?.message || "خطا در بارگذاری صورت مالی. دوباره تلاش کنید."
-          );
-        }
-  
-        return;
-      }
-  
-    } catch (e: any) {
-      toast.error(e?.message || "خطا در آپلود");
-    } finally {
-      setLoading2(false);
-    }
-  };
-  
-  const handleSelectChange = (event: string) => {
-    Settype(event);
-  };
-  const Audit = () => {
-    setLogLoading(true);
-    GetRequest(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange/${params.id}?page=${LogPage}&size=10&sort=updatedAt,DESC`
-    )
-      .then((response) => {
-        setLogLoading(false);
-        setChanges(response.result.content);
-        setLogNumber(response.result.totalElements);
-      })
-      .catch((err) => {
-        setLogLoading(false);
-        setChanges([]);
-      });
-  };
-
   useEffect(() => {
     if (isLogOpen) {
       Audit();
@@ -1146,8 +1252,8 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               typeof item.content === "string"
                 ? item.content
                 : React.isValidElement(item.content)
-                  ? item.content
-                  : "", // تبدیل به string یا Element
+                ? item.content
+                : "", // تبدیل به string یا Element
           })),
         }))}
         downloadLink="/path/to/pdf"
@@ -1246,10 +1352,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                           <MenuItem
                             isActive={active}
                             isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "P2P"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                              }`}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                              form.type === "P2P"
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
+                            }`}
                           >
                             <MenuItem.Title>P2P</MenuItem.Title>
                           </MenuItem>
@@ -1259,10 +1366,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         {({ active }) => (
                           <MenuItem
                             isActive={active}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "OTC"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                              }`}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                              form.type === "OTC"
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
+                            }`}
                           >
                             <MenuItem.Title>OTC</MenuItem.Title>
                           </MenuItem>
@@ -1308,7 +1416,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   <Dropdown
                     value={form.exchangeType}
                     onChange={(v: unknown) => {
-                      if (typeof (v) === 'string') {
+                      if (typeof v === "string") {
                         setForm((p) => ({ ...p, exchangeType: v }));
                       }
                     }}
@@ -1323,7 +1431,13 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                    rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
                    dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-boxColor-dark"
                       >
-                        <span>{form.exchangeType !== "" ? ExchangeLegalTypes.find(item => item.value === form.exchangeType)?.label : "انتخاب"}</span>
+                        <span>
+                          {form.exchangeType !== ""
+                            ? ExchangeLegalTypes.find(
+                                (item) => item.value === form.exchangeType
+                              )?.label
+                            : "انتخاب"}
+                        </span>
                       </Button>
                     </Dropdown.Trigger>
 
@@ -1334,24 +1448,28 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                  rounded-lg dark:text-gray-100 appearance-none z-50
                  max-h-60 overflow-y-auto"
                     >
-                      {
-                        ExchangeLegalTypes.map((item, index) => {
-                          return (
-                            <Dropdown.Option value={item.value} key={`option${index}`}>
-                              {({ selected, active }) => (
-                                <MenuItem isActive={active} isSelected={selected}
-                                  className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === item.value
+                      {ExchangeLegalTypes.map((item, index) => {
+                        return (
+                          <Dropdown.Option
+                            value={item.value}
+                            key={`option${index}`}
+                          >
+                            {({ selected, active }) => (
+                              <MenuItem
+                                isActive={active}
+                                isSelected={selected}
+                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                                  form.exchangeType === item.value
                                     ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
                                     : ""
-                                    }`}
-                                >
-                                  <MenuItem.Title>{item.label}</MenuItem.Title>
-                                </MenuItem>
-                              )}
-                            </Dropdown.Option>
-                          )
-                        })
-                      }
+                                }`}
+                              >
+                                <MenuItem.Title>{item.label}</MenuItem.Title>
+                              </MenuItem>
+                            )}
+                          </Dropdown.Option>
+                        );
+                      })}
                     </Dropdown.Options>
                   </Dropdown>
 
@@ -1399,7 +1517,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   value={form.emergencyPhoneNumber}
                   onChange={(e) => {
                     if (validateNumbers(e.target.value)) {
-                      setForm({ ...form, emergencyPhoneNumber: e.target.value });
+                      setForm({
+                        ...form,
+                        emergencyPhoneNumber: e.target.value,
+                      });
                     }
                   }}
                 />
@@ -1500,10 +1621,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                       <MenuItem
                         isActive={active}
                         isSelected={selected}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "اساسنامه"
-                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                          : ""
-                          }`}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                          type === "اساسنامه"
+                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                            : ""
+                        }`}
                       >
                         <MenuItem.Title>اساسنامه</MenuItem.Title>
                       </MenuItem>
@@ -1513,10 +1635,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                     {({ active }) => (
                       <MenuItem
                         isActive={active}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "صورت مالی"
-                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                          : ""
-                          }`}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                          type === "صورت مالی"
+                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                            : ""
+                        }`}
                       >
                         <MenuItem.Title>صورت مالی</MenuItem.Title>
                       </MenuItem>
@@ -1661,7 +1784,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
             <p className="mb-4">
-              {`آیا از حذف صورت مالی ${financialToDelete?.date ?? ""} مطمئن هستید؟ این عملیات قابل بازگشت نیست.`}
+              {`آیا از حذف صورت مالی ${
+                financialToDelete?.date ?? ""
+              } مطمئن هستید؟ این عملیات قابل بازگشت نیست.`}
             </p>
             <div className="flex justify-end gap-2">
               <Button

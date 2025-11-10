@@ -2,7 +2,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 
 export default function AnimatedText() {
-  const text = "EXBIN";
+  const text = "CedPortal";
   const letters = text.split("");
   const [activeIndex, setActiveIndex] = useState(0);
 

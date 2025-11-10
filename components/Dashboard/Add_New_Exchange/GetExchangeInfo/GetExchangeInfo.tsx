@@ -59,7 +59,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     };
 
     const nextStep = async () => {
-        // ✅ ولیدیشن‌های ضروری (یک‌بار کافی است)
+        // === Validations ===
         if (name === '') return toast.error("نام سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (legalName === '') return toast.error("نام حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (nationalCode === '') return toast.error("شناسه ملی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
@@ -71,132 +71,133 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
         if (logo === '') return toast.error("لوگو سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (siteAddress === '') return toast.error("وبسایت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (phoneNumber === '') return toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (email !== '' && email !== null) {
-            if (!validateEmail(email)) {
-                toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-                return;
-            }
+        if (email !== '' && email !== null && !validateEmail(email)) {
+          return toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
         }
         if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
         if (/[@#!]/.test(name)) return toast.error("نام سکو نباید شامل کاراکترهای خاص باشد (#, @, !)");
         if (name.length > 200) return toast.error("طول نام سکو نباید بیشتر از ۲۰۰ کاراکتر باشد");
         if (/[@#!]/.test(legalName)) return toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد (#, @, !)");
         if (legalName.length > 200) return toast.error("طول نام حقوقی نباید بیشتر از ۲۰۰ کاراکتر باشد");
-        if (!/^\d{11}$/.test(nationalCode))
-            return toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد");
-        if (!/^\d{11,16}$/.test(financialCode))
-            return toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد");
+        if (!/^\d{11}$/.test(nationalCode)) return toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد");
+        if (!/^\d{11,16}$/.test(financialCode)) return toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد");
         const regNum = Number(registrationNumber);
         if (!/^\d{6}$/.test(registrationNumber) || regNum < 100000 || regNum > 999999)
-            return toast.error("شماره ثبت باید ۶ رقم و بین ۱۰۰۰۰۰ تا ۹۹۹۹۹۹ باشد");
-        // if (phoneNumber && !/^0\d{10}$/.test(phoneNumber))
-        //     return toast.error("شماره تماس باید ۱۱ رقم و با ۰ شروع شود");
-        // if (emergencyPhoneNumber && !/^0\d{10}$/.test(emergencyPhoneNumber))
-        //     return toast.error("شماره تماس اضطراری باید ۱۱ رقم و با ۰ شروع شود");
-        if (zipCode && !/^\d{10}$/.test(zipCode))
-            return toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد");
-        if (officeAddress.length > 1000)
-            return toast.error("طول آدرس دفتر نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
-
+          return toast.error("شماره ثبت باید ۶ رقم و بین ۱۰۰۰۰۰ تا ۹۹۹۹۹۹ باشد");
+        if (zipCode && !/^\d{10}$/.test(zipCode)) return toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد");
+        if (officeAddress.length > 1000) return toast.error("طول آدرس دفتر نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+      
+        // === Payload ===
         const payload = {
-            name,
-            legalName,
-            nationalCode: toEnglishDigits(nationalCode),
-            establishmentDate: toLocalDate(establishmentDate),
-            type,
-            exchangeType: ExchangeLegalTypes.find(item => item.label === exchangeType)?.value,
-            financialCode: toEnglishDigits(financialCode),
-            logo,
-            siteAddress: addHttps(removeProtocolAndWWW(siteAddress)),
-            emergencyPhoneNumber: toEnglishDigits(emergencyPhoneNumber),
-            officeAddress,
-            phoneNumber: toEnglishDigits(phoneNumber),
-            registrationNumber,
-            email,
-            zipCode
+          name,
+          legalName,
+          nationalCode: toEnglishDigits(nationalCode),
+          establishmentDate: toLocalDate(establishmentDate),
+          type,
+          exchangeType: ExchangeLegalTypes.find(item => item.label === exchangeType)?.value,
+          financialCode: toEnglishDigits(financialCode),
+          logo,
+          siteAddress: addHttps(removeProtocolAndWWW(siteAddress)),
+          emergencyPhoneNumber: toEnglishDigits(emergencyPhoneNumber),
+          officeAddress,
+          phoneNumber: toEnglishDigits(phoneNumber),
+          registrationNumber,
+          email,
+          zipCode
         };
-
+      
+        // کمک‌تابع: هندل خطاهای دامنه‌ی کسب‌وکار (400/409/…)
+        const handlePostErrors = (e: any) => {
+          const msg = String(e?.message ?? "");
+          const status = e?.response?.status;
+          const data = e?.response?.data;
+      
+          if (status === 400 && data?.result && typeof data.result === "object") {
+            Object.entries(data.result).forEach(([field, message]) => {
+              if (message) toast.error(`${field} : ${message as string}`, { position: "bottom-left" });
+            });
+            return true;
+          }
+      
+          if ((status === 400 || status === 409) && data?.error) {
+            const duplicateMatch = String(data.error).match(/identifier:\s*(\w+):\s*(\d+)/i);
+            if (duplicateMatch) {
+              const field = duplicateMatch[1];
+              const value = duplicateMatch[2];
+              const fieldLabels: Record<string, string> = {
+                nationalCode: "شناسه ملی",
+                financialCode: "کد اقتصادی",
+                phoneNumber: "شماره تماس",
+                emergencyPhoneNumber: "شماره تماس اضطراری",
+                zipCode: "کد پستی",
+                legalName: "نام حقوقی",
+                name: "نام سکو",
+                siteAddress: "آدرس سایت"
+              };
+              const label = fieldLabels[field] || field;
+              toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+              return true;
+            }
+          }
+      
+          const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
+          if (financialCodeError) {
+            toast.error(`سکو با کد اقتصادی ${financialCodeError[1]} قبلاً وجود دارد.`, { position: "bottom-left" });
+            return true;
+          }
+          const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
+          if (nationalCodeError) {
+            toast.error(`سکو با شناسه ملی ${nationalCodeError[1]} قبلاً وجود دارد.`, { position: "bottom-left" });
+            return true;
+          }
+      
+          toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
+          console.error(e);
+          return true;
+        };
+      
+        const doRequest = () =>
+          PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges`, payload);
+      
         try {
-            setLoading(true);
-        
-            const res: any = await PostRequest(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges`,
-              payload
-            );
-        
-            toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" });
-            setID(res?.result?.id);
-            SetStep(2);
-          } catch (e: any) {
-            const msg = String(e?.message ?? "");
-            const status = e?.response?.status;
-            const data = e?.response?.data;
-        
-            // ⛔️ این قسمت رو جابه‌جا کردیم
-            if (status === 403) {
-              await refreshTokenOnly();
-              setLoading(false);
-            }
-        
-            // ✅ 1) خطاهای ولیدیشن
-            if (status === 400 && data?.result && typeof data.result === "object") {
-              const errors = data.result;
-              Object.entries(errors).forEach(([field, message]) => {
-                if (message) {
-                  toast.error(`${field} : ${message}`, { position: "bottom-left" });
-                }
-              });
-              setLoading(false);
-              return;
-            }
-        
-            // ✅ 2) خطاهای duplicate از سمت بک‌اند
-            if ((status === 400 || status === 409) && data?.error) {
-              const duplicateMatch = data.error.match(/identifier:\s*(\w+):\s*(\d+)/i);
-              if (duplicateMatch) {
-                const field = duplicateMatch[1];
-                const value = duplicateMatch[2];
-                const fieldLabels: Record<string, string> = {
-                  nationalCode: "شناسه ملی",
-                  financialCode: "کد اقتصادی",
-                  phoneNumber: "شماره تماس",
-                  emergencyPhoneNumber: "شماره تماس اضطراری",
-                  zipCode: "کد پستی",
-                  legalName: "نام حقوقی",
-                  name: "نام سکو",
-                  siteAddress: "آدرس سایت"
-                };
-                const label = fieldLabels[field] || field;
-                toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                setLoading(false);
+          setLoading(true);
+      
+          let res: any;
+          try {
+            // تلاش اول
+            res = await doRequest();
+          } catch (e1: any) {
+            const status = e1?.response?.status;
+      
+            if (status === 401 || status === 403) {
+              try {
+                // رفرش توکن و تلاش دوم
+                await refreshTokenOnly();
+                res = await doRequest();
+              } catch (e2: any) {
+                // تلاش دوم هم شکست خورد → هندل خطا و خروج
+                handlePostErrors(e2);
                 return;
               }
-            }
-        
-            // ✅ 3) fallbackهای متنی
-            const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
-            if (financialCodeError) {
-              const existingFinancialCode = financialCodeError[1];
-              toast.error(`سکو با کد اقتصادی ${existingFinancialCode} قبلاً وجود دارد.`);
-              setLoading(false);
+            } else {
+              // خطاهای غیر احراز هویت
+              handlePostErrors(e1);
               return;
             }
-        
-            const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
-            if (nationalCodeError) {
-              const existingNationalCode = nationalCodeError[1];
-              toast.error(`سکو با شناسه ملی ${existingNationalCode} قبلاً وجود دارد.`);
-              setLoading(false);
-              return;
-            }
-        
-            // ❌ سایر خطاها
-            toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
-            console.error(e);
-          } finally {
-            setLoading(false);
           }
-    };
+      
+          // ✅ موفقیت
+          toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" });
+          setID(res?.result?.id);
+          SetStep(2);
+        } catch (e: any) {
+          // اگر خطایی خارج از مسیرهای بالا پرتاب شد
+          handlePostErrors(e);
+        } finally {
+          setLoading(false);
+        }
+      };
+      
 
     return (
         <div className='mt-4'>
