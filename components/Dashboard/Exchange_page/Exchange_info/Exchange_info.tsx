@@ -538,7 +538,6 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
         method: "GET",
         headers: {
           Authorization: `Bearer ${fresh}`,
-          Accept: "*/*",
         },
       };
     });
@@ -553,8 +552,18 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
       return;
     }
 
-    // نام فایل: از هدر اگر بود، وگرنه از تاریخ
-    await saveBlobResponse(res, `financial-${date || fileId}.pdf`);
+    // فقط از هدر بخون، اگه نبود یه اسم ساده بده
+    const disposition = res.headers.get("Content-Disposition");
+    let filename = `financial-${date || fileId}`; // بدون پسوند
+
+    if (disposition && disposition.includes("filename=")) {
+      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (match && match[1]) {
+        filename = match[1].replace(/['"]/g, "");
+      }
+    }
+
+    await saveBlobResponse(res, filename);
     toast.success("دانلود صورت مالی آغاز شد.", { position: "bottom-left" });
   } catch (e: any) {
     if (e?.message === "NO_TOKEN") {
@@ -565,6 +574,8 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
     }
   }
 };
+
+
 
   const [confirmAssociationOpen, setConfirmAssociationOpen] = useState(false);
   const [confirmFinancialOpen, setConfirmFinancialOpen] = useState(false);
