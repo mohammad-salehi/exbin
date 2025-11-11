@@ -802,7 +802,7 @@ const Page: React.FC = () => {
                 <label className="mt-2">نام</label>
                 <Input
                   className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  placeholder="نام و نام‌خانوادگی"
+                  placeholder="نام "
                   value={addForm.firstName}
                   onChange={onAddInputChange("firstName")}
                 />
@@ -811,7 +811,7 @@ const Page: React.FC = () => {
                 <label className="mt-2">نام خانوادگی</label>
                 <Input
                   className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  placeholder="نام و نام‌خانوادگی"
+                  placeholder="نام‌خانوادگی"
                   value={addForm.lastName}
                   onChange={onAddInputChange("lastName")}
                 />
