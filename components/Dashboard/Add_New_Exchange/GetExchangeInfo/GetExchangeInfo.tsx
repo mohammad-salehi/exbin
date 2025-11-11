@@ -74,7 +74,6 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
         if (exchangeType === '') return toast.error("شکل حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (type === '') return toast.error("نوع سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (establishmentDate === '') return toast.error("تاریخ تاسیس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        // if (logo === '') return toast.error("لوگو سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (siteAddress === '') return toast.error("وبسایت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (phoneNumber === '') return toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
         if (email !== '' && email !== null && !validateEmail(email)) {
@@ -112,21 +111,47 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
           zipCode
         };
       
-        // کمک‌تابع: هندل خطاهای دامنه‌ی کسب‌وکار (400/409/…)
+        // 👇 کمک‌تابع هندل ارورها (نسخه‌ی کامل‌تر)
         const handlePostErrors = (e: any) => {
           const msg = String(e?.message ?? "");
           const status = e?.response?.status;
-          const data = e?.response?.data;
+          const data = e?.response?.data as { result?: any; error?: string } | undefined;
       
-          if (status === 400 && data?.result && typeof data.result === "object") {
-            Object.entries(data.result).forEach(([field, message]) => {
+          // 👇 تلاش دوم: اگه response نبود ولی message خودش JSON بود
+          let parsedFromMessage: { result?: any; error?: string } | null = null;
+          if (!data && typeof msg === "string" && msg.startsWith("{") && msg.endsWith("}")) {
+            try {
+              parsedFromMessage = JSON.parse(msg);
+            } catch {
+              // ignore
+            }
+          }
+      
+          const errorObj = data || parsedFromMessage;
+      
+          // 403 جدا هندل میشه بیرون، ولی اگه اینجا رسیدیم و متنی داشتیم نشون میدیم
+          if (status === 403 && errorObj?.error) {
+            toast.error(errorObj.error, { position: "bottom-left" });
+            return true;
+          }
+      
+          // ✅ ولیدیشن‌های فیلدی
+          if (errorObj?.result && typeof errorObj.result === "object") {
+            Object.entries(errorObj.result).forEach(([field, message]) => {
               if (message) toast.error(`${field} : ${message as string}`, { position: "bottom-left" });
             });
             return true;
           }
       
+          // ✅ ارور متنی مستقیم از بک‌اند
+          if (typeof errorObj?.error === "string" && errorObj.error.trim() !== "") {
+            toast.error(errorObj.error, { position: "bottom-left" });
+            return true;
+          }
+      
+          // ✅ الگوی identifier از روی data.error
           if ((status === 400 || status === 409) && data?.error) {
-            const duplicateMatch = String(data.error).match(/identifier:\s*(\w+):\s*(\d+)/i);
+            const duplicateMatch = String(data.error).match(/identifier:\s*(\w+):\s*(.+)$/i);
             if (duplicateMatch) {
               const field = duplicateMatch[1];
               const value = duplicateMatch[2];
@@ -138,7 +163,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                 zipCode: "کد پستی",
                 legalName: "نام حقوقی",
                 name: "نام سکو",
-                siteAddress: "آدرس سایت"
+                siteAddress: "آدرس سایت",
               };
               const label = fieldLabels[field] || field;
               toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
@@ -146,6 +171,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             }
           }
       
+          // ✅ fallbackهای متنی قبلیت
           const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
           if (financialCodeError) {
             toast.error(`سکو با کد اقتصادی ${financialCodeError[1]} قبلاً وجود دارد.`, { position: "bottom-left" });
@@ -157,6 +183,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             return true;
           }
       
+          // آخرش
           toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
           console.error(e);
           return true;
@@ -177,16 +204,13 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
       
             if (status === 401 || status === 403) {
               try {
-                // رفرش توکن و تلاش دوم
                 await refreshTokenOnly();
                 res = await doRequest();
               } catch (e2: any) {
-                // تلاش دوم هم شکست خورد → هندل خطا و خروج
                 handlePostErrors(e2);
                 return;
               }
             } else {
-              // خطاهای غیر احراز هویت
               handlePostErrors(e1);
               return;
             }
@@ -197,12 +221,12 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
           setID(res?.result?.id);
           SetStep(2);
         } catch (e: any) {
-          // اگر خطایی خارج از مسیرهای بالا پرتاب شد
           handlePostErrors(e);
         } finally {
           setLoading(false);
         }
       };
+      
       
 
     return (

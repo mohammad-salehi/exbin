@@ -471,7 +471,6 @@ const handleDownload = async () => {
     });
 
     if (!res.ok) {
-      // تلاش برای خواندن پیام خطا
       try {
         const data = await res.json();
         toast.error(data?.error || "خطا در دانلود اساسنامه", { position: "bottom-left" });
@@ -481,7 +480,35 @@ const handleDownload = async () => {
       return;
     }
 
-    await saveBlobResponse(res, `association-${params.id}.pdf`);
+    // 👇 گرفتن نام فایل از هدر
+    const disposition = res.headers.get("Content-Disposition");
+    let filename = "";
+
+    if (disposition && disposition.includes("filename=")) {
+      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+      if (match && match[1]) {
+        filename = match[1].replace(/['"]/g, ""); // حذف کوتیشن‌ها
+      }
+    }
+
+    // اگه سرور اسم نداد، از content-type حدس بزنیم
+    if (!filename) {
+      const ct = res.headers.get("Content-Type") || "";
+      // چندتا مپ ساده
+      const extFromCT: Record<string, string> = {
+        "application/pdf": "pdf",
+        "image/png": "png",
+        "image/jpeg": "jpg",
+        "application/msword": "doc",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
+        "application/vnd.ms-excel": "xls",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
+      };
+      const guessedExt = extFromCT[ct] || "bin";
+      filename = `association-${params.id}.${guessedExt}`;
+    }
+
+    await saveBlobResponse(res, filename);
     toast.success("دانلود اساسنامه آغاز شد.", { position: "bottom-left" });
   } catch (e: any) {
     if (e?.message === "NO_TOKEN") {
