@@ -46,6 +46,12 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+        if (file.size > 100 * 1024) {
+            toast.error("حجم لوگو نباید بیشتر از 100 کیلوبایت باشد");
+            e.target.value = "";
+            return;
+          }
+
         const reader = new FileReader();
         reader.onloadend = () => {
             SetLogo(reader.result as string);
@@ -401,9 +407,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
                             {/* فلش سمت راست */}
                             <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
-
                         </div>
-
                     </div>
 
                     <div className="col-span-1">
@@ -413,27 +417,6 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                                 SetfinancialCode(e.target.value)
                             }
                         }} placeholder='کد اقتصادی' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
-                    </div>
-
-                    <div className="col-span-1">
-                        <label className="text-titleText dark:text-titleText-dark">لوگو *</label>
-                        <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
-                            {
-                                fileName === "" ?
-                                    <span>
-                                        انتخاب فایل
-                                    </span>
-                                    :
-                                    fileName
-                            }
-
-                            <input
-                                type="file"
-                                accept="image/png, image/jpeg, image/jpg, image/gif"
-                                onChange={handleFileChange}
-                                className="hidden"
-                            />
-                        </label>
                     </div>
 
                     <div className="col-span-1">
@@ -457,6 +440,27 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                                 SetphoneNumber(e.target.value)
                             }
                         }} placeholder='شماره تماس' className=" p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark" />
+                    </div>
+
+                    <div className="col-span-1">
+                        <label className="text-titleText dark:text-titleText-dark">لوگو (حداکثر 100 کیلوبایت)</label>
+                        <label className="block mt-2 cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
+                            {
+                                fileName === "" ?
+                                    <span>
+                                        انتخاب فایل
+                                    </span>
+                                    :
+                                    fileName
+                            }
+
+                            <input
+                                type="file"
+                                accept="image/png, image/jpeg, image/jpg, image/gif"
+                                onChange={handleFileChange}
+                                className="hidden"
+                            />
+                        </label>
                     </div>
 
                     <div className="col-span-1">

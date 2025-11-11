@@ -82,7 +82,7 @@ const Page = () => {
       cell: (row: Person) => (
         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark">
           {
-            row.logo !== "" ?
+            row.logo !== "" && row.logo !== null ?
               <img src={row.logo} style={{ width: "30px" }} alt="image" />
               :
               <svg width="30px" height="30px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
