@@ -4,13 +4,74 @@
 
 /* استایل‌های Moon */
 @font-face {
-    font-family: "IRANSansXFaNum";
-    src: url("/fonts/IRANSansXFaNum-Medium.ttf") format("truetype");
-    font-weight: 500;
-    font-style: normal;
-    font-display: swap;
-  }
+  font-family: "IRANSansXFaNum";
+  src: url("/fonts/IRANSansXFaNum-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
 
-  *{
-    font-family: IRANSansXFaNum;
+* {
+  font-family: IRANSansXFaNum;
+}
+
+
+/* متغیرهای اصلی که در @theme قبلاً داری */
+
+@keyframes spin-angle {
+  to {
+    --angle: 1turn;
   }
+}
+
+
+
+
+:root {
+  --color-primary: #4fc2fc;
+  --color-borderNeutral: #e6e6e6; /* رنگ روشن برای حالت لایت */
+}
+:root.dark {
+  --color-primary: #4fc2fc;
+  --color-borderNeutral: #444; /* رنگ تیره‌تر برای حالت دارک */
+}
+.main-animated-border-box {
+  --border-width: 2px;
+  --radius: 16px;
+  --angle: 0turn;
+  position: relative;
+  border: var(--border-width) solid transparent;
+}
+
+.main-animated-border-box::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--border-width) * -1);
+  border: inherit;
+  border-radius: inherit;
+  background-image: conic-gradient(from var(--angle),
+      var(--color-borderNeutral) 60%,
+      var( --color-primary) 73%,
+      var( --color-primary) 86%,
+      var(--color-borderNeutral) 100%);
+  background-origin: border-box;
+  -webkit-mask:
+    linear-gradient(black, black) content-box,
+    linear-gradient(black, black);
+  mask:
+    linear-gradient(black, black),
+    linear-gradient(black, black);
+  -webkit-mask-clip: content-box, border-box;
+  mask-clip: content-box, border-box;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-angle 4s linear infinite;
+  pointer-events: none;
+}
+
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0turn;
+}

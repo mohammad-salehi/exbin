@@ -12,7 +12,7 @@ const ShowingStep: React.FC<ShowingSteps> = ({ step, titles }) => {
                 titles.map((item, index) => {
                     return (
                         <div className='inline-block' key={index}>
-                            <div className={` inline-block xl:ml-4 xl:px-8 lg:ml-2 lg:px-4 md:ml-2 md:px-2 ml-2 px-1 py-1 md:py-2 rounded-lg border bg-white dark:bg-boxColor-dark ${step === (index + 1) ? "border-primary text-primary" : "text-titleText dark:text-titleText-dark dark:border-boxBorderColor-dark"}`}>
+                            <div  className={` inline-block xl:ml-4 xl:px-8 lg:ml-2 lg:px-4 md:ml-2 md:px-2 ml-2 px-1 py-1 md:py-2  rounded-2xl bg-white dark:bg-boxColor-dark ${step === (index + 1) ? " text-primary main-animated-border-box" : "text-titleText dark:text-titleText-dark border-2 border-[#e6e6e6] dark:border-[#444]"}`}>
                                 <span className='hidden md:inline-block'>
                                     {item.title}
                                 </span>
