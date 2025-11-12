@@ -13,7 +13,7 @@ import { addHttps, removeProtocolAndWWW, validateDomainExtension, validateEmail,
 import { PostRequest } from '../../../../functions/PostRequest';
 import { toEnglishDigits } from '../../../../functions/EnglishNumber';
 import { toLocalDate } from '../../../../functions/toLocalDate';
-import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
+import { handlePostErrors } from '../../../../functions/handlePostErrors';
 
 interface GetExchangeInfoProps {
     SetStep: React.Dispatch<React.SetStateAction<number>>;
@@ -65,34 +65,29 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     };
 
     const nextStep = async () => {
-        // === Validations ===
-        if (name === '') return toast.error("نام سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (legalName === '') return toast.error("نام حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (nationalCode === '') return toast.error("شناسه ملی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (financialCode === '') return toast.error("کد اقتصادی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (registrationNumber === '') return toast.error("شماره ثبت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (exchangeType === '') return toast.error("شکل حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (type === '') return toast.error("نوع سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (establishmentDate === '') return toast.error("تاریخ تاسیس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (siteAddress === '') return toast.error("وبسایت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (phoneNumber === '') return toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" });
-        if (email !== '' && email !== null && !validateEmail(email)) {
-            return toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-        }
-        if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" });
-        if (/[@#!]/.test(name)) return toast.error("نام سکو نباید شامل کاراکترهای خاص باشد (#, @, !)");
-        if (name.length > 200) return toast.error("طول نام سکو نباید بیشتر از ۲۰۰ کاراکتر باشد");
-        if (/[@#!]/.test(legalName)) return toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد (#, @, !)");
-        if (legalName.length > 200) return toast.error("طول نام حقوقی نباید بیشتر از ۲۰۰ کاراکتر باشد");
-        if (!/^\d{11}$/.test(nationalCode)) return toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد");
-        if (!/^\d{11,16}$/.test(financialCode)) return toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد");
-        const regNum = Number(registrationNumber);
-        if (!/^\d{6}$/.test(registrationNumber) || regNum < 100000 || regNum > 999999)
-            return toast.error("شماره ثبت باید ۶ رقم و بین ۱۰۰۰۰۰ تا ۹۹۹۹۹۹ باشد");
-        if (zipCode && !/^\d{10}$/.test(zipCode)) return toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد");
-        if (officeAddress.length > 1000) return toast.error("طول آدرس دفتر نباید بیشتر از ۱۰۰۰ کاراکتر باشد");
+        if (name === '') return toast.error("نام سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (legalName === '') return toast.error("نام حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (nationalCode === '') return toast.error("شناسه ملی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (financialCode === '') return toast.error("کد اقتصادی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (registrationNumber === '') return toast.error("شماره ثبت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (exchangeType === '') return toast.error("شکل حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (type === '') return toast.error("نوع سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (establishmentDate === '') return toast.error("تاریخ تاسیس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (siteAddress === '') return toast.error("وبسایت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (phoneNumber === '') return toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+        if (email !== '' && email !== null && !validateEmail(email)) { return toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" })}
+        if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" })
+        if (/[@#!]/.test(name)) return toast.error("نام سکو نباید شامل کاراکترهای خاص باشد (#, @, !)")
+        if (name.length > 200) return toast.error("طول نام سکو نباید بیشتر از ۲۰۰ کاراکتر باشد")
+        if (/[@#!]/.test(legalName)) return toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد (#, @, !)")
+        if (legalName.length > 200) return toast.error("طول نام حقوقی نباید بیشتر از ۲۰۰ کاراکتر باشد")
+        if (!/^\d{11}$/.test(nationalCode)) return toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد")
+        if (!/^\d{11,16}$/.test(financialCode)) return toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد")
+        const regNum = Number(registrationNumber)
+        if (!/^\d{6}$/.test(registrationNumber) || regNum < 100000 || regNum > 999999) return toast.error("شماره ثبت باید ۶ رقم و بین ۱۰۰۰۰۰ تا ۹۹۹۹۹۹ باشد")
+        if (zipCode && !/^\d{10}$/.test(zipCode)) return toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد")
+        if (officeAddress.length > 1000) return toast.error("طول آدرس دفتر نباید بیشتر از ۱۰۰۰ کاراکتر باشد")
 
-        // === Payload ===
         const payload = {
             name,
             legalName,
@@ -109,122 +104,20 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
             registrationNumber,
             email,
             zipCode
-        };
-
-        // 👇 کمک‌تابع هندل ارورها (نسخه‌ی کامل‌تر)
-        const handlePostErrors = (e: any) => {
-            const msg = String(e?.message ?? "");
-            const status = e?.response?.status;
-            const data = e?.response?.data as { result?: any; error?: string } | undefined;
-
-            // 👇 تلاش دوم: اگه response نبود ولی message خودش JSON بود
-            let parsedFromMessage: { result?: any; error?: string } | null = null;
-            if (!data && typeof msg === "string" && msg.startsWith("{") && msg.endsWith("}")) {
-                try {
-                    parsedFromMessage = JSON.parse(msg);
-                } catch {
-                    // ignore
-                }
-            }
-
-            const errorObj = data || parsedFromMessage;
-
-            // 403 جدا هندل میشه بیرون، ولی اگه اینجا رسیدیم و متنی داشتیم نشون میدیم
-            if (status === 403 && errorObj?.error) {
-                toast.error(errorObj.error, { position: "bottom-left" });
-                return true;
-            }
-
-            // ✅ ولیدیشن‌های فیلدی
-            if (errorObj?.result && typeof errorObj.result === "object") {
-                Object.entries(errorObj.result).forEach(([field, message]) => {
-                    if (message) toast.error(`${field} : ${message as string}`, { position: "bottom-left" });
-                });
-                return true;
-            }
-
-            // ✅ ارور متنی مستقیم از بک‌اند
-            if (typeof errorObj?.error === "string" && errorObj.error.trim() !== "") {
-                toast.error(errorObj.error, { position: "bottom-left" });
-                return true;
-            }
-
-            // ✅ الگوی identifier از روی data.error
-            if ((status === 400 || status === 409) && data?.error) {
-                const duplicateMatch = String(data.error).match(/identifier:\s*(\w+):\s*(.+)$/i);
-                if (duplicateMatch) {
-                    const field = duplicateMatch[1];
-                    const value = duplicateMatch[2];
-                    const fieldLabels: Record<string, string> = {
-                        nationalCode: "شناسه ملی",
-                        financialCode: "کد اقتصادی",
-                        phoneNumber: "شماره تماس",
-                        emergencyPhoneNumber: "شماره تماس اضطراری",
-                        zipCode: "کد پستی",
-                        legalName: "نام حقوقی",
-                        name: "نام سکو",
-                        siteAddress: "آدرس سایت",
-                    };
-                    const label = fieldLabels[field] || field;
-                    toast.error(`${label} ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                    return true;
-                }
-            }
-
-            // ✅ fallbackهای متنی قبلیت
-            const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
-            if (financialCodeError) {
-                toast.error(`سکو با کد اقتصادی ${financialCodeError[1]} قبلاً وجود دارد.`, { position: "bottom-left" });
-                return true;
-            }
-            const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
-            if (nationalCodeError) {
-                toast.error(`سکو با شناسه ملی ${nationalCodeError[1]} قبلاً وجود دارد.`, { position: "bottom-left" });
-                return true;
-            }
-
-            // آخرش
-            toast.error("خطا در ذخیره سکو", { position: "bottom-left" });
-            console.error(e);
-            return true;
-        };
-
-        const doRequest = () =>
-            PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges`, payload);
-
-        try {
-            setLoading(true);
-
-            let res: any;
-            try {
-                // تلاش اول
-                res = await doRequest();
-            } catch (e1: any) {
-                const status = e1?.response?.status;
-
-                if (status === 401 || status === 403) {
-                    try {
-                        await refreshTokenOnly();
-                        res = await doRequest();
-                    } catch (e2: any) {
-                        handlePostErrors(e2);
-                        return;
-                    }
-                } else {
-                    handlePostErrors(e1);
-                    return;
-                }
-            }
-
-            // ✅ موفقیت
-            toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" });
-            setID(res?.result?.id);
-            SetStep(2);
-        } catch (e: any) {
-            handlePostErrors(e);
-        } finally {
-            setLoading(false);
         }
+        
+        setLoading(true)
+        PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges`, payload)
+            .then((response) => {
+                toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" })
+                setID(response?.result?.id)
+                SetStep(2)
+                setLoading(false)
+            })
+            .catch((err) => {
+                handlePostErrors(err)
+                setLoading(false)
+            })
     };
 
     return (
