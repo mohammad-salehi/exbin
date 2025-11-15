@@ -5,10 +5,9 @@ import ExpandableTable, {
 import { Modal, Button, Input } from "@heathmont/moon-core-tw";
 import toast from "react-hot-toast";
 import { LoaderCircle } from "../../../Loader/Loader";
-import { validateEmail } from "../../../../functions/Validations";
 import { validateNumbers } from "../../../../functions/Validations";
 import { PostRequest } from "../../../../functions/PostRequest";
-import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
+import { handlePostErrors } from "../../../../functions/handlePostErrors";
 
 type Person = {
   id: string;
@@ -65,32 +64,6 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  // کمک‌تابع: یک‌بار POST با توکن فعلی از کوکی
-  async function postExchangeAgentOnce(baseUrl: string, member: any) {
-    const token = document.cookie
-      .split("; ")
-      .find((r) => r.startsWith("token="))
-      ?.split("=")[1];
-
-    if (!token) {
-      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-        position: "bottom-left",
-      });
-      return { response: null as Response | null };
-    }
-
-    const res = await fetch(`${baseUrl}/api/exchanges/${ID}/exchange-agents`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(member),
-    });
-
-    return { response: res };
-  }
-
   const handleSave = async () => {
     // === Local Validations ===
     if (!form.name.trim()) return toast.error("نام و نام‌خانوادگی الزامی است");
@@ -104,127 +77,33 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({
     if (!form.nationalCode.trim()) return toast.error("کد ملی الزامی است");
     if (!/^\d{10}$/.test(form.nationalCode))
       return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد");
+    const Member = {
+      name: form.name,
+      nationalCode: form.nationalCode,
+      phoneNumber: form.phoneNumber,
+    };
 
-    try {
-      // حالت ویرایش فقط لوکاله
-      if (editingId) {
-        SetData((prev) =>
-          prev.map((member) =>
-            member.id === editingId ? { ...member, ...form } : member
-          )
-        );
-      } else {
-        // ایجاد نماینده جدید
-        const Member = {
-          name: form.name,
-          nationalCode: form.nationalCode,
-          phoneNumber: form.phoneNumber,
-        };
+    setLoading(true);
 
-        setLoading(true);
-
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
-
-        // تلاش اول
-        let { response } = await postExchangeAgentOnce(baseUrl, Member);
-
-        // اگر 401/403 → رفرش و یک‌بار ری‌تری
-        if (response && (response.status === 401 || response.status === 403)) {
-          try {
-            await refreshTokenOnly(); // کوکی‌ها آپدیت می‌شن
-            ({ response } = await postExchangeAgentOnce(baseUrl, Member)); // تلاش دوم
-          } catch (e) {
-            setLoading(false);
-            return toast.error(
-              "نشست شما منقضی شده است. لطفاً دوباره وارد شوید.",
-              {
-                position: "bottom-left",
-              }
-            );
-          }
-        }
-
-        if (!response) {
-          setLoading(false);
-          return; // پیام مناسب قبلاً داده شده
-        }
-
-        // بعدش 400/409
-        if (response.status === 400 || response.status === 409) {
-          const resData = await response.json();
-
-          if (resData?.result && typeof resData.result === "object") {
-            Object.entries(resData.result).forEach(([field, message]) => {
-              if (message)
-                toast.error(`${field} : ${message as string}`, {
-                  position: "bottom-left",
-                });
-            });
-            setLoading(false);
-            return;
-          }
-
-          if (resData?.error) {
-            const duplicateMatch = String(resData.error).match(
-              /identifier:\s*(\w+):\s*(\d+)/i
-            );
-            if (duplicateMatch) {
-              const field = duplicateMatch[1];
-              const value = duplicateMatch[2];
-              const fieldLabels: Record<string, string> = {
-                nationalCode: "کد ملی",
-                phoneNumber: "شماره تماس",
-              };
-              const label = fieldLabels[field] || field;
-              toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
-                position: "bottom-left",
-              });
-              setLoading(false);
-              return;
-            }
-          }
-
-          toast.error("خطا در ذخیره نماینده سکو", { position: "bottom-left" });
-          setLoading(false);
-          return;
-        }
-
-        // موفق نبود ولی 400/409 هم نبود
-        if (!response.ok) {
-          setLoading(false);
-          return toast.error("خطا در ذخیره نماینده سکو", {
-            position: "bottom-left",
-          });
-        }
-
-        const responseData = await response.json();
-        toast.success("نماینده سکو با موفقیت افزوده شد.", {
-          position: "bottom-left",
-        });
-
-        const newMember: Person = {
-          id: String(data.length + 1),
-          ...form,
-        };
-        SetData((prev) => [...prev, newMember]);
-      }
-
-      // بستن مودال و ریست فرم
-      closeModal();
-      setEditingId(null);
-      setForm({
-        name: "",
-        phoneNumber: "",
-        nationalCode: "",
-      });
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e?.message || "خطا در ذخیره نماینده سکو", {
+    PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/exchange-agents`, Member)
+    .then((response) => {
+      toast.success("نماینده سکو با موفقیت افزوده شد.", {
         position: "bottom-left",
       });
-    } finally {
+
+      const newMember: Person = {
+        id: String(data.length + 1),
+        ...form,
+      };
+      SetData((prev) => [...prev, newMember]);
+      closeModal()
+    })
+    .catch((err) => {
+      handlePostErrors(err)
+    })
+    .finally(() => {
       setLoading(false);
-    }
+    })
   };
 
   return (

@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import { Input } from "@heathmont/moon-core-tw";
 import toast from "react-hot-toast";
-import { GetRequest } from "../../../../functions/GetRequest";
+import { PostRequest } from "../../../../functions/PostRequest";
 import { LoaderCircle } from "../../../Loader/Loader";
 
 import { validateEmail } from "../../../../functions/Validations";
 import { validateNumbers } from "../../../../functions/Validations";
-import { validateWebsite } from "../../../../functions/Validations";
-import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
+import { handlePostErrors } from "../../../../functions/handlePostErrors";
 
 interface GetExchangeInfoProps {
   SetStep: React.Dispatch<React.SetStateAction<number>>;
@@ -25,32 +24,6 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
   const [email, Setemail] = useState<string>("");
 
   const [Loading, setLoading] = useState<boolean>(false);
-
-  // کمک‌کننده: اجرای درخواست با امکان یک‌بار ری‌تری پس از رفرش
-  async function postManagerOnce(data: any, baseUrl: string) {
-    const token = document.cookie
-      .split("; ")
-      .find((r) => r.startsWith("token="))
-      ?.split("=")[1];
-
-    if (!token) {
-      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-        position: "bottom-left",
-      });
-      return { response: null as Response | null };
-    }
-
-    const res = await fetch(`${baseUrl}/api/exchanges/${ID}/manager`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
-
-    return { response: res };
-  }
 
   const nextStep = async () => {
     // === Local Validations ===
@@ -94,92 +67,20 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
       email,
     };
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
-    try {
-      setLoading(true);
+    setLoading(true);
 
-      // تلاش اول
-      let { response } = await postManagerOnce(data, baseUrl);
-
-      // اگر 401/403 بود: رفرش و یک‌بار ری‌تری
-      if (response && (response.status === 401 || response.status === 403)) {
-        try {
-          await refreshTokenOnly(); // موفق شود، کوکی‌ها آپدیت می‌شوند
-          // تلاش دوم با توکن تازه
-          ({ response } = await postManagerOnce(data, baseUrl));
-        } catch (e) {
-          // رفرش شکست خورد
-          setLoading(false);
-          return toast.error(
-            "نشست شما منقضی شده است. لطفاً دوباره وارد شوید.",
-            { position: "bottom-left" }
-          );
-        }
-      }
-
-      if (!response) {
-        setLoading(false);
-        return; // قبلاً پیام مناسب نمایش داده شده
-      }
-
-      // هندل 400/409
-      if (response.status === 400 || response.status === 409) {
-        const resData = await response.json();
-
-        if (resData?.result && typeof resData.result === "object") {
-          Object.entries(resData.result).forEach(([field, message]) => {
-            if (message)
-              toast.error(`${field} : ${message as string}`, {
-                position: "bottom-left",
-              });
-          });
-          setLoading(false);
-          return;
-        }
-
-        if (resData?.error) {
-          const duplicateMatch = String(resData.error).match(
-            /identifier:\s*(\w+):\s*(\d+)/i
-          );
-          if (duplicateMatch) {
-            const field = duplicateMatch[1];
-            const value = duplicateMatch[2];
-            const fieldLabels: Record<string, string> = {
-              nationalCode: "کد ملی",
-              phoneNumber: "شماره تماس",
-              email: "ایمیل",
-            };
-            const label = fieldLabels[field] || field;
-            toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
-              position: "bottom-left",
-            });
-            setLoading(false);
-            return;
-          }
-        }
-
-        toast.error("خطا در ذخیره مدیرعامل", { position: "bottom-left" });
-        setLoading(false);
-        return;
-      }
-
-      if (!response.ok) {
-        setLoading(false);
-        return toast.error("خطا در ذخیره مدیرعامل", {
-          position: "bottom-left",
-        });
-      }
-
+    PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/manager`,data)
+    .then((response) => {
       toast.success("مدیرعامل با موفقیت ذخیره شد.", {
         position: "bottom-left",
       });
       setLoading(false);
       SetStep(3);
-    } catch (e) {
-      console.error(e);
-      toast.error("خطا در ذخیره مدیرعامل", { position: "bottom-left" });
-      setLoading(false);
-    }
+    })
+    .catch((err) => {
+      handlePostErrors(err)
+      setLoading(false)
+    })
   };
 
   return (

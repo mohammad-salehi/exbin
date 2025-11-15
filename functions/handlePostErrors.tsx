@@ -1,15 +1,74 @@
 import toast from "react-hot-toast";
 
-// regex منعطف‌تر + تبدیل اعداد فارسی
-const DUP_RX = /Exchange\s*already\s*exists\s*with\s*identifier\s*:\s*([\w-]+)\s*:\s*([0-9۰-۹A-Za-z_-]+)\s*$/i;
-const toEnDigits = (s: string) => s.replace(/[۰-۹]/g, d => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+// تبدیل اعداد فارسی → انگلیسی
+const toEnDigits = (s: string) =>
+  String(s || "").replace(/[۰-۹]/g, d =>
+    String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+  );
+
+const DUP_RX =
+  /Exchange\s*already\s*exists\s*with\s*identifier\s*:\s*([\w-]+)\s*:\s*([0-9۰-۹A-Za-z_-]+)\s*$/i;
+
+const BOARD_DUP_RX =
+  /BoardMember\s*already\s*exists\s*with\s*identifier\s*:\s*([\w-]+)\s*:\s*([0-9۰-۹A-Za-z_-]+)\s*for\s*exchange\s*:\s*([0-9۰-۹A-Za-z_-]+)/i;
+
+const AGENT_DUP_RX =
+  /ExchangeAgent\s*already\s*exists\s*with\s*identifier\s*:\s*([\w-]+)\s*:\s*([0-9۰-۹A-Za-z_-]+)\s*for\s*exchange\s*:\s*([0-9۰-۹A-Za-z_-]+)/i;
+
+const EMPLOYEE_DUP_RX =
+  /Employee\s*already\s*exists\s*with\s*identifier\s*:\s*([\w-]+)\s*:\s*([0-9۰-۹A-Za-z_-]+)\s*for\s*exchange\s*:\s*([0-9۰-۹A-Za-z_-]+)/i;
 
 function parseExchangeExistsMessage(text?: string) {
   if (!text) return { found: false as const };
   const m = String(text).trim().match(DUP_RX);
   if (!m) return { found: false as const };
-  return { found: true as const, key: m[1], value: toEnDigits(m[2]) };
+
+  return {
+    found: true as const,
+    key: m[1],
+    value: toEnDigits(m[2]),
+  };
 }
+
+function parseBoardMemberExistsMessage(text?: string) {
+  if (!text) return { found: false as const };
+  const m = String(text).trim().match(BOARD_DUP_RX);
+  if (!m) return { found: false as const };
+
+  return {
+    found: true as const,
+    key: m[1],
+    value: toEnDigits(m[2]),
+    exchangeId: toEnDigits(m[3]),
+  };
+}
+
+function parseExchangeAgentExistsMessage(text?: string) {
+  if (!text) return { found: false as const };
+  const m = String(text).trim().match(AGENT_DUP_RX);
+  if (!m) return { found: false as const };
+
+  return {
+    found: true as const,
+    key: m[1],
+    value: toEnDigits(m[2]),
+    exchangeId: toEnDigits(m[3]),
+  };
+}
+
+function parseEmployeeExistsMessage(text?: string) {
+  if (!text) return { found: false as const };
+  const m = String(text).trim().match(EMPLOYEE_DUP_RX);
+  if (!m) return { found: false as const };
+
+  return {
+    found: true as const,
+    key: m[1],
+    value: toEnDigits(m[2]),
+    exchangeId: toEnDigits(m[3]),
+  };
+}
+
 
 export const handlePostErrors = (e: any) => {
   const status = e?.response?.status;
@@ -19,7 +78,7 @@ export const handlePostErrors = (e: any) => {
   // اگر message خودش JSON بود
   let parsedFromMessage: { result?: any; error?: string } | null = null;
   if (!data && typeof msg === "string" && msg.startsWith("{") && msg.endsWith("}")) {
-    try { parsedFromMessage = JSON.parse(msg); } catch {}
+    try { parsedFromMessage = JSON.parse(msg); } catch { }
   }
   const errorObj = data || parsedFromMessage;
 
@@ -38,14 +97,82 @@ export const handlePostErrors = (e: any) => {
     return true;
   }
 
-  // 🔎 ابتدا تلاش ویژه برای الگوی duplicate (روی data.error و message)
   const sourcesToCheck = [
-    errorObj?.error,               // پیام اصلی بک‌اند
+    errorObj?.error,
     typeof data === "string" ? data : null,
-    msg,                           // پیام خطای کلی
+    msg,
   ].filter(Boolean) as string[];
 
   for (const src of sourcesToCheck) {
+    // ۱) اول BoardMember
+    const b = parseBoardMemberExistsMessage(src);
+    if (b.found) {
+      const fieldLabels: Record<string, string> = {
+        nationalCode: "شناسه ملی",
+        financialCode: "کد اقتصادی",
+        phoneNumber: "شماره تماس",
+        emergencyPhoneNumber: "شماره تماس اضطراری",
+        zipCode: "کد پستی",
+        legalName: "نام حقوقی",
+        name: "نام",
+        siteAddress: "آدرس سایت",
+        email: "ایمیل",
+      };
+      const label = fieldLabels[b.key] || b.key;
+      toast.error(
+        `${label} ${b.value} قبلاً برای این سکو ثبت شده است.`,
+        { position: "bottom-left" }
+      );
+      return true;
+    }
+
+    // ۲) ExchangeAgent
+    const ag = parseExchangeAgentExistsMessage(src);
+    if (ag.found) {
+      const fieldLabels: Record<string, string> = {
+        nationalCode: "شناسه ملی",
+        financialCode: "کد اقتصادی",
+        phoneNumber: "شماره تماس",
+        emergencyPhoneNumber: "شماره تماس اضطراری",
+        zipCode: "کد پستی",
+        legalName: "نام حقوقی",
+        name: "نام",
+        siteAddress: "آدرس سایت",
+        email: "ایمیل",
+      };
+      const label = fieldLabels[ag.key] || ag.key;
+
+      toast.error(
+        `${label} ${ag.value} قبلاً برای نماینده صرافی در این سکو ثبت شده است.`,
+        { position: "bottom-left" }
+      );
+      return true;
+    }
+
+    // ۳) Employee
+    const emp = parseEmployeeExistsMessage(src);
+    if (emp.found) {
+      const fieldLabels: Record<string, string> = {
+        nationalCode: "شناسه ملی",
+        financialCode: "کد اقتصادی",
+        phoneNumber: "شماره تماس",
+        emergencyPhoneNumber: "شماره تماس اضطراری",
+        zipCode: "کد پستی",
+        legalName: "نام حقوقی",
+        name: "نام",
+        siteAddress: "آدرس سایت",
+        email: "ایمیل",
+      };
+      const label = fieldLabels[emp.key] || emp.key;
+
+      toast.error(
+        `${label} ${emp.value} قبلاً برای کارمند در این سکو ثبت شده است.`,
+        { position: "bottom-left" }
+      );
+      return true;
+    }
+
+    // ۲) بعد Exchange
     const r = parseExchangeExistsMessage(src);
     if (r.found) {
       const fieldLabels: Record<string, string> = {
@@ -57,12 +184,14 @@ export const handlePostErrors = (e: any) => {
         legalName: "نام حقوقی",
         name: "نام سکو",
         siteAddress: "آدرس سایت",
+        email: "ایمیل",
       };
       const label = fieldLabels[r.key] || r.key;
       toast.error(`${label} ${r.value} قبلاً ثبت شده است.`, { position: "bottom-left" });
       return true;
     }
   }
+
 
   // ✅ اگر duplicate نبود، ارور متنی مستقیم از بک‌اند
   if (typeof errorObj?.error === "string" && errorObj.error.trim() !== "") {

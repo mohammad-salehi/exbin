@@ -6,11 +6,12 @@ import { Modal, Button, Input } from "@heathmont/moon-core-tw";
 import toast from "react-hot-toast";
 
 import { LoaderCircle } from "../../../Loader/Loader";
-
+import { PostRequest } from "../../../../functions/PostRequest";
 import { validateNumbers } from "../../../../functions/Validations";
 import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
 import { toJalaliDate } from "../../../../functions/toJalaliDate";
 import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
+import { handlePostErrors } from "../../../../functions/handlePostErrors";
 
 type Person = {
   id: string;
@@ -106,31 +107,6 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
   ) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
-  // کمک‌تابع: یک‌بار POST با توکن فعلی از کوکی
-  async function postEmployeeOnce(baseUrl: string, payload: any) {
-    const token = document.cookie
-      .split("; ")
-      .find((r) => r.startsWith("token="))
-      ?.split("=")[1];
-
-    if (!token) {
-      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-        position: "bottom-left",
-      });
-      return { response: null as Response | null };
-    }
-
-    const res = await fetch(`${baseUrl}/api/exchanges/${ID}/employees`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-
-    return { response: res };
-  }
 
   const handleSave = async () => {
     // === Local Validations ===
@@ -188,108 +164,33 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
       phoneNumber: form.phoneNumber,
     };
 
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL!;
-
-    try {
-      setLoading(true);
-
-      // تلاش اول
-      let { response } = await postEmployeeOnce(baseUrl, Member);
-
-      // اگر 401/403 → یک‌بار رفرش و ری‌تری
-      if (response && (response.status === 401 || response.status === 403)) {
-        try {
-          await refreshTokenOnly(); // کوکی‌ها آپدیت می‌شوند
-          ({ response } = await postEmployeeOnce(baseUrl, Member)); // تلاش دوم با توکن تازه
-        } catch (e) {
-          setLoading(false);
-          return toast.error(
-            "نشست شما منقضی شده است. لطفاً دوباره وارد شوید.",
-            {
-              position: "bottom-left",
-            }
-          );
-        }
-      }
-
-      if (!response) {
-        setLoading(false);
-        return; // پیام مناسب قبلاً داده شده
-      }
-
-      // === Handle 400 / 409 ===
-      if (response.status === 400 || response.status === 409) {
-        const resData = await response.json();
-
-        if (resData?.result && typeof resData.result === "object") {
-          Object.entries(resData.result).forEach(([field, message]) => {
-            if (message)
-              toast.error(`${field} : ${message as string}`, {
-                position: "bottom-left",
-              });
-          });
-          setLoading(false);
-          return;
-        }
-
-        if (resData?.error) {
-          const duplicateMatch = String(resData.error).match(
-            /identifier:\s*(\w+):\s*(\d+)/i
-          );
-          if (duplicateMatch) {
-            const field = duplicateMatch[1];
-            const value = duplicateMatch[2];
-            const fieldLabels: Record<string, string> = {
-              nationalCode: "کد ملی",
-              phoneNumber: "شماره تماس",
-            };
-            const label = fieldLabels[field] || field;
-            toast.error(`${label} ${value} قبلاً ثبت شده است.`, {
-              position: "bottom-left",
-            });
-            setLoading(false);
-            return;
-          }
-        }
-
-        toast.error("خطا در ذخیره کارمند", { position: "bottom-left" });
-        setLoading(false);
-        return;
-      }
-
-      // ✅ Success / سایر خطاها
-      if (!response.ok) {
-        setLoading(false);
-        return toast.error("خطا در ذخیره کارمند", { position: "bottom-left" });
-      }
-
-      const responseData = await response.json();
-      toast.success("کارمند با موفقیت افزوده شد.", { position: "bottom-left" });
-
-      SetData([...data, { ...form, id: String(data.length + 1) }]);
-      closeModal();
-      setEditingId(null);
-      setForm({
-        id: "",
-        name: "",
-        jobPosition: "",
-        startDate: "",
-        educationalHistory: "",
-        careerHistory: "",
-        insuranceStartDate: "",
-        insuranceEndDate: "",
-        isSpecialAccess: null,
-        nationalCode: "",
-        phoneNumber: "",
-      });
-    } catch (e: any) {
-      console.error(e);
-      toast.error(e?.message || "خطا در ذخیره کارمند", {
-        position: "bottom-left",
-      });
-    } finally {
-      setLoading(false);
-    }
+    setLoading(true)
+    PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/employees`, Member)
+      .then((response) => {
+        toast.success("کارمند با موفقیت افزوده شد.", { position: "bottom-left" })
+        SetData([...data, { ...form, id: String(data.length + 1) }]);
+        closeModal();
+        setEditingId(null);
+        setForm({
+          id: "",
+          name: "",
+          jobPosition: "",
+          startDate: "",
+          educationalHistory: "",
+          careerHistory: "",
+          insuranceStartDate: "",
+          insuranceEndDate: "",
+          isSpecialAccess: null,
+          nationalCode: "",
+          phoneNumber: "",
+        })
+      })
+      .catch((err) => {
+        handlePostErrors(err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
   };
 
   const nextStep = async () => {
@@ -500,7 +401,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                     }
                     placeholder=""
                     clearable
-                    min="1900-01-01"
+                    min="2000-01-01"
                     max="2030-12-31"
                   />
                 </div>

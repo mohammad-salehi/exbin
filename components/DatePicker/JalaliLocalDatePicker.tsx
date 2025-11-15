@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useRef } from "react";
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
@@ -6,15 +6,15 @@ import persian_fa from "react-date-object/locales/persian_fa";
 type LocalDate = string; // "YYYY-MM-DD"
 
 type Props = {
-  value?: LocalDate | null;                 // مقدار پیشفرض/کنترل‌شده (میلادی)
-  onChange: (val: LocalDate | null) => void; // خروجی به فرمت LocalDate
+  value?: LocalDate | null;
+  onChange: (val: LocalDate | null) => void;
   placeholder?: string;
   clearable?: boolean;
   disabled?: boolean;
-  className?: string;                        // برای استایل تریگر
-  menuClassName?: string;                    // برای استایل تقویم
-  min?: LocalDate;                           // حداقل تاریخ (میلادی)
-  max?: LocalDate;                           // حداکثر تاریخ (میلادی)
+  className?: string;
+  menuClassName?: string;
+  min?: LocalDate;
+  max?: LocalDate;
 };
 
 /** ---------- Helpers: UTC-safe ---------- **/
@@ -22,7 +22,6 @@ function isoLocalDateToUTCDate(iso?: string | null): Date | null {
   if (!iso) return null;
   const [y, m, d] = iso.split("-").map(Number);
   if (!y || !m || !d) return null;
-  // ساخت Date در UTC تا شیفت تایم‌زون نخوریم
   return new Date(Date.UTC(y, m - 1, d));
 }
 
@@ -33,7 +32,6 @@ function toIsoLocalDateUTC(d: Date): LocalDate {
   return `${y}-${m}-${day}`;
 }
 
-/** تبدیل LocalDate به محدودیت‌های DatePicker (Date) */
 function boundToDate(bound?: LocalDate): Date | undefined {
   const dt = isoLocalDateToUTCDate(bound ?? null);
   return dt ?? undefined;
@@ -50,14 +48,20 @@ export default function JalaliLocalDatePicker({
   min,
   max,
 }: Props) {
+  const datePickerRef = useRef<any>(null);
+  const [open, setOpen] = useState(false);
+
   return (
     <DatePicker
-      // نمایش: تبدیل LocalDate به Date (UTC) برای تقویم شمسی
+      ref={datePickerRef}
       value={isoLocalDateToUTCDate(value ?? null)}
       onChange={(dateObj: any) => {
-        // ممکن است null باشد (پاک‌سازی)
         const jsDate: Date | null =
-          dateObj?.toDate ? dateObj.toDate() : dateObj instanceof Date ? dateObj : null;
+          dateObj?.toDate
+            ? dateObj.toDate()
+            : dateObj instanceof Date
+            ? dateObj
+            : null;
 
         const iso = jsDate ? toIsoLocalDateUTC(jsDate) : null;
         onChange(iso);
@@ -65,56 +69,77 @@ export default function JalaliLocalDatePicker({
       calendar={persian}
       locale={persian_fa}
       calendarPosition="bottom-right"
-      format="YYYY/MM/DD" // فقط برای نمایش (شمسی)
+      format="YYYY/MM/DD"
       containerClassName="w-full"
       minDate={boundToDate(min)}
       maxDate={boundToDate(max)}
       disabled={disabled}
-      className={menuClassName} // کلاس‌های خود پاپ‌آپ تقویم
-
-      // تریگر سفارشی؛ هیچ <input>‌ای نداریم
+      className={menuClassName}
+      onOpen={() => setOpen(true)}
+      onClose={() => setOpen(false)}
       render={(val: string, openCalendar: () => void) => (
-        <div className="relative w-full">
-          <button
-            type="button"
-            disabled={disabled}
-            onClick={openCalendar}
-            className={[
+        <>
+          {/* 👇 این overlay وقتی پیکر بازه کل صفحه رو می‌پوشونه */}
+          {open && (
+            <div
+              className="fixed inset-0 z-10"
+              onClick={() => {
+                setOpen(false);
+                datePickerRef.current?.closeCalendar?.();
+              }}
+            />
+          )}
 
-              "w-full h-10 rounded-md px-3 flex items-center justify-between" ,
-              "bg-boxColor dark:bg-bgColor-dark",
-              "  bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark ",
-              "border border-boxBorderColor dark:border-boxBorderColor-dark",
-              disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
-              className,
-            ].join(" ")}
-            aria-label="انتخاب تاریخ"
-          >
-            <span className={val ? "" : "text-gray-400"}>
-              {val || placeholder}
-            </span>
-
-          </button>
-
-          {/* پاک‌کردن */}
-          {clearable && value && !disabled && (
+          <div className="relative w-full z-20">
             <button
               type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                onChange(null);
+              disabled={disabled}
+              onClick={() => {
+                openCalendar();
+                setOpen(true);
               }}
-              className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:dark:text-gray-300 transition"
-              aria-label="پاک کردن تاریخ"
-              title="پاک کردن تاریخ"
+              className={[
+                "w-full h-10 rounded-md px-3 flex items-center justify-between",
+                "bg-boxColor dark:bg-bgColor-dark",
+                "bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark",
+                "border border-boxBorderColor dark:border-boxBorderColor-dark",
+                disabled ? "opacity-60 cursor-not-allowed" : "cursor-pointer",
+                className,
+              ].join(" ")}
+              aria-label="انتخاب تاریخ"
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
+              <span className={val ? "" : "text-gray-400"}>
+                {val || placeholder}
+              </span>
             </button>
-          )}
-        </div>
+
+            {clearable && value && !disabled && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onChange(null);
+                  setOpen(false);
+                  datePickerRef.current?.closeCalendar?.();
+                }}
+                className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 hover:dark:text-gray-300 transition"
+                aria-label="پاک کردن تاریخ"
+                title="پاک کردن تاریخ"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M6 6L18 18M6 18L18 6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+        </>
       )}
     />
   );
 }
+
