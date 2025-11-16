@@ -8,11 +8,11 @@ import {
   Dropdown,
   MenuItem,
 } from "@heathmont/moon-core-tw";
-import { GetRequest } from "../../../../functions/GetRequest";
+import { GetRequest, GetRequestRaw } from "../../../../functions/GetRequest";
 import { useParams } from "next/navigation";
 import toast from "react-hot-toast";
 import { LoaderCircle } from "../../../Loader/Loader";
-import { PostRequest } from "../../../../functions/PostRequest";
+import { PostRequest, PutRequest } from "../../../../functions/PostRequest";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 import {
@@ -30,7 +30,9 @@ import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
 import PersianYearSelect from "../../../YearSelection/YearSelection";
 import { BoardmemderRoleTypes } from "../../../../functions/BoardmemberRoleTypes";
 import { ExchangeLegalTypes } from "../../../../functions/ExchangeLegalTypes";
-import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
+import { DeleteRequest } from "../../../../functions/GetRequest";
+import { handlePostErrors } from "../../../../functions/handlePostErrors";
+
 type AnyObj = Record<string, any>;
 
 interface InvoiceContent {
@@ -48,8 +50,6 @@ interface InvoiceSection {
 type ExchangeInfoProps = {
   SetC1: React.Dispatch<React.SetStateAction<boolean>>;
 };
-
-type InitFactory = () => RequestInit;
 
 const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const params = useParams<{ id: string }>();
@@ -419,163 +419,88 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     );
   };
 
-
-
-// استخراج اسم فایل از هدر (اگر بود)
-function filenameFromContentDisposition(res: Response, fallback: string) {
-  const cd = res.headers.get("Content-Disposition") || "";
-  const m = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i.exec(cd);
-  const rawName = m?.[1] || m?.[2];
-  if (!rawName) return fallback;
-  try {
-    return decodeURIComponent(rawName);
-  } catch {
-    return rawName;
-  }
-}
-
-// دانلودِ blob و ذخیره‌سازی
-async function saveBlobResponse(res: Response, fallbackName: string) {
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  const name = filenameFromContentDisposition(res, fallbackName);
-  a.download = name;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
-}
-
-const handleDownload = async () => {
-  try {
-    const token = getTokenFromCookie();
-    if (!token) {
-      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-      return;
+  // استخراج اسم فایل از هدر (اگر بود)
+  function filenameFromContentDisposition(res: Response, fallback: string) {
+    const cd = res.headers.get("Content-Disposition") || "";
+    const m = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i.exec(cd);
+    const rawName = m?.[1] || m?.[2];
+    if (!rawName) return fallback;
+    try {
+      return decodeURIComponent(rawName);
+    } catch {
+      return rawName;
     }
+  }
 
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/download`;
+  // دانلودِ blob و ذخیره‌سازی
+  async function saveBlobResponse(res: Response, fallbackName: string) {
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const name = filenameFromContentDisposition(res, fallbackName);
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
 
-    const res = await fetchWithAuthRetry(url, () => {
-      const fresh = getTokenFromCookie();
-      if (!fresh) throw new Error("NO_TOKEN");
-      return {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${fresh}`,
-          Accept: "*/*",
-        },
-      };
-    });
+  const handleDownload = async () => {
+    GetRequestRaw(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/download`)
+      .then(async (res) => {
+        const disposition = res.headers.get("Content-Disposition");
+        let filename = "";
 
-    if (!res.ok) {
-      try {
-        const data = await res.json();
-        toast.error(data?.error || "خطا در دانلود اساسنامه", { position: "bottom-left" });
-      } catch {
+        if (disposition) {
+          const starMatch = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+          if (starMatch && starMatch[1]) {
+            filename = decodeURIComponent(starMatch[1]);
+          } else {
+            const match = disposition.match(
+              /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+            );
+            if (match && match[1]) {
+              filename = match[1].replace(/['"]/g, "");
+            }
+          }
+        }
+        if (!filename) {
+          filename = "association";
+        }
+        await saveBlobResponse(res, filename);
+        toast.success("دانلود اساسنامه آغاز شد.", { position: "bottom-left" });
+      })
+      .catch((err) => {
+        console.error(err);
         toast.error("خطا در دانلود اساسنامه", { position: "bottom-left" });
-      }
-      return;
-    }
+      });
+  };
 
-    // 👇 گرفتن نام فایل از هدر
-    const disposition = res.headers.get("Content-Disposition");
-    let filename = "";
+  const handleDownloadFinancial = async (fileId: number, date: string) => {
+    GetRequestRaw(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/download`)
+      .then(async (res) => {
+        const disposition = res.headers.get("Content-Disposition");
+        let filename = `financial-${date || fileId}`; // بدون پسوند
 
-    if (disposition && disposition.includes("filename=")) {
-      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-      if (match && match[1]) {
-        filename = match[1].replace(/['"]/g, ""); // حذف کوتیشن‌ها
-      }
-    }
+        if (disposition && disposition.includes("filename=")) {
+          const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (match && match[1]) {
+            filename = match[1].replace(/['"]/g, "");
+          }
+        }
 
-    // اگه سرور اسم نداد، از content-type حدس بزنیم
-    if (!filename) {
-      const ct = res.headers.get("Content-Type") || "";
-      // چندتا مپ ساده
-      const extFromCT: Record<string, string> = {
-        "application/pdf": "pdf",
-        "image/png": "png",
-        "image/jpeg": "jpg",
-        "application/msword": "doc",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document": "docx",
-        "application/vnd.ms-excel": "xls",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": "xlsx",
-      };
-      const guessedExt = extFromCT[ct] || "bin";
-      filename = `association-${params.id}.${guessedExt}`;
-    }
-
-    await saveBlobResponse(res, filename);
-    toast.success("دانلود اساسنامه آغاز شد.", { position: "bottom-left" });
-  } catch (e: any) {
-    if (e?.message === "NO_TOKEN") {
-      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-    } else {
-      console.error(e);
-      toast.error("خطا در دانلود اساسنامه", { position: "bottom-left" });
-    }
-  }
-};
-
-
-const handleDownloadFinancial = async (fileId: number, date: string) => {
-  try {
-    const token = getTokenFromCookie();
-    if (!token) {
-      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-      return;
-    }
-
-    const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/download`;
-
-    const res = await fetchWithAuthRetry(url, () => {
-      const fresh = getTokenFromCookie();
-      if (!fresh) throw new Error("NO_TOKEN");
-      return {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${fresh}`,
-        },
-      };
-    });
-
-    if (!res.ok) {
-      try {
-        const data = await res.json();
-        toast.error(data?.error || "خطا در دانلود صورت مالی", { position: "bottom-left" });
-      } catch {
-        toast.error("خطا در دانلود صورت مالی", { position: "bottom-left" });
-      }
-      return;
-    }
-
-    // فقط از هدر بخون، اگه نبود یه اسم ساده بده
-    const disposition = res.headers.get("Content-Disposition");
-    let filename = `financial-${date || fileId}`; // بدون پسوند
-
-    if (disposition && disposition.includes("filename=")) {
-      const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-      if (match && match[1]) {
-        filename = match[1].replace(/['"]/g, "");
-      }
-    }
-
-    await saveBlobResponse(res, filename);
-    toast.success("دانلود صورت مالی آغاز شد.", { position: "bottom-left" });
-  } catch (e: any) {
-    if (e?.message === "NO_TOKEN") {
-      toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-    } else {
-      console.error(e);
-      toast.error("خطا در دانلود صورت مالی", { position: "bottom-left" });
-    }
-  }
-};
-
-
+        await saveBlobResponse(res, filename);
+        toast.success("دانلود صورت مالی آغاز شد.", { position: "bottom-left" });
+      })
+      .catch((err) => {
+        try {
+          toast.error(err?.error || "خطا در دانلود صورت مالی", { position: "bottom-left" });
+        } catch {
+          toast.error("خطا در دانلود صورت مالی", { position: "bottom-left" });
+        }
+      })
+  };
 
   const [confirmAssociationOpen, setConfirmAssociationOpen] = useState(false);
   const [confirmFinancialOpen, setConfirmFinancialOpen] = useState(false);
@@ -585,134 +510,43 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
   } | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
-  const getTokenFromCookie = () =>
-    document.cookie
-      .split("; ")
-      .find((r) => r.startsWith("token="))
-      ?.split("=")[1] || "";
-
-  type InitFactory = () => RequestInit;
-
-  /** یک‌بار تلاش + در صورت 401/403 رفرش و یک‌بار ری‌تری */
-  async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
-    let res = await fetch(url, initFactory());
-
-    if (res.status === 401 || res.status === 403) {
-      try {
-        await refreshTokenOnly(); // کوکی‌ها آپدیت می‌شوند
-        res = await fetch(url, initFactory()); // تلاش دوم با توکن تازه
-      } catch {
-        // اگر رفرش شکست خورد همون پاسخ قبلی رو برگردون
-        return res;
-      }
-    }
-
-    return res;
-  }
-
   const handleConfirmDeleteAssociation = async () => {
-    try {
-      setDeleteLoading(true);
-
-      const token = getTokenFromCookie();
-      if (!token) {
-        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-          position: "bottom-left",
-        });
-        setDeleteLoading(false);
-        return;
-      }
-
-      const response = await fetchWithAuthRetry(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/delete`,
-        () => {
-          const fresh = getTokenFromCookie();
-          if (!fresh) throw new Error("NO_TOKEN");
-          return {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${fresh}`,
-              "Content-Type": "application/json",
-            },
-          };
-        }
-      );
-
-      if (!response.ok) {
-        toast.error("خطا در حذف اساسنامه", { position: "bottom-left" });
-      } else {
+    setDeleteLoading(true);
+    DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/delete`)
+      .then((res) => {
         toast.success("اساسنامه با موفقیت حذف شد.", {
           position: "bottom-left",
         });
         window.location.reload();
-      }
-    } catch (err: any) {
-      if (err?.message === "NO_TOKEN") {
-        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-          position: "bottom-left",
-        });
-      } else {
-        console.error(err);
+      })
+      .catch((err) => {
+        console.log(err)
         toast.error("خطا در حذف اساسنامه", { position: "bottom-left" });
-      }
-    } finally {
-      setDeleteLoading(false);
-      setConfirmAssociationOpen(false);
-    }
+      })
+      .finally(() => {
+        setDeleteLoading(false);
+        setConfirmAssociationOpen(false);
+      })
   };
 
   const handleConfirmDeleteFinancial = async () => {
     if (!financialToDelete) return;
-
-    try {
-      setDeleteLoading(true);
-
-      const token = getTokenFromCookie();
-      if (!token) {
-        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-          position: "bottom-left",
-        });
-        setDeleteLoading(false);
-        return;
-      }
-
-      const response = await fetchWithAuthRetry(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${financialToDelete.id}`,
-        () => {
-          const fresh = getTokenFromCookie();
-          if (!fresh) throw new Error("NO_TOKEN");
-          return {
-            method: "DELETE",
-            headers: {
-              Authorization: `Bearer ${fresh}`,
-              "Content-Type": "application/json",
-            },
-          };
-        }
-      );
-
-      if (!response.ok) {
-        toast.error("خطا در حذف صورت مالی", { position: "bottom-left" });
-      } else {
+    setDeleteLoading(true);
+    DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${financialToDelete.id}`)
+      .then((res) => {
         toast.success("صورت مالی با موفقیت حذف شد.", {
           position: "bottom-left",
         });
         window.location.reload();
-      }
-    } catch (err: any) {
-      if (err?.message === "NO_TOKEN") {
-        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-          position: "bottom-left",
-        });
-      } else {
-        console.error(err);
+      })
+      .catch((err) => {
         toast.error("خطا در حذف صورت مالی", { position: "bottom-left" });
-      }
-    } finally {
-      setDeleteLoading(false);
-      setConfirmFinancialOpen(false);
-      setFinancialToDelete(null);
-    }
+      })
+      .finally(() => {
+        setDeleteLoading(false);
+        setConfirmFinancialOpen(false);
+        setFinancialToDelete(null);
+      })
   };
 
   const addAssociationDocuments = (
@@ -862,9 +696,9 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
       prev.map((section) =>
         section.id === 3
           ? {
-              ...section,
-              content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
-            }
+            ...section,
+            content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
+          }
           : section
       )
     );
@@ -944,70 +778,13 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
       return;
     }
 
-    try {
-      setLoading(true);
-
-      const firstToken = getTokenFromCookie();
-      if (!firstToken) {
-        toast.error("توکن موجود نیست، لطفاً دوباره وارد شوید.", {
-          position: "bottom-left",
-        });
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetchWithAuthRetry(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`,
-        () => {
-          const fresh = getTokenFromCookie();
-          if (!fresh) throw new Error("NO_TOKEN");
-          return {
-            method: "PUT",
-            headers: {
-              Authorization: `Bearer ${fresh}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(form),
-          };
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (response.status === 400 || response.status === 409) {
-          if (data?.result && typeof data.result === "object") {
-            Object.entries(data.result).forEach(([_, message]) => {
-              toast.error(`${message}`, { position: "bottom-left" });
-            });
-            setLoading(false);
-            return;
-          }
-          if (data?.error && typeof data.error === "string") {
-            const match = data.error.match(/identifier:\s*(\w+):\s*([\w-]+)/);
-            if (match) {
-              const [, field, value] = match;
-              toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, {
-                position: "bottom-left",
-              });
-            } else {
-              toast.error(data.error, { position: "bottom-left" });
-            }
-            setLoading(false);
-            return;
-          }
-        }
-        toast.error("خطا در ذخیره مشخصات سکو", { position: "bottom-left" });
-        setLoading(false);
-        return;
-      }
-
-      // ✅ موفق
+    setIsOpen(true);
+    PutRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`, form)
+    .then((response) => {
       toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", {
         position: "bottom-left",
       });
 
-      // --- آپدیت UI (همان کد قبلی تو) ---
       handleEdit(1, 1, form.legalName);
       handleEdit(1, 2, toJalaliDate(form.establishmentDate));
       handleEdit(1, 3, form.nationalCode);
@@ -1044,19 +821,14 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
       handleEdit(2, 5, form.zipCode);
       handleEdit(2, 6, form.email);
 
+      
+    })
+    .catch((err) => {
+      handlePostErrors(err)
+    })
+    .finally(() => {
       setIsOpen(false);
-    } catch (err: any) {
-      if (err?.message === "NO_TOKEN") {
-        toast.error("توکن موجود نیست، لطفاً دوباره وارد شوید.", {
-          position: "bottom-left",
-        });
-      } else {
-        console.error(err);
-        toast.error("خطا در ارتباط با سرور", { position: "bottom-left" });
-      }
-    } finally {
-      setLoading(false);
-    }
+    })
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1290,8 +1062,8 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
               typeof item.content === "string"
                 ? item.content
                 : React.isValidElement(item.content)
-                ? item.content
-                : "", // تبدیل به string یا Element
+                  ? item.content
+                  : "", // تبدیل به string یا Element
           })),
         }))}
         downloadLink="/path/to/pdf"
@@ -1390,11 +1162,10 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
                           <MenuItem
                             isActive={active}
                             isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                              form.type === "P2P"
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
-                            }`}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "P2P"
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                              }`}
                           >
                             <MenuItem.Title>P2P</MenuItem.Title>
                           </MenuItem>
@@ -1404,11 +1175,10 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
                         {({ active }) => (
                           <MenuItem
                             isActive={active}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                              form.type === "OTC"
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
-                            }`}
+                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "OTC"
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                              }`}
                           >
                             <MenuItem.Title>OTC</MenuItem.Title>
                           </MenuItem>
@@ -1472,8 +1242,8 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
                         <span>
                           {form.exchangeType !== ""
                             ? ExchangeLegalTypes.find(
-                                (item) => item.value === form.exchangeType
-                              )?.label
+                              (item) => item.value === form.exchangeType
+                            )?.label
                             : "انتخاب"}
                         </span>
                       </Button>
@@ -1496,11 +1266,10 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
                               <MenuItem
                                 isActive={active}
                                 isSelected={selected}
-                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                                  form.exchangeType === item.value
-                                    ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                    : ""
-                                }`}
+                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === item.value
+                                  ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                  : ""
+                                  }`}
                               >
                                 <MenuItem.Title>{item.label}</MenuItem.Title>
                               </MenuItem>
@@ -1659,11 +1428,10 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
                       <MenuItem
                         isActive={active}
                         isSelected={selected}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                          type === "اساسنامه"
-                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                            : ""
-                        }`}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "اساسنامه"
+                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                          : ""
+                          }`}
                       >
                         <MenuItem.Title>اساسنامه</MenuItem.Title>
                       </MenuItem>
@@ -1673,11 +1441,10 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
                     {({ active }) => (
                       <MenuItem
                         isActive={active}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                          type === "صورت مالی"
-                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                            : ""
-                        }`}
+                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "صورت مالی"
+                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                          : ""
+                          }`}
                       >
                         <MenuItem.Title>صورت مالی</MenuItem.Title>
                       </MenuItem>
@@ -1822,9 +1589,8 @@ const handleDownloadFinancial = async (fileId: number, date: string) => {
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
           <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
             <p className="mb-4">
-              {`آیا از حذف صورت مالی ${
-                financialToDelete?.date ?? ""
-              } مطمئن هستید؟ این عملیات قابل بازگشت نیست.`}
+              {`آیا از حذف صورت مالی ${financialToDelete?.date ?? ""
+                } مطمئن هستید؟ این عملیات قابل بازگشت نیست.`}
             </p>
             <div className="flex justify-end gap-2">
               <Button

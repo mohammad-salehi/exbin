@@ -13,7 +13,7 @@ import { validateNumbers } from "../../../../functions/Validations";
 import Pagination from "../../../Pagination/Pagination";
 import { LogViewer } from "../../../../functions/changesHandler";
 import LoadingComponent from "../../../LoadingComponent/LoadingComponent";
-import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
+import { PostRequest, PutRequest } from "../../../../functions/PostRequest";
 
 type Person = {
   id: string;
@@ -68,58 +68,42 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
     setEditingId(null);
   };
 
-  const getTokenFromCookie = () =>
-    document.cookie
-      .split("; ")
-      .find((r) => r.startsWith("token="))
-      ?.split("=")[1] || "";
-
-  type InitFactory = () => RequestInit;
-
-  /** یک‌بار تلاش + در صورت 401/403 رفرش و یک‌بار ری‌تری */
-  async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
-    let res = await fetch(url, initFactory());
-    if (res.status === 401 || res.status === 403) {
-      try {
-        await refreshTokenOnly(); // کوکی‌ها آپدیت می‌شوند
-        res = await fetch(url, initFactory()); // تلاش دوم با توکن تازه
-      } catch {
-        // اگر رفرش شکست خورد، همان پاسخ اولیه را برگردان
-        return res;
-      }
-    }
-    return res;
-  }
-
-  const handleSave = async () => {
+  const handleSave = () => {
     // ✅ Validation
     const isEmpty = (val?: string) => !val || val.trim() === "";
     const isDigits = (val: string, len?: number) =>
       /^\d+$/.test(val) && (!len || val.length === len);
-
+  
     if (isEmpty(form.name))
       return toast.error("نام و نام‌خانوادگی را وارد کنید", {
         position: "bottom-left",
       });
+  
     if (isEmpty(form.phoneNumber))
       return toast.error("شماره همراه را وارد کنید", {
         position: "bottom-left",
       });
+  
     if (!/^0\d{10}$/.test(form.phoneNumber))
       return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", {
         position: "bottom-left",
       });
+  
     if (isEmpty(form.nationalCode))
-      return toast.error("کد ملی را وارد کنید", { position: "bottom-left" });
+      return toast.error("کد ملی را وارد کنید", {
+        position: "bottom-left",
+      });
+  
     if (!isDigits(form.nationalCode, 10))
       return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", {
         position: "bottom-left",
       });
+  
     if (form.email && !validateEmail(form.email))
       return toast.error("ایمیل وارد شده معتبر نیست", {
         position: "bottom-left",
       });
-
+  
     const rawShare = form.sharePercentage ?? "";
     const share = rawShare === "" ? NaN : Number(rawShare);
     if (isNaN(share))
@@ -130,114 +114,110 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", {
         position: "bottom-left",
       });
-
+  
     const updatedForm = {
       ...form,
       educationalHistory: form.educationalHistory || "",
       careerHistory: form.careerHistory || "",
       sharePercentage: form.sharePercentage || "0",
     };
-
+  
+    // 👇 از اینجا به بعد: فقط then / catch
     setLoading(true);
-    try {
-      // توکن اولیه
-      const firstToken = getTokenFromCookie();
-      if (!firstToken) {
-        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+  
+    const isEdit = !!editingId && data.length !== 0;
+    const url = isEdit
+      ? `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager/${editingId}`
+      : `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager`;
+  
+    const requestPromise = isEdit
+      ? PutRequest(url, updatedForm)
+      : PostRequest(url, updatedForm);
+  
+    requestPromise
+      .then((res: any) => {
+        // اگر بک‌اند result برگردونه، بگیریم؛ وگرنه خود فرم
+        const payload = res && typeof res === "object" ? res : null;
+        const result = payload?.result ?? null;
+  
+        toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", {
           position: "bottom-left",
         });
-        setLoading(false);
-        return;
-      }
-
-      const isEdit = !!editingId && data.length !== 0;
-      const url = isEdit
-        ? `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager/${editingId}`
-        : `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager`;
-      const method = isEdit ? "PUT" : "POST";
-
-      // 👇 درخواست با ری‌تری پس از رفرش
-      const response = await fetchWithAuthRetry(url, () => {
-        const fresh = getTokenFromCookie();
-        if (!fresh) throw new Error("NO_TOKEN");
-        return {
-          method,
-          headers: {
-            Authorization: `Bearer ${fresh}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatedForm),
-        };
-      });
-
-      // بدنه را فقط یک‌بار بخوان
-      let dataRes: any = null;
-      const text = await response.text();
-      if (text) {
-        try {
-          dataRes = JSON.parse(text);
-        } catch {
-          /* اگر JSON نبود، نادیده بگیر */
+  
+        if (isEdit) {
+          setData((prev) =>
+            prev.map((item) =>
+              item.id === editingId ? { ...form, id: editingId } : item
+            )
+          );
+        } else {
+          const newManager = result || updatedForm;
+          setData([newManager]);
         }
-      }
-
-      if (!response.ok) {
-        if (response.status === 400 || response.status === 409) {
-          if (dataRes?.result && typeof dataRes.result === "object") {
-            Object.entries(dataRes.result).forEach(([_, msg]) => {
-              toast.error(String(msg), { position: "bottom-left" });
-            });
-          } else if (dataRes?.error) {
-            toast.error(String(dataRes.error), { position: "bottom-left" });
-          } else {
-            toast.error("خطا در ذخیره مشخصات مدیرعامل", {
-              position: "bottom-left",
-            });
+  
+        closeModal();
+      })
+      .catch((err: any) => {
+        console.error(err);
+        const msg = String(err?.message ?? "");
+  
+        // اگر توکن نداشتیم
+        if (msg === "Token not found") {
+          toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+            position: "bottom-left",
+          });
+          return;
+        }
+  
+        // اگر بدنهٔ ارور JSON بوده (از PostRequest) سعی کنیم پارس کنیم
+        let parsed: any = null;
+        if (msg.startsWith("{") && msg.endsWith("}")) {
+          try {
+            parsed = JSON.parse(msg);
+          } catch {
+            parsed = null;
           }
-        } else if (response.status === 401 || response.status === 403) {
-          // اگر رفرش هم شکست خورده بود و هنوز 401/403 هست
+        }
+  
+        const errorObj = parsed;
+  
+        // ولیدیشن‌های فیلدی بک‌اند (result به صورت آبجکت)
+        if (errorObj?.result && typeof errorObj.result === "object") {
+          Object.entries(errorObj.result).forEach(([_, value]) => {
+            const text = Array.isArray(value)
+              ? value.join("، ")
+              : String(value ?? "");
+            if (text) {
+              toast.error(text, { position: "bottom-left" });
+            }
+          });
+          return;
+        }
+  
+        // پیام متنی مستقیم
+        if (typeof errorObj?.error === "string" && errorObj.error.trim() !== "") {
+          toast.error(errorObj.error, { position: "bottom-left" });
+          return;
+        }
+  
+        // اگر پیام شبیه HTTP 401/403 بود
+        if (msg.includes("HTTP 401") || msg.includes("HTTP 403")) {
           toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", {
             position: "bottom-left",
           });
-        } else {
-          toast.error("خطا در ذخیره مشخصات مدیرعامل", {
-            position: "bottom-left",
-          });
+          return;
         }
-        setLoading(false);
-        return;
-      }
-
-      // ✅ موفقیت
-      toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", {
-        position: "bottom-left",
-      });
-
-      if (isEdit) {
-        setData((prev) =>
-          prev.map((item) =>
-            item.id === editingId ? { ...form, id: editingId } : item
-          )
-        );
-      } else {
-        const newManager = dataRes?.result || updatedForm;
-        setData([newManager]);
-      }
-
-      closeModal();
-    } catch (err: any) {
-      if (err?.message === "NO_TOKEN") {
-        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
+  
+        // فالبک عمومی
+        toast.error("خطا در ذخیره مشخصات مدیرعامل", {
           position: "bottom-left",
         });
-      } else {
-        console.error(err);
-        toast.error("خطا در ارتباط با سرور", { position: "bottom-left" });
-      }
-    } finally {
-      setLoading(false);
-    }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
+  
 
   useEffect(() => {
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)

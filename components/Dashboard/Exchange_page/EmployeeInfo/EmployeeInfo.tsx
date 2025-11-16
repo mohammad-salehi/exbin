@@ -6,15 +6,18 @@ import { useParams } from "next/navigation";
 import { GetRequest } from '../../../../functions/GetRequest';
 import { LoaderCircle } from '../../../Loader/Loader';
 
-import { validateEmail } from '../../../../functions/Validations';
 import { validateNumbers } from '../../../../functions/Validations';
+
 import { PostRequest } from '../../../../functions/PostRequest';
+import { PutRequest } from '../../../../functions/PostRequest';
+import { handlePostErrors } from '../../../../functions/handlePostErrors';
+import { DeleteRequest } from '../../../../functions/GetRequest';
+
 import Pagination from '../../../Pagination/Pagination';
 import { LogViewer } from '../../../../functions/changesHandler';
 import LoadingComponent from '../../../LoadingComponent/LoadingComponent';
 import JalaliLocalDatePicker from '../../../DatePicker/JalaliLocalDatePicker';
 import { toJalaliDate } from '../../../../functions/toJalaliDate';
-import { refreshTokenOnly } from '../../../../functions/TokenRefresh';
 
 type Person = {
     id: string;
@@ -220,120 +223,50 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             })
     }, [])
 
-
     // ✅ Helper functions
     const normalize = (val: any) => String(val ?? "").trim();
     const isDigits = (val: string, len?: number) => /^\d+$/.test(val) && (!len || val.length === len);
     const hasNoSpecialChars = (val: string) => /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
 
-
-    const getTokenFromCookie = () =>
-  document.cookie.split("; ").find(r => r.startsWith("token="))?.split("=")[1] || "";
-
-type InitFactory = () => RequestInit;
-
-/** یک‌بار تلاش + در صورت 401/403 رفرش و یک‌بار ری‌تری */
-async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
-  let res = await fetch(url, initFactory());
-  if (res.status === 401 || res.status === 403) {
-    try {
-      await refreshTokenOnly();              // کوکی‌ها آپدیت می‌شوند
-      res = await fetch(url, initFactory()); // تلاش دوم با توکن تازه
-    } catch {
-      return res; // اگر رفرش شکست خورد، همان پاسخ قبلی را برگردان
-    }
-  }
-  return res;
-}
-
-
-
     // ✅ ویرایش (handleSave)
     const handleSave = async () => {
         if (!editingId) return;
-      
+
         const name = normalize(form.name);
         const jobPosition = normalize(form.jobPosition);
         const phoneNumber = normalize(form.phoneNumber);
         const nationalCode = normalize(form.nationalCode);
-      
+
         if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
         if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
         if (!jobPosition) return toast.error("سمت الزامی است", { position: "bottom-left" });
         if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
         if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
-      
+
         const payload = {
-          ...form,
-          name,
-          jobPosition,
-          phoneNumber,
-          nationalCode,
-          educationalHistory: normalize(form.educationalHistory),
-          careerHistory: normalize(form.careerHistory),
+            ...form,
+            name,
+            jobPosition,
+            phoneNumber,
+            nationalCode,
+            educationalHistory: normalize(form.educationalHistory),
+            careerHistory: normalize(form.careerHistory),
         };
-      
+
         SetEditLoading(true);
-        try {
-          const token = getTokenFromCookie();
-          if (!token) throw new Error("توکن یافت نشد");
-      
-          const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees/${editingId}`;
-      
-          const res = await fetchWithAuthRetry(url, () => {
-            const fresh = getTokenFromCookie();
-            if (!fresh) throw new Error("NO_TOKEN");
-            return {
-              method: "PUT",
-              headers: {
-                Authorization: `Bearer ${fresh}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(payload),
-            };
-          });
-      
-          // بدنه را یک بار بخوان
-          let data: any = null;
-          const txt = await res.text();
-          if (txt) { try { data = JSON.parse(txt); } catch {} }
-      
-          if (!res.ok) {
-            if (res.status === 400 || res.status === 409) {
-              if (data?.result) {
-                Object.entries(data.result).forEach(([_, msg]) =>
-                  toast.error(String(msg), { position: "bottom-left" })
-                );
-                return;
-              }
-              if (data?.error) {
-                const m = String(data.error).match(/identifier:\s*(\w+):\s*([\w-]+)/);
-                if (m) {
-                  const [, field, value] = m;
-                  toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                } else {
-                  toast.error(String(data.error), { position: "bottom-left" });
-                }
-                return;
-              }
-            } else if (res.status === 401 || res.status === 403) {
-              toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", { position: "bottom-left" });
-              return;
-            }
-            throw new Error("خطا در ویرایش اطلاعات کارمند");
-          }
-      
-          toast.success("کارمند با موفقیت ویرایش شد.", { position: "bottom-left" });
-          setData(prev => prev.map(p => (p.id === editingId ? { ...p, ...payload } : p)));
-          closeModal();
-        } catch (err: any) {
-          const msg = err?.message === "NO_TOKEN" ? "توکن یافت نشد" : (err?.message || "خطا در ارتباط با سرور");
-          toast.error(msg, { position: "bottom-left" });
-        } finally {
-          SetEditLoading(false);
-        }
-      };
-      
+        PutRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees/${editingId}`, payload)
+            .then((res) => {
+                toast.success("کارمند با موفقیت ویرایش شد.", { position: "bottom-left" });
+                setData(prev => prev.map(p => (p.id === editingId ? { ...p, ...payload } : p)));
+                closeModal();
+            })
+            .catch((err) => {
+                handlePostErrors(err)
+            })
+            .finally(() => {
+                SetEditLoading(false);
+            })
+    };
 
     // ✅ افزودن (handleAdd)
     const handleAdd = async () => {
@@ -341,90 +274,49 @@ async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
         const jobPosition = normalize(form.jobPosition);
         const phoneNumber = normalize(form.phoneNumber);
         const nationalCode = normalize(form.nationalCode);
-      
+
         if (!name) return toast.error("نام و نام‌خانوادگی الزامی است", { position: "bottom-left" });
         if (!hasNoSpecialChars(name)) return toast.error("نام نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
         if (!jobPosition) return toast.error("سمت الزامی است", { position: "bottom-left" });
         if (!/^0\d{10}$/.test(phoneNumber)) return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", { position: "bottom-left" });
         if (!isDigits(nationalCode, 10)) return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
-      
+
         const payload = {
-          name,
-          jobPosition,
-          startDate: form.startDate || "",
-          educationalHistory: normalize(form.educationalHistory),
-          careerHistory: normalize(form.careerHistory),
-          insuranceStartDate: form.insuranceStartDate || "",
-          insuranceEndDate: form.insuranceEndDate || "",
-          isSpecialAccess: !!form.isSpecialAccess,
-          nationalCode,
-          phoneNumber,
+            name,
+            jobPosition,
+            startDate: form.startDate || "",
+            educationalHistory: normalize(form.educationalHistory),
+            careerHistory: normalize(form.careerHistory),
+            insuranceStartDate: form.insuranceStartDate || "",
+            insuranceEndDate: form.insuranceEndDate || "",
+            isSpecialAccess: !!form.isSpecialAccess,
+            nationalCode,
+            phoneNumber,
         };
-      
+
         SetAddLoading(true);
-        try {
-          const token = getTokenFromCookie();
-          if (!token) throw new Error("توکن یافت نشد");
-      
-          const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees`;
-      
-          const res = await fetchWithAuthRetry(url, () => {
-            const fresh = getTokenFromCookie();
-            if (!fresh) throw new Error("NO_TOKEN");
-            return {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${fresh}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(payload),
-            };
-          });
-      
-          // بدنه را یک بار بخوان
-          let data: any = null;
-          const txt = await res.text();
-          if (txt) { try { data = JSON.parse(txt); } catch {} }
-      
-          if (!res.ok) {
-            if (res.status === 400 || res.status === 409) {
-              if (data?.result) {
-                Object.entries(data.result).forEach(([_, msg]) =>
-                  toast.error(String(msg), { position: "bottom-left" })
-                );
-                return;
-              }
-              if (data?.error) {
-                const m = String(data.error).match(/identifier:\s*(\w+):\s*([\w-]+)/);
-                if (m) {
-                  const [, field, value] = m;
-                  toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, { position: "bottom-left" });
-                } else {
-                  toast.error(String(data.error), { position: "bottom-left" });
-                }
-                return;
-              }
-            } else if (res.status === 401 || res.status === 403) {
-              toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", { position: "bottom-left" });
-              return;
-            }
-            throw new Error("خطا در افزودن کارمند");
-          }
-      
+        PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees`, payload)
+        .then((res: any) => {
           toast.success("کارمند با موفقیت افزوده شد.", { position: "bottom-left" });
+          const result = res?.result ?? res;
           setData(prev => [
             ...prev,
-            { ...payload, id: data?.result?.id || String(prev.length + 1) },
+            {
+              ...payload,
+              id: result?.id || String(prev.length + 1),
+            },
           ]);
-          closeAddModal();
-        } catch (err: any) {
-          const msg = err?.message === "NO_TOKEN" ? "توکن یافت نشد" : (err?.message || "خطا در ارتباط با سرور");
-          toast.error(msg, { position: "bottom-left" });
-        } finally {
-          SetAddLoading(false);
-        }
-      };
       
+          closeAddModal();
+        })
+        .catch((err) => {
+          handlePostErrors(err);
+        })
+        .finally(() => {
+          SetAddLoading(false);
+        });
+    };
+
 
     const Audit = () => {
         setLogLoading(true)
@@ -450,49 +342,20 @@ async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
     const [deleteBox, SetDeleteBox] = useState(false)
     const deleteMember = async (row: Person) => {
         SetdeleteLoading(true);
-        try {
-          const token = getTokenFromCookie();
-          if (!token) {
-            toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-            return;
-          }
-      
-          const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees/${row.id}`;
-      
-          const response = await fetchWithAuthRetry(url, () => {
-            const fresh = getTokenFromCookie();
-            if (!fresh) throw new Error("NO_TOKEN");
-            return {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${fresh}`,
-                "Content-Type": "application/json",
-              },
-            };
-          });
-      
-          if (!response.ok) {
-            try {
-              const d = await response.json();
-              toast.error(d?.error || "خطا در حذف کارمند", { position: "bottom-left" });
-            } catch {
-              toast.error("خطا در حذف کارمند", { position: "bottom-left" });
-            }
-            return;
-          }
-      
-          toast.success("کارمند با موفقیت حذف شد.", { position: "bottom-left" });
-          setData(prevData => prevData.filter(person => person.id !== row.id));
-          SetDeleteBox(false);
-        } catch (err: any) {
-          const msg = err?.message === "NO_TOKEN" ? "توکن موجود نیست، لطفاً وارد سیستم شوید." : "خطا در حذف کارمند";
-          console.error(err);
-          toast.error(msg, { position: "bottom-left" });
-        } finally {
-          SetdeleteLoading(false);
-        }
-      };
-      
+        DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/employees/${row.id}`)
+        .then((response) => {
+            toast.success("کارمند با موفقیت حذف شد.", { position: "bottom-left" });
+            setData(prevData => prevData.filter(person => person.id !== row.id));
+            SetDeleteBox(false);
+        })
+        .catch((err) => {
+            handlePostErrors(err)
+        })
+        .finally(() => {
+            SetdeleteLoading(false);
+        })
+    };
+
     const [deleteform, setdeleteForm] = useState<Person>({
         id: "",
         name: '',

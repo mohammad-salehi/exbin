@@ -6,6 +6,7 @@ const toEnDigits = (s: string) =>
     String("۰۱۲۳۴۵۶۷۸۹".indexOf(d))
   );
 
+// الگوهای Duplicate خاص
 const DUP_RX =
   /Exchange\s*already\s*exists\s*with\s*identifier\s*:\s*([\w-]+)\s*:\s*([0-9۰-۹A-Za-z_-]+)\s*$/i;
 
@@ -17,6 +18,24 @@ const AGENT_DUP_RX =
 
 const EMPLOYEE_DUP_RX =
   /Employee\s*already\s*exists\s*with\s*identifier\s*:\s*([\w-]+)\s*:\s*([0-9۰-۹A-Za-z_-]+)\s*for\s*exchange\s*:\s*([0-9۰-۹A-Za-z_-]+)/i;
+
+// ⚠️ الگوی جنریک شبیه قبل:
+//  identifier: nationalCode: 12312312312
+const GENERIC_IDENTIFIER_RX =
+  /identifier\s*:\s*([\w-]+)\s*:\s*([0-9۰-۹A-Za-z_-]+)/i;
+
+// مپ مشترک لیبل‌ها
+const COMMON_FIELD_LABELS: Record<string, string> = {
+  nationalCode: "شناسه ملی",
+  financialCode: "کد اقتصادی",
+  phoneNumber: "شماره تماس",
+  emergencyPhoneNumber: "شماره تماس اضطراری",
+  zipCode: "کد پستی",
+  legalName: "نام حقوقی",
+  name: "نام",
+  siteAddress: "آدرس سایت",
+  email: "ایمیل",
+};
 
 function parseExchangeExistsMessage(text?: string) {
   if (!text) return { found: false as const };
@@ -69,6 +88,18 @@ function parseEmployeeExistsMessage(text?: string) {
   };
 }
 
+// 👇 جنریک: identifier: nationalCode: 12312312312
+function parseGenericIdentifierMessage(text?: string) {
+  if (!text) return { found: false as const };
+  const m = String(text).trim().match(GENERIC_IDENTIFIER_RX);
+  if (!m) return { found: false as const };
+
+  return {
+    found: true as const,
+    key: m[1],              // nationalCode
+    value: toEnDigits(m[2]) // 12312312312
+  };
+}
 
 export const handlePostErrors = (e: any) => {
   const status = e?.response?.status;
@@ -104,21 +135,10 @@ export const handlePostErrors = (e: any) => {
   ].filter(Boolean) as string[];
 
   for (const src of sourcesToCheck) {
-    // ۱) اول BoardMember
+    // ۱) BoardMember
     const b = parseBoardMemberExistsMessage(src);
     if (b.found) {
-      const fieldLabels: Record<string, string> = {
-        nationalCode: "شناسه ملی",
-        financialCode: "کد اقتصادی",
-        phoneNumber: "شماره تماس",
-        emergencyPhoneNumber: "شماره تماس اضطراری",
-        zipCode: "کد پستی",
-        legalName: "نام حقوقی",
-        name: "نام",
-        siteAddress: "آدرس سایت",
-        email: "ایمیل",
-      };
-      const label = fieldLabels[b.key] || b.key;
+      const label = COMMON_FIELD_LABELS[b.key] || b.key;
       toast.error(
         `${label} ${b.value} قبلاً برای این سکو ثبت شده است.`,
         { position: "bottom-left" }
@@ -129,19 +149,7 @@ export const handlePostErrors = (e: any) => {
     // ۲) ExchangeAgent
     const ag = parseExchangeAgentExistsMessage(src);
     if (ag.found) {
-      const fieldLabels: Record<string, string> = {
-        nationalCode: "شناسه ملی",
-        financialCode: "کد اقتصادی",
-        phoneNumber: "شماره تماس",
-        emergencyPhoneNumber: "شماره تماس اضطراری",
-        zipCode: "کد پستی",
-        legalName: "نام حقوقی",
-        name: "نام",
-        siteAddress: "آدرس سایت",
-        email: "ایمیل",
-      };
-      const label = fieldLabels[ag.key] || ag.key;
-
+      const label = COMMON_FIELD_LABELS[ag.key] || ag.key;
       toast.error(
         `${label} ${ag.value} قبلاً برای نماینده صرافی در این سکو ثبت شده است.`,
         { position: "bottom-left" }
@@ -152,19 +160,7 @@ export const handlePostErrors = (e: any) => {
     // ۳) Employee
     const emp = parseEmployeeExistsMessage(src);
     if (emp.found) {
-      const fieldLabels: Record<string, string> = {
-        nationalCode: "شناسه ملی",
-        financialCode: "کد اقتصادی",
-        phoneNumber: "شماره تماس",
-        emergencyPhoneNumber: "شماره تماس اضطراری",
-        zipCode: "کد پستی",
-        legalName: "نام حقوقی",
-        name: "نام",
-        siteAddress: "آدرس سایت",
-        email: "ایمیل",
-      };
-      const label = fieldLabels[emp.key] || emp.key;
-
+      const label = COMMON_FIELD_LABELS[emp.key] || emp.key;
       toast.error(
         `${label} ${emp.value} قبلاً برای کارمند در این سکو ثبت شده است.`,
         { position: "bottom-left" }
@@ -172,26 +168,27 @@ export const handlePostErrors = (e: any) => {
       return true;
     }
 
-    // ۲) بعد Exchange
+    // ۴) Exchange
     const r = parseExchangeExistsMessage(src);
     if (r.found) {
-      const fieldLabels: Record<string, string> = {
-        nationalCode: "شناسه ملی",
-        financialCode: "کد اقتصادی",
-        phoneNumber: "شماره تماس",
-        emergencyPhoneNumber: "شماره تماس اضطراری",
-        zipCode: "کد پستی",
-        legalName: "نام حقوقی",
-        name: "نام سکو",
-        siteAddress: "آدرس سایت",
-        email: "ایمیل",
-      };
-      const label = fieldLabels[r.key] || r.key;
-      toast.error(`${label} ${r.value} قبلاً ثبت شده است.`, { position: "bottom-left" });
+      const label = COMMON_FIELD_LABELS[r.key] || r.key;
+      toast.error(`${label} ${r.value} قبلاً ثبت شده است.`, {
+        position: "bottom-left",
+      });
+      return true;
+    }
+
+    // ۵) جنریک: identifier: nationalCode: 0023220171
+    const g = parseGenericIdentifierMessage(src);
+    if (g.found) {
+      const label = COMMON_FIELD_LABELS[g.key] || g.key;
+      toast.error(
+        `${label} ${g.value} قبلاً ثبت شده است.`,
+        { position: "bottom-left" }
+      );
       return true;
     }
   }
-
 
   // ✅ اگر duplicate نبود، ارور متنی مستقیم از بک‌اند
   if (typeof errorObj?.error === "string" && errorObj.error.trim() !== "") {
@@ -199,15 +196,19 @@ export const handlePostErrors = (e: any) => {
     return true;
   }
 
-  // fallbackهای قبلی (اختیاری)
+  // fallbackهای قدیمی
   const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
   if (financialCodeError) {
-    toast.error(`سکو با کد اقتصادی ${financialCodeError[1]} قبلاً وجود دارد.`, { position: "bottom-left" });
+    toast.error(`سکو با کد اقتصادی ${financialCodeError[1]} قبلاً وجود دارد.`, {
+      position: "bottom-left",
+    });
     return true;
   }
   const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
   if (nationalCodeError) {
-    toast.error(`سکو با شناسه ملی ${nationalCodeError[1]} قبلاً وجود دارد.`, { position: "bottom-left" });
+    toast.error(`سکو با شناسه ملی ${nationalCodeError[1]} قبلاً وجود دارد.`, {
+      position: "bottom-left",
+    });
     return true;
   }
 

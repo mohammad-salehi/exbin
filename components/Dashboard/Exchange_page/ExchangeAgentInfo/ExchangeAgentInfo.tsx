@@ -9,11 +9,15 @@ import toast from "react-hot-toast";
 import { LoaderCircle } from "../../../Loader/Loader";
 
 import { validateNumbers } from "../../../../functions/Validations";
+
 import { PostRequest } from "../../../../functions/PostRequest";
+import { PutRequest } from "../../../../functions/PostRequest";
+import { handlePostErrors } from "../../../../functions/handlePostErrors";
+import { DeleteRequest } from "../../../../functions/GetRequest";
+
 import Pagination from "../../../Pagination/Pagination";
 import { LogViewer } from "../../../../functions/changesHandler";
 import LoadingComponent from "../../../LoadingComponent/LoadingComponent";
-import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
 
 type Person = {
   id: string;
@@ -223,81 +227,23 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     }
   }, [isLogOpen, LogPage]);
 
-  const getTokenFromCookie = () =>
-    document.cookie
-      .split("; ")
-      .find((r) => r.startsWith("token="))
-      ?.split("=")[1] || "";
-
-  type InitFactory = () => RequestInit;
-
-  /** یک‌بار تلاش + در صورت 401/403 رفرش و یک‌بار ری‌تری */
-  async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
-    let res = await fetch(url, initFactory());
-    if (res.status === 401 || res.status === 403) {
-      try {
-        await refreshTokenOnly(); // کوکی‌ها آپدیت می‌شوند
-        res = await fetch(url, initFactory()); // تلاش دوم با توکن تازه
-      } catch {
-        return res; // اگر رفرش شکست خورد، همان پاسخ قبلی را برگردان
-      }
-    }
-    return res;
-  }
-
   const [deleteBox, SetDeleteBox] = useState(false);
   const deleteMember = async (row: Person) => {
     SetdeleteLoading(true);
-    try {
-      const token = getTokenFromCookie();
-      if (!token) {
-        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
-          position: "bottom-left",
-        });
-        return;
-      }
-
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${row.id}`;
-
-      const response = await fetchWithAuthRetry(url, () => {
-        const fresh = getTokenFromCookie();
-        if (!fresh) throw new Error("NO_TOKEN");
-        return {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${fresh}`,
-            "Content-Type": "application/json",
-          },
-        };
-      });
-
-      if (!response.ok) {
-        try {
-          const d = await response.json();
-          toast.error(d?.error || "خطا در حذف نماینده سکو", {
-            position: "bottom-left",
-          });
-        } catch {
-          toast.error("خطا در حذف نماینده سکو", { position: "bottom-left" });
-        }
-        return;
-      }
-
+    DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${row.id}`)
+    .then((response) => {
       toast.success("نماینده سکو با موفقیت حذف شد.", {
         position: "bottom-left",
       });
       setData((prevData) => prevData.filter((person) => person.id !== row.id));
       SetDeleteBox(false);
-    } catch (err: any) {
-      const msg =
-        err?.message === "NO_TOKEN"
-          ? "توکن موجود نیست، لطفاً وارد سیستم شوید."
-          : "خطا در ذخیره نماینده سکو";
-      console.error(err);
-      toast.error(msg, { position: "bottom-left" });
-    } finally {
-      SetdeleteLoading(false);
-    }
+    })
+    .catch((err) => {
+      handlePostErrors(err)
+    })
+    .finally(() => {
+      SetdeleteLoading(false)
+    })
   };
 
   const [deleteform, setdeleteForm] = useState<Person>({
@@ -342,66 +288,9 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
 
     const payload = { name, phoneNumber, nationalCode };
 
-    SetEditLoading(true);
-    try {
-      const token = getTokenFromCookie();
-      if (!token) throw new Error("توکن یافت نشد");
-
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${editingId}`;
-
-      const res = await fetchWithAuthRetry(url, () => {
-        const fresh = getTokenFromCookie();
-        if (!fresh) throw new Error("NO_TOKEN");
-        return {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${fresh}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        };
-      });
-
-      // بدنه را یک‌بار بخوان
-      let dataRes: any = null;
-      const txt = await res.text();
-      if (txt) {
-        try {
-          dataRes = JSON.parse(txt);
-        } catch {}
-      }
-
-      if (!res.ok) {
-        if (res.status === 400 || res.status === 409) {
-          if (dataRes?.result) {
-            Object.entries(dataRes.result).forEach(([_, msg]) =>
-              toast.error(String(msg), { position: "bottom-left" })
-            );
-            return;
-          }
-          if (dataRes?.error) {
-            const match = String(dataRes.error).match(
-              /identifier:\s*(\w+):\s*([\w-]+)/
-            );
-            if (match) {
-              const [, field, value] = match;
-              toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, {
-                position: "bottom-left",
-              });
-            } else {
-              toast.error(String(dataRes.error), { position: "bottom-left" });
-            }
-            return;
-          }
-        } else if (res.status === 401 || res.status === 403) {
-          toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", {
-            position: "bottom-left",
-          });
-          return;
-        }
-        throw new Error("خطا در ویرایش نماینده سکو");
-      }
-
+    SetEditLoading(true)
+    PutRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${editingId}`, payload)
+    .then((res) => {
       toast.success("نماینده سکو با موفقیت ویرایش شد.", {
         position: "bottom-left",
       });
@@ -409,15 +298,13 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
         prev.map((p) => (p.id === editingId ? { ...p, ...payload } : p))
       );
       closeModal();
-    } catch (err: any) {
-      const msg =
-        err?.message === "NO_TOKEN"
-          ? "توکن یافت نشد"
-          : err?.message || "خطا در ارتباط با سرور";
-      toast.error(msg, { position: "bottom-left" });
-    } finally {
-      SetEditLoading(false);
-    }
+    })
+    .catch((err) => {
+      handlePostErrors(err)
+    })
+    .finally(() => {
+      SetEditLoading(false)
+    })
   };
 
   // 🟣 افزودن نماینده سکو
@@ -447,82 +334,23 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     const payload = { name, phoneNumber, nationalCode };
 
     SetAddLoading(true);
-    try {
-      const token = getTokenFromCookie();
-      if (!token) throw new Error("توکن یافت نشد");
-
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents`;
-
-      const res = await fetchWithAuthRetry(url, () => {
-        const fresh = getTokenFromCookie();
-        if (!fresh) throw new Error("NO_TOKEN");
-        return {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${fresh}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        };
-      });
-
-      // بدنه را یک‌بار بخوان
-      let dataRes: any = null;
-      const txt = await res.text();
-      if (txt) {
-        try {
-          dataRes = JSON.parse(txt);
-        } catch {}
-      }
-
-      if (!res.ok) {
-        if (res.status === 400 || res.status === 409) {
-          if (dataRes?.result) {
-            Object.entries(dataRes.result).forEach(([_, msg]) =>
-              toast.error(String(msg), { position: "bottom-left" })
-            );
-            return;
-          }
-          if (dataRes?.error) {
-            const match = String(dataRes.error).match(
-              /identifier:\s*(\w+):\s*([\w-]+)/
-            );
-            if (match) {
-              const [, field, value] = match;
-              toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, {
-                position: "bottom-left",
-              });
-            } else {
-              toast.error(String(dataRes.error), { position: "bottom-left" });
-            }
-            return;
-          }
-        } else if (res.status === 401 || res.status === 403) {
-          toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", {
-            position: "bottom-left",
-          });
-          return;
-        }
-        throw new Error("خطا در افزودن نماینده سکو");
-      }
-
+    PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents`, payload)
+    .then((res) => {
       toast.success("نماینده سکو با موفقیت افزوده شد.", {
         position: "bottom-left",
       });
       setData((prev) => [
         ...prev,
-        { ...payload, id: dataRes?.result?.id || String(prev.length + 1) },
+        { ...payload, id: res?.result?.id || String(prev.length + 1) },
       ]);
       closeAddModal();
-    } catch (err: any) {
-      const msg =
-        err?.message === "NO_TOKEN"
-          ? "توکن یافت نشد"
-          : err?.message || "خطا در ارتباط با سرور";
-      toast.error(msg, { position: "bottom-left" });
-    } finally {
-      SetAddLoading(false);
-    }
+    })
+    .catch((err) => {
+      handlePostErrors(err)
+    })
+    .finally(() => {
+      SetAddLoading(false)
+    })
   };
 
   return (

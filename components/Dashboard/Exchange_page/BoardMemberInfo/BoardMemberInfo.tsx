@@ -16,14 +16,18 @@ import { LoaderCircle } from "../../../Loader/Loader";
 
 import { validateEmail } from "../../../../functions/Validations";
 import { validateNumbers } from "../../../../functions/Validations";
+
 import { PostRequest } from "../../../../functions/PostRequest";
+import { PutRequest } from "../../../../functions/PostRequest";
+import { handlePostErrors } from "../../../../functions/handlePostErrors";
+import { DeleteRequest } from "../../../../functions/GetRequest";
+
 import Pagination from "../../../Pagination/Pagination";
 import { LogViewer } from "../../../../functions/changesHandler";
 import LoadingComponent from "../../../LoadingComponent/LoadingComponent";
 
 import { BoardmemderRoleTypes } from "../../../../functions/BoardmemberRoleTypes";
 import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
-import { refreshTokenOnly } from "../../../../functions/TokenRefresh";
 
 type Person = {
   id: string;
@@ -229,7 +233,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
   useEffect(() => {
     GetRequest(
       process.env.NEXT_PUBLIC_API_URL +
-        `/api/exchanges/${params.id}/board-members`
+      `/api/exchanges/${params.id}/board-members`
     )
       .then((response) => {
         const getData = response.result.content;
@@ -266,51 +270,22 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
 
   const [deleteBox, SetDeleteBox] = useState(false);
   const deleteMember = async (row: Person) => {
+
     SetdeleteLoading(true);
-    try {
-      const firstToken = getTokenFromCookie();
-      if (!firstToken) {
-        toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", { position: "bottom-left" });
-        return;
-      }
-  
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members/${row.id}`;
-  
-      const response = await fetchWithAuthRetry(url, () => {
-        const fresh = getTokenFromCookie();
-        if (!fresh) throw new Error("NO_TOKEN");
-        return {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${fresh}`,
-            "Content-Type": "application/json",
-          },
-        };
-      });
-  
-      if (!response.ok) {
-        // تلاش برای خواندن پیام خطا (اختیاری)
-        try {
-          const data = await response.json();
-          toast.error(data?.error || "خطا در حذف عضو هیئت‌مدیره و سهامداران", { position: "bottom-left" });
-        } catch {
-          toast.error("خطا در حذف عضو هیئت‌مدیره و سهامداران", { position: "bottom-left" });
-        }
-        return;
-      }
-  
-      toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت حذف شد.", { position: "bottom-left" });
-      setData(prevData => prevData.filter(person => person.id !== row.id));
-      SetDeleteBox(false);
-    } catch (err: any) {
-      const msg = err?.message === "NO_TOKEN" ? "توکن موجود نیست، لطفاً وارد سیستم شوید." : "خطا در حذف عضو هیئت‌مدیره و سهامداران";
-      console.error(err);
-      toast.error(msg, { position: "bottom-left" });
-    } finally {
-      SetdeleteLoading(false);
-    }
+    DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members/${row.id}`)
+      .then((response) => {
+        toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت حذف شد.", { position: "bottom-left" });
+        setData(prevData => prevData.filter(person => person.id !== row.id));
+        SetDeleteBox(false);
+      })
+      .catch((err) => {
+        handlePostErrors(err)
+      })
+      .finally(() => {
+        SetdeleteLoading(false);
+      })
   };
-  
+
   const [deleteform, setdeleteForm] = useState<Person>({
     id: "",
     name: "",
@@ -328,28 +303,6 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     /^\d+$/.test(val) && (!len || val.length === len);
   const hasNoSpecialChars = (val: string) =>
     /^[\u0600-\u06FFa-zA-Z0-9\s]+$/.test(val);
-
-  const getTokenFromCookie = () =>
-    document.cookie
-      .split("; ")
-      .find((r) => r.startsWith("token="))
-      ?.split("=")[1] || "";
-
-  type InitFactory = () => RequestInit;
-
-  /** یک‌بار تلاش + در صورت 401/403 رفرش و یک‌بار ری‌تری */
-  async function fetchWithAuthRetry(url: string, initFactory: InitFactory) {
-    let res = await fetch(url, initFactory());
-    if (res.status === 401 || res.status === 403) {
-      try {
-        await refreshTokenOnly(); // کوکی‌ها آپدیت می‌شن
-        res = await fetch(url, initFactory()); // تلاش دوم با توکن تازه
-      } catch {
-        return res; // رفرش هم شکست خورد
-      }
-    }
-    return res;
-  }
 
   const handleSave = async () => {
     if (!editingId) return;
@@ -405,85 +358,25 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     };
 
     SetEditLoading(true);
-    try {
-      const token = getTokenFromCookie();
-      if (!token) throw new Error("توکن یافت نشد");
 
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members/${editingId}`;
-
-      const res = await fetchWithAuthRetry(url, () => {
-        const fresh = getTokenFromCookie();
-        if (!fresh) throw new Error("NO_TOKEN");
-        return {
-          method: "PUT",
-          headers: {
-            Authorization: `Bearer ${fresh}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        };
-      });
-
-      // بدنه را فقط یک بار بخوان
-      let dataRes: any = null;
-      const txt = await res.text();
-      if (txt) {
-        try {
-          dataRes = JSON.parse(txt);
-        } catch {}
-      }
-
-      // ✅ هندل خطا
-      if (!res.ok) {
-        if (res.status === 400 || res.status === 409) {
-          if (dataRes?.result) {
-            Object.entries(dataRes.result).forEach(([_, msg]) =>
-              toast.error(String(msg), { position: "bottom-left" })
-            );
-            return;
-          }
-          if (dataRes?.error) {
-            const match = String(dataRes.error).match(
-              /identifier:\s*(\w+):\s*([\w-]+)/
-            );
-            if (match) {
-              const [, field, value] = match;
-              toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, {
-                position: "bottom-left",
-              });
-            } else {
-              toast.error(String(dataRes.error), { position: "bottom-left" });
-            }
-            return;
-          }
-        } else if (res.status === 401 || res.status === 403) {
-          toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", {
-            position: "bottom-left",
-          });
-          return;
-        }
-        throw new Error("خطا در ذخیره اطلاعات عضو هیئت‌مدیره و سهامداران");
-      }
-
-      // ✅ موفق
-      toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت ویرایش شد.", {
-        position: "bottom-left",
-      });
-      setData((prev) =>
-        prev.map((item) =>
-          item.id === editingId ? { ...form, id: editingId } : item
-        )
-      );
-      closeModal();
-    } catch (err: any) {
-      const msg =
-        err?.message === "NO_TOKEN"
-          ? "توکن یافت نشد"
-          : err?.message || "خطا در ارتباط با سرور";
-      toast.error(msg, { position: "bottom-left" });
-    } finally {
-      SetEditLoading(false);
-    }
+    PutRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members/${editingId}`, payload)
+      .then((res) => {
+        toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت ویرایش شد.", {
+          position: "bottom-left",
+        });
+        setData((prev) =>
+          prev.map((item) =>
+            item.id === editingId ? { ...form, id: editingId } : item
+          )
+        );
+        closeModal();
+      })
+      .catch((err) => {
+        handlePostErrors(err)
+      })
+      .finally(() => {
+        SetEditLoading(false);
+      })
   };
 
   const handleAdd = async () => {
@@ -539,89 +432,28 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
     };
 
     SetAddLoading(true);
-    try {
-      const token = getTokenFromCookie();
-      if (!token) throw new Error("توکن یافت نشد");
 
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`;
-
-      const res = await fetchWithAuthRetry(url, () => {
-        const fresh = getTokenFromCookie();
-        if (!fresh) throw new Error("NO_TOKEN");
-        return {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${fresh}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
+    PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/board-members`, payload)
+      .then((res) => {
+        toast.success("عضو جدید هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", {
+          position: "bottom-left",
+        });
+        setData((prev) => [
+          ...prev,
+          {
             ...payload,
-            sharePercentage: sharePercentageNum, // بک‌اند عدد می‌خواد
-          }),
-        };
-      });
+            id: res?.result?.id ?? String(prev.length + 1),
+          },
+        ]);
 
-      // بدنه را یک بار بخوان
-      let dataRes: any = null;
-      const txt = await res.text();
-      if (txt) {
-        try {
-          dataRes = JSON.parse(txt);
-        } catch {}
-      }
-
-      if (!res.ok) {
-        if (res.status === 400 || res.status === 409) {
-          if (dataRes?.result) {
-            Object.entries(dataRes.result).forEach(([_, msg]) =>
-              toast.error(String(msg), { position: "bottom-left" })
-            );
-            return;
-          }
-          if (dataRes?.error) {
-            const m = String(dataRes.error).match(
-              /identifier:\s*(\w+):\s*([\w-]+)/
-            );
-            if (m) {
-              const [, field, value] = m;
-              toast.error(`${field} با مقدار ${value} قبلاً ثبت شده است.`, {
-                position: "bottom-left",
-              });
-            } else {
-              toast.error(String(dataRes.error), { position: "bottom-left" });
-            }
-            return;
-          }
-        } else if (res.status === 401 || res.status === 403) {
-          toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", {
-            position: "bottom-left",
-          });
-          return;
-        }
-        throw new Error("خطا در افزودن عضو هیئت‌مدیره و سهامداران");
-      }
-
-      setData((prev) => [
-        ...prev,
-        {
-          ...payload,
-          id: dataRes?.result?.id ?? String(prev.length + 1),
-        },
-      ]);
-
-      closeAddModal();
-      toast.success("عضو هیئت‌مدیره و سهامداران با موفقیت افزوده شد.", {
-        position: "bottom-left",
-      });
-    } catch (err: any) {
-      const msg =
-        err?.message === "NO_TOKEN"
-          ? "توکن یافت نشد"
-          : err?.message || "خطا در ارتباط با سرور";
-      toast.error(msg, { position: "bottom-left" });
-    } finally {
-      SetAddLoading(false);
-    }
+        closeAddModal();
+      })
+      .catch((err) => {
+        handlePostErrors(err)
+      })
+      .finally(() => {
+        SetAddLoading(false);
+      })
   };
 
   return (
@@ -723,8 +555,8 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                         <span>
                           {form.role !== ""
                             ? BoardmemderRoleTypes.find(
-                                (item) => item.value === form.role
-                              )?.label
+                              (item) => item.value === form.role
+                            )?.label
                             : "انتخاب"}
                         </span>
                       </Button>
@@ -747,11 +579,10 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                               <MenuItem
                                 isActive={active}
                                 isSelected={selected}
-                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                                  form.role === item.value
-                                    ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                    : ""
-                                }`}
+                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.role === item.value
+                                  ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                  : ""
+                                  }`}
                               >
                                 <MenuItem.Title>{item.label}</MenuItem.Title>
                               </MenuItem>
@@ -944,11 +775,10 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                               <MenuItem
                                 isActive={active}
                                 isSelected={selected}
-                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                                  form.role === item.label
-                                    ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                    : ""
-                                }`}
+                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.role === item.label
+                                  ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                  : ""
+                                  }`}
                               >
                                 <MenuItem.Title>{item.label}</MenuItem.Title>
                               </MenuItem>
