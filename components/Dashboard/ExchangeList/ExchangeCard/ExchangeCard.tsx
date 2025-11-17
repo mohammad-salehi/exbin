@@ -81,7 +81,7 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
                 </div>
 
                 <div className="">
-                    <TailwindGaugePretty value={30} />
+                    <TailwindGaugePretty value={Math.floor(Math.random() * 140)} />
                 </div>
             </div>
             <div className="p-3 pt-0 text-end text-primary dark:text-primary-dark">
