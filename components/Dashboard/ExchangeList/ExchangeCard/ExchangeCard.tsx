@@ -44,7 +44,7 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
                         }
                     </div>
 
-                    <span className="text-sm font-semibold text-titleText dark:text-titleText-dark">
+                    <span className="text-lg font-semibold text-titleText dark:text-titleText-dark">
                         {name}
                     </span>
                 </div>

@@ -51,7 +51,7 @@ export default function TailwindGaugePretty({
     const valuePath = useMemo(() => describeArc(startAngle, valueAngle, rValue), [startAngle, valueAngle]);
 
     // نقاط مهم
-    const endPoint = polar(valueAngle, rValue);              // انتهای آرک رنگی
+    const endPoint = polar(valueAngle, rValue);              
     const startPoint = polar(startAngle, rValue);            // شروع آرک رنگی (برای گرادیان درست)
     const farPoint = polar(endAngle, rValue);                // پایان آرک رنگی (برای گرادیان درست)
 
