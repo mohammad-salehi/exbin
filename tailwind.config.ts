@@ -41,6 +41,10 @@ const config: Config = {
           DEFAULT: "#FFFFFF",
           dark: "#494b50",
         },
+        bgHoverColor: {
+          DEFAULT: "#FBFAFA",
+          dark: "#444444",
+        },
         boxBorderColor: {
           DEFAULT: "#D8D8D8",
           dark: "#6B6E74",
