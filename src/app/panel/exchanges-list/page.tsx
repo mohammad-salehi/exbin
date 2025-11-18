@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import AnimatedText from "../../../../components/AnimatedLoading/AnimatedLoading";
 import { Modal } from "@heathmont/moon-core-tw";
 import ExchangeCard from "../../../../components/Dashboard/ExchangeList/ExchangeCard/ExchangeCard";
+import RiskSwitch from "../../../../components/Dashboard/ExchangeList/Switch/Switch";
 
 type Person = {
   id: string;
@@ -73,12 +74,15 @@ const Page = () => {
   const [DeleteLoading, SetDeleteLoading] = useState<boolean>(false)
   const [Deletedata, SetDeletedata] = useState<Person>();
 
+  const [filter, setFilter] = useState("all");
 
   // فیلدهایی که می‌خوای سرچ روی‌شون اعمال بشه:
   const searchKeys: (keyof Person)[] = ["name", "legalName", "registrationNumber", "siteAddress", "title", "link"];
 
   // دیتای فیلترشده برای جدول
   const filteredData = useMemo(() => filterTree(data, q, searchKeys), [data, q]);
+
+
 
   useEffect(() => {
     SetLoading(true)
@@ -108,15 +112,23 @@ const Page = () => {
   return (
     <div className="p-4 md:p-0">
       {/* Search box */}
-      <div className="relative w-full md:w-[500px] h-[48px] mb-4 mt-8">
-        <input
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          className="flex w-full h-full p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark pl-4 pr-10 focus:outline-none focus:ring-0"
-          placeholder="جست‌وجو"
-        />
-        <GenericSearch className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-xl" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="relative w-full h-[48px] mb-4 mt-8">
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            className="flex w-full h-full p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark pl-4 pr-10 focus:outline-none focus:ring-0"
+            placeholder="جست‌وجو"
+          />
+          <GenericSearch className="absolute right-2 top-1/2 transform -translate-y-1/2 text-titleText dark:text-titleText-dark text-xl" />
+        </div>
+        <div className="hidden xl:inline-block"></div>
+        <div className=" mb-4 mt-8">
+          <RiskSwitch value={filter} onChange={setFilter} />
+        </div>
       </div>
+
+
 
       {/* Table with filtered data */}
       <div className="mb-4">
@@ -124,29 +136,36 @@ const Page = () => {
           Loading && (
             <div className="fixed inset-0 z-50 grid place-items-center bg-white/70 dark:bg-bgColor-dark/70 backdrop-blur-sm">
               <div className="pointer-events-none">
-
                 <AnimatedText />
               </div>
             </div>)
         }
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-          {
-            filteredData.map((item) => {
-              return (
-                < ExchangeCard
-                  rank={3}
-                  id={item.id}
-                  name={item.name ?? ''}
-                  volume="۲۳۳۶"
-                  risk="بالا"
-                  coins={220}
-                  lastUpdate="۱۴۰۴/۰۸/۱۷"
-                  logo={item.logo ?? ''}
-                />
-              )
-            })
+          {filteredData.map((item) => {
+            const risk = Math.floor(Math.random() * 140);
 
-          }
+            const show =
+              filter === "all" ||
+              (filter === "low" && risk >= 100) ||
+              (filter === "medium" && risk >= 70 && risk < 100) ||
+              (filter === "high" && risk < 70);
+
+            if (!show) return null;
+
+            return (
+              <ExchangeCard
+                key={item.id}
+                rank={3}
+                id={item.id}
+                name={item.name ?? ""}
+                volume="۲۳۳۶"
+                risk={risk}             
+                coins={220}
+                lastUpdate="۱۴۰۴/۰۸/۱۷"
+                logo={item.logo ?? ""}
+              />
+            );
+          })}
         </div>
       </div>
       <div className="relative w-full mb-4 ">

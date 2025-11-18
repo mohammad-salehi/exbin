@@ -155,8 +155,8 @@ export default function TailwindGaugePretty({
                                     background: `conic-gradient(
         from ${-startAngle}deg at ${cx / vbW * 100}% ${cy / vbH * 100}%,
         #ff0000 0%,
-        #ffa500 40%,
-        #0080ff 70%,
+        #ffa500 60%,
+        #0080ff 80%,
         #00ff00 100%
       )`,
                                     filter: 'drop-shadow(0 1px 1.6px rgba(0,0,0,0.25))',
