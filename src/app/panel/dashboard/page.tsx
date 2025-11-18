@@ -5,6 +5,7 @@ import CircularChart from "../../../../components/Dashboard/CircularChart/Circul
 import LineChartExample from "../../../../components/Dashboard/LinearChart/LinearChart";
 import MarketVolumeChart from "../../../../components/Dashboard/MarketVolumeChart/MarketVolumeChart";
 import ComingSoon from "../../../../components/ComingSoon/ComingSoon";
+import NumberTicker from "../../../../components/Dashboard/Band/Band";
 export default function Page() {
 
   //دیتای تستی برای تعداد سکو های ثبت شده
@@ -107,15 +108,28 @@ export default function Page() {
     SetExTrNumber(generateExchangeData())
   }, [])
 
+  const data = [
+    { title: "تعداد کاربران", value: 1234 },
+    { title: "حجم معاملات", value: "۲۳٫۵M" },
+    { title: "میانگین سفارش", value: "۴۵۰٬۰۰۰" },
+    { title: "سفارشات باز", value: 89 },
+    { title: "سیبلیبسل", value: 1234 },
+    { title: "شسیبلشسیبشسیبسیشب", value: "۲۳٫۵M" },
+    { title: "شسیلاقفل", value: "۴۵۰٬۰۰۰" },
+    { title: "شیسبزطربقفب", value: 89 },
+  ];
+
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
+      <NumberTicker items={data} />
 
-      {/* <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+
         <div>
-          <CircularChart
+          {/* <CircularChart
             data={ChartData}
             title="سکو های ثبت شده"
-          />
+          /> */}
         </div>
         <div>
           <MarketVolumeChart
@@ -141,9 +155,8 @@ export default function Page() {
             data={ExTrNumber}
           />
         </div>
-      </div> */}
+      </div>
 
-      <ComingSoon/>
 
     </div>
   );
