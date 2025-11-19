@@ -1,304 +1,253 @@
-"use client";
+import { Button, Dropdown, MenuItem } from "@heathmont/moon-core-tw";
+import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
+import React, { useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
-import { useEffect, useState } from "react";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
-import { GenericSearch } from '@heathmont/moon-icons-tw';
-import { Dropdown, MenuItem, Button, Input } from "@heathmont/moon-core-tw";
+type WeeklyData = {
+  weekLabel: string;
+  deposit: number;
+  withdraw: number;
+};
 
-interface LinearChartProps {
-  title: string;
-  data: Array<{
-    date: string;
-    timestamp: number;
-    year: number,
-    month: number,
-    day: number,
-    data: Array<{
-      name: string;
-      value: number;
-    }>;
-  }>
-}
+const weeklyData: WeeklyData[] = [
+  { weekLabel: "هفته اول", deposit: 150, withdraw: 50 },
+  { weekLabel: "هفته دوم", deposit: 40, withdraw: 70 },
+  { weekLabel: "هفته سوم", deposit: 20, withdraw: 10 },
+  { weekLabel: "هفته چهارم", deposit: 90, withdraw: 40 },
+  { weekLabel: "هفته اول", deposit: 150, withdraw: 50 },
+  { weekLabel: "هفته دوم", deposit: 40, withdraw: 70 },
+  { weekLabel: "هفته سوم", deposit: 20, withdraw: 10 },
+  { weekLabel: "هفته چهارم", deposit: 90, withdraw: 40 },
+];
 
-const LineChartExample: React.FC<LinearChartProps> = ({ title, data }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState("ماه")
-  const [Filter, SetFilter] = useState<string>("")
-  const [Exchanges, SetExchanges] = useState<string[]>([]);
+const months = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور"];
+const exchanges = ["نوبیتکس", "بایننس", "کوکوین"];
 
-  const [DailyData, SetDailytData] = useState<Array<{
-    date: string;
-    timestamp: number;
-    value: number;
-  }>>([])
-  const [MonthlyData, SetMonthlyData] = useState<Array<{
-    date: string;
-    timestamp: number;
-    value: number;
-  }>>([])
+const CryptoDepositWithdrawCard: React.FC = () => {
+  const totalDeposit = weeklyData.reduce((sum, w) => sum + w.deposit, 0);
+  const totalWithdraw = weeklyData.reduce((sum, w) => sum + w.withdraw, 0);
+  const net = totalDeposit - totalWithdraw;
 
-  const ProccessDailyData = () => {
-    const getData = []
-    for (let i = 0; i < data.length; i++) {
+  const [month, setMonth] = useState<string>("");
 
-      let sum = 0
-      for (let j = 0; j < data[i].data.length; j++) {
-        if (Filter === "") {
-          sum = sum + data[i].data[j].value
-        } else {
-          if (data[i].data[j].name === Filter) {
-            sum = sum + data[i].data[j].value
-          }
-        }
-      }
-      getData.push({
-        date: data[i].date,
-        timestamp: data[i].timestamp,
-        value: sum
-      })
-    }
-    SetDailytData(getData)
-  }
-
-  function getPersianMonthName(month: number): string {
-    const names = [
-      "فروردین", "اردیبهشت", "خرداد",
-      "تیر", "مرداد", "شهریور",
-      "مهر", "آبان", "آذر",
-      "دی", "بهمن", "اسفند"
-    ];
-    return names[month - 1];
-  }
-
-  const ProcessMonthlyData = () => {
-    const monthlyDataMap = new Map();
-
-    for (let i = 0; i < data.length; i++) {
-      const item = data[i];
-      const { year, month } = item;
-      const monthKey = `${year}-${month}`;
-      let dayTotal = 0;
-      for (let j = 0; j < item.data.length; j++) {
-        const d = item.data[j];
-        if (Filter === "" || d.name === Filter) {
-          dayTotal += d.value;
-        }
-      }
-      if (monthlyDataMap.has(monthKey)) {
-        const existing = monthlyDataMap.get(monthKey);
-        monthlyDataMap.set(monthKey, {
-          ...existing,
-          value: existing.value + dayTotal,
-        });
-      } else {
-        monthlyDataMap.set(monthKey, {
-          year,
-          month,
-          date: `${getPersianMonthName(month)}${year}`,
-          timestamp: item.timestamp,
-          value: dayTotal,
-        });
-      }
-    }
-    const result = Array.from(monthlyDataMap.values());
-    SetMonthlyData(result);
-  };
-
-  useEffect(() => {
-    ProccessDailyData()
-    ProcessMonthlyData()
-  }, [data, Filter])
-
-  useEffect(() => {
-    const getData: string[] = [];
-    for (let i = 0; i < data.length; i++) {
-      for (let j = 0; j < data[i].data.length; j++) {
-        const name = data[i].data[j].name;
-        if (!getData.includes(name)) {
-          getData.push(name);
-        }
-      }
-    }
-    SetExchanges(getData);
-  }, [data]);
-
-  const handleSelectChange = (event: string) => {
-    SetFilter(event);
-  };
-  const [FiltredText, SetFiltredText] = useState<string>('')
-
+  const [selectedExchange, setSelectedExchange] = useState<string>(exchanges[0]);
+  const [selectedMonth, setSelectedMonth] = useState<string>(months[0]);
 
   return (
-    <div className="p-4 w-full rounded-xl shadow-lg relative bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark">
-      <div className="flex flex-col mb-4">
-        <div className="mb-2">
-          <h3 className="text-xl">{title}</h3>
+    <div
+      dir="rtl"
+      className="w-full rounded-xl border bg-boxColor dark:bg-boxColor-dark p-6 shadow-sm text-titleText dark:text-titleText-dark border-boxBorderColor dark:border-boxBorderColor-dark"
+    >
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <div className="flex flex-col items-start gap-1">
+          <h2 className="text-base font-semibold text-titleText dark:text-titleText-dark">
+            واریز و برداشت رمز ارز
+          </h2>
         </div>
 
-        <div className="flex flex-col sm:flex-row justify-between items-stretch gap-4"> {/* تغییر به items-stretch */}
-          <div className="flex items-center w-full">
-            <button
-              className={`px-4 py-2 rounded-lg w-24 ${selectedPeriod === "ماه"
-                ? "bg-buttonSelectedColor text-black dark:bg-primary-dark dark:text-boxColor-dark border-buttonSelectedBorderColor dark:border-buttonSelectedBorderColor-dark border"
-                : "border-buttonBorderColor bg-white dark:bg-buttonColor-dark dark:border-buttonBorderColor-dark border"
-                }`}
-              onClick={() => setSelectedPeriod("ماه")}
-              style={{
-                borderTopLeftRadius: "0px",
-                borderBottomLeftRadius: "0px",
-              }}
-            >
-              ماه
-            </button>
-            <button
-              className={`px-4 py-2 w-24 rounded-lg ${selectedPeriod === "روز"
-                ? "bg-buttonSelectedColor text-black dark:bg-primary-dark dark:text-boxColor-dark border-buttonSelectedBorderColor dark:border-buttonSelectedBorderColor-dark border"
-                : "border-buttonBorderColor bg-white dark:bg-buttonColor-dark dark:border-buttonBorderColor-dark border"
-                }`}
-              onClick={() => setSelectedPeriod("روز")}
-              style={{
-                borderTopRightRadius: "0px",
-                borderBottomRightRadius: "0px",
-              }}
-            >
-              روز
-            </button>
-          </div>
-
-          <div className="inline-block w-full sm:w-72 text-left sm:text-right  flex-grow pb-6 sm:pb-0"> {/* اضافه کردن flex-grow */}
-            <Dropdown
-              onChange={handleSelectChange}
-              value={Filter}>
-              <Dropdown.Trigger className="absolute right-0 sm:left-0">
-                <Button
-                  as="span"
-                  role="button"
-                  className="flex items-center justify-center gap-2 w-full pl-4 pr-4 py-2 
-               text-gray-700 bg-gray-50 border dark:bg-buttonColor-dark border-gray-300 
-               rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-               dark:text-gray-100 appearance-none"
-                  variant="ghost"
-                >
-                  {Filter !== '' ? Filter : 'همه سکو‌ها'}
-                  <ControlsChevronDown className="text-xl" />
-                </Button>
-              </Dropdown.Trigger>
-
-              <Dropdown.Options
-                className="absolute left-0 mt-4 w-72 pl-2 pr-2
-             text-gray-700 bg-white dark:bg-buttonColor-dark
-             border border-gray-300 dark:border-buttonBorderColor-dark 
-             rounded-lg dark:text-gray-100 appearance-none z-50
-             max-h-60 overflow-y-auto"
+      </div>
+      <div className="mt-4 flex w-full items-center justify-between gap-3">
+        {/* Dropdown صرافی - سمت راست (در RTL) */}
+        <div className="relative w-full max-w-[200px]">
+          <Dropdown
+            value={selectedExchange}
+            onChange={(e) => {
+              if (typeof e === "string") {
+                setSelectedExchange(e);
+              }
+            }}
+          >
+            <Dropdown.Trigger className="w-full">
+              <Button
+                as="span"
+                role="button"
+                variant="ghost"
+                className="flex items-center justify-between w-full pl-10 py-2 
+            text-gray-700 border border-gray-300 
+            rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+            dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-boxColor-dark"
               >
-                <div className="relative p-2">
-                  <Input placeholder="جست‌وجو" className="w-full pr-8" style={{ background: 'none' }} onChange={(e) => { SetFiltredText(e.target.value) }} value={FiltredText} />
-                  <GenericSearch className="absolute right-2 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark  " style={{ fontSize: '25px' }} />
-                </div>
-                <hr />
-                <Dropdown.Option value={''} key={'default'}>
+                <span>
+                  {selectedExchange !== "" ? selectedExchange : "انتخاب صرافی"}
+                </span>
+              </Button>
+            </Dropdown.Trigger>
+
+            <Dropdown.Options
+              className="absolute left-0 mt-2 w-72 pl-2 pr-2
+          text-gray-700 bg-white dark:bg-buttonColor-dark
+          border border-gray-300 dark:border-buttonBorderColor-dark 
+          rounded-lg dark:text-gray-100 appearance-none z-50
+          max-h-60 overflow-y-auto"
+            >
+              {exchanges.map((ex, index) => (
+                <Dropdown.Option value={ex} key={`exchange-${index}`}>
                   {({ selected, active }) => (
                     <MenuItem
                       isActive={active}
                       isSelected={selected}
-                      className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${Filter === '' ? "bg-gray-100 border-gray-200 dark:bg-gray-700" : ""}`}
+                      className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${selectedExchange === ex
+                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                          : ""
+                        }`}
                     >
-                      <MenuItem.Title>همه سکو‌ها</MenuItem.Title>
+                      <MenuItem.Title>{ex}</MenuItem.Title>
                     </MenuItem>
                   )}
                 </Dropdown.Option>
-                {Exchanges.filter((item) =>
-                  item.toLowerCase().includes(FiltredText.toLowerCase())
-                ).map((item, index) => (
-                  <Dropdown.Option value={item} key={index}>
-                    {({ selected, active }) => (
-                      <MenuItem
-                        isActive={active}
-                        isSelected={selected}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${Filter === item
-                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                            : ""
-                          }`}
-                      >
-                        <MenuItem.Title>{item}</MenuItem.Title>
-                      </MenuItem>
-                    )}
-                  </Dropdown.Option>
-                ))}
-              </Dropdown.Options>
-            </Dropdown>
+              ))}
+            </Dropdown.Options>
+          </Dropdown>
+
+          <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+        </div>
+
+        {/* Dropdown ماه - سمت چپ (در RTL) */}
+        <div className="relative w-full max-w-[200px]">
+          <Dropdown
+            value={selectedMonth}
+            onChange={(e) => {
+              if (typeof e === "string") {
+                setSelectedMonth(e);
+              }
+            }}
+          >
+            <Dropdown.Trigger className="w-full">
+              <Button
+                as="span"
+                role="button"
+                variant="ghost"
+                className="flex items-center justify-between w-full pl-10 py-2 
+            text-gray-700 border border-gray-300 
+            rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
+            dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-boxColor-dark"
+              >
+                <span>{selectedMonth !== "" ? selectedMonth : "انتخاب ماه"}</span>
+              </Button>
+            </Dropdown.Trigger>
+
+            <Dropdown.Options
+              className="absolute left-0 mt-2 w-72 pl-2 pr-2
+          text-gray-700 bg-white dark:bg-buttonColor-dark
+          border border-gray-300 dark:border-buttonBorderColor-dark 
+          rounded-lg dark:text-gray-100 appearance-none z-50
+          max-h-60 overflow-y-auto"
+            >
+              {months.map((m, index) => (
+                <Dropdown.Option value={m} key={`month-${index}`}>
+                  {({ selected, active }) => (
+                    <MenuItem
+                      isActive={active}
+                      isSelected={selected}
+                      className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${selectedMonth === m
+                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                          : ""
+                        }`}
+                    >
+                      <MenuItem.Title>{m}</MenuItem.Title>
+                    </MenuItem>
+                  )}
+                </Dropdown.Option>
+              ))}
+            </Dropdown.Options>
+          </Dropdown>
+
+          <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+        </div>
+      </div>
+
+
+
+      <div className="h-72 w-full text-titleText dark:text-titleText-dark">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={weeklyData}
+            margin={{ top: 16, right: 16, left: 0, bottom: 24 }}
+          >
+            <CartesianGrid vertical={false} stroke="#f1f5f9" />
+
+            <XAxis
+              dataKey="weekLabel"
+              tick={{
+                fontSize: 12,
+                fill: "currentColor",        // 👈 رنگ از کلاس‌های والد
+              }}
+              axisLine={{
+                stroke: "currentColor",
+                strokeOpacity: 0.15,         // خط محورها کم‌رنگ‌تر
+              }}
+              tickLine={false}
+            />
+
+            <YAxis
+              tickFormatter={(val: number) => `${val} M`}
+              tick={{
+                fontSize: 12,
+                fill: "currentColor",        // 👈 این هم از متن والد
+              }}
+              axisLine={{
+                stroke: "currentColor",
+                strokeOpacity: 0.15,
+              }}
+              tickLine={false}
+            />
+
+            <Tooltip
+              formatter={(value: any) => [`${value} M`, ""]}
+              contentStyle={{
+                direction: "rtl",
+                fontSize: 12,
+                borderRadius: 8,
+              }}
+            />
+
+            <Bar
+              dataKey="deposit"
+              name="واریز"
+              radius={[4, 4, 0, 0]}
+              fill="#22c55e"
+            />
+            <Bar
+              dataKey="withdraw"
+              name="برداشت"
+              radius={[4, 4, 0, 0]}
+              fill="#ef4444"
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="mt-6 flex flex-col gap-3 border-t border-gray-100 pt-4 text-xs  sm:flex-row sm:items-center sm:justify-between text-titleText dark:text-titleText-dark">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-green-500" />
+            <span>واریز</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full bg-red-500" />
+            <span>برداشت</span>
           </div>
         </div>
 
+        <div className="flex flex-wrap items-center gap-4 text-[11px] sm:text-xs text-titleText dark:text-titleText-dark">
+          <span>برداشت: {totalWithdraw} M</span>
+          <span>واریز: {totalDeposit} M</span>
+          <span className={net >= 0 ? "text-green-600" : "text-red-600"}>
+            خالص: {net >= 0 ? "+" : "-"}
+            {Math.abs(net)} M
+          </span>
+        </div>
       </div>
-
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart
-          data={selectedPeriod === "ماه" ? MonthlyData : DailyData}
-          margin={{ top: 30, right: 0, left: -50, bottom: 0 }}
-        >
-          <CartesianGrid strokeDasharray="0" />
-          <XAxis
-            dataKey="date"
-            tick={{
-              fill: "#aaaaaa",
-              fontSize: 13,
-            }}
-          />
-          <YAxis
-            tick={{
-              fill: "#aaaaaa",
-              fontSize: 13,
-            }}
-            dx={10}
-            dy={-10}
-            tickFormatter={(value) => value.toLocaleString("fa-IR")}
-          />
-          <Tooltip
-            content={(props) => {
-              const { active, payload } = props;
-              if (active && payload && payload.length) {
-                const value = payload[0].value;
-                return (
-                  <div
-                    style={{
-                      backgroundColor: "#f8f8f8",
-                      borderColor: "#ddd",
-                      color: "#606060",
-                      borderRadius: "8px",
-                      fontSize: "14px",
-                      boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.3)",
-                      padding: "10px",
-                    }}
-                  >
-                    <p>مقدار: <span className="font-bold">{value.toLocaleString("en-US")}</span></p>
-                    <small>{payload[0].payload.date}</small>
-                  </div>
-                )
-              }
-              return null
-            }}
-            itemStyle={{
-              color: "#606060",
-            }}
-            labelStyle={{
-              color: "#606060",
-              fontWeight: "bold",
-            }}
-          />
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke="#73a7de"
-            strokeWidth={2}
-            dot={false}
-            activeDot={{ r: 8 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
-
     </div>
-  )
-}
+  );
+};
 
-export default LineChartExample
+export default CryptoDepositWithdrawCard;

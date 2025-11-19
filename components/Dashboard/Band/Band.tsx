@@ -1,89 +1,74 @@
-"use client";
+import React from "react";
 
-import React, { useRef, useEffect, useState } from "react";
-
-type Item = {
-  title: string;
-  value: string | number;
+type StatItem = {
+  label: string;
+  value: string;
 };
 
-export default function PerfectTicker({ items }: { items: Item[] }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [contentWidth, setContentWidth] = useState(0);
+const items: StatItem[] = [
+  { label: "تعداد کاربران", value: "۱۲۳۴" },
+  { label: "حجم معاملات", value: "۲۳٫۵M" },
+  { label: "میانگین سفارش", value: "۴۵۰,۰۰۰" },
+  { label: "سفارشات باز", value: "۸۹" },
+  { label: "سفارش امروز", value: "۳۸۵" },
+  { label: "میانگین سفارش روز", value: "۲۵۰,۰۰۰" },
+  { label: "کاربران آنلاین", value: "۳۴۵" },
+  { label: "سفارشات امروز", value: "۱,۲۳۰" },
+];
 
-  useEffect(() => {
-    if (containerRef.current) {
-      // محاسبه عرض کل محتوای اصلی (بدون محتوای تکراری)
-      const itemWidth = 170; // min-width آیتم‌ها
-      const gap = 12; // gap بین آیتم‌ها
-      const totalWidth = (itemWidth + gap) * items.length;
-      setContentWidth(totalWidth);
-    }
-  }, [items]);
+const StatsGrid: React.FC = () => {
+  const containerStyle: React.CSSProperties = {
+    width: "100%",
+    boxSizing: "border-box",
+    padding: "16px 24px",
+    direction: "rtl",
+  };
 
-  const duplicatedItems = [...items, ...items];
+  // گرید ریسپانسیو:
+  // روی موبایل ۱–۲ ستون، روی دسکتاپ ستون‌های بیشتر
+  const gridStyle: React.CSSProperties = {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: "12px",
+    alignItems: "stretch",
+  };
+
+  const cardStyle: React.CSSProperties = {
+    minHeight: "70px",
+    padding: "10px 18px",
+    borderRadius: "999px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    boxSizing: "border-box",
+  };
+
+  const valueStyle: React.CSSProperties = {
+    fontSize: "18px",
+    fontWeight: 700,
+    marginBottom: "4px",
+    lineHeight: 1.2,
+  };
+
+  const labelStyle: React.CSSProperties = {
+    fontSize: "12px",
+    opacity: 0.75,
+    lineHeight: 1.4,
+  };
 
   return (
-    <div className="ticker-container" ref={containerRef}>
-      <div className="ticker-track">
-        {duplicatedItems.map((item, index) => (
-          <div key={index} className="ticker-item">
-            <span className="ticker-title">{item.title}</span>
-            <span className="ticker-value">{item.value}</span>
+    <div style={containerStyle} className="bg-boxColor dark:bg-boxColor-dark rounded-xl main-animated-border-box2">
+      <div style={gridStyle}>
+        {items.map((item, index) => (
+          <div key={index} style={cardStyle} className="bg-bgColor dark:bg-bgColor-dark border border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark">
+            <div style={labelStyle}>{item.label}</div>
+            <div style={valueStyle}>{item.value}</div>
           </div>
         ))}
       </div>
-
-      {/* CSS */}
-      <style jsx>{`
-        .ticker-container {
-          width: 100%;
-          overflow: hidden;
-          background: #111827;
-          padding: 12px 0;
-          position: relative;
-        }
-
-        .ticker-track {
-          display: inline-flex;
-          white-space: nowrap;
-          animation: scroll ${items.length * 3}s linear infinite;
-          gap: 12px;
-          padding-left: 12px;
-        }
-
-        .ticker-item {
-          min-width: 170px;
-          padding: 10px 14px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          background: rgba(255, 255, 255, 0.05);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 8px;
-          flex-shrink: 0;
-        }
-
-        .ticker-title {
-          font-size: 11px;
-          color: #ccc;
-        }
-
-        .ticker-value {
-          font-size: 15px;
-          font-weight: 600;
-          color: #fff;
-        }
-
-        @keyframes scroll {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(calc(-${contentWidth}px - 12px));
-          }
-        }
-      `}</style>
     </div>
   );
-}
+};
+
+export default StatsGrid;

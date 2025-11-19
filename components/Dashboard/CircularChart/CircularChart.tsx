@@ -64,9 +64,9 @@ const CircularChart: React.FC<CircularChartProps> = ({
       <h3 className="text-center text-xl mb-2">{title}</h3>
       <div className="px-4 xl:px-0">
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <div className="border-t xl:border-t-0 xl:border-l border-gray-200 mt-4 xl:mt-0 xl:pl-4">
+          <div className=" mt-4 xl:mt-0 xl:pl-4">
             <div className="text-center mt-4 text-gray-700">
-              <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 xxl:grid-cols-1 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 xxl:grid-cols-1 gap-4 align-middle">
                 {data.map((entry, index) => (
                   <div
                     className="flex justify-between"

@@ -6,17 +6,21 @@ import LineChartExample from "../../../../components/Dashboard/LinearChart/Linea
 import MarketVolumeChart from "../../../../components/Dashboard/MarketVolumeChart/MarketVolumeChart";
 import ComingSoon from "../../../../components/ComingSoon/ComingSoon";
 import NumberTicker from "../../../../components/Dashboard/Band/Band";
+import StatsMarquee from "../../../../components/Dashboard/Band/Band";
+import CryptoDepositWithdrawCard from "../../../../components/Dashboard/LinearChart/LinearChart";
+import TrValuesChart from "../../../../components/Dashboard/TrValuesChart/TrValuesChart";
+import MarketShareCard from "../../../../components/Dashboard/marketShareData/MarketShareData";
 export default function Page() {
 
   //دیتای تستی برای تعداد سکو های ثبت شده
   const [ChartData, SetChartData] = useState([
-    { name: "ثبت شده", value: 60, color:'#f1f1f1' },
+    { name: "ثبت شده", value: 60, color: '#f1f1f1' },
     { name: "ثبت نشده", value: 40, color: "#4caf50" },
   ])
 
   //دیتای تستی برای دارایی سکو ها
   const [ExAssetsValue, SetExAssetsValue] = useState([
- 
+
     { name: "ثبت شده", value: 50 },
     { name: "ثبت شده", value: 50 },
     { name: "ثبت شده", value: 50 },
@@ -121,43 +125,51 @@ export default function Page() {
 
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
-      <NumberTicker items={data} />
+      <StatsMarquee />
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4">
 
         <div>
-          {/* <CircularChart
+          <CircularChart
             data={ChartData}
             title="سکو های ثبت شده"
-          /> */}
-        </div>
-        <div>
-          <MarketVolumeChart
-            data={ExAssetsValue}
-            title="حجم دارایی سکو‌ها"
           />
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4">
         <div>
-          <LineChartExample
-            title="مجموع داده های ثبت‌شده توسط سکو‌ها"
-            data={ExTrNumber}
+          <CircularChart
+            data={ChartData}
+            title="سکو های ثبت شده"
+          />
+        </div>
+        <div>
+          <CircularChart
+            data={ChartData}
+            title="سکو های ثبت شده"
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4 pb-4">
         <div>
-          <LineChartExample
-            title="تعداد تراکنش سکو‌ها"
-            data={ExTrNumber}
-          />
+          <CryptoDepositWithdrawCard/>
         </div>
       </div>
 
+      <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-0 pb-4">
+        <div>
+          <TrValuesChart/>
+        </div>
+      </div>
 
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-0 pb-4">
+        <div>
+          <MarketShareCard/>
+        </div>
+
+        <div>
+          <MarketShareCard/>
+        </div>
+      </div>
     </div>
   );
 }

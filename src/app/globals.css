@@ -75,3 +75,44 @@
   inherits: true;
   initial-value: 0turn;
 }
+
+.main-animated-border-box2 {
+  --border-width: 2px;
+  --radius: 16px;
+  --angle: 0turn;
+  position: relative;
+  border: var(--border-width) solid transparent;
+}
+
+.main-animated-border-box2::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--border-width) * -1);
+  border: inherit;
+  border-radius: inherit;
+  background-image: conic-gradient(from var(--angle),
+      var(--color-borderNeutral) 70%,
+      var( --color-primary) 80%,
+      var( --color-primary) 90%,
+      var(--color-borderNeutral) 100%);
+  background-origin: border-box;
+  -webkit-mask:
+    linear-gradient(black, black) content-box,
+    linear-gradient(black, black);
+  mask:
+    linear-gradient(black, black),
+    linear-gradient(black, black);
+  -webkit-mask-clip: content-box, border-box;
+  mask-clip: content-box, border-box;
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  animation: spin-angle 8s linear infinite;
+  pointer-events: none;
+}
+
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 0turn;
+}
