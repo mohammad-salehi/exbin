@@ -49,7 +49,7 @@ const MarketShareCard: React.FC = () => {
                                 strokeWidth={0}
                                 stroke="none"      // 👈 هیچ outline ای
                             >
-                                {marketShareData.map((entry, index) => (
+                                {marketShareData.map((entry, index): React.JSX.Element => (
                                     <Cell key={`cell-${index}`} fill={entry.color}
                                         style={{
                                             outline: "none",   // غیرفعال کردن outline
