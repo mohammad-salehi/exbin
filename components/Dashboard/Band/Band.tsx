@@ -28,7 +28,7 @@ const StatsGrid: React.FC = () => {
   // روی موبایل ۱–۲ ستون، روی دسکتاپ ستون‌های بیشتر
   const gridStyle: React.CSSProperties = {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
     gap: "12px",
     alignItems: "stretch",
   };

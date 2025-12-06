@@ -116,3 +116,37 @@
   inherits: true;
   initial-value: 0turn;
 }
+
+.ticker-container {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.ticker-content {
+  display: flex;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+.ticker-animate {
+  animation: ticker-move 25s linear infinite;
+}
+
+@keyframes ticker-move {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* مخفی کردن اسکرول‌بار */
+.ticker-no-scroll::-webkit-scrollbar {
+  display: none;
+}
+.ticker-no-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

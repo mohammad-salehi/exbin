@@ -63,33 +63,7 @@ const CircularChart: React.FC<CircularChartProps> = ({
     <div className="p-4 w-full bg-boxColor text-titleText dark:bg-boxColor-dark dark:text-titleText-dark rounded-xl shadow-lg relative border border-boxBorderColor dark:border-boxBorderColor-dark">
       <h3 className="text-center text-xl mb-2">{title}</h3>
       <div className="px-4 xl:px-0">
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          <div className=" mt-4 xl:mt-0 xl:pl-4">
-            <div className="text-center mt-4 text-gray-700">
-              <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 xxl:grid-cols-1 gap-4 align-middle">
-                {data.map((entry, index) => (
-                  <div
-                    className="flex justify-between"
-                    key={index}
-                    style={{
-                      fontWeight: hoveredData?.name === entry.name ? "bold" : "normal",
-                    }}
-                  >
-                    <div className="flex items-center justify-between text-titleText dark:text-titleText-dark">
-                      <div className="flex items-center">
-                        <div
-                          className="w-3 h-3 rounded-full ml-2"
-                          style={{ backgroundColor: colors[index] }}
-                        />
-                        <span className="ml-2">{entry.name}</span>
-                      </div>
-                      <div className="ml-auto"><span className="font-bold">{entry.value}</span> سکو</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 xl:grid-cols-1 gap-4">
 
           <div>
             <ResponsiveContainer width="100%" height={height !== undefined ? height : 250}>
@@ -126,6 +100,34 @@ const CircularChart: React.FC<CircularChartProps> = ({
               </PieChart>
             </ResponsiveContainer>
           </div>
+
+          <div className=" mt-4 xl:mt-0 xl:pl-4">
+            <div className="text-center mt-4 text-gray-700">
+              <div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 xl:grid-cols-1 xxl:grid-cols-1 gap-4 align-middle">
+                {data.map((entry, index) => (
+                  <div
+                    className="flex justify-between"
+                    key={index}
+                    style={{
+                      fontWeight: hoveredData?.name === entry.name ? "bold" : "normal",
+                    }}
+                  >
+                    <div className="flex items-center justify-between text-titleText dark:text-titleText-dark">
+                      <div className="flex items-center">
+                        <div
+                          className="w-3 h-3 rounded-full ml-2"
+                          style={{ backgroundColor: colors[index] }}
+                        />
+                        <span className="ml-2">{entry.name}</span>
+                      </div>
+                      <div className="ml-auto"><span className="font-bold">{entry.value}</span> سکو</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>

@@ -48,11 +48,6 @@ export default function Header({
     setRole(getCookie("role"));
   }, []);
 
-  const openChangePassword = () => {
-    resetForm();
-    setOpen(true);
-  };
-
   // stateهای فرم
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -77,7 +72,6 @@ export default function Header({
     // با هر ریست، نسخه فرم رو عوض کن تا submitهای قبلی بی‌اثر بشن
     setFormVersion(v => v + 1);
   };
-
 
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`;
 
@@ -125,9 +119,6 @@ export default function Header({
       if (v === formVersion) setLoading(false);
     }
   };
-
-
-
 
   useEffect(() => {
     if (!open) {
