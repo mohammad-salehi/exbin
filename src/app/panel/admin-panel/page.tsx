@@ -72,9 +72,9 @@ const Page: React.FC = () => {
 
   const onFormInputChange =
     (key: Exclude<keyof Person, "id">) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => (prev ? { ...prev, [key]: e.target.value } : prev));
-    };
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setForm((prev) => (prev ? { ...prev, [key]: e.target.value } : prev));
+      };
 
   const getTokenFromCookie = () =>
     document.cookie
@@ -262,9 +262,9 @@ const Page: React.FC = () => {
 
   const onAddInputChange =
     (key: Exclude<keyof Person, "role" | "id">) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setAddForm((prev) => ({ ...prev, [key]: e.target.value }));
-    };
+      (e: React.ChangeEvent<HTMLInputElement>) => {
+        setAddForm((prev) => ({ ...prev, [key]: e.target.value }));
+      };
 
   const onAddSave = async () => {
     try {
@@ -545,7 +545,7 @@ const Page: React.FC = () => {
         try {
           const j = await res.json();
           msg = j?.message || j?.error || msg;
-        } catch {}
+        } catch { }
         throw new Error(msg);
       }
 
@@ -565,6 +565,17 @@ const Page: React.FC = () => {
       setChangePwdLoading(false);
     }
   };
+
+  const pageSize = 10; // می‌تونی از props هم بگیری
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // هر بار filtered یا currentPage عوض شد، دیتا رو صفحه‌بندی کن
+  const pagedData = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    const end = start + pageSize;
+    return filtered.slice(start, end);
+  }, [filtered, currentPage]);
 
   return (
     <div className="p-2 sm:p-0">
@@ -590,7 +601,7 @@ const Page: React.FC = () => {
           <LoadingComponent />
         ) : (
           <ExpandableTable<Person>
-            data={filtered}
+            data={pagedData}  // 👈 فقط داده‌های صفحه فعلی
             columns={columns}
             rowDetailsMode="row"
             rowDetailsClassName="rounded-xl p-3"
@@ -599,10 +610,10 @@ const Page: React.FC = () => {
 
         <Pagination
           rtl
-          totalItems={filtered.length}
-          pageSize={10}
-          currentPage={1}
-          onPageChange={() => {}}
+          totalItems={filtered.length}   // کل تعداد رکوردها
+          pageSize={pageSize}
+          currentPage={currentPage}     // 👈 استیت واقعی صفحه
+          onPageChange={(page) => setCurrentPage(page)}  // 👈 صفحه عوض شد
         />
       </div>
 
@@ -699,11 +710,10 @@ const Page: React.FC = () => {
                             isActive={active}
                             isSelected={selected}
                             className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark
-            ${
-              form.role === "ADMIN"
-                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                : ""
-            }`}
+            ${form.role === "ADMIN"
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
+                              }`}
                           >
                             <MenuItem.Title>ADMIN</MenuItem.Title>
                           </MenuItem>
@@ -715,11 +725,10 @@ const Page: React.FC = () => {
                             isActive={active}
                             isSelected={selected}
                             className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark
-            ${
-              form.role === "USER"
-                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                : ""
-            }`}
+            ${form.role === "USER"
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
+                              }`}
                           >
                             <MenuItem.Title>USER</MenuItem.Title>
                           </MenuItem>
@@ -765,9 +774,8 @@ const Page: React.FC = () => {
             </h3>
 
             <p className="text-sm mb-6 text-center leading-relaxed">
-              {`آیا از حذف ${target?.firstName ?? ""} ${
-                target?.lastName ?? ""
-              } مطمئن هستید؟`}
+              {`آیا از حذف ${target?.firstName ?? ""} ${target?.lastName ?? ""
+                } مطمئن هستید؟`}
             </p>
 
             <div className="flex justify-center gap-4 w-full">
@@ -884,11 +892,10 @@ const Page: React.FC = () => {
                           isActive={active}
                           isSelected={selected}
                           className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark
-            ${
-              addForm.role === "ADMIN"
-                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                : ""
-            }`}
+            ${addForm.role === "ADMIN"
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                            }`}
                         >
                           <MenuItem.Title>ADMIN</MenuItem.Title>
                         </MenuItem>
@@ -900,11 +907,10 @@ const Page: React.FC = () => {
                           isActive={active}
                           isSelected={selected}
                           className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark
-            ${
-              addForm.role === "USER"
-                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                : ""
-            }`}
+            ${addForm.role === "USER"
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                            }`}
                         >
                           <MenuItem.Title>USER</MenuItem.Title>
                         </MenuItem>
