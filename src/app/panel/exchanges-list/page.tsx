@@ -86,7 +86,7 @@ const Page = () => {
 
   useEffect(() => {
     SetLoading(true)
-    GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges`)
+    GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges?page=0&size=100`)
       .then((response) => {
 
         const people: Person[] = response.result.content.map((item: Company) => ({
