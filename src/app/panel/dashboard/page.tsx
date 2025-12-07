@@ -2,46 +2,16 @@
 
 import { useEffect, useState } from "react";
 import CircularChart from "../../../../components/Dashboard/CircularChart/CircularChart";
-import LineChartExample from "../../../../components/Dashboard/LinearChart/LinearChart";
-import MarketVolumeChart from "../../../../components/Dashboard/MarketVolumeChart/MarketVolumeChart";
-import ComingSoon from "../../../../components/ComingSoon/ComingSoon";
-import NumberTicker from "../../../../components/Dashboard/Band/Band";
 import StatsMarquee from "../../../../components/Dashboard/Band/Band";
-import CryptoDepositWithdrawCard from "../../../../components/Dashboard/LinearChart/LinearChart";
-import TrValuesChart from "../../../../components/Dashboard/TrValuesChart/TrValuesChart";
-import MarketShareCard from "../../../../components/Dashboard/marketShareData/MarketShareData";
+import { CircleChart } from "../../../../components/Dashboard/CircleChart/CircleChart";
+import SingleLinearChart from "../../../../components/Dashboard/SingleLinearChart/SingleLinearChart";
+import DoubleLinearChart from "../../../../components/Dashboard/DoubleLinearChart/DoubleLinearChart";
 export default function Page() {
 
   //دیتای تستی برای تعداد سکو های ثبت شده
   const [ChartData, SetChartData] = useState([
     { name: "ثبت شده", value: 60, color: '#f1f1f1' },
     { name: "ثبت نشده", value: 40, color: "#4caf50" },
-  ])
-
-  //دیتای تستی برای دارایی سکو ها
-  const [ExAssetsValue, SetExAssetsValue] = useState([
-
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "ثبت شده", value: 50 },
-    { name: "بیت24", value: 90 },
-    { name: "آبان‌تتر", value: 170 },
-    { name: "اکسکوینو", value: 240 },
-    { name: "والکس", value: 700 },
-    { name: "نوبیتکس", value: 8000 },
   ])
 
   const [ExTrNumber, SetExTrNumber] = useState<Array<{
@@ -123,6 +93,45 @@ export default function Page() {
     { title: "شیسبزطربقفب", value: 89 },
   ];
 
+  const data2 = [
+    { name: 'BTC', value: 420000 },
+    { name: 'ETH', value: 260000 },
+    { name: 'USDT', value: 150000 },
+    { name: 'SOL', value: 90000 },
+    { name: 'BNB', value: 70000 },
+    { name: 'XRP', value: 30000 },
+    { name: 'DOGE', value: 20000 },
+  ];
+
+  const chartData = [
+    { label: "فروردین", x: 150 ,  y:150},
+    { label: "اردیبهشت", x: 120 },
+    { label: "خرداد", x: 180 },
+    { label: "تیر", x: 90 },
+    { label: "مرداد", x: 80 },
+    { label: "شهریور", x: 70 },
+    { label: "مهر", x: 150 },
+    { label: "آبان", x: 120 },
+    { label: "آذر", x: 180 },
+    { label: "دی", x: 90 },
+    { label: "بهمن", x: 80 },
+    { label: "اسفند", x: 70 },
+  ];
+
+  const chartData2 = [
+    { label: "فروردین", x: 150 ,  y:150},
+    { label: "اردیبهشت", x: 120 ,  y:120},
+    { label: "خرداد", x: 180 ,  y:180},
+    { label: "تیر", x: 90 ,  y:90},
+    { label: "مرداد", x: 80 ,  y:80},
+    { label: "شهریور", x: 70 ,  y:70},
+    { label: "مهر", x: 150 ,  y:150},
+    { label: "آبان", x: 120 ,  y:120},
+    { label: "آذر", x: 180 ,  y:180},
+    { label: "دی", x: 90 ,  y:90},
+    { label: "بهمن", x: 80 ,  y:80},
+    { label: "اسفند", x: 70 ,  y:70},
+  ];
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
       <StatsMarquee />
@@ -151,23 +160,40 @@ export default function Page() {
 
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4 pb-4">
         <div>
-          <CryptoDepositWithdrawCard/>
+          <DoubleLinearChart
+            data={chartData2}
+            title="نمودار واریز و برداشت روزانه"
+            unitSuffix="M"
+            assetLabel='واریز'
+            liabilityLabel='برداشت'
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-0 pb-4">
         <div>
-          <TrValuesChart/>
+          <SingleLinearChart
+            data={chartData}
+            title="حجم معاملات روزانه"
+            seriesLabel="حجم"
+            unitSuffix="M"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-0 pb-4">
         <div>
-          <MarketShareCard/>
+          <CircleChart
+            data={data2}
+            title="سهم بازار"
+          />
         </div>
 
         <div>
-          <MarketShareCard/>
+          <CircleChart
+            data={data2}
+            title="حجم معاملات"
+          />
         </div>
       </div>
     </div>

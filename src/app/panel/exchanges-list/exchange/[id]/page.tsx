@@ -8,20 +8,25 @@ import EmployeeInfo from "../../../../../../components/Dashboard/Exchange_page/E
 import Exchange_info from "../../../../../../components/Dashboard/Exchange_page/Exchange_info/Exchange_info";
 import AnimatedText from "../../../../../../components/AnimatedLoading/AnimatedLoading";
 import StatsMarquee from "../../../../../../components/Dashboard/Band/Band";
-
 import { PantaTabs, TabItem } from "../../../../../../components/Tabs/Tabs";
-import { GenericHome, GenericSettings, MediaVideo } from '@heathmont/moon-icons-tw';
 import { CryptoVolumeTreemap } from "../../../../../../components/Dashboard/CryptoVolumeTreemap/CryptoVolumeTreemap";
-import { CryptoTickerBar } from "../../../../../../components/Dashboard/CryptoTickerBar/CryptoTickerBar";
-import ProofOfReserveChart from "../../../../../../components/Dashboard/ProofOfReserveChart/ProofOfReserveChart";
+import { CircleChart } from "../../../../../../components/Dashboard/CircleChart/CircleChart";
+import SingleLinearChart from "../../../../../../components/Dashboard/SingleLinearChart/SingleLinearChart";
+import { GetRequest } from "../../../../../../functions/GetRequest";
+import { useParams } from "next/navigation";
+import DoubleLinearChart from "../../../../../../components/Dashboard/DoubleLinearChart/DoubleLinearChart";
 
 const Page = () => {
+  const params = useParams<{ id: string }>();
+
   const [C1, SetC1] = useState<boolean>(false);
   const [C2, SetC2] = useState<boolean>(false);
   const [C3, SetC3] = useState<boolean>(false);
   const [C4, SetC4] = useState<boolean>(false);
   const [C5, SetC5] = useState<boolean>(false);
   const [Loading, SetLoading] = useState<boolean>(true);
+  const [logo, SetLogo] = useState<string>("");
+  const [name, SetName] = useState<string>("");
 
   useEffect(() => {
     if (C1 && C2 && C3 && C4 && C5) {
@@ -35,14 +40,16 @@ const Page = () => {
     return () => clearTimeout(fallback);
   }, []);
 
-  const tickerData = [
-    { symbol: 'BTC', name: 'Bitcoin', price: 67234.12, change24h: 2.43 },
-    { symbol: 'ETH', name: 'Ethereum', price: 3456.78, change24h: -1.25 },
-    { symbol: 'SOL', name: 'Solana', price: 145.32, change24h: 5.9 },
-    { symbol: 'BNB', name: 'BNB', price: 412.5, change24h: 0.75 },
-    { symbol: 'XRP', name: 'XRP', price: 0.62, change24h: -3.1 },
-    // هرچقدر دلت می‌خواد اضافه کن
-  ];
+  useEffect(() => {
+    GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
+      .then((response) => {
+        SetLogo(response.result.logo);
+        SetName(response.result.name);
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }, [])
 
   const sampleData = {
     daily: [
@@ -81,6 +88,46 @@ const Page = () => {
     ],
   };
 
+  const data = [
+    { name: 'BTC', value: 420000 },
+    { name: 'ETH', value: 260000 },
+    { name: 'USDT', value: 150000 },
+    { name: 'SOL', value: 90000 },
+    { name: 'BNB', value: 70000 },
+    { name: 'XRP', value: 30000 },
+    { name: 'DOGE', value: 20000 },
+  ];
+
+  const chartData = [
+    { label: "فروردین", x: 150 },
+    { label: "اردیبهشت", x: 120 },
+    { label: "خرداد", x: 180 },
+    { label: "تیر", x: 90 },
+    { label: "مرداد", x: 80 },
+    { label: "شهریور", x: 70 },
+    { label: "مهر", x: 150 },
+    { label: "آبان", x: 120 },
+    { label: "آذر", x: 180 },
+    { label: "دی", x: 90 },
+    { label: "بهمن", x: 80 },
+    { label: "اسفند", x: 70 },
+  ];
+
+  const chartData2 = [
+    { label: "فروردین", x: 150, y: 150 },
+    { label: "اردیبهشت", x: 120, y: 120 },
+    { label: "خرداد", x: 180, y: 180 },
+    { label: "تیر", x: 90, y: 90 },
+    { label: "مرداد", x: 80, y: 80 },
+    { label: "شهریور", x: 70, y: 70 },
+    { label: "مهر", x: 150, y: 150 },
+    { label: "آبان", x: 120, y: 120 },
+    { label: "آذر", x: 180, y: 180 },
+    { label: "دی", x: 90, y: 90 },
+    { label: "بهمن", x: 80, y: 80 },
+    { label: "اسفند", x: 70, y: 70 },
+  ];
+
   const tabs: TabItem[] = [
     {
       id: 'overview',
@@ -106,16 +153,61 @@ const Page = () => {
       </svg>,
       content: (
         <div>
+          {logo !== null && logo !== "" ? (
+            <img alt="image" className="w-8 h-8 inline-block" src={logo} />
+          ) : (
+            <div
+              className=" items-center text-titleText dark:text-titleText-dark inline-block "
+              style={{ marginBottom: "-6px" }}
+            >
+              <svg
+                width="30px"
+                height="30px"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M14.2639 15.9376L12.5958 14.2835C11.7909 13.4852 11.3884 13.0861 10.9266 12.9402C10.5204 12.8119 10.0838 12.8166 9.68048 12.9537C9.22188 13.1096 8.82814 13.5173 8.04068 14.3327L4.04409 18.2802M14.2639 15.9376L14.6053 15.5991C15.4112 14.7999 15.8141 14.4003 16.2765 14.2544C16.6831 14.1262 17.12 14.1312 17.5236 14.2688C17.9824 14.4252 18.3761 14.834 19.1634 15.6515L20 16.4936M14.2639 15.9376L18.275 19.9566M20.9992 6.00011H14.9992M11 3.99951L7.2 4.00011C6.07989 4.00011 5.51984 4.00011 5.09202 4.21809C4.71569 4.40984 4.40973 4.7158 4.21799 5.09213C4 5.51995 4 6.08 4 7.20011V16.8001C4 17.4576 4 17.9222 4.04409 18.2802M20 9.99951V16.4936M4.04409 18.2802C4.07512 18.5322 4.12796 18.7314 4.21799 18.9081C4.40973 19.2844 4.71569 19.5904 5.09202 19.7821C5.51984 20.0001 6.07989 20.0001 7.2 20.0001H16.8C17.9201 20.0001 18.4802 20.0001 18.908 19.7821C19.2843 19.5904 19.5903 19.2844 19.782 18.9081C20 18.4803 20 17.9202 20 16.8001V16.4936"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          )}
+          <h3 className="inline-block text-2xl text-bold mr-2 text-titleText dark:text-titleText-dark">
+            {name}
+          </h3>
           <StatsMarquee />
-          <div className="p-0 mt-4">
-            <CryptoVolumeTreemap data={sampleData} defaultRange="daily" title="حجم معاملات رمزارزها" />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
+            <div className="min-h-full">
+              <CircleChart
+                data={data}
+                title="حجم معاملات رمزارزها"
+              />
+            </div>
+            <div className="min-h-full">
+              <SingleLinearChart
+                data={chartData}
+                title="حجم معاملات روزانه"
+                seriesLabel="حجم"
+                unitSuffix="M"
+              />
+            </div>
           </div>
-
           <div className="p-0 mt-4">
             <CryptoVolumeTreemap data={sampleData} defaultRange="daily" title="حجم دارایی رمزارزها" />
           </div>
           <div className="p-0 mt-4">
-            <ProofOfReserveChart />
+            <DoubleLinearChart
+              data={chartData2}
+              title="اثبات ذخیره دارایی‌ها"
+              unitSuffix="M"
+              assetLabel='دارایی'
+              liabilityLabel='بدهی'
+            />
           </div>
         </div>
       ),
