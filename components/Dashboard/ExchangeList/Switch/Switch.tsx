@@ -13,10 +13,10 @@ interface RiskSwitchProps {
 }
 
 const defaultOptions: Option[] = [
-  { label: "پرریسک", value: "high" },
-  { label: "ریسک متوسط", value: "medium" },
-  { label: "کم‌ریسک", value: "low" },
   { label: "همه", value: "all" },
+  { label: "کم‌ریسک", value: "low" },
+  { label: "ریسک متوسط", value: "medium" },
+  { label: "پرریسک", value: "high" },
 ];
 
 const RiskSwitch: React.FC<RiskSwitchProps> = ({
@@ -27,7 +27,6 @@ const RiskSwitch: React.FC<RiskSwitchProps> = ({
   return (
     <div
       className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-1"
-      dir="ltr"
     >
 
       {options.map((opt) => {
