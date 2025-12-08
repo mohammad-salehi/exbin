@@ -84,6 +84,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const [loading, setLoading2] = useState(false);
   const [fileName, setFileName] = useState<string>("");
   const [Changes, setChanges] = useState<string[]>([]);
+  const [ExchangedeleteLoading, setDeleteExchangeLoading] = useState(false);
 
   const didInit = useRef(false);
 
@@ -237,6 +238,20 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     } finally {
     }
   };
+  const deleteExchange = () => {
+    setDeleteExchangeLoading(true)
+    DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`)
+      .then((response) => {
+        toast.success("سکو با موفقیت حذف شد");
+        setDeleteExchangeLoading(true)
+        window.location.assign(`/panel/exchanges-list`);
+      })
+      .catch((err) => {
+        toast.error("خطا در حذف سکو");
+        setDeleteExchangeLoading(true)
+      })
+  }
+
   const [invoiceData, setInvoiceData] = useState<InvoiceSection[]>([
     {
       id: 1,
@@ -362,37 +377,54 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           ),
           title: "",
         },
-        // {
-        //   id: 3,
-        //   content: (
-        //     <div
-        //       className="flex justify-between items-center cursor-pointer"
-        //       onClick={() => {
-        //         setisLogOpen(true);
-        //         setLogPage(0);
-        //         setLogNumber(0);
-        //       }}
-        //     >
-        //       <span className="flex items-center ml-1 text-titleText dark:text-titleText-dark">
-        //         <svg
-        //           width="24"
-        //           height="24"
-        //           viewBox="0 0 24 24"
-        //           fill="none"
-        //           xmlns="http://www.w3.org/2000/svg"
-        //         >
-        //           <path
-        //             d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10"
-        //             stroke="currentColor"
-        //             strokeWidth="2"
-        //           />
-        //         </svg>{" "}
-        //       </span>
-        //       <p className="text-right">تاریخچه تغییرات</p>
-        //     </div>
-        //   ),
-        //   title: "",
-        // },
+        {
+          id: 3,
+          content: (
+            <div
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => {
+                setExchangeToDelete({ id: params.id });
+                setconfirmDeleteExchangeOpen(true);
+              }}
+            >
+              <span className="flex items-center ml-1">
+
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M21 5.98C17.67 5.65 14.32 5.48 10.98 5.48c-1.98 0-3.96.1-5.94.3L3 5.98"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M8.5 4.97 8.72 3.66C8.88 2.71 9 2 10.69 2h2.62c1.69 0 1.82.75 1.97 1.67l.22 1.3"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M18.85 9.14 18.2 19.21c-.11 1.57-.2 2.79-2.99 2.79H8.79c-2.79 0-2.88-1.22-2.99-2.79L5.15 9.14"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M10.33 16.5h3.33M9.5 12.5h5"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </span>
+              <p className="text-right">حذف سکو</p>
+            </div>
+          ),
+          title: "",
+        },
       ],
     },
   ]);
@@ -503,10 +535,14 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   };
 
   const [confirmAssociationOpen, setConfirmAssociationOpen] = useState(false);
+  const [confirmDeleteExchangeOpen, setconfirmDeleteExchangeOpen] = useState(false);
   const [confirmFinancialOpen, setConfirmFinancialOpen] = useState(false);
   const [financialToDelete, setFinancialToDelete] = useState<{
     id: number;
     date: string;
+  } | null>(null);
+  const [ExchangeToDelete, setExchangeToDelete] = useState<{
+    id: string;
   } | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
@@ -780,55 +816,55 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 
     setIsOpen(true);
     PutRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`, form)
-    .then((response) => {
-      toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", {
-        position: "bottom-left",
-      });
+      .then((response) => {
+        toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", {
+          position: "bottom-left",
+        });
 
-      handleEdit(1, 1, form.legalName);
-      handleEdit(1, 2, toJalaliDate(form.establishmentDate));
-      handleEdit(1, 3, form.nationalCode);
-      handleEdit(1, 4, form.type);
-      handleEdit(
-        1,
-        5,
-        ExchangeLegalTypes.find((item) => item.value === form.exchangeType)
-          ?.label
-      );
-      handleEdit(1, 6, form.financialCode);
-      handleEdit(
-        1,
-        7,
-        form.registrationNumber ? String(form.registrationNumber) : ""
-      );
-      handleEdit(
-        2,
-        1,
-        form.siteAddress ? (
-          <a
-            href={form.siteAddress}
-            className="text-primary dark:text-primary-dark"
-          >
-            {form.siteAddress}
-          </a>
-        ) : (
-          ""
-        )
-      );
-      handleEdit(2, 2, form.phoneNumber);
-      handleEdit(2, 3, form.emergencyPhoneNumber);
-      handleEdit(2, 4, form.officeAddress);
-      handleEdit(2, 5, form.zipCode);
-      handleEdit(2, 6, form.email);
+        handleEdit(1, 1, form.legalName);
+        handleEdit(1, 2, toJalaliDate(form.establishmentDate));
+        handleEdit(1, 3, form.nationalCode);
+        handleEdit(1, 4, form.type);
+        handleEdit(
+          1,
+          5,
+          ExchangeLegalTypes.find((item) => item.value === form.exchangeType)
+            ?.label
+        );
+        handleEdit(1, 6, form.financialCode);
+        handleEdit(
+          1,
+          7,
+          form.registrationNumber ? String(form.registrationNumber) : ""
+        );
+        handleEdit(
+          2,
+          1,
+          form.siteAddress ? (
+            <a
+              href={form.siteAddress}
+              className="text-primary dark:text-primary-dark"
+            >
+              {form.siteAddress}
+            </a>
+          ) : (
+            ""
+          )
+        );
+        handleEdit(2, 2, form.phoneNumber);
+        handleEdit(2, 3, form.emergencyPhoneNumber);
+        handleEdit(2, 4, form.officeAddress);
+        handleEdit(2, 5, form.zipCode);
+        handleEdit(2, 6, form.email);
 
-      
-    })
-    .catch((err) => {
-      handlePostErrors(err)
-    })
-    .finally(() => {
-      setIsOpen(false);
-    })
+
+      })
+      .catch((err) => {
+        handlePostErrors(err)
+      })
+      .finally(() => {
+        setIsOpen(false);
+      })
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1568,6 +1604,43 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 disabled={deleteLoading}
               >
                 {deleteLoading ? (
+                  <LoaderCircle size={8} color="border-white-500" />
+                ) : (
+                  "حذف"
+                )}
+              </Button>
+            </div>
+          </Modal.Panel>
+        </div>
+      </Modal>
+
+      {/* Modal تأیید حذف سکو */}
+      <Modal
+        open={confirmDeleteExchangeOpen}
+        onClose={() => {
+          if (!deleteLoading) setconfirmDeleteExchangeOpen(false);
+        }}
+      >
+        <Modal.Backdrop />
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
+          <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[100px] text-titleText dark:text-titleText-dark p-4">
+            <p className="mb-4">
+              آیا از حذف سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
+            </p>
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="ghost"
+                disabled={deleteLoading}
+                onClick={() => setconfirmDeleteExchangeOpen(false)}
+              >
+                انصراف
+              </Button>
+              <Button
+                variant="primary"
+                onClick={deleteExchange}
+                disabled={deleteLoading}
+              >
+                {ExchangedeleteLoading ? (
                   <LoaderCircle size={8} color="border-white-500" />
                 ) : (
                   "حذف"
