@@ -342,141 +342,24 @@ const Page: React.FC = () => {
         header: "عملیات",
         cell: (row: Person): React.ReactNode => (
           <div className="flex items-center gap-2">
-            {/* ادیت */}
-            <button
-              type="button"
-              onClick={() => onEdit(row)}
-              className=""
-              aria-label={`ویرایش ${row.firstName} ${row.lastName}`}
-              title="ویرایش"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M13.259 3.6 5.049 12.29c-.31.33-.61.98-.67 1.43l-.37 3.24c-.13 1.17.71 1.97 1.87 1.77l3.22-.55c.45-.08 1.08-.41 1.39-.75l8.21-8.69c1.42-1.5 2.06-3.21-.15-5.3-2.2-2.07-3.87-1.34-5.31.16Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M11.891 5.05c.43 2.76 2.67 4.87 5.45 5.15"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M3 22h18"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => onEdit(row)}>
+              ویرایش
             </button>
 
-            {/* حذف */}
-            <button
-              type="button"
-              onClick={() => openDeleteConfirm(row)}
-              className=""
-              aria-label={`حذف ${row.firstName} ${row.lastName}`}
-              title="حذف"
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M21 5.98C17.67 5.65 14.32 5.48 10.98 5.48c-1.98 0-3.96.1-5.94.3L3 5.98"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M8.5 4.97 8.72 3.66C8.88 2.71 9 2 10.69 2h2.62c1.69 0 1.82.75 1.97 1.67l.22 1.3"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M18.85 9.14 18.2 19.21c-.11 1.57-.2 2.79-2.99 2.79H8.79c-2.79 0-2.88-1.22-2.99-2.79L5.15 9.14"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M10.33 16.5h3.33M9.5 12.5h5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
+            <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => openDeleteConfirm(row)}>
+              حذف
             </button>
 
-            <a
-              type="button"
-              href={`/panel/admin-panel/timeline/${row.username}`}
-              className="cursor-pointer"
-              aria-label={`خط زمانی ${row.firstName} ${row.lastName}`}
-              title="خط زمانی"
-            >
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 48 48"
-                version="1"
-                xmlns="http://www.w3.org/2000/svg"
-                enableBackground="new 0 0 48 48"
-              >
-                <path
-                  fill="currentColor"
-                  d="M42,29H20.8c-0.5,0-1-0.2-1.4-0.6l-3.7-3.7c-0.4-0.4-0.4-1,0-1.4l3.7-3.7c0.4-0.4,0.9-0.6,1.4-0.6H42 c0.6,0,1,0.4,1,1v8C43,28.6,42.6,29,42,29z"
-                />
-                <rect x="9" y="6" fill="#CFD8DC" width="2" height="36" />
-                <g fill="currentColor">
-                  <circle cx="10" cy="10" r="3" />
-                  <circle cx="10" cy="24" r="3" />
-                  <circle cx="10" cy="38" r="3" />
-                </g>
-                <path
-                  fill="currentColor"
-                  d="M34,43H20.8c-0.5,0-1-0.2-1.4-0.6l-3.7-3.7c-0.4-0.4-0.4-1,0-1.4l3.7-3.7c0.4-0.4,0.9-0.6,1.4-0.6H34 c0.6,0,1,0.4,1,1v8C35,42.6,34.6,43,34,43z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M35,15H20.8c-0.5,0-1-0.2-1.4-0.6l-3.7-3.7c-0.4-0.4-0.4-1,0-1.4l3.7-3.7C19.8,5.2,20.3,5,20.8,5H35 c0.6,0,1,0.4,1,1v8C36,14.6,35.6,15,35,15z"
-                />
-              </svg>
-            </a>
+            <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => onEdit(row)}>
+              <a href={`/panel/admin-panel/timeline/${row.username}`}>
+                خط زمانی
+              </a>
+            </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                setchangePasswordId(row.id), setChangePassword(true);
-              }}
-              className=""
-              aria-label={`تغییر رمزعبور`}
-              title="تغییر رمزعبور"
-            >
-              <svg
-                fill="currentColor"
-                width="22"
-                height="22"
-                viewBox="0 0 512 512"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="Change_password">
-                  <path d="M464.4326,147.54a9.8985,9.8985,0,0,0-17.56,9.1406,214.2638,214.2638,0,0,1-38.7686,251.42c-83.8564,83.8476-220.3154,83.874-304.207-.0088a9.8957,9.8957,0,0,0-16.8926,7.0049v56.9a9.8965,9.8965,0,0,0,19.793,0v-34.55A234.9509,234.9509,0,0,0,464.4326,147.54Z" />
-
-                  <path d="M103.8965,103.9022c83.8828-83.874,220.3418-83.8652,304.207-.0088a9.8906,9.8906,0,0,0,16.8926-6.9961v-56.9a9.8965,9.8965,0,0,0-19.793,0v34.55C313.0234-1.3556,176.0547,3.7509,89.9043,89.9012A233.9561,233.9561,0,0,0,47.5674,364.454a9.8985,9.8985,0,0,0,17.56-9.1406A214.2485,214.2485,0,0,1,103.8965,103.9022Z" />
-
-                  <path d="M126.4009,254.5555v109.44a27.08,27.08,0,0,0,27,27H358.5991a27.077,27.077,0,0,0,27-27v-109.44a27.0777,27.0777,0,0,0-27-27H153.4009A27.0805,27.0805,0,0,0,126.4009,254.5555ZM328,288.13a21.1465,21.1465,0,1,1-21.1465,21.1464A21.1667,21.1667,0,0,1,328,288.13Zm-72,0a21.1465,21.1465,0,1,1-21.1465,21.1464A21.1667,21.1667,0,0,1,256,288.13Zm-72,0a21.1465,21.1465,0,1,1-21.1465,21.1464A21.1667,21.1667,0,0,1,184,288.13Z" />
-
-                  <path d="M343.6533,207.756V171.7538a87.6533,87.6533,0,0,0-175.3066,0V207.756H188.14V171.7538a67.86,67.86,0,0,1,135.7208,0V207.756Z" />
-                </g>
-              </svg>
+            <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => {
+              setchangePasswordId(row.id), setChangePassword(true);
+            }}>
+              تغییر رمزعبور
             </button>
           </div>
         ),
