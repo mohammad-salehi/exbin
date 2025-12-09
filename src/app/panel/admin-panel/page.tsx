@@ -350,11 +350,11 @@ const Page: React.FC = () => {
               حذف
             </button>
 
-            <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => onEdit(row)}>
-              <a href={`/panel/admin-panel/timeline/${row.username}`}>
+            <a href={`/panel/admin-panel/timeline/${row.username}`} className="">
+              <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]">
                 خط زمانی
-              </a>
-            </button>
+              </button>
+            </a>
 
             <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => {
               setchangePasswordId(row.id), setChangePassword(true);
