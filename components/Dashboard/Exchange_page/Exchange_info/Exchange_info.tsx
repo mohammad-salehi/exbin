@@ -1111,7 +1111,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[100px] text-titleText dark:text-titleText-dark">
             <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
-                ویرایش مشخصات سکو {"نوبیتکس"}
+                ویرایش مشخصات سکو {name}
               </Modal.Title>
             </div>
 

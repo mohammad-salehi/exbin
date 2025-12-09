@@ -186,15 +186,15 @@ export default function Header({
         rounded-md border dark:border-boxColor-dark
         bg-white dark:bg-boxBorderColor2-dark shadow-lg
         origin-top-right  /* رشد از راست به چپ */
-        p-4
+        p-2
       "
               >
-                <span className="block text-md mb-1">{username}</span>
-                <p className="text-md whitespace-nowrap mt-4" dir="rtl">
+                <span className="block text-md mb-1 px-3 py-1">{username}</span>
+                <p className="text-md whitespace-nowrap mt-2  px-3 py-1" dir="rtl">
                   {role}
                 </p>
                 <div
-                  className="mt-4 cursor-pointer"
+                  className="mt-2 cursor-pointer hover:bg-bgColor dark:hover:bg-boxColor-dark px-3 py-1 rounded-lg"
                   onClick={() => {
                     setOpen(true);
                   }}
@@ -272,20 +272,6 @@ export default function Header({
       </div>
 
       <div className="flex items-center p-4 pl-0">
-        {/* <button className="flex items-center justify-center border border-gray-200 bg-gray-100 hover:bg-gray-200 transition ml-2 h-9 w-9 rounded-full dark:text-gray-200 dark:bg-bgColor-dark dark:hover:bg-gray-900 dark:border-gray-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                    </svg>
-                    <span className="absolute ml-7 mb-7 bg-red-500 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center">
-                        12
-                    </span>
-                </button>
-                {
-                    isOpen ?
-                        <div className="h-8 bg-gray-200 ml-4 mr-2" style={{ width: '1px' }}></div>
-                        :
-                        null
-                } */}
         {isOpen ? (
           <button
             className="flex items-center justify-center border border-gray-200 bg-gray-100 hover:bg-gray-200 transition ml-2 h-9 w-9 rounded-full dark:text-gray-200 dark:bg-bgColor-dark dark:hover:bg-gray-900 dark:border-gray-600"

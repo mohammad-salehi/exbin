@@ -85,10 +85,6 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
                     <TailwindGaugePretty value={risk} />
                 </div>
             </div>
-            <div className="p-3 pt-0 text-end text-primary dark:text-primary-dark">
-                جزئیات سکو
-            </div>
-
         </Link>
     );
 };

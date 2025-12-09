@@ -237,13 +237,6 @@ export default function Home() {
             </div>
           </div>
 
-
-          <div className="text-right">
-            <Link href="/recovery" className="text-sm hover:underline text-primary">
-              رمز عبور خود را فراموش کرده‌اید؟
-            </Link>
-          </div>
-
           <Button
             type="submit"
             className="w-full bg-primary text-white hover:bg-primary-600 rounded-lg mt-16 h-[48px]"
