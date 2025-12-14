@@ -18,6 +18,8 @@ export default function Page() {
   const [ProofOfReserve, SetProofOfReserve] = useState<DashboardItem[]>([])
   const [IRRtoUSDT, SetIRRtoUSDT] = useState<DashboardItem[]>([])
   const [USDTBuyerData, SetUSDTBuyerData] = useState<DashboardItem[]>([])
+  const [MarketShare, SetMarketShare] = useState<DashboardItem[]>([])
+  const [CryptoShare, SetCryptoShare] = useState<DashboardItem[]>([])
 
   const data2 = [
     { label: 'BTC', value: 420000 },
@@ -67,6 +69,8 @@ export default function Page() {
   const PRRef = useRef(false);
   const IRRUSDTRef = useRef(false);
   const USDTBuyerRef = useRef(false);
+  const MarketShareRef = useRef(false);
+  const CryptoShareRef = useRef(false);
 
   //تعداد کاربران صرافی‌ها
   useEffect(() => {
@@ -231,7 +235,45 @@ export default function Page() {
       })
       .catch(console.log);
   }, []);
-
+  //سهم بازار صرافی ها
+  useEffect(() => {
+    if (MarketShareRef.current) return;
+    MarketShareRef.current = true;
+    GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/market-share`)
+      .then((response) => {
+        const getData = []
+        for(let i = 0; i < response.result.length; i++) {
+          getData.push(
+            {
+              label:response.result[i].exchangeName,
+              value:response.result[i].marketSharePercent
+            }
+          )
+        }
+        SetMarketShare(getData)
+      })
+      .catch(console.log);
+  }, []);
+    //سهم بازار صرافی ها
+    useEffect(() => {
+      if (CryptoShareRef.current) return;
+      CryptoShareRef.current = true;
+      GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/crypto-volume-share-30d`)
+        .then((response) => {
+          console.log(response)
+          const getData = []
+          for(let i = 0; i < response.result.length; i++) {
+            getData.push(
+              {
+                label:response.result[i].crypto,
+                value:response.result[i].volumeUsd
+              }
+            )
+          }
+          SetCryptoShare(getData)
+        })
+        .catch(console.log);
+    }, []);
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
       <StatsMarquee data={DashboardData} />
@@ -255,14 +297,14 @@ export default function Page() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4 pb-4">
         <div>
           <CircleChart
-            data={data2}
+            data={MarketShare}
             title="سهم بازار"
           />
         </div>
 
         <div>
           <CircleChart
-            data={data2}
+            data={CryptoShare}
             title="حجم معاملات"
           />
         </div>
