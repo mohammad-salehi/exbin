@@ -89,13 +89,13 @@ const Page = () => {
   };
 
   const data = [
-    { name: 'BTC', value: 420000 },
-    { name: 'ETH', value: 260000 },
-    { name: 'USDT', value: 150000 },
-    { name: 'SOL', value: 90000 },
-    { name: 'BNB', value: 70000 },
-    { name: 'XRP', value: 30000 },
-    { name: 'DOGE', value: 20000 },
+    { label: 'BTC', value: 420000 },
+    { label: 'ETH', value: 260000 },
+    { label: 'USDT', value: 150000 },
+    { label: 'SOL', value: 90000 },
+    { label: 'BNB', value: 70000 },
+    { label: 'XRP', value: 30000 },
+    { label: 'DOGE', value: 20000 },
   ];
 
   const chartData = [
@@ -180,7 +180,7 @@ const Page = () => {
           <h3 className="inline-block text-2xl text-bold mr-2 text-titleText dark:text-titleText-dark">
             {name}
           </h3>
-          <StatsMarquee />
+          {/* <StatsMarquee /> */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
             <div className="min-h-full">
               <CircleChart

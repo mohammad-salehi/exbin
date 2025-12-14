@@ -106,108 +106,20 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
       header: "عملیات",
       cell: (row: Person) => (
         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="25"
-            height="24"
-            viewBox="0 0 25 24"
-            fill="none"
-            className="cursor-pointer"
-            onClick={() => handleEdit(row)}
-          >
-            <path
-              d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z"
-              stroke="#A8A8A8"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M3.5 22H21.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="25"
-            height="24"
-            viewBox="0 0 25 24"
-            fill="none"
-            className="cursor-pointer"
-            onClick={async () => {
-              setdeleteForm(row);
-              SetDeleteBox(true);
-            }}
-          >
-            <path
-              d="M21.5 5.97998C18.17 5.64998 14.82 5.47998 11.48 5.47998C9.5 5.47998 7.52 5.57998 5.54 5.77998L3.5 5.97998"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M9 4.97L9.22 3.66C9.38 2.71 9.5 2 11.19 2H13.81C15.5 2 15.63 2.75 15.78 3.67L16 4.97"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M19.3504 9.14014L18.7004 19.2101C18.5904 20.7801 18.5004 22.0001 15.7104 22.0001H9.29039C6.50039 22.0001 6.41039 20.7801 6.30039 19.2101L5.65039 9.14014"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M10.8301 16.5H14.1601"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M10 12.5H15"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-
-          <svg
-            onClick={() => {
-              setEditingId(row.id), setisLogOpen(true);
-            }}
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer"
-          >
-            <path
-              d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            />
-          </svg>
+          <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[80px]" onClick={() => handleEdit(row)}>
+            ویرایش
+          </button>
+          <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[80px]" onClick={async () => {
+            setEditingId(row.id), setisLogOpen(true);
+          }}>
+            تغییرات
+          </button>
+          <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[80px]" onClick={() => {
+            setdeleteForm(row);
+            SetDeleteBox(true);
+          }}>
+            حذف
+          </button>
         </div>
       ),
     },

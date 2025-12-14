@@ -1,22 +1,17 @@
+'use client'
+
 import React from "react";
 
 type StatItem = {
   label: string;
-  value: string;
+  value: number;
 };
 
-const items: StatItem[] = [
-  { label: "تعداد کاربران", value: "۱۲۳۴" },
-  { label: "حجم معاملات", value: "۲۳٫۵M" },
-  { label: "میانگین سفارش", value: "۴۵۰,۰۰۰" },
-  { label: "سفارشات باز", value: "۸۹" },
-  { label: "سفارش امروز", value: "۳۸۵" },
-  { label: "میانگین سفارش روز", value: "۲۵۰,۰۰۰" },
-  { label: "کاربران آنلاین", value: "۳۴۵" },
-  { label: "سفارشات امروز", value: "۱,۲۳۰" },
-];
+type StatsGridProps = {
+  data: StatItem[];
+};
 
-const StatsGrid: React.FC = () => {
+const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
   const containerStyle: React.CSSProperties = {
     width: "100%",
     boxSizing: "border-box",
@@ -24,8 +19,6 @@ const StatsGrid: React.FC = () => {
     direction: "rtl",
   };
 
-  // گرید ریسپانسیو:
-  // روی موبایل ۱–۲ ستون، روی دسکتاپ ستون‌های بیشتر
   const gridStyle: React.CSSProperties = {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
@@ -58,12 +51,19 @@ const StatsGrid: React.FC = () => {
   };
 
   return (
-    <div style={containerStyle} className="bg-boxColor dark:bg-boxColor-dark rounded-xl main-animated-border-box2">
+    <div
+      style={containerStyle}
+      className="bg-boxColor dark:bg-boxColor-dark rounded-xl main-animated-border-box2"
+    >
       <div style={gridStyle}>
-        {items.map((item, index) => (
-          <div key={index} style={cardStyle} className="bg-bgColor dark:bg-bgColor-dark border border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark">
+        {(data ?? []).map((item, index) => (
+          <div
+            key={`${item.label}-${index}`}
+            style={cardStyle}
+            className="bg-bgColor dark:bg-bgColor-dark border border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark"
+          >
             <div style={labelStyle}>{item.label}</div>
-            <div style={valueStyle}>{item.value}</div>
+            <div style={valueStyle}>{Number(item.value).toLocaleString()}</div>
           </div>
         ))}
       </div>

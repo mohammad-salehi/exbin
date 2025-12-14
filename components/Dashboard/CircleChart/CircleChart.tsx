@@ -8,13 +8,13 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 
-type PieItem = {
-    name: string;
+type DashboardItem = {
+    label: string;
     value: number;
-};
+  };
 
 type Props = {
-    data: PieItem[];
+    data: DashboardItem[];
     title?: string;
 };
 
@@ -47,7 +47,7 @@ export const CircleChart: React.FC<Props> = ({
 
         return [
             ...top,
-            { name: 'سایر', value: otherTotal },
+            { label: 'سایر', value: otherTotal },
         ];
     }, [data]);
 
@@ -84,7 +84,7 @@ export const CircleChart: React.FC<Props> = ({
 
         const textAnchor = cos >= 0 ? 'start' : 'end';
 
-        const name: string = payload?.name ?? '';
+        const label: string = payload?.label ?? '';
         const percentage =
             total > 0 ? ((value / total) * 100).toFixed(1) : (percent * 100).toFixed(1);
 
@@ -106,7 +106,7 @@ export const CircleChart: React.FC<Props> = ({
                     fill="currentColor"
                     className="text-[11px] md:text-[12px] text-titleText dark:text-titleText-dark"
                 >
-                    {name}
+                    {label}
                 </text>
                 <text
                     x={ex + (cos >= 0 ? 4 : -4)}
@@ -141,7 +141,7 @@ export const CircleChart: React.FC<Props> = ({
                             <Pie
                                 data={processedData}
                                 dataKey="value"
-                                nameKey="name"
+                                nameKey="label"
                                 cx="50%"
                                 cy="50%"
                                 innerRadius="45%"

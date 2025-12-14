@@ -73,37 +73,37 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
     const isEmpty = (val?: string) => !val || val.trim() === "";
     const isDigits = (val: string, len?: number) =>
       /^\d+$/.test(val) && (!len || val.length === len);
-  
+
     if (isEmpty(form.name))
       return toast.error("نام و نام‌خانوادگی را وارد کنید", {
         position: "bottom-left",
       });
-  
+
     if (isEmpty(form.phoneNumber))
       return toast.error("شماره همراه را وارد کنید", {
         position: "bottom-left",
       });
-  
+
     if (!/^0\d{10}$/.test(form.phoneNumber))
       return toast.error("شماره همراه باید ۱۱ رقم و با ۰ شروع شود", {
         position: "bottom-left",
       });
-  
+
     if (isEmpty(form.nationalCode))
       return toast.error("کد ملی را وارد کنید", {
         position: "bottom-left",
       });
-  
+
     if (!isDigits(form.nationalCode, 10))
       return toast.error("کد ملی باید دقیقاً ۱۰ رقم باشد", {
         position: "bottom-left",
       });
-  
+
     if (form.email && !validateEmail(form.email))
       return toast.error("ایمیل وارد شده معتبر نیست", {
         position: "bottom-left",
       });
-  
+
     const rawShare = form.sharePercentage ?? "";
     const share = rawShare === "" ? NaN : Number(rawShare);
     if (isNaN(share))
@@ -114,36 +114,36 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       return toast.error("درصد سهام باید بین ۰ تا ۱۰۰ باشد", {
         position: "bottom-left",
       });
-  
+
     const updatedForm = {
       ...form,
       educationalHistory: form.educationalHistory || "",
       careerHistory: form.careerHistory || "",
       sharePercentage: form.sharePercentage || "0",
     };
-  
+
     // 👇 از اینجا به بعد: فقط then / catch
     setLoading(true);
-  
+
     const isEdit = !!editingId && data.length !== 0;
     const url = isEdit
       ? `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager/${editingId}`
       : `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/manager`;
-  
+
     const requestPromise = isEdit
       ? PutRequest(url, updatedForm)
       : PostRequest(url, updatedForm);
-  
+
     requestPromise
       .then((res: any) => {
         // اگر بک‌اند result برگردونه، بگیریم؛ وگرنه خود فرم
         const payload = res && typeof res === "object" ? res : null;
         const result = payload?.result ?? null;
-  
+
         toast.success("مشخصات مدیرعامل با موفقیت ذخیره شد.", {
           position: "bottom-left",
         });
-  
+
         if (isEdit) {
           setData((prev) =>
             prev.map((item) =>
@@ -154,13 +154,13 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
           const newManager = result || updatedForm;
           setData([newManager]);
         }
-  
+
         closeModal();
       })
       .catch((err: any) => {
         console.error(err);
         const msg = String(err?.message ?? "");
-  
+
         // اگر توکن نداشتیم
         if (msg === "Token not found") {
           toast.error("توکن موجود نیست، لطفاً وارد سیستم شوید.", {
@@ -168,7 +168,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
           });
           return;
         }
-  
+
         // اگر بدنهٔ ارور JSON بوده (از PostRequest) سعی کنیم پارس کنیم
         let parsed: any = null;
         if (msg.startsWith("{") && msg.endsWith("}")) {
@@ -178,9 +178,9 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
             parsed = null;
           }
         }
-  
+
         const errorObj = parsed;
-  
+
         // ولیدیشن‌های فیلدی بک‌اند (result به صورت آبجکت)
         if (errorObj?.result && typeof errorObj.result === "object") {
           Object.entries(errorObj.result).forEach(([_, value]) => {
@@ -193,13 +193,13 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
           });
           return;
         }
-  
+
         // پیام متنی مستقیم
         if (typeof errorObj?.error === "string" && errorObj.error.trim() !== "") {
           toast.error(errorObj.error, { position: "bottom-left" });
           return;
         }
-  
+
         // اگر پیام شبیه HTTP 401/403 بود
         if (msg.includes("HTTP 401") || msg.includes("HTTP 403")) {
           toast.error("نشست شما منقضی شده است. لطفاً دوباره وارد شوید.", {
@@ -207,7 +207,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
           });
           return;
         }
-  
+
         // فالبک عمومی
         toast.error("خطا در ذخیره مشخصات مدیرعامل", {
           position: "bottom-left",
@@ -217,7 +217,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
         setLoading(false);
       });
   };
-  
+
 
   useEffect(() => {
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
@@ -242,6 +242,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       });
   }, []);
 
+
   const columns: Column<Person>[] = [
     { header: "نام و نام‌خانوادگی", accessorKey: "name" },
     { header: "شماره همراه", accessorKey: "phoneNumber" },
@@ -254,59 +255,14 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       header: "عملیات",
       cell: (row: Person) => (
         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer">
-          <svg
-            onClick={() => openModal(row)}
-            xmlns="http://www.w3.org/2000/svg"
-            width="25"
-            height="24"
-            viewBox="0 0 25 24"
-            fill="none"
-          >
-            <path
-              d="M13.7603 3.60022L5.55034 12.2902C5.24034 12.6202 4.94034 13.2702 4.88034 13.7202L4.51034 16.9602C4.38034 18.1302 5.22034 18.9302 6.38034 18.7302L9.60034 18.1802C10.0503 18.1002 10.6803 17.7702 10.9903 17.4302L19.2003 8.74022C20.6203 7.24022 21.2603 5.53022 19.0503 3.44022C16.8503 1.37022 15.1803 2.10022 13.7603 3.60022Z"
-              stroke="#A8A8A8"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M12.3896 5.0498C12.8196 7.8098 15.0596 9.9198 17.8396 10.1998"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <path
-              d="M3.5 22H21.5"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeMiterlimit="10"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-
-          <svg
-            onClick={() => {
-              setForm(row), setisLogOpen(true);
-            }}
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer"
-          >
-            <path
-              d="M5.06152 12C5.55362 8.05369 8.92001 5 12.9996 5C17.4179 5 20.9996 8.58172 20.9996 13C20.9996 17.4183 17.4179 21 12.9996 21H8M13 13V9M11 3H15M3 15H8M5 18H10"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => openModal(row)}>
+            ویرایش
+          </button>
+          <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => {
+            setForm(row), setisLogOpen(true);
+          }}>
+            تغییرات
+          </button>
         </div>
       ),
     },
