@@ -20,16 +20,9 @@ export default function Page() {
   const [USDTBuyerData, SetUSDTBuyerData] = useState<DashboardItem[]>([])
   const [MarketShare, SetMarketShare] = useState<DashboardItem[]>([])
   const [CryptoShare, SetCryptoShare] = useState<DashboardItem[]>([])
-
-  const data2 = [
-    { label: 'BTC', value: 420000 },
-    { label: 'ETH', value: 260000 },
-    { label: 'USDT', value: 150000 },
-    { label: 'SOL', value: 90000 },
-    { label: 'BNB', value: 70000 },
-    { label: 'XRP', value: 30000 },
-    { label: 'DOGE', value: 20000 },
-  ];
+  const [CryptoList, SetCryptoList] = useState([])
+  const [CryptoSelected1, SetCryptoSelected1] = useState('')
+  const [CryptoSelected2, SetCryptoSelected2] = useState('')
 
   const chartData = [
     { label: "فروردین", x: 150, y: 150 },
@@ -71,6 +64,7 @@ export default function Page() {
   const USDTBuyerRef = useRef(false);
   const MarketShareRef = useRef(false);
   const CryptoShareRef = useRef(false);
+  const CryptoListRef = useRef(false);
 
   //تعداد کاربران صرافی‌ها
   useEffect(() => {
@@ -274,6 +268,18 @@ export default function Page() {
       })
       .catch(console.log);
   }, []);
+  //لیست کوین ها
+  useEffect(() => {
+    if (CryptoListRef.current) return;
+    CryptoListRef.current = true;
+    GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/valid-currencies`)
+      .then((response) => {
+        SetCryptoList(response.result)
+        SetCryptoSelected1(response.result[0].cryptocurrency)
+        SetCryptoSelected2(response.result[0].cryptocurrency)
+      })
+      .catch(console.log);
+  }, []);
 
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
@@ -301,10 +307,14 @@ export default function Page() {
         <div>
           <DoubleLinearChart
             data={chartData2}
-            title="نمودار واریز و برداشت روزانه"
+            title="نمودار واریز و برداشت ماهانه"
             unitSuffix="M"
             assetLabel='واریز'
             liabilityLabel='برداشت'
+            List={CryptoList}
+            CryptoSelected={CryptoSelected1}
+            SetCryptoSelected={SetCryptoSelected1}
+            ShowList={true}
           />
         </div>
       </div>
@@ -313,9 +323,13 @@ export default function Page() {
         <div>
           <SingleLinearChart
             data={chartData}
-            title="حجم معاملات روزانه"
+            title="حجم معاملات ماهانه"
             seriesLabel="حجم"
             unitSuffix="M"
+            List={CryptoList}
+            CryptoSelected={CryptoSelected2}
+            SetCryptoSelected={SetCryptoSelected2}
+            ShowList={true}
           />
         </div>
       </div>
