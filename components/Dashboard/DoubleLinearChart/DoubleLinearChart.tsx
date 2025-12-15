@@ -29,8 +29,8 @@ type ProofOfReserveChartProps = {
     height?: number;           // ارتفاع نمودار (px)
     List?: CryptoItem[];
     ShowList?: boolean;
-    CryptoSelected: string;
-    SetCryptoSelected: React.Dispatch<React.SetStateAction<string>>;
+    CryptoSelected?: string;
+    SetCryptoSelected?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
@@ -75,7 +75,11 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
                     ShowList &&
                     <div className="relative w-full mt-2 max-w-[200px]">
                         <Dropdown
-                            onChange={(e) => { if (typeof e === "string") SetCryptoSelected(e) }}
+                            onChange={(e) => {
+                                if (typeof e === "string" && SetCryptoSelected) {
+                                    SetCryptoSelected(e);
+                                }
+                            }}
                             value={CryptoSelected}
                         >
                             <Dropdown.Trigger className="w-full ">

@@ -26,9 +26,9 @@ type SingleLinearChartProps = {
   unitSuffix?: string;    // واحد کنار عدد: مثلا "M" یا "تومان"
   height?: number;        // ارتفاع نمودار (px)
   List?: CryptoItem[];
-  CryptoSelected: string;
+  CryptoSelected?: string;
   ShowList?: boolean;
-  SetCryptoSelected: React.Dispatch<React.SetStateAction<string>>;
+  SetCryptoSelected?: React.Dispatch<React.SetStateAction<string>>;
 };
 
 const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
@@ -70,7 +70,11 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
           ShowList &&
           <div className="relative w-full mt-2 max-w-[200px]">
             <Dropdown
-              onChange={(e) => { if (typeof e === "string") SetCryptoSelected(e) }}
+              onChange={(e) => {
+                if (typeof e === "string" && SetCryptoSelected) {
+                    SetCryptoSelected(e);
+                }
+            }}
               value={CryptoSelected}
             >
               <Dropdown.Trigger className="w-full ">
