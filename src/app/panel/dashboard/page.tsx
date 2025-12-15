@@ -223,11 +223,11 @@ export default function Page() {
     GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/usdt-buyer-ratio-24h`)
       .then((response) => {
         const getData = []
-        for(let i = 0; i < response.result.length; i++) {
+        for (let i = 0; i < response.result.length; i++) {
           getData.push(
             {
-              label:response.result[i].userIdentity,
-              value:response.result[i].totalUsdtVolume
+              label: response.result[i].userIdentity,
+              value: response.result[i].totalUsdtVolume
             }
           )
         }
@@ -242,11 +242,11 @@ export default function Page() {
     GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/market-share`)
       .then((response) => {
         const getData = []
-        for(let i = 0; i < response.result.length; i++) {
+        for (let i = 0; i < response.result.length; i++) {
           getData.push(
             {
-              label:response.result[i].exchangeName,
-              value:response.result[i].marketSharePercent
+              label: response.result[i].exchangeName,
+              value: response.result[i].marketSharePercent
             }
           )
         }
@@ -254,26 +254,27 @@ export default function Page() {
       })
       .catch(console.log);
   }, []);
-    //سهم بازار صرافی ها
-    useEffect(() => {
-      if (CryptoShareRef.current) return;
-      CryptoShareRef.current = true;
-      GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/crypto-volume-share-30d`)
-        .then((response) => {
-          console.log(response)
-          const getData = []
-          for(let i = 0; i < response.result.length; i++) {
-            getData.push(
-              {
-                label:response.result[i].crypto,
-                value:response.result[i].volumeUsd
-              }
-            )
-          }
-          SetCryptoShare(getData)
-        })
-        .catch(console.log);
-    }, []);
+  //سهم بازار صرافی ها
+  useEffect(() => {
+    if (CryptoShareRef.current) return;
+    CryptoShareRef.current = true;
+    GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/crypto-volume-share-30d`)
+      .then((response) => {
+        console.log(response)
+        const getData = []
+        for (let i = 0; i < response.result.length; i++) {
+          getData.push(
+            {
+              label: response.result[i].crypto,
+              value: response.result[i].volumeUsd
+            }
+          )
+        }
+        SetCryptoShare(getData)
+      })
+      .catch(console.log);
+  }, []);
+  
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
       <StatsMarquee data={DashboardData} />
@@ -287,32 +288,11 @@ export default function Page() {
           />
         </div>
         <div>
-          <CircleChart
-            data={IRRtoUSDT}
-            title="نسبت معاملات تومان به تتر"
-          />
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4 pb-4">
-        <div>
           <CircleChart
             data={MarketShare}
             title="سهم بازار"
-          />
-        </div>
-
-        <div>
-          <CircleChart
-            data={CryptoShare}
-            title="حجم معاملات"
-          />
-        </div>
-
-        <div>
-          <CircleChart
-            data={USDTBuyerData}
-            title="نسبت خریداران تتر"
+            description="سهم بازار با ضریب 0.35 تعداد کاربران و 0.65 دارایی‌ها محاسبه شده است!"
           />
         </div>
       </div>
@@ -336,6 +316,33 @@ export default function Page() {
             title="حجم معاملات روزانه"
             seriesLabel="حجم"
             unitSuffix="M"
+          />
+        </div>
+      </div>
+
+
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4 pb-4">
+        <div>
+          <CircleChart
+            data={IRRtoUSDT}
+            title="نسبت معاملات تومان به تتر"
+            unit="USDT"
+          />
+        </div>
+
+        <div>
+          <CircleChart
+            data={CryptoShare}
+            title="حجم معاملات"
+            unit="USDT"
+          />
+        </div>
+
+        <div>
+          <CircleChart
+            data={USDTBuyerData}
+            title="نسبت خریداران تتر"
+            unit="USDT"
           />
         </div>
       </div>

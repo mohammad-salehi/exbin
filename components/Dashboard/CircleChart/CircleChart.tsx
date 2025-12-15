@@ -17,6 +17,8 @@ type DashboardItem = {
 type Props = {
     data: DashboardItem[];
     title?: string;
+    unit?: string;
+    description?: string
 };
 
 const COLORS = [
@@ -33,6 +35,8 @@ const MAX_SLICES = 5;
 export const CircleChart: React.FC<Props> = ({
     data,
     title = 'تقسیم‌بندی داده‌ها',
+    unit = '',
+    description = ''
 }) => {
     const MIN_PERCENT = 1; // حداقل درصد قابل نمایش
 
@@ -90,7 +94,7 @@ export const CircleChart: React.FC<Props> = ({
 
     const lastYRef = useRef<{ left: number; right: number }>({ left: -1e9, right: -1e9 });
     const SMALL_PERCENT = 5;
-    const COLLIDE_GAP = 18; // فاصله‌ای که اگر کمتر بود یعنی لیبل‌ها خورده‌اند
+    const COLLIDE_GAP = 30; // فاصله‌ای که اگر کمتر بود یعنی لیبل‌ها خورده‌اند
 
 
     const renderLabel = (props: any) => {
@@ -170,12 +174,13 @@ export const CircleChart: React.FC<Props> = ({
 
                 <text
                     x={ex2 + (cos >= 0 ? 4 : -4)}
-                    y={ey2 + 10}
+                    y={ey2 + 12}
                     textAnchor={textAnchor}
                     fill="currentColor"
                     className="text-[10px] md:text-[11px] text-titleText dark:text-titleText-dark"
                 >
-                    {value.toLocaleString("en-US")} ({percentageText}%)
+                    {/* {unit!== '' ? value.toLocaleString("en-US") +' '+ unit : null}  */}
+                    {percentageText}%
                 </text>
             </g>
         );
@@ -226,11 +231,11 @@ export const CircleChart: React.FC<Props> = ({
                                 nameKey="label"
                                 cx="50%"
                                 cy="50%"
-                                innerRadius="0%"
+                                innerRadius="60%"
                                 outerRadius="70%"
                                 labelLine={false}
                                 label={renderLabel}
-                                paddingAngle={0}
+                                paddingAngle={3}
                             >
                                 {processedData.map((entry, index) => (
                                     <Cell
@@ -241,26 +246,47 @@ export const CircleChart: React.FC<Props> = ({
                                     />
                                 ))}
                             </Pie>
-
                             {/* متن وسط دونات */}
-                            {/* {total > 0 && (
-                                <text
-                                    x="50%"
-                                    y="50%"
-                                    textAnchor="middle"
-                                    dominantBaseline="central"
-                                    className="text-moon-16 md:text-moon-18 font-semibold fill-current text-titleText dark:text-titleText-dark"
-                                >
-                                    {total.toLocaleString('en-US')}
-                                </text>
-                            )} */}
+                            {/* متن وسط دونات */}
+                            {total > 0 && unit !== '' && (
+                                <>
+                                    {/* عدد */}
+                                    <text
+                                        x="50%"
+                                        y="49%"
+                                        textAnchor="middle"
+                                        dominantBaseline="central"
+                                        className="text-moon-14 md:text-moon-16 text-sm fill-current text-titleText dark:text-titleText-dark"
+                                    >
+                                        {total.toLocaleString('en-US')}
+                                    </text>
+
+                                    {/* واحد زیر عدد */}
+                                    <text
+                                        x="50%"
+                                        y="56%"
+                                        textAnchor="middle"
+                                        dominantBaseline="central"
+                                        className="text-moon-10 md:text-moon-12 fill-current  text-sm  text-titleText dark:text-titleText-dark"
+                                    >
+                                        {unit}
+                                    </text>
+                                </>
+                            )}
+
                         </PieChart>
                     </ResponsiveContainer>
                 )}
             </div>
-            <p className='text-titleText dark:text-titleText-dark'>
-                مجموع: <span className='font-bold'>{total.toLocaleString('en-US')}</span>
-            </p>
+
+            {
+                description !== '' ?
+                    <small className='text-titleText dark:text-titleText-dark'>
+                        * {description}
+                    </small>
+                    :
+                    null
+            }
         </div>
     );
 };
