@@ -1,11 +1,17 @@
 "use client";
-
+import React from "react";
 import { useEffect, useRef, useState } from "react";
 import StatsMarquee from "../../../../components/Dashboard/Band/Band";
 import { CircleChart } from "../../../../components/Dashboard/CircleChart/CircleChart";
 import SingleLinearChart from "../../../../components/Dashboard/SingleLinearChart/SingleLinearChart";
 import DoubleLinearChart from "../../../../components/Dashboard/DoubleLinearChart/DoubleLinearChart";
 import { GetRequest } from "../../../../functions/GetRequest";
+
+const MemoStatsMarquee = React.memo(StatsMarquee);
+const MemoCircleChart = React.memo(CircleChart);
+const MemoSingleLinearChart = React.memo(SingleLinearChart);
+const MemoDoubleLinearChart = React.memo(DoubleLinearChart);
+
 export default function Page() {
 
   type DashboardItem = {
@@ -303,37 +309,41 @@ export default function Page() {
   }, [,CryptoSelected2]);
 
   return (
-    <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
-      <StatsMarquee data={DashboardData} />
-
+    <div className="px-4 xl:px-0">
+      {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
+      <MemoStatsMarquee data={DashboardData} />
+  
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
-
         <div>
-          <CircleChart
+          <MemoCircleChart
             data={ProofOfReserve}
             title="نسبت دارایی به بدهی"
             unit="USDT"
-            value={ProofOfReserve.length !== 0 ? ProofOfReserve[0].value - ProofOfReserve[1].value : null}
+            value={
+              ProofOfReserve.length !== 0
+                ? ProofOfReserve[0].value - ProofOfReserve[1].value
+                : null
+            }
           />
         </div>
+  
         <div>
-
-          <CircleChart
+          <MemoCircleChart
             data={MarketShare}
             title="سهم بازار"
             description="سهم بازار با ضریب 0.35 از تعداد کاربران و 0.65 از حجم دارایی‌ها محاسبه شده است!"
           />
         </div>
       </div>
-
+  
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4 pb-4">
         <div>
-          <DoubleLinearChart
+          <MemoDoubleLinearChart
             data={DepWitList}
             title="نمودار واریز و برداشت ماهانه"
             unitSuffix="M"
-            assetLabel='واریز'
-            liabilityLabel='برداشت'
+            assetLabel="واریز"
+            liabilityLabel="برداشت"
             List={CryptoList}
             CryptoSelected={CryptoSelected1}
             SetCryptoSelected={SetCryptoSelected1}
@@ -341,10 +351,10 @@ export default function Page() {
           />
         </div>
       </div>
-
+  
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-0 pb-4">
         <div>
-          <SingleLinearChart
+          <MemoSingleLinearChart
             data={DailyTradingList}
             title="حجم معاملات ماهانه"
             seriesLabel="حجم"
@@ -356,27 +366,22 @@ export default function Page() {
           />
         </div>
       </div>
-
-
+  
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4 pb-4">
         <div>
-          <CircleChart
+          <MemoCircleChart
             data={IRRtoUSDT}
             title="نسبت معاملات تومان به تتر"
             unit="USDT"
           />
         </div>
-
+  
         <div>
-          <CircleChart
-            data={CryptoShare}
-            title="حجم معاملات"
-            unit="USDT"
-          />
+          <MemoCircleChart data={CryptoShare} title="حجم معاملات" unit="USDT" />
         </div>
-
+  
         <div>
-          <CircleChart
+          <MemoCircleChart
             data={USDTBuyerData}
             title="نسبت خریداران تتر"
             unit="USDT"
@@ -385,4 +390,5 @@ export default function Page() {
       </div>
     </div>
   );
+  
 }

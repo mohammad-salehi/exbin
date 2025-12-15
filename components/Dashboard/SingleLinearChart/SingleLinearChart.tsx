@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 import {
   BarChart,
   Bar,
@@ -9,22 +9,23 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { Button, Dropdown, MenuItem } from "@heathmont/moon-core-tw";
-import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
+import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
 
 export type SingleLinearDataItem = {
   label: string; // مثلا "فروردین"
-  x: number;     // مقدار سری سبز
+  x: number; // مقدار سری سبز
 };
 
 type CryptoItem = {
-  cryptocurrency: string; // یا اگر می‌خوای محدودش کنی: 'BTC' | 'BNB' | ...
+  cryptocurrency: string;
 };
+
 type SingleLinearChartProps = {
   data: SingleLinearDataItem[];
   title?: string;
-  seriesLabel?: string;   // عنوان سری (مثلا "دارایی")
-  unitSuffix?: string;    // واحد کنار عدد: مثلا "M" یا "تومان"
-  height?: number;        // ارتفاع نمودار (px)
+  seriesLabel?: string;
+  unitSuffix?: string;
+  height?: number;
   List?: CryptoItem[];
   CryptoSelected?: string;
   ShowList?: boolean;
@@ -36,22 +37,36 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
   title = "نمودار تک‌سری",
   seriesLabel = "مقدار",
   unitSuffix = "M",
-  height = 288, // h-72
+  height = 288,
   List = [],
-  CryptoSelected = '',
+  CryptoSelected = "",
   SetCryptoSelected,
-  ShowList = false
+  ShowList = false,
 }) => {
   const totalX = data.reduce((sum, w) => sum + (w.x || 0), 0);
 
   const [search, setSearch] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const rootRef = useRef<HTMLDivElement | null>(null);
+
+  // ✅ بستن منو با کلیک بیرون
+  useEffect(() => {
+    if (!open) return;
+
+    const handler = (e: MouseEvent) => {
+      if (!rootRef.current) return;
+      if (!rootRef.current.contains(e.target as Node)) setOpen(false);
+    };
+
+    document.addEventListener("mousedown", handler, true);
+    return () => document.removeEventListener("mousedown", handler, true);
+  }, [open]);
 
   const filteredList = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return List;
-    return List.filter((x) =>
-      (x.cryptocurrency || "").toLowerCase().includes(q)
-    );
+    return List.filter((x) => (x.cryptocurrency || "").toLowerCase().includes(q));
   }, [List, search]);
 
   const formatCompact = (n: number) => {
@@ -87,9 +102,9 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
             {title}
           </h2>
         </div>
-        {
-          ShowList &&
-          <div className="relative w-full mt-2 max-w-[200px]">
+
+        {ShowList && (
+          <div ref={rootRef} className="relative w-full mt-2 max-w-[200px]">
             <Dropdown
               onChange={(e) => {
                 if (typeof e === "string" && SetCryptoSelected) {
@@ -103,6 +118,7 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                   as="span"
                   role="button"
                   variant="ghost"
+                  onClick={() => setOpen((v) => !v)} // ✅ کنترل باز/بسته
                   className="flex items-center justify-between w-full pl-10 py-2
         text-gray-700 border border-gray-300 rounded-lg
         dark:border-buttonBorderColor-dark dark:text-gray-100
@@ -112,100 +128,86 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                 </Button>
               </Dropdown.Trigger>
 
-              <Dropdown.Options
-                className="absolute left-0 mt-2 w-72 pl-2 pr-2 py-0
+              {/* ✅ به جای Dropdown.Options: همون کلاس‌ها، همون UI، بدون scroll-lock */}
+              {open && (
+                <div
+                  className="absolute left-0 mt-2 w-72 pl-2 pr-2 py-0
       text-gray-700 bg-white dark:bg-buttonColor-dark
       border border-gray-300 dark:border-buttonBorderColor-dark
       rounded-lg dark:text-gray-100 appearance-none z-50
       max-h-60 overflow-y-auto outline-none shadow-none"
-              >
-                {/* ✅ Search input */}
-                <div className="sticky top-0 z-50 -mx-2 px-2 pt-2 pb-2 bg-white dark:bg-buttonColor-dark border-b border-gray-200 dark:border-buttonBorderColor-dark">
-                  <input
-                    value={search}
-                    onChange={(ev) => setSearch(ev.target.value)}
-                    placeholder="جستجو..."
-                    className="w-full px-3 py-2 text-sm rounded-md
+                >
+                  {/* ✅ Search input */}
+                  <div className="sticky top-0 z-50 -mx-2 px-2 pt-2 pb-2 bg-white dark:bg-buttonColor-dark border-b border-gray-200 dark:border-buttonBorderColor-dark">
+                    <input
+                      value={search}
+                      onChange={(ev) => setSearch(ev.target.value)}
+                      placeholder="جستجو..."
+                      className="w-full px-3 py-2 text-sm rounded-md
       border border-gray-200 dark:border-buttonBorderColor-dark
       bg-bgColor dark:bg-boxColor-dark
       text-titleText dark:text-titleText-dark
       outline-none"
-                  />
-                </div>
+                    />
+                  </div>
 
-                {/* ✅ Filtered items */}
-                {filteredList.length > 0 ? (
-                  filteredList.map((item, index) => (
-                    <Dropdown.Option value={item.cryptocurrency} key={`option${index}`}>
-                      {({ selected, active }) => (
+                  {/* ✅ Filtered items */}
+                  {filteredList.length > 0 ? (
+                    filteredList.map((item, index) => (
+                      <div
+                        key={`option${index}`}
+                        onClick={() => {
+                          SetCryptoSelected?.(item.cryptocurrency);
+                          setOpen(false);
+                        }}
+                      >
                         <MenuItem
-                          isActive={active}
-                          isSelected={selected}
-                          className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${CryptoSelected === item.cryptocurrency
-                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                            : ""
-                            }`}
+                          isActive={false}
+                          isSelected={CryptoSelected === item.cryptocurrency}
+                          className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
+                            CryptoSelected === item.cryptocurrency
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
+                          }`}
                         >
                           <MenuItem.Title>{item.cryptocurrency}</MenuItem.Title>
                         </MenuItem>
-                      )}
-                    </Dropdown.Option>
-                  ))
-                ) : (
-                  <div className="py-3 text-center text-sm opacity-70">
-                    موردی پیدا نشد
-                  </div>
-                )}
-              </Dropdown.Options>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-3 text-center text-sm opacity-70">
+                      موردی پیدا نشد
+                    </div>
+                  )}
+                </div>
+              )}
             </Dropdown>
 
             {/* فلش سمت راست */}
             <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
-
           </div>
-        }
-
+        )}
       </div>
 
       {/* نمودار */}
-      <div
-        className="w-full text-titleText dark:text-titleText-dark"
-        style={{ height }}
-      >
+      <div className="w-full text-titleText dark:text-titleText-dark" style={{ height }}>
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart
-            data={data}
-            margin={{ top: 16, right: 16, left: 0, bottom: 24 }} // نیازی به left زیاد نیست دیگه
-          >
+          <BarChart data={data} margin={{ top: 16, right: 16, left: 0, bottom: 24 }}>
             <CartesianGrid vertical={false} stroke="#f1f5f9" />
 
             <XAxis
               dataKey="label"
-              tick={{
-                fontSize: 12,
-                fill: "currentColor",
-              }}
-              axisLine={{
-                stroke: "currentColor",
-                strokeOpacity: 0.15,
-              }}
+              tick={{ fontSize: 12, fill: "currentColor" }}
+              axisLine={{ stroke: "currentColor", strokeOpacity: 0.15 }}
               tickLine={false}
             />
 
             <YAxis
-              orientation="left"          // 👈 محور و اعداد برن سمت چپ نمودار
-              width={50}                  // 👈 جا برای اعداد سمت چپ
-
+              orientation="left"
+              width={50}
               tickFormatter={formatCompact}
-              tick={{
-                fontSize: 12,
-                fill: "currentColor",
-                dx: -20,
-              }}
-              axisLine={{
-                stroke: "currentColor",
-                strokeOpacity: 0.15,
-              }}
+              tick={{ fontSize: 12, fill: "currentColor", dx: -20 }}
+              axisLine={{ stroke: "currentColor", strokeOpacity: 0.15 }}
               tickLine={false}
             />
 
@@ -218,30 +220,19 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
 
                 return (
                   <div className="rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark bg-white dark:bg-buttonColor-dark px-3 py-2 text-xs text-titleText dark:text-titleText-dark">
-                    {/* ✅ Title */}
                     <div className="mb-2 font-semibold">{String(label)}</div>
-
                     <div className="flex items-center justify-between gap-4">
                       <span>{seriesLabel}</span>
-                      <span dir="ltr">
-                        {formatCompact(val)}
-                      </span>
+                      <span dir="ltr">{formatCompact(val)}</span>
                     </div>
                   </div>
                 );
               }}
             />
 
-
-            <Bar
-              dataKey="x"
-              name={seriesLabel}
-              radius={[4, 4, 0, 0]}
-              fill="#22c55e"
-            />
+            <Bar dataKey="x" name={seriesLabel} radius={[4, 4, 0, 0]} fill="#22c55e" />
           </BarChart>
         </ResponsiveContainer>
-
       </div>
 
       {/* خلاصه‌ی پایین */}
