@@ -13,7 +13,6 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
     direction: "rtl",
   };
 
-  // ✅ متن‌ها دیگه قطع نمی‌شن
   const singleLineText: React.CSSProperties = {
     whiteSpace: "nowrap",
     overflow: "visible",
@@ -41,19 +40,19 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
   return (
     <div
       style={containerStyle}
-      className="bg-boxColor dark:bg-boxColor-dark rounded-xl main-animated-border-box2 flex flex-row flex-wrap gap-4"
+      className="bg-boxColor dark:bg-boxColor-dark rounded-xl main-animated-border-box2 flex flex-col sm:flex-row sm:flex-wrap gap-4"
     >
       {(data ?? []).map((item, index) => (
         <div
           key={`${item.label}-${index}`}
           className="
-            flex-1
+            w-full sm:flex-1
             flex flex-col items-start
             dark:border-boxBorderColor-dark
             text-titleText dark:text-titleText-dark
             rounded-full px-4 py-2
           "
-          style={{ minWidth: "max-content" }}   // ✅ حداقل به اندازه متن (بدون پیکسل)
+          style={{ minWidth: "max-content" }}
         >
           <div style={labelStyle}>{item.label}</div>
           <div style={valueStyle}>{Number(item.value).toLocaleString()}</div>
