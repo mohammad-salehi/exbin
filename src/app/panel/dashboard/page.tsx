@@ -143,11 +143,11 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "حجم معاملات روزانه بازار تتر",
+            label: "حجم معاملات روزانه بازار تتری",
             value: Number(response?.result?.totalVolumeUsdt ?? 0),
           };
           const item2: DashboardItem = {
-            label: "حجم معاملات روزانه بازار ریال",
+            label: "حجم معاملات روزانه بازار ریالی",
             value: Number(response?.result?.totalVolumeIrr ?? 0),
           };
           const next = prev.filter((x) => x.label !== item1.label);
@@ -274,7 +274,7 @@ export default function Page() {
       })
       .catch(console.log);
   }, []);
-  
+
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
       <StatsMarquee data={DashboardData} />
@@ -292,7 +292,7 @@ export default function Page() {
           <CircleChart
             data={MarketShare}
             title="سهم بازار"
-            description="سهم بازار با ضریب 0.35 تعداد کاربران و 0.65 دارایی‌ها محاسبه شده است!"
+            description="سهم بازار با ضریب 0.35 از تعداد کاربران و 0.65 از حجم دارایی‌ها محاسبه شده است!"
           />
         </div>
       </div>

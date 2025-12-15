@@ -186,6 +186,7 @@ const Page = () => {
               <CircleChart
                 data={data}
                 title="حجم معاملات رمزارزها"
+                unit="USDT"
               />
             </div>
             <div className="min-h-full">
