@@ -236,9 +236,9 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 text-[11px] sm:text-xs text-titleText dark:text-titleText-dark">
-                    <span className={net >= 0 ? "text-green-600" : "text-red-600"}>
-                        خالص: {net >= 0 ? "+" : "-"}
-                        {Math.abs(net)} {unitSuffix}
+                    <span className={net >= 0 ? "text-green-500" : "text-red-500"}>
+                        مجموع فعلی: {net >= 0 ? "+" : "-"}
+                        {Math.abs(net).toLocaleString()} {unitSuffix}
                     </span>
                 </div>
             </div>

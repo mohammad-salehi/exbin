@@ -220,8 +220,8 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-4 text-[11px] sm:text-xs text-titleText dark:text-titleText-dark">
-          <span className="text-green-600">
-            مجموع: {totalX} {unitSuffix}
+          <span className="text-green-500">
+            مجموع: {totalX.toLocaleString()} {unitSuffix}
           </span>
         </div>
       </div>

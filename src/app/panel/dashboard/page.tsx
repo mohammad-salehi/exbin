@@ -12,6 +12,15 @@ export default function Page() {
     label: string;
     value: number;
   };
+  type DoubleChartItem = {
+    label: string;
+    x: number;
+    y: number;
+  };
+  type SingleChartItem = {
+    label: string;
+    x: number;
+  };
 
   //دیتای تستی برای تعداد سکو های ثبت شده
   const [DashboardData, SetDashboardData] = useState<DashboardItem[]>([])
@@ -20,39 +29,11 @@ export default function Page() {
   const [USDTBuyerData, SetUSDTBuyerData] = useState<DashboardItem[]>([])
   const [MarketShare, SetMarketShare] = useState<DashboardItem[]>([])
   const [CryptoShare, SetCryptoShare] = useState<DashboardItem[]>([])
+  const [DepWitList, SetDepWitList] = useState<DoubleChartItem[]>([])
+  const [DailyTradingList, SetDailyTradingList] = useState<SingleChartItem[]>([])
   const [CryptoList, SetCryptoList] = useState([])
   const [CryptoSelected1, SetCryptoSelected1] = useState('')
   const [CryptoSelected2, SetCryptoSelected2] = useState('')
-
-  const chartData = [
-    { label: "فروردین", x: 150, y: 150 },
-    { label: "اردیبهشت", x: 120 },
-    { label: "خرداد", x: 180 },
-    { label: "تیر", x: 90 },
-    { label: "مرداد", x: 80 },
-    { label: "شهریور", x: 70 },
-    { label: "مهر", x: 150 },
-    { label: "آبان", x: 120 },
-    { label: "آذر", x: 180 },
-    { label: "دی", x: 90 },
-    { label: "بهمن", x: 80 },
-    { label: "اسفند", x: 70 },
-  ];
-
-  const chartData2 = [
-    { label: "فروردین", x: 150, y: 150 },
-    { label: "اردیبهشت", x: 120, y: 120 },
-    { label: "خرداد", x: 180, y: 180 },
-    { label: "تیر", x: 90, y: 90 },
-    { label: "مرداد", x: 80, y: 80 },
-    { label: "شهریور", x: 70, y: 70 },
-    { label: "مهر", x: 150, y: 150 },
-    { label: "آبان", x: 120, y: 120 },
-    { label: "آذر", x: 180, y: 180 },
-    { label: "دی", x: 90, y: 90 },
-    { label: "بهمن", x: 80, y: 80 },
-    { label: "اسفند", x: 70, y: 70 },
-  ];
 
   const usersNumberRef = useRef(false);
   const totalTradeNumberRef = useRef(false);
@@ -248,13 +229,12 @@ export default function Page() {
       })
       .catch(console.log);
   }, []);
-  //سهم بازار صرافی ها
+  //حجم معاملات 
   useEffect(() => {
     if (CryptoShareRef.current) return;
     CryptoShareRef.current = true;
     GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/crypto-volume-share-30d`)
       .then((response) => {
-        console.log(response)
         const getData = []
         for (let i = 0; i < response.result.length; i++) {
           getData.push(
@@ -280,6 +260,47 @@ export default function Page() {
       })
       .catch(console.log);
   }, []);
+  //واریز و برداشت ماهانه
+  useEffect(() => {
+    if (CryptoSelected1 !== '') {
+      GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/daily-deposits-withdrawals/${CryptoSelected1}`)
+      .then((response) => {
+        const getData = []
+        for (let i = 0; i < response.result.length; i++) {
+          getData.push(
+            {
+              label: response.result[i].date,
+              x: response.result[i].inflow,
+              y: response.result[i].outflow
+            }
+          )
+        }
+        SetDepWitList(getData)
+      })
+      .catch(console.log);
+    }
+
+  }, [,CryptoSelected1]);
+  //حجم معاملات ماهانه
+  useEffect(() => {
+    if (CryptoSelected2 !== '') {
+      GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/daily-trading-volume/${CryptoSelected2}`)
+      .then((response) => {
+        const getData = []
+        for (let i = 0; i < response.result.length; i++) {
+          getData.push(
+            {
+              label: response.result[i].date,
+              x: response.result[i].volume,
+            }
+          )
+        }
+        SetDailyTradingList(getData)
+      })
+      .catch(console.log);
+    }
+
+  }, [,CryptoSelected2]);
 
   return (
     <div className="px-4 xl:px-0"> {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
@@ -306,7 +327,7 @@ export default function Page() {
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4 pb-4">
         <div>
           <DoubleLinearChart
-            data={chartData2}
+            data={DepWitList}
             title="نمودار واریز و برداشت ماهانه"
             unitSuffix="M"
             assetLabel='واریز'
@@ -322,7 +343,7 @@ export default function Page() {
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-0 pb-4">
         <div>
           <SingleLinearChart
-            data={chartData}
+            data={DailyTradingList}
             title="حجم معاملات ماهانه"
             seriesLabel="حجم"
             unitSuffix="M"
