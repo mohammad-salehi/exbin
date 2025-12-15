@@ -18,7 +18,8 @@ type Props = {
     data: DashboardItem[];
     title?: string;
     unit?: string;
-    description?: string
+    description?: string,
+    value?: number|null
 };
 
 const COLORS = [
@@ -36,7 +37,8 @@ export const CircleChart: React.FC<Props> = ({
     data,
     title = 'تقسیم‌بندی داده‌ها',
     unit = '',
-    description = ''
+    description = '',
+    value = null
 }) => {
     const MIN_PERCENT = 1; // حداقل درصد قابل نمایش
 
@@ -256,9 +258,14 @@ export const CircleChart: React.FC<Props> = ({
                                         y="49%"
                                         textAnchor="middle"
                                         dominantBaseline="central"
-                                        className="text-moon-14 md:text-moon-16 text-sm fill-current text-titleText dark:text-titleText-dark"
+                                        className={`text-moon-14 md:text-moon-16 text-sm fill-current ${value !== null && value > 0 ? 'text-green-400' : value !== null && value < 0 ? 'text-red-400' : 'text-titleText dark:text-titleText-dark'} `}
                                     >
-                                        {total.toLocaleString('en-US')}
+                                        {
+                                            value === null ?
+                                                total.toLocaleString('en-US')
+                                                :
+                                                value.toLocaleString()
+                                        }
                                     </text>
 
                                     {/* واحد زیر عدد */}
@@ -267,7 +274,7 @@ export const CircleChart: React.FC<Props> = ({
                                         y="56%"
                                         textAnchor="middle"
                                         dominantBaseline="central"
-                                        className="text-moon-10 md:text-moon-12 fill-current  text-sm  text-titleText dark:text-titleText-dark"
+                                        className={`text-moon-14 md:text-moon-16 text-sm fill-current ${value !== null && value > 0 ? 'text-green-400' : value !== null && value < 0 ? 'text-red-400' : 'text-titleText dark:text-titleText-dark'} `}
                                     >
                                         {unit}
                                     </text>

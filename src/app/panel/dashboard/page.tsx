@@ -312,6 +312,8 @@ export default function Page() {
           <CircleChart
             data={ProofOfReserve}
             title="نسبت دارایی به بدهی"
+            unit="USDT"
+            value={ProofOfReserve.length !== 0 ? ProofOfReserve[0].value - ProofOfReserve[1].value : null}
           />
         </div>
         <div>
