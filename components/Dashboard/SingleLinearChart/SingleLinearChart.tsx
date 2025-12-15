@@ -54,6 +54,27 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
     );
   }, [List, search]);
 
+  const formatCompact = (n: number) => {
+    const abs = Math.abs(n);
+
+    if (abs >= 1_000_000_000) {
+      const v = n / 1_000_000_000;
+      return `${Number(v.toFixed(v % 1 === 0 ? 0 : 1))}B`;
+    }
+
+    if (abs >= 1_000_000) {
+      const v = n / 1_000_000;
+      return `${Number(v.toFixed(v % 1 === 0 ? 0 : 1))}M`;
+    }
+
+    if (abs >= 1_000) {
+      const v = n / 1_000;
+      return `${Number(v.toFixed(v % 1 === 0 ? 0 : 1))}K`;
+    }
+
+    return `${n}`;
+  };
+
   return (
     <div
       dir="rtl"
@@ -72,9 +93,9 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
             <Dropdown
               onChange={(e) => {
                 if (typeof e === "string" && SetCryptoSelected) {
-                    SetCryptoSelected(e);
+                  SetCryptoSelected(e);
                 }
-            }}
+              }}
               value={CryptoSelected}
             >
               <Dropdown.Trigger className="w-full ">
@@ -175,13 +196,11 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
               orientation="left"          // 👈 محور و اعداد برن سمت چپ نمودار
               width={50}                  // 👈 جا برای اعداد سمت چپ
 
-              tickFormatter={(val: number) =>
-                unitSuffix ? `${val}${unitSuffix}` : `${val}`
-              }
+              tickFormatter={formatCompact}
               tick={{
                 fontSize: 12,
                 fill: "currentColor",
-                dx: -28
+                dx: -20,
               }}
               axisLine={{
                 stroke: "currentColor",
@@ -191,17 +210,28 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
             />
 
             <Tooltip
-              formatter={(value: any) => [
-                unitSuffix ? `${value} ${unitSuffix}` : `${value}`,
-                seriesLabel,
-              ]}
-              labelFormatter={(label: any) => `${label}`}
-              contentStyle={{
-                direction: "rtl",
-                fontSize: 12,
-                borderRadius: 8,
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+
+                const raw = payload[0]?.value ?? 0;
+                const val = Number(raw) || 0;
+
+                return (
+                  <div className="rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark bg-white dark:bg-buttonColor-dark px-3 py-2 text-xs text-titleText dark:text-titleText-dark">
+                    {/* ✅ Title */}
+                    <div className="mb-2 font-semibold">{String(label)}</div>
+
+                    <div className="flex items-center justify-between gap-4">
+                      <span>{seriesLabel}</span>
+                      <span dir="ltr">
+                        {formatCompact(val)}
+                      </span>
+                    </div>
+                  </div>
+                );
               }}
             />
+
 
             <Bar
               dataKey="x"

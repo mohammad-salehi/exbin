@@ -59,6 +59,27 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
         );
     }, [List, search]);
 
+    const formatCompact = (n: number) => {
+        const abs = Math.abs(n);
+
+        if (abs >= 1_000_000_000) {
+            const v = n / 1_000_000_000;
+            return `${Number(v.toFixed(v % 1 === 0 ? 0 : 1))}B`;
+        }
+
+        if (abs >= 1_000_000) {
+            const v = n / 1_000_000;
+            return `${Number(v.toFixed(v % 1 === 0 ? 0 : 1))}M`;
+        }
+
+        if (abs >= 1_000) {
+            const v = n / 1_000;
+            return `${Number(v.toFixed(v % 1 === 0 ? 0 : 1))}K`;
+        }
+
+        return `${n}`;
+    };
+
     return (
         <div
             dir="rtl"
@@ -177,13 +198,11 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
                         />
 
                         <YAxis
-                            tickFormatter={(val: number) =>
-                                unitSuffix ? `${val} ${unitSuffix}` : `${val}`  // همیشه string
-                            }
+                            tickFormatter={formatCompact}
                             tick={{
                                 fontSize: 12,
                                 fill: "currentColor",
-                                dx: -28
+                                dx: -20
                             }}
                             axisLine={{
                                 stroke: "currentColor",
@@ -194,19 +213,30 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
 
 
                         <Tooltip
-                            formatter={(value: any, name: any) => {
-                                const label =
-                                    name === "x" ? assetLabel : name === "y" ? liabilityLabel : "";
-                                return [
-                                    unitSuffix ? `${value} ${unitSuffix}` : value,
-                                    label,
-                                ];
-                            }}
-                            labelFormatter={(label: any) => `${label}`}
-                            contentStyle={{
-                                direction: "rtl",
-                                fontSize: 12,
-                                borderRadius: 8,
+                            content={({ active, payload, label }) => {
+                                if (!active || !payload?.length) return null;
+
+                                const xVal = payload.find((p: any) => p.dataKey === "x")?.value ?? 0;
+                                const yVal = payload.find((p: any) => p.dataKey === "y")?.value ?? 0;
+
+                                return (
+                                    <div className="rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark bg-white dark:bg-buttonColor-dark px-3 py-2 text-xs text-titleText dark:text-titleText-dark">
+                                        {/* ✅ Title */}
+                                        <div className="mb-2 font-semibold">{String(label)}</div>
+
+                                        <div className="flex flex-col gap-1">
+                                            <div className="flex items-center justify-between gap-4">
+                                                <span>{assetLabel}</span>
+                                                <span dir="ltr">{formatCompact(Number(xVal))}</span>
+                                            </div>
+
+                                            <div className="flex items-center justify-between gap-4">
+                                                <span>{liabilityLabel}</span>
+                                                <span dir="ltr">{formatCompact(Number(yVal))}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                );
                             }}
                         />
 
