@@ -319,6 +319,7 @@ export default function Page() {
             data={ProofOfReserve}
             title="نسبت دارایی به بدهی"
             unit="USDT"
+            description="برایند دارایی‌ها و بدهی‌ها محاسبه شده است!"
             value={
               ProofOfReserve.length !== 0
                 ? ProofOfReserve[0].value - ProofOfReserve[1].value

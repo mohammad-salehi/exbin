@@ -19,7 +19,7 @@ type Props = {
     title?: string;
     unit?: string;
     description?: string,
-    value?: number|null
+    value?: number | null
 };
 
 const COLORS = [
@@ -248,7 +248,7 @@ export const CircleChart: React.FC<Props> = ({
                                     />
                                 ))}
                             </Pie>
-                            {/* متن وسط دونات */}
+
                             {/* متن وسط دونات */}
                             {total > 0 && unit !== '' && (
                                 <>
@@ -258,14 +258,15 @@ export const CircleChart: React.FC<Props> = ({
                                         y="49%"
                                         textAnchor="middle"
                                         dominantBaseline="central"
-                                        className={`text-moon-14 md:text-moon-16 text-sm fill-current ${value !== null && value > 0 ? 'text-green-400' : value !== null && value < 0 ? 'text-red-400' : 'text-titleText dark:text-titleText-dark'} `}
+                                        style={{ direction: 'ltr', unicodeBidi: 'embed' }}
+                                        className={`text-moon-14 md:text-moon-16 text-sm fill-current ${value !== null && value > 0
+                                                ? 'text-green-400'
+                                                : value !== null && value < 0
+                                                    ? 'text-red-400'
+                                                    : 'text-titleText dark:text-titleText-dark'
+                                            }`}
                                     >
-                                        {
-                                            value === null ?
-                                                total.toLocaleString('en-US')
-                                                :
-                                                value.toLocaleString()
-                                        }
+                                        {value === null ? total.toLocaleString('en-US') : value.toLocaleString('en-US')}
                                     </text>
 
                                     {/* واحد زیر عدد */}
