@@ -55,6 +55,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const params = useParams<{ id: string }>();
   const [logo, SetLogo] = useState<string>("");
   const [name, SetName] = useState<string>("");
+  const [ConfirmDelete, SetConfirmDelete] = useState<string>("");
   const [DownloadLoading, SetDownloadLoading] = useState<boolean>(false);
   const [AddFileModal, SetAddFileModal] = useState<boolean>(false);
   const [type, Settype] = useState<string>("");
@@ -239,6 +240,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     }
   };
   const deleteExchange = () => {
+    if (ConfirmDelete === name) {
     setDeleteExchangeLoading(true)
     DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`)
       .then((response) => {
@@ -250,6 +252,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         toast.error("خطا در حذف سکو");
         setDeleteExchangeLoading(true)
       })
+    }
   }
 
   const [invoiceData, setInvoiceData] = useState<InvoiceSection[]>([
@@ -385,6 +388,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               onClick={() => {
                 setExchangeToDelete({ id: params.id });
                 setconfirmDeleteExchangeOpen(true);
+                SetConfirmDelete('')
               }}
             >
               <span className="flex items-center ml-1">
@@ -1105,6 +1109,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         downloadLink="/path/to/pdf"
       />
 
+      {/* ویرایش سکو */}
       <Modal open={isOpen} onClose={() => setIsOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
@@ -1422,6 +1427,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         </div>
       </Modal>
 
+      {/* افزودن فایل */}
       <Modal
         open={AddFileModal}
         onClose={() => {
@@ -1537,6 +1543,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         </div>
       </Modal>
 
+      {/* تغییر مشخصات سکو */}
       <Modal
         open={isLogOpen}
         onClose={() => {
@@ -1627,18 +1634,35 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             <p className="mb-4">
               آیا از حذف سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
             </p>
-            <div className="flex justify-end gap-2">
+            <small className="select-none">
+              نام سکوی مورد نظر ({name}) را در کادر زیر وارد کنید
+            </small>
+            <Input
+              className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
+                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
+                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+              placeholder={name}
+              value={ConfirmDelete}
+              onChange={(e) =>
+                SetConfirmDelete(e.target.value)
+              }
+            />
+            <div className="flex justify-end gap-2 mt-4">
+
               <Button
                 variant="ghost"
                 disabled={deleteLoading}
                 onClick={() => setconfirmDeleteExchangeOpen(false)}
+                className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
               >
                 انصراف
               </Button>
               <Button
                 variant="primary"
                 onClick={deleteExchange}
-                disabled={deleteLoading}
+                disabled={deleteLoading || name !== ConfirmDelete}
+                
+                className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
               >
                 {ExchangedeleteLoading ? (
                   <LoaderCircle size={8} color="border-white-500" />
@@ -1646,6 +1670,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   "حذف"
                 )}
               </Button>
+              
             </div>
           </Modal.Panel>
         </div>

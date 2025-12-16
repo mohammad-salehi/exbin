@@ -28,6 +28,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
     lineHeight: 1.2,
     direction: "rtl",
     textAlign: "right",
+    marginTop:'8px'
   };
 
   const labelStyle: React.CSSProperties = {
