@@ -5,7 +5,14 @@ import SingleLinearChart from '../../SingleLinearChart/SingleLinearChart'
 import DoubleLinearChart from '../../DoubleLinearChart/DoubleLinearChart'
 import { GetRequest } from '../../../../functions/GetRequest'
 import { useParams } from "next/navigation";
+import StatsMarquee from "../../../../components/Dashboard/Band/Band";
 
+
+const MemoStatsMarquee = React.memo(StatsMarquee);
+const MemoCircleChart = React.memo(CircleChart);
+const MemoSingleLinearChart = React.memo(SingleLinearChart);
+const MemoDoubleLinearChart = React.memo(DoubleLinearChart);
+const MemoTreeMap = React.memo(CryptoVolumeTreemap);
 const ExchangeStats = () => {
 
     const params = useParams<{ id: string }>();
@@ -16,16 +23,35 @@ const ExchangeStats = () => {
         label: string;
         x: number
     }
+    type CryptoTradingValueUsers = {
+        label: string;
+        value: number
+    }
+    type DoubleLinearChart = {
+        label: string;
+        x: number,
+        y: number
+    }
+    type TopcryptocurrenciesChart = {
+        name: string;
+        symbol: string,
+        value: number
+    }
 
     const [logo, SetLogo] = useState<string>("");
     const [name, SetName] = useState<string>("");
-    const [numberOfUsers, SetnumberOfUsers] = useState<number>(0)
-    const [WithdrawAvg, SetWithdrawAvg] = useState<number>(0)
-    const [totalAssets, SettotalAssets] = useState<number>(0)
-    const [totalLiabilities, SettotalLiabilities] = useState<number>(0)
-    const [POR, SetPOR] = useState<number>(0)
+
+    const [HeaderData, SetHeaderData] = useState<CryptoTradingValueUsers[]>([])
+
     const [DailyActiveUsers, SetDailyActiveUsers] = useState<dailyActiveUsers[]>([])
-    const [Topcryptocurrencies, SetTopcryptocurrencies] = useState<dailyActiveUsers[]>([])
+    const [Topcryptocurrencies, SetTopcryptocurrencies] = useState<TopcryptocurrenciesChart[]>([])
+    const [TopTradedcryptocurrencies, SetTopTradedcryptocurrencies] = useState<CryptoTradingValueUsers[]>([])
+    const [PORHistory, SetPORHistory] = useState<DoubleLinearChart[]>([])
+    const [TradingVolume, SetTradingVolume] = useState<dailyActiveUsers[]>([])
+
+    const [CryptoList, SetCryptoList] = useState([])
+    const [CryptoSelected1, SetCryptoSelected1] = useState('')
+
     // نام و لوگو
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
@@ -37,17 +63,26 @@ const ExchangeStats = () => {
                 console.log(err)
             })
     }, [])
+
     // تعداد کاربران
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/number-of-users`)
             .then((response) => {
-                SetnumberOfUsers(response.result.numberOfUsers)
+                SetHeaderData((prev) => {
+                    const item: CryptoTradingValueUsers = {
+                        label: "تعداد کاربران",
+                        value: Number(response.result.numberOfUsers ?? 0),
+                    };
+
+                    const next = prev.filter((x) => x.label !== item.label);
+                    return [...next, item];
+                });
             })
             .catch((err) => {
                 console.log(err)
             })
     }, [])
-    // تعداد کاربران فعال
+    // تعداد کاربران فعال ماهانه
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/daily-active-users`)
             .then((response) => {
@@ -69,7 +104,15 @@ const ExchangeStats = () => {
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/avg-withdrawal-time-24h`)
             .then((response) => {
-                SetWithdrawAvg(response.result.avgWithdrawalDurationMs)
+                SetHeaderData((prev) => {
+                    const item: CryptoTradingValueUsers = {
+                        label: "میانگین زمان تسویه کاربران(میلی‌ثانیه)",
+                        value: Number(response.result.avgWithdrawalDurationMs ?? 0),
+                    };
+
+                    const next = prev.filter((x) => x.label !== item.label);
+                    return [...next, item];
+                });
             })
             .catch((err) => {
                 console.log(err)
@@ -79,15 +122,39 @@ const ExchangeStats = () => {
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/latest-assets-liabilities`)
             .then((response) => {
-                SettotalAssets(response.result.totalAssetsUsd)
-                SettotalLiabilities(response.result.totalLiabilitiesUsd)
-                SetPOR((response.result.totalAssetsUsd / response.result.totalLiabilitiesUsd) * 100)
+                SetHeaderData((prev) => {
+                    const item: CryptoTradingValueUsers = {
+                        label: "مجموع دارایی(USDT)",
+                        value: Number(response.result.totalAssetsUsd ?? 0),
+                    };
+
+                    const next = prev.filter((x) => x.label !== item.label);
+                    return [...next, item];
+                });
+                SetHeaderData((prev) => {
+                    const item: CryptoTradingValueUsers = {
+                        label: "مجموع بدهی(USDT)",
+                        value: Number(response.result.totalLiabilitiesUsd ?? 0),
+                    };
+
+                    const next = prev.filter((x) => x.label !== item.label);
+                    return [...next, item];
+                });
+                SetHeaderData((prev) => {
+                    const item: CryptoTradingValueUsers = {
+                        label: "نسبت دارایی به بدهی(درصد)",
+                        value: Number(response.result.totalAssetsUsd / response.result.totalLiabilitiesUsd ?? 0) * 100,
+                    };
+
+                    const next = prev.filter((x) => x.label !== item.label);
+                    return [...next, item];
+                });
             })
             .catch((err) => {
                 console.log(err)
             })
     }, [])
-    // دارایی های برتر
+    // بیشترین رمزارز های معامله شده
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/top-cryptocurrencies`)
             .then((response) => {
@@ -95,92 +162,80 @@ const ExchangeStats = () => {
                 for (let i = 0; i < response.result.length; i++) {
                     getData.push({
                         label: response.result[i].currencyUnit,
-                        x: response.result[i].totalVolumeUsd
+                        value: response.result[i].totalVolumeUsd
                     })
                 }
                 getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
+                SetTopTradedcryptocurrencies(getData)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }, [])
+    // تاریخچه POR
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/assets-liabilities-historical`)
+            .then((response) => {
+                const getData = []
+                for (let i = 0; i < response.result.length; i++) {
+                    getData.push({
+                        label: response.result[i].date,
+                        x: response.result[i].totalAssetsUsd,
+                        y: response.result[i].totalLiabilitiesUsd
+                    })
+                }
+                getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
+                SetPORHistory(getData)
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+    }, [])
+    // حجم دارایی رمزارزها
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/portfolio`)
+            .then((response) => {
+                const getData = []
+                for (let i = 0; i < response.result.length; i++) {
+                    getData.push({
+                        name: response.result[i].cryptocurrency,
+                        symbol: response.result[i].cryptocurrency,
+                        value: response.result[i].totalUsdValue
+                    })
+                }
                 SetTopcryptocurrencies(getData)
             })
             .catch((err) => {
                 console.log(err)
             })
     }, [])
-    const data = [
-        { label: 'BTC', value: 420000 },
-        { label: 'ETH', value: 260000 },
-        { label: 'USDT', value: 150000 },
-        { label: 'SOL', value: 90000 },
-        { label: 'BNB', value: 70000 },
-        { label: 'XRP', value: 30000 },
-        { label: 'DOGE', value: 20000 },
-    ];
-
-    const chartData = [
-        { label: "فروردین", x: 150 },
-        { label: "اردیبهشت", x: 120 },
-        { label: "خرداد", x: 180 },
-        { label: "تیر", x: 90 },
-        { label: "مرداد", x: 80 },
-        { label: "شهریور", x: 70 },
-        { label: "مهر", x: 150 },
-        { label: "آبان", x: 120 },
-        { label: "آذر", x: 180 },
-        { label: "دی", x: 90 },
-        { label: "بهمن", x: 80 },
-        { label: "اسفند", x: 70 },
-    ];
-
-    const chartData2 = [
-        { label: "فروردین", x: 150, y: 150 },
-        { label: "اردیبهشت", x: 120, y: 120 },
-        { label: "خرداد", x: 180, y: 180 },
-        { label: "تیر", x: 90, y: 90 },
-        { label: "مرداد", x: 80, y: 80 },
-        { label: "شهریور", x: 70, y: 70 },
-        { label: "مهر", x: 150, y: 150 },
-        { label: "آبان", x: 120, y: 120 },
-        { label: "آذر", x: 180, y: 180 },
-        { label: "دی", x: 90, y: 90 },
-        { label: "بهمن", x: 80, y: 80 },
-        { label: "اسفند", x: 70, y: 70 },
-    ];
-
-    const sampleData = {
-        daily: [
-            { name: 'Bitcoin', symbol: 'BTC', value: 42000000 },
-            { name: 'Ethereum', symbol: 'ETH', value: 26000000 },
-            { name: 'Tether', symbol: 'USDT', value: 15000000 },
-            { name: 'Solana', symbol: 'SOL', value: 8000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-            { name: 'BNB', symbol: 'BNB', value: 6000000 },
-        ],
-        weekly: [
-            { name: 'Bitcoin', symbol: 'BTC', value: 210000000 },
-            { name: 'Ethereum', symbol: 'ETH', value: 150000000 },
-            { name: 'Tether', symbol: 'USDT', value: 90000000 },
-            { name: 'Solana', symbol: 'SOL', value: 45000000 },
-            { name: 'BNB', symbol: 'BNB', value: 30000000 },
-            { name: 'XRP', symbol: 'XRP', value: 20000000 },
-        ],
-        monthly: [
-            { name: 'Bitcoin', symbol: 'BTC', value: 900000000 },
-            { name: 'Ethereum', symbol: 'ETH', value: 600000000 },
-            { name: 'Tether', symbol: 'USDT', value: 400000000 },
-            { name: 'Solana', symbol: 'SOL', value: 220000000 },
-            { name: 'BNB', symbol: 'BNB', value: 180000000 },
-            { name: 'XRP', symbol: 'XRP', value: 120000000 },
-            { name: 'DOGE', symbol: 'DOGE', value: 80000000 },
-        ],
-    };
+    //لیست کوین ها
+    useEffect(() => {
+        GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/valid-currencies`)
+            .then((response) => {
+                SetCryptoList(response.result)
+                SetCryptoSelected1(response.result[0].cryptocurrency)
+            })
+            .catch(console.log);
+    }, []);
+    // لیست معاملات رمزارزها
+    useEffect(() => {
+        if (CryptoSelected1 !== '') {
+            GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/exchange/${id}/trading-volume/${CryptoSelected1}`)
+                .then((response) => {
+                    const getData = []
+                    for (let i = 0; i < response.result.length; i++) {
+                        getData.push({
+                            label: response.result[i].date,
+                            x: response.result[i].volume
+                        })
+                    }
+                    getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
+                    SetTradingVolume(getData)
+                })
+                .catch(console.log);
+        }
+    }, [CryptoSelected1]);
 
     return (
         <div>
@@ -211,42 +266,46 @@ const ExchangeStats = () => {
             <h3 className="inline-block text-2xl text-bold mr-2 text-titleText dark:text-titleText-dark">
                 {name}
             </h3>
-            {/* <StatsMarquee /> */}
+            <MemoStatsMarquee data={HeaderData} />
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
                 <div className="min-h-full">
-                    <CircleChart
-                        data={data}
+                    <MemoCircleChart
+                        data={TopTradedcryptocurrencies}
                         title="حجم معاملات رمزارزها"
                         unit="USDT"
                     />
                 </div>
                 <div className="min-h-full">
-                    <CryptoVolumeTreemap data={sampleData} defaultRange="daily" title="حجم دارایی رمزارزها" />
+                    <MemoTreeMap data={Topcryptocurrencies} title="حجم دارایی رمزارزها" />
                 </div>
             </div>
             <div className="p-0 mt-4">
-                <SingleLinearChart
-                    data={chartData}
-                    title="حجم معاملات ماهانه"
-                    seriesLabel="حجم"
-                    unitSuffix="M"
-                />
-            </div>
-            <div className="p-0 mt-4">
-                <SingleLinearChart
-                    data={DailyActiveUsers}
-                    title="کاربران فعال ماهانه"
-                    seriesLabel="کاربر"
-                    unitSuffix="M"
-                />
-            </div>
-            <div className="p-0 mt-4">
-                <DoubleLinearChart
-                    data={chartData2}
+                <MemoDoubleLinearChart
+                    data={PORHistory}
                     title="اثبات ذخیره دارایی‌ها"
                     unitSuffix="M"
                     assetLabel='دارایی'
                     liabilityLabel='بدهی'
+                />
+            </div>
+            <div className="p-0 mt-4">
+                <MemoSingleLinearChart
+                    data={TradingVolume}
+                    title="حجم معاملات ماهانه"
+                    seriesLabel="حجم"
+                    unitSuffix="M"
+                    List={CryptoList}
+                    CryptoSelected={CryptoSelected1}
+                    SetCryptoSelected={SetCryptoSelected1}
+                    ShowList={true}
+                />
+            </div>
+            <div className="p-0 mt-4">
+                <MemoSingleLinearChart
+                    data={DailyActiveUsers}
+                    title="کاربران فعال ماهانه"
+                    seriesLabel="کاربر"
+                    unitSuffix="M"
                 />
             </div>
         </div>
