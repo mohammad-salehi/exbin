@@ -32,8 +32,10 @@ type ProofOfReserveChartProps = {
   ShowList?: boolean;
   CryptoSelected?: string;
   SetCryptoSelected?: React.Dispatch<React.SetStateAction<string>>;
-};
 
+  // ✅ NEW
+  useLastItemForNet?: boolean;
+};
 const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
   data,
   title = "اثبات ذخیره دارایی‌ها",
@@ -45,10 +47,24 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
   CryptoSelected = "",
   SetCryptoSelected,
   ShowList = false,
+
+  // ✅ NEW
+  useLastItemForNet = false,
 }) => {
-  const totalX = data.reduce((sum, w) => sum + (w.x || 0), 0);
-  const totalY = data.reduce((sum, w) => sum + (w.y || 0), 0);
-  const net = totalX - totalY;
+  const { totalX, totalY, net } = useMemo(() => {
+    if (!data || data.length === 0) return { totalX: 0, totalY: 0, net: 0 };
+
+    if (useLastItemForNet) {
+      const last = data[data.length - 1];
+      const x = Number(last?.x || 0);
+      const y = Number(last?.y || 0);
+      return { totalX: x, totalY: y, net: x - y };
+    }
+
+    const sx = data.reduce((sum, w) => sum + (Number(w.x) || 0), 0);
+    const sy = data.reduce((sum, w) => sum + (Number(w.y) || 0), 0);
+    return { totalX: sx, totalY: sy, net: sx - sy };
+  }, [data, useLastItemForNet]);
 
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
@@ -166,11 +182,10 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
                         <MenuItem
                           isActive={false}
                           isSelected={CryptoSelected === item.cryptocurrency}
-                          className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                            CryptoSelected === item.cryptocurrency
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                          }`}
+                          className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${CryptoSelected === item.cryptocurrency
+                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                            : ""
+                            }`}
                         >
                           <MenuItem.Title>{item.cryptocurrency}</MenuItem.Title>
                         </MenuItem>

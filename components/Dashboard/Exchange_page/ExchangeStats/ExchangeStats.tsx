@@ -7,13 +7,17 @@ import { GetRequest } from '../../../../functions/GetRequest'
 import { useParams } from "next/navigation";
 import StatsMarquee from "../../../../components/Dashboard/Band/Band";
 
+type ExchangeInfoProps = {
+    SetLoading: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 
 const MemoStatsMarquee = React.memo(StatsMarquee);
 const MemoCircleChart = React.memo(CircleChart);
 const MemoSingleLinearChart = React.memo(SingleLinearChart);
 const MemoDoubleLinearChart = React.memo(DoubleLinearChart);
 const MemoTreeMap = React.memo(CryptoVolumeTreemap);
-const ExchangeStats = () => {
+const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
 
     const params = useParams<{ id: string }>();
 
@@ -52,15 +56,37 @@ const ExchangeStats = () => {
     const [CryptoList, SetCryptoList] = useState([])
     const [CryptoSelected1, SetCryptoSelected1] = useState('')
 
+    const [C1, SetC1] = useState<boolean>(false);
+    const [C2, SetC2] = useState<boolean>(false);
+    const [C3, SetC3] = useState<boolean>(false);
+    const [C4, SetC4] = useState<boolean>(false);
+    const [C5, SetC5] = useState<boolean>(false);
+    const [C6, SetC6] = useState<boolean>(false);
+    const [C7, SetC7] = useState<boolean>(false);
+    const [C8, SetC8] = useState<boolean>(false);
+    const [C9, SetC9] = useState<boolean>(false);
+    const [C10, SetC10] = useState<boolean>(false);
+
+    const [IsLoading, SetIsLoading] = useState<boolean>(true);
+    useEffect(() => {
+        if (C1 && C2 && C3 && C4 && C5 && C6 && C7 && C8 && C9 && C10) {
+            SetIsLoading(false);
+        }
+    }, [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10]);
+    useEffect(() => {
+        SetLoading(IsLoading)
+    },[IsLoading])
     // نام و لوگو
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
             .then((response) => {
                 SetLogo(response.result.logo);
                 SetName(response.result.name);
+                SetC1(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC1(true)
             })
     }, [])
 
@@ -77,9 +103,11 @@ const ExchangeStats = () => {
                     const next = prev.filter((x) => x.label !== item.label);
                     return [...next, item];
                 });
+                SetC2(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC2(true)
             })
     }, [])
     // تعداد کاربران فعال ماهانه
@@ -95,9 +123,11 @@ const ExchangeStats = () => {
                 }
                 getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
                 SetDailyActiveUsers(getData)
+                SetC3(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC3(true)
             })
     }, [])
     // میانگین زمان تسویه
@@ -113,9 +143,11 @@ const ExchangeStats = () => {
                     const next = prev.filter((x) => x.label !== item.label);
                     return [...next, item];
                 });
+                SetC4(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC4(true)
             })
     }, [])
     // بدهی و دارایی و اثبات ذخیره
@@ -140,18 +172,25 @@ const ExchangeStats = () => {
                     const next = prev.filter((x) => x.label !== item.label);
                     return [...next, item];
                 });
+                const assets = Number(response?.result?.totalAssetsUsd ?? 0);
+                const liabilities = Number(response?.result?.totalLiabilitiesUsd ?? 0);
+
+                const ratioPct = liabilities > 0 ? (assets / liabilities) * 100 : 0;
+
                 SetHeaderData((prev) => {
                     const item: CryptoTradingValueUsers = {
                         label: "نسبت دارایی به بدهی(درصد)",
-                        value: Number(response.result.totalAssetsUsd / response.result.totalLiabilitiesUsd ?? 0) * 100,
+                        value: Number(ratioPct.toFixed(2)),
                     };
 
                     const next = prev.filter((x) => x.label !== item.label);
                     return [...next, item];
                 });
+                SetC5(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC5(true)
             })
     }, [])
     // بیشترین رمزارز های معامله شده
@@ -167,9 +206,11 @@ const ExchangeStats = () => {
                 }
                 getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
                 SetTopTradedcryptocurrencies(getData)
+                SetC6(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC6(true)
             })
     }, [])
     // تاریخچه POR
@@ -186,9 +227,11 @@ const ExchangeStats = () => {
                 }
                 getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
                 SetPORHistory(getData)
+                SetC7(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC7(true)
             })
     }, [])
     // حجم دارایی رمزارزها
@@ -204,9 +247,11 @@ const ExchangeStats = () => {
                     })
                 }
                 SetTopcryptocurrencies(getData)
+                SetC8(true)
             })
             .catch((err) => {
                 console.log(err)
+                SetC8(true)
             })
     }, [])
     //لیست کوین ها
@@ -215,8 +260,12 @@ const ExchangeStats = () => {
             .then((response) => {
                 SetCryptoList(response.result)
                 SetCryptoSelected1(response.result[0].cryptocurrency)
+                SetC9(true)
             })
-            .catch(console.log);
+            .catch((err) => {
+                console.log(err)
+                SetC9(true)
+            })
     }, []);
     // لیست معاملات رمزارزها
     useEffect(() => {
@@ -232,15 +281,19 @@ const ExchangeStats = () => {
                     }
                     getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
                     SetTradingVolume(getData)
+                    SetC10(true)
                 })
-                .catch(console.log);
+                .catch((err) => {
+                    console.log(err)
+                    SetC10(true)
+                })
         }
     }, [CryptoSelected1]);
 
     return (
         <div>
             {logo !== null && logo !== "" ? (
-                <img alt="image" className="w-8 h-8 inline-block" src={logo} />
+                <img alt="image" className="w-8 inline-block" src={logo} />
             ) : (
                 <div
                     className=" items-center text-titleText dark:text-titleText-dark inline-block "
@@ -263,7 +316,7 @@ const ExchangeStats = () => {
                     </svg>
                 </div>
             )}
-            <h3 className="inline-block text-2xl text-bold mr-2 text-titleText dark:text-titleText-dark">
+            <h3 className="inline-block text-2xl text-bold mr-2 text-titleText dark:text-titleText-dark mb-4">
                 {name}
             </h3>
             <MemoStatsMarquee data={HeaderData} />
@@ -286,6 +339,7 @@ const ExchangeStats = () => {
                     unitSuffix="M"
                     assetLabel='دارایی'
                     liabilityLabel='بدهی'
+                    useLastItemForNet
                 />
             </div>
             <div className="p-0 mt-4">

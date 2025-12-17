@@ -1,31 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import CeoDetail from "../../../../../../components/Dashboard/Exchange_page/CeoDetail/CeoDetail";
-import BoardMemberTable from "../../../../../../components/Dashboard/Exchange_page/BoardMemberInfo/BoardMemberInfo";
-import ExchangeAgentInfo from "../../../../../../components/Dashboard/Exchange_page/ExchangeAgentInfo/ExchangeAgentInfo";
-import EmployeeInfo from "../../../../../../components/Dashboard/Exchange_page/EmployeeInfo/EmployeeInfo";
-import Exchange_info from "../../../../../../components/Dashboard/Exchange_page/Exchange_info/Exchange_info";
 import AnimatedText from "../../../../../../components/AnimatedLoading/AnimatedLoading";
 import { PantaTabs, TabItem } from "../../../../../../components/Tabs/Tabs";
-import { useParams } from "next/navigation";
 import ExchangeStats from "../../../../../../components/Dashboard/Exchange_page/ExchangeStats/ExchangeStats";
+import ExchangeIdentify from "../../../../../../components/Dashboard/Exchange_page/ExchangeIdentify/ExchangeIdentify";
 
 const Page = () => {
-  const params = useParams<{ id: string }>();
-
-  const [C1, SetC1] = useState<boolean>(false);
-  const [C2, SetC2] = useState<boolean>(false);
-  const [C3, SetC3] = useState<boolean>(false);
-  const [C4, SetC4] = useState<boolean>(false);
-  const [C5, SetC5] = useState<boolean>(false);
   const [Loading, SetLoading] = useState<boolean>(true);
-
-  useEffect(() => {
-    if (C1 && C2 && C3 && C4 && C5) {
-      SetLoading(false);
-    }
-  }, [C1, C2, C3, C4, C5]);
 
   // اختیاری: برای اینکه اگر یکی از بخش‌ها fail شد گیر نکنه
   useEffect(() => {
@@ -42,11 +24,7 @@ const Page = () => {
       </svg>,
       content: (
         <div>
-          <Exchange_info SetC1={SetC1} />
-          <CeoDetail SetC2={SetC2} />
-          <BoardMemberTable SetC3={SetC3} />
-          <ExchangeAgentInfo SetC4={SetC4} />
-          <EmployeeInfo SetC5={SetC5} />
+          <ExchangeIdentify SetLoading={SetLoading} />
         </div>
       ),
     },
@@ -57,7 +35,7 @@ const Page = () => {
         <path fill="currentColor" d="M9 17a1 1 0 102 0H9zm2-14a1 1 0 10-2 0h2zM3 17a1 1 0 102 0H3zm2-7a1 1 0 00-2 0h2zm10 7a1 1 0 102 0h-2zm2-10a1 1 0 10-2 0h2zm-6 10V3H9v14h2zm-6 0v-7H3v7h2zm12 0V7h-2v10h2z" />
       </svg>,
       content: (
-        <ExchangeStats/>
+        <ExchangeStats SetLoading={SetLoading}/>
       ),
     },
     {
