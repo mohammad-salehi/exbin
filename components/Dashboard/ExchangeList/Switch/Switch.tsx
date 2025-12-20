@@ -26,14 +26,20 @@ const RiskSwitch: React.FC<RiskSwitchProps> = ({
 }) => {
   return (
     <div
-      className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-1"
+      dir="ltr"
+      className="
+        inline-grid
+        grid-cols-1 sm:grid-cols-2 xl:grid-cols-4
+        gap-1
+        justify-items-start
+        w-auto
+      "
     >
-
       {options.map((opt) => {
         const isActive = opt.value === value;
 
         return (
-          <div className="">
+          <div className="w-full">
             <button
               key={opt.value}
               type="button"
