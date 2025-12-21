@@ -430,17 +430,10 @@ const Page = () => {
     const columns = useMemo(() => {
         return [
             {
-                header: 'صرافی',
+                header: 'سکو',
                 accessorKey: 'exchangeName',
                 cell: (row: CryptoTxRow) => (
                     <span className="text-titleText dark:text-titleText-dark">{row?.exchangeName || ''}</span>
-                ),
-            },
-            {
-                header: 'کارگزار رمزارز',
-                accessorKey: 'cryptoBrokerId',
-                cell: (row: CryptoTxRow) => (
-                    <span className="text-titleText dark:text-titleText-dark">{row?.cryptoBrokerId || ''}</span>
                 ),
             },
             {
