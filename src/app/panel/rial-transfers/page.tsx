@@ -89,6 +89,36 @@ const Page = () => {
         { label: 'برگشت‌خورده', value: 'refund' },
     ];
 
+    // ✅ state های داخل مودال (Draft)
+    const [draftUserId, setDraftUserId] = useState<string>('');
+    const [draftUserIdentity, setDraftUserIdentity] = useState<string>('');
+    const [draftIrrTransactionId, setDraftIrrTransactionId] = useState<string>('');
+
+    // ✅ وقتی مودال باز شد، draft رو از فیلترهای اعمال‌شده پر کن
+    useEffect(() => {
+        if (isModalOpen) {
+            setDraftUserId(filterUserId);
+            setDraftUserIdentity(filterUserIdentity);
+            setDraftIrrTransactionId(filterIrrTransactionId);
+        }
+    }, [isModalOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    // ✅ اعمال فیلترهای مودال فقط با دکمه
+    const applyModalFilters = () => {
+        setFilterUserId(draftUserId);
+        setFilterUserIdentity(draftUserIdentity);
+        setFilterIrrTransactionId(draftIrrTransactionId);
+        setCurrentPage(1);
+        setIsModalOpen(false);
+    };
+
+    // ✅ (اختیاری) پاک کردن draft داخل مودال
+    const clearModalFilters = () => {
+        setDraftUserId('');
+        setDraftUserIdentity('');
+        setDraftIrrTransactionId('');
+    };
+
     // ✅ گزینه‌های userIdentity مطابق داک
     const userIdentityOptions: { label: string; value: string }[] = [
         { label: 'حقیقی', value: 'individual' },
@@ -652,14 +682,11 @@ const Page = () => {
                             <div className="text-sm text-titleText dark:text-titleText-dark">
                                 شناسه کاربر
                                 <input
-                                    value={filterUserId}
-                                    onChange={(e) => {
-                                        setFilterUserId(e.target.value);
-                                        setCurrentPage(1);
-                                    }}
-                                    placeholder="مثلاً user-2798"
+                                    value={draftUserId}
+                                    onChange={(e) => setDraftUserId(e.target.value)}
+                                    placeholder=""
                                     className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
-                  bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
+    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
                                 />
                             </div>
 
@@ -667,25 +694,19 @@ const Page = () => {
                             <div className="text-sm text-titleText dark:text-titleText-dark">
                                 شناسه تراکنش
                                 <input
-                                    value={filterIrrTransactionId}
-                                    onChange={(e) => {
-                                        setFilterIrrTransactionId(e.target.value);
-                                        setCurrentPage(1);
-                                    }}
-                                    placeholder="مثلاً 96a14f..."
+                                    value={draftIrrTransactionId}
+                                    onChange={(e) => setDraftIrrTransactionId(e.target.value)}
+                                    placeholder=""
                                     className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
-                  bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
+    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
                                 />
                             </div>
 
                             {/* userIdentity (Select مثل سلکت صرافی) */}
                             <SearchableSelect
                                 label="هویت کاربر"
-                                value={filterUserIdentity}
-                                onChange={(val) => {
-                                    setFilterUserIdentity(val);
-                                    setCurrentPage(1);
-                                }}
+                                value={draftUserIdentity}
+                                onChange={(val) => setDraftUserIdentity(val)}
                                 placeholder="همه"
                                 allLabel="همه"
                                 searchable={false}
@@ -704,7 +725,7 @@ const Page = () => {
                             <Button
                                 variant="ghost"
                                 className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:opacity-90"
-                                onClick={() => setIsModalOpen(false)}
+                                onClick={applyModalFilters}
                             >
                                 اعمال
                             </Button>

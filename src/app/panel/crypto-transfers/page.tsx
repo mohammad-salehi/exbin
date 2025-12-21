@@ -91,6 +91,38 @@ const Page = () => {
     // ✅ exchanges
     const [exchanges, setExchanges] = useState<Company[]>([]);
 
+
+
+
+
+    type CryptoFilters = {
+        userId: string;
+        userIdentity: string;
+        cryptocurrency: string;
+        transactionDestination: string;
+        transactionSource: string;
+        transactionId: string;
+    };
+
+    const emptyFilters: CryptoFilters = {
+        userId: '',
+        userIdentity: '',
+        cryptocurrency: '',
+        transactionDestination: '',
+        transactionSource: '',
+        transactionId: '',
+    };
+
+    // ✅ فیلترهای اعمال‌شده روی API
+    const [appliedFilters, setAppliedFilters] = useState<CryptoFilters>(emptyFilters);
+
+    // ✅ فیلترهای داخل مودال (تا وقتی Apply نزدی، اعمال نمی‌شن)
+    const [draftFilters, setDraftFilters] = useState<CryptoFilters>(emptyFilters);
+
+
+
+
+
     const txKindOptions: { label: string; value: TxKind }[] = [
         { label: 'واریز', value: 'deposit' },
         { label: 'برداشت', value: 'withdraw' },
@@ -190,12 +222,12 @@ const Page = () => {
         params.set('size', String(pageSize));
 
         if (exchangeSelected) params.set('exchangeName', exchangeSelected);
-        if (filterUserId) params.set('userId', filterUserId);
-        if (filterUserIdentity) params.set('userIdentity', filterUserIdentity);
-        if (filterCryptocurrency) params.set('cryptocurrency', filterCryptocurrency);
-        if (filterTransactionDestination) params.set('transactionDestination', filterTransactionDestination);
-        if (filterTransactionSource) params.set('transactionSource', filterTransactionSource);
-        if (filterTransactionId) params.set('transactionId', filterTransactionId);
+        if (appliedFilters.userId) params.set('userId', appliedFilters.userId);
+        if (appliedFilters.userIdentity) params.set('userIdentity', appliedFilters.userIdentity);
+        if (appliedFilters.cryptocurrency) params.set('cryptocurrency', appliedFilters.cryptocurrency);
+        if (appliedFilters.transactionDestination) params.set('transactionDestination', appliedFilters.transactionDestination);
+        if (appliedFilters.transactionSource) params.set('transactionSource', appliedFilters.transactionSource);
+        if (appliedFilters.transactionId) params.set('transactionId', appliedFilters.transactionId);
 
         return `${base}?${params.toString()}`;
     };
@@ -284,12 +316,14 @@ const Page = () => {
     }, [
         txKind,
         exchangeSelected,
-        filterUserId,
-        filterUserIdentity,
-        filterCryptocurrency,
-        filterTransactionDestination,
-        filterTransactionSource,
-        filterTransactionId,
+
+        appliedFilters.userId,
+        appliedFilters.userIdentity,
+        appliedFilters.cryptocurrency,
+        appliedFilters.transactionDestination,
+        appliedFilters.transactionSource,
+        appliedFilters.transactionId,
+
         currentPage,
         pageSize,
     ]);
@@ -309,67 +343,73 @@ const Page = () => {
             });
         }
 
-        if (filterUserId) {
+        if (appliedFilters.userId) {
             badges.push({
                 key: 'userId',
-                label: `شناسه کاربر ${filterUserId}`,
+                label: `شناسه کاربر ${appliedFilters.userId}`,
                 onRemove: () => {
-                    setFilterUserId('');
+                    setAppliedFilters((p) => ({ ...p, userId: '' }));
+                    setDraftFilters((p) => ({ ...p, userId: '' })); // ✅ برای همگام بودن UI مودال
                     setCurrentPage(1);
                 },
             });
         }
 
-        if (filterUserIdentity) {
+        if (appliedFilters.userIdentity) {
             badges.push({
                 key: 'userIdentity',
-                label: `هویت ${translateUserIdentity(filterUserIdentity)}`,
+                label: `هویت ${translateUserIdentity(appliedFilters.userIdentity)}`,
                 onRemove: () => {
-                    setFilterUserIdentity('');
+                    setAppliedFilters((p) => ({ ...p, userIdentity: '' }));
+                    setDraftFilters((p) => ({ ...p, userIdentity: '' }));
                     setCurrentPage(1);
                 },
             });
         }
 
-        if (filterCryptocurrency) {
+        if (appliedFilters.cryptocurrency) {
             badges.push({
                 key: 'cryptocurrency',
-                label: `رمزارز ${filterCryptocurrency}`,
+                label: `رمزارز ${appliedFilters.cryptocurrency}`,
                 onRemove: () => {
-                    setFilterCryptocurrency('');
+                    setAppliedFilters((p) => ({ ...p, cryptocurrency: '' }));
+                    setDraftFilters((p) => ({ ...p, cryptocurrency: '' }));
                     setCurrentPage(1);
                 },
             });
         }
 
-        if (filterTransactionDestination) {
-            badges.push({
-                key: 'transactionDestination',
-                label: `مقصد ${filterTransactionDestination}`,
-                onRemove: () => {
-                    setFilterTransactionDestination('');
-                    setCurrentPage(1);
-                },
-            });
-        }
-
-        if (filterTransactionSource) {
+        if (appliedFilters.transactionSource) {
             badges.push({
                 key: 'transactionSource',
-                label: `مبدأ ${filterTransactionSource}`,
+                label: `آدرس مبدأ ${appliedFilters.transactionSource}`,
                 onRemove: () => {
-                    setFilterTransactionSource('');
+                    setAppliedFilters((p) => ({ ...p, transactionSource: '' }));
+                    setDraftFilters((p) => ({ ...p, transactionSource: '' }));
                     setCurrentPage(1);
                 },
             });
         }
 
-        if (filterTransactionId) {
+        if (appliedFilters.transactionDestination) {
+            badges.push({
+                key: 'transactionDestination',
+                label: `آدرس مقصد ${appliedFilters.transactionDestination}`,
+                onRemove: () => {
+                    setAppliedFilters((p) => ({ ...p, transactionDestination: '' }));
+                    setDraftFilters((p) => ({ ...p, transactionDestination: '' }));
+                    setCurrentPage(1);
+                },
+            });
+        }
+
+        if (appliedFilters.transactionId) {
             badges.push({
                 key: 'transactionId',
-                label: `شناسه شبکه ${filterTransactionId}`,
+                label: `شناسه تراکنش ${appliedFilters.transactionId}`,
                 onRemove: () => {
-                    setFilterTransactionId('');
+                    setAppliedFilters((p) => ({ ...p, transactionId: '' }));
+                    setDraftFilters((p) => ({ ...p, transactionId: '' }));
                     setCurrentPage(1);
                 },
             });
@@ -378,13 +418,14 @@ const Page = () => {
         return badges;
     }, [
         exchangeSelected,
-        filterUserId,
-        filterUserIdentity,
-        filterCryptocurrency,
-        filterTransactionDestination,
-        filterTransactionSource,
-        filterTransactionId,
+        appliedFilters.userId,
+        appliedFilters.userIdentity,
+        appliedFilters.cryptocurrency,
+        appliedFilters.transactionDestination,
+        appliedFilters.transactionSource,
+        appliedFilters.transactionId,
     ]);
+
 
     const columns = useMemo(() => {
         return [
@@ -459,7 +500,7 @@ const Page = () => {
                 ),
             },
             {
-                header: 'Memo',
+                header: 'پرداخت‌یار',
                 accessorKey: 'memo',
                 cell: (row: CryptoTxRow) => (
                     <span className="text-titleText dark:text-titleText-dark">{row?.memo || ''}</span>
@@ -483,7 +524,10 @@ const Page = () => {
     }, []);
 
     const handleBackdropMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (e.target === modalBackdropRef.current) setIsModalOpen(false);
+        if (e.target === modalBackdropRef.current) {
+            setDraftFilters(appliedFilters); // ✅ برگشت به حالت اعمال‌شده
+            setIsModalOpen(false);
+        }
     };
 
 
@@ -566,7 +610,10 @@ const Page = () => {
                                     variant="ghost"
                                     className="w-full sm:w-auto px-4 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
                     border border-gray-300 rounded-lg dark:border-buttonBorderColor-dark outline-none shadow-none"
-                                    onClick={() => setIsModalOpen(true)}
+                                    onClick={() => {
+                                        setDraftFilters(appliedFilters); // ✅ کپی مقدارهای فعلی
+                                        setIsModalOpen(true);
+                                    }}
                                 >
                                     فیلترهای بیشتر
                                 </Button>
@@ -640,7 +687,10 @@ const Page = () => {
                             <div className="text-titleText dark:text-titleText-dark font-semibold">فیلترهای بیشتر</div>
                             <button
                                 type="button"
-                                onClick={() => setIsModalOpen(false)}
+                                onClick={() => {
+                                    setDraftFilters(appliedFilters);
+                                    setIsModalOpen(false);
+                                }}
                                 className="w-9 h-9 rounded-full flex items-center justify-center
                   bg-boxColor dark:bg-boxColor-dark border border-gray-200 dark:border-buttonBorderColor-dark
                   text-titleText dark:text-titleText-dark"
@@ -655,10 +705,9 @@ const Page = () => {
                             <div className="text-sm text-titleText dark:text-titleText-dark">
                                 شناسه کاربر
                                 <input
-                                    value={filterUserId}
+                                    value={draftFilters.userId}
                                     onChange={(e) => {
-                                        setFilterUserId(e.target.value);
-                                        setCurrentPage(1);
+                                        setDraftFilters((p) => ({ ...p, userId: e.target.value }));
                                     }}
                                     placeholder="مثلاً user-2798"
                                     className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
@@ -670,11 +719,11 @@ const Page = () => {
                             <div className="text-sm text-titleText dark:text-titleText-dark">
                                 شناسه تراکنش (TransactionId)
                                 <input
-                                    value={filterTransactionId}
+                                    value={draftFilters.transactionId}
                                     onChange={(e) => {
-                                        setFilterTransactionId(e.target.value);
-                                        setCurrentPage(1);
+                                        setDraftFilters((p) => ({ ...p, transactionId: e.target.value }));
                                     }}
+
                                     placeholder="مثلاً 0x... یا txid"
                                     className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
@@ -685,11 +734,11 @@ const Page = () => {
                             <div className="w-full">
                                 <SearchableSelect
                                     label="هویت کاربر"
-                                    value={filterUserIdentity}
+                                    value={draftFilters.userIdentity}
                                     onChange={(val) => {
-                                        setFilterUserIdentity(val);
-                                        setCurrentPage(1);
+                                        setDraftFilters((p) => ({ ...p, userIdentity: val }));
                                     }}
+
                                     options={userIdentityOptions.map((x) => ({ label: x.label, value: x.value }))}
                                     placeholder="همه"
                                     allLabel="همه"
@@ -702,11 +751,11 @@ const Page = () => {
                             <div className="text-sm text-titleText dark:text-titleText-dark">
                                 رمزارز
                                 <input
-                                    value={filterCryptocurrency}
+                                    value={draftFilters.cryptocurrency}
                                     onChange={(e) => {
-                                        setFilterCryptocurrency(e.target.value);
-                                        setCurrentPage(1);
+                                        setDraftFilters((p) => ({ ...p, cryptocurrency: e.target.value }));
                                     }}
+
                                     placeholder="مثلاً BTC"
                                     className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
@@ -717,11 +766,11 @@ const Page = () => {
                             <div className="text-sm text-titleText dark:text-titleText-dark">
                                 آدرس مقصد
                                 <input
-                                    value={filterTransactionDestination}
+                                    value={draftFilters.transactionDestination}
                                     onChange={(e) => {
-                                        setFilterTransactionDestination(e.target.value);
-                                        setCurrentPage(1);
+                                        setDraftFilters((p) => ({ ...p, transactionDestination: e.target.value }));
                                     }}
+
                                     placeholder="مثلاً 0x... یا bc1..."
                                     className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
@@ -732,11 +781,11 @@ const Page = () => {
                             <div className="text-sm text-titleText dark:text-titleText-dark">
                                 آدرس مبدا
                                 <input
-                                    value={filterTransactionSource}
+                                    value={draftFilters.transactionSource}
                                     onChange={(e) => {
-                                        setFilterTransactionSource(e.target.value);
-                                        setCurrentPage(1);
+                                        setDraftFilters((p) => ({ ...p, transactionSource: e.target.value }));
                                     }}
+
                                     placeholder="مثلاً 0x... یا bc1..."
                                     className="mt-2 w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
                     bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
@@ -748,7 +797,11 @@ const Page = () => {
                             <Button
                                 variant="ghost"
                                 className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:opacity-90"
-                                onClick={() => setIsModalOpen(false)}
+                                onClick={() => {
+                                    setAppliedFilters(draftFilters); // ✅ اعمال واقعی فیلترها
+                                    setCurrentPage(1);              // ✅ ریست صفحه
+                                    setIsModalOpen(false);          // ✅ بستن مودال
+                                }}
                             >
                                 اعمال
                             </Button>
