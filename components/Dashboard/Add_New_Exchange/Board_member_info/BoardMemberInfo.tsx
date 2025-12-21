@@ -171,6 +171,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             <button
               className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
               onClick={() => { nextStep() }}
+               id='nextPage3'
             >
               {"صفحه بعد"
               }
@@ -306,7 +307,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
             <div className="p-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex justify-end gap-2">
               <Button variant="ghost" onClick={closeModal}>انصراف</Button>
-              <Button onClick={handleSave}>
+              <Button onClick={handleSave} id='AddBoardMember'>
                 {Loading ?
                   <div>
                     <LoaderCircle size={8} color="border-white-500" />

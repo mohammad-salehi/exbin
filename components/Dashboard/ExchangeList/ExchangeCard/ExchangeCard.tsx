@@ -11,7 +11,8 @@ interface ExchangeCardProps {
     risk: number;
     coins: number;
     lastUpdate: string;
-    logo: string
+    logo: string;
+    key:string
 }
 
 const ExchangeCard: React.FC<ExchangeCardProps> = ({
@@ -23,12 +24,14 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
     coins,
     lastUpdate,
     logo,
+    key
 }) => {
     return (
         <Link
             href={`/panel/exchanges-list/exchange/${id}`}
             dir="rtl"
             className="w-full main-animated-border-box rounded-xl border  bg-boxColor dark:bg-boxColor-dark shadow-sm text-[13px] leading-relaxed hover:bg-bgHoverColor hover:dark:bg-bgHoverColor-dark cursor-pointer transition  duration-100"
+            id={`ExschangeCard${key}`}
         >
             {/* هدر کارت */}
             <div className="flex items-center justify-between px-4 pt-3 pb-2">

@@ -375,15 +375,6 @@ const Page = () => {
                 ),
             },
             {
-                header: 'کارگزار رمزارز',
-                accessorKey: 'cryptoBrokerId',
-                cell: (row: IrrTransactionRow) => (
-                    <span className="text-titleText dark:text-titleText-dark">
-                        {row?.cryptoBrokerId || ''}
-                    </span>
-                ),
-            },
-            {
                 header: 'شناسه مرجع',
                 accessorKey: 'transactionReferenceId',
                 cell: (row: IrrTransactionRow) => (
@@ -506,24 +497,20 @@ const Page = () => {
 
     return (
         <div className='p-2 sm:p-0'>
-            {/* ردیف اول: سوییچ + (سمت چپ) انتخاب صرافی و دکمه فیلتر بیشتر در یک خط */}
             <div className="mt-4">
-                {/* Row 1: Right = Switch | Left = Exchange + More Filters */}
                 <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4" dir="rtl">
                     {/* RIGHT (Switch) */}
-                    <div className="order-1 lg:order-2 flex w-full lg:w-auto justify-end">
+                    <div className="order-1 lg:order-2 flex w-full lg:w-auto">
                         <div className="mt-5 w-full lg:w-auto">
-                            {/* ✅ موبایل: تمام عرض | دسکتاپ: مثل قبل */}
                             <div
                                 className="
-            w-full lg:w-auto
-
-            [&_*]:w-full lg:[&_*]:w-auto
-
-            [&_button]:min-w-[92px] sm:[&_button]:min-w-[104px]
-            [&_button]:px-4 sm:[&_button]:px-5
-            [&_button]:py-2
-          "
+        w-full lg:w-auto
+        flex justify-start lg:justify-start
+        [&_*]:w-full lg:[&_*]:w-auto
+        [&_button]:min-w-[92px] sm:[&_button]:min-w-[104px]
+        [&_button]:px-4 sm:[&_button]:px-5
+        [&_button]:py-2
+      "
                             >
                                 <RiskSwitch
                                     value={transactionType}

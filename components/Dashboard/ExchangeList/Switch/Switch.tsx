@@ -1,10 +1,7 @@
 // components/RiskSwitch.tsx
 import React from "react";
 
-type Option = {
-  label: string;
-  value: string;
-};
+type Option = { label: string; value: string };
 
 interface RiskSwitchProps {
   value: string;
@@ -28,32 +25,30 @@ const RiskSwitch: React.FC<RiskSwitchProps> = ({
     <div
       dir="ltr"
       className="
-        inline-grid
-        grid-cols-1 sm:grid-cols-2 xl:grid-cols-4
+        w-full
+        grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4
         gap-1
-        justify-items-start
-        w-auto
+        justify-items-stretch
+        items-stretch
       "
     >
       {options.map((opt) => {
         const isActive = opt.value === value;
 
         return (
-          <div className="w-full">
-            <button
-              key={opt.value}
-              type="button"
-              onClick={() => onChange(opt.value)}
-              className={
-                "w-full py-1.5 text-sm rounded-md transition-colors " +
-                (isActive
-                  ? "bg-[#63C3FF] text-[#0F172A] border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  : "bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark")
-              }
-            >
-              {opt.label}
-            </button>
-          </div>
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onChange(opt.value)}
+            className={
+              "w-full py-1.5 text-sm rounded-md transition-colors " +
+              (isActive
+                ? "bg-[#63C3FF] text-[#0F172A] border border-boxBorderColor dark:border-boxBorderColor-dark"
+                : "bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark")
+            }
+          >
+            {opt.label}
+          </button>
         );
       })}
     </div>

@@ -248,6 +248,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               onClick={() => {
                 nextStep();
               }}
+              id='endExCreating'
             >
               {"اتمام"}
             </button>
@@ -428,7 +429,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               <Button variant="ghost" onClick={closeModal}>
                 انصراف
               </Button>
-              <Button onClick={handleSave}>
+              <Button onClick={handleSave}  id='addEmployee'>
                 {Loading ? (
                   <div>
                     <LoaderCircle size={8} color="border-white-500" />

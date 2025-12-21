@@ -422,6 +422,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                         <button
                             className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg flex justify-center items-center"
                             onClick={() => nextStep()}
+                            id='nextPage1'
                         >
                             {Loading ? (
                                 <div>

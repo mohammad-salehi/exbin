@@ -173,7 +173,7 @@ const Page = () => {
           <div className="text-sm text-titleText dark:text-titleText-dark"></div>
           <div className="text-sm text-titleText dark:text-titleText-dark">
             <Link href={`/panel/add-new-exchange`}>
-              <button className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg" >
+              <button className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg" id="addExchangeButton">
                 افزودن سکو جدید
               </button>
             </Link>

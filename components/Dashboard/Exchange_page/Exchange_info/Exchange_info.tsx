@@ -241,17 +241,17 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   };
   const deleteExchange = () => {
     if (ConfirmDelete === name) {
-    setDeleteExchangeLoading(true)
-    DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`)
-      .then((response) => {
-        toast.success("سکو با موفقیت حذف شد");
-        setDeleteExchangeLoading(true)
-        window.location.assign(`/panel/exchanges-list`);
-      })
-      .catch((err) => {
-        toast.error("خطا در حذف سکو");
-        setDeleteExchangeLoading(true)
-      })
+      setDeleteExchangeLoading(true)
+      DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`)
+        .then((response) => {
+          toast.success("سکو با موفقیت حذف شد");
+          setDeleteExchangeLoading(true)
+          window.location.assign(`/panel/exchanges-list`);
+        })
+        .catch((err) => {
+          toast.error("خطا در حذف سکو");
+          setDeleteExchangeLoading(true)
+        })
     }
   }
 
@@ -294,6 +294,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           id: 1,
           content: (
             <div
+              id="EditExInfo"
               className="text-center w-full cursor-pointer"
               onClick={() => {
                 setIsOpen(true);
@@ -342,6 +343,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           id: 2,
           content: (
             <div
+              id="DownloadExInfo"
               className="flex justify-between items-center cursor-pointer"
               onClick={() => {
                 download();
@@ -385,6 +387,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           content: (
             <div
               className="flex justify-between items-center cursor-pointer"
+              id="DeleteExInfo"
               onClick={() => {
                 setExchangeToDelete({ id: params.id });
                 setconfirmDeleteExchangeOpen(true);
@@ -606,6 +609,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               </div>
               <div className="flex items-center">
                 <button
+                  id="downloadAssociation"
                   onClick={handleDownload}
                   className="text-titleText dark:text-titleText-dark mr-2"
                 >
@@ -635,6 +639,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 </button>
 
                 <button
+                  id="deleteAssociation"
                   onClick={() => {
                     setConfirmAssociationOpen(true);
                   }}
@@ -657,13 +662,14 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
             </div>
           )}
           {/* رندر آیتم‌های صورت‌های مالی؛ حتماً return بده و key یکتا بذار */}
-          {financialStatement.map((item) => (
+          {financialStatement.map((item, index) => (
             <div className="flex justify-between items-center w-full">
               <div className="flex items-center">
                 <h6 className="inline-block">صورت مالی {item.date}</h6>
               </div>
               <div className="flex items-center">
                 <button
+                  id={`DownloadFinancial${index}`}
                   onClick={() => {
                     handleDownloadFinancial(item.id, item.date);
                   }}
@@ -695,6 +701,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 </button>
 
                 <button
+                  id={`DownloadFinancial${index}`}
                   onClick={() => {
                     setFinancialToDelete({ id: item.id, date: item.date });
                     setConfirmFinancialOpen(true);
@@ -720,6 +727,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
           {/* ردیف دوم: دکمه افزودن — همیشه زیرِ ردیف اول می‌آید */}
           <div className="mt-4 w-full">
             <Button
+              id="AddDocument"
               variant="primary"
               className="text-primary dark:text-primary-dark border border-primary rounded-md w-full"
               onClick={() => SetAddFileModal(true)}
@@ -1661,7 +1669,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 variant="primary"
                 onClick={deleteExchange}
                 disabled={deleteLoading || name !== ConfirmDelete}
-                
+
                 className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
               >
                 {ExchangedeleteLoading ? (
@@ -1670,7 +1678,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                   "حذف"
                 )}
               </Button>
-              
+
             </div>
           </Modal.Panel>
         </div>

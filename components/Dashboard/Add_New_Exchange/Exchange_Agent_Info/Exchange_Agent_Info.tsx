@@ -140,6 +140,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({
               onClick={() => {
                 nextStep();
               }}
+              id='nextPage4'
             >
               {"صفحه بعد"}
             </button>
@@ -200,7 +201,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({
               <Button variant="ghost" onClick={closeModal}>
                 انصراف
               </Button>
-              <Button onClick={handleSave}>
+              <Button onClick={handleSave} id='addAgent'>
                 {Loading ? (
                   <div>
                     <LoaderCircle size={8} color="border-white-500" />

@@ -255,7 +255,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       header: "عملیات",
       cell: (row: Person) => (
         <div className="flex items-center gap-2 text-titleText dark:text-titleText-dark cursor-pointer">
-          <button className="transition-colors py-1 rounded-md" onClick={() => openModal(row)}>
+          <button id={`EditCeo${row.id}`} className="transition-colors py-1 rounded-md" onClick={() => openModal(row)}>
             <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <title />
               <g id="Complete">
@@ -268,7 +268,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
               </g>
             </svg>
           </button>
-          <button className="transition-colors py-1 rounded-md" onClick={() => {
+          <button id={`ChangesCeo${row.id}`} className="transition-colors py-1 rounded-md" onClick={() => {
             setForm(row), setisLogOpen(true);
           }}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

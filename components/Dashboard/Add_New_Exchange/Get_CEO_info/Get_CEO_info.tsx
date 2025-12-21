@@ -219,6 +219,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               onClick={() => {
                 nextStep();
               }}
+              id='nextPage2'
             >
               {Loading ? (
                 <div>
