@@ -24,6 +24,7 @@ type Person = {
   careerHistory: string;
   sharePercentage: string;
   email: string;
+  index:number
 };
 
 type ExchangeInfoProps = {
@@ -44,6 +45,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
     careerHistory: "",
     sharePercentage: "",
     email: "",
+    index:0
   });
 
   const [isOpen, setIsOpen] = useState(false);
@@ -225,6 +227,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
         const managerInfo = response.result.managerInfo;
         setData([
           {
+            index:1,
             id: managerInfo.id,
             name: managerInfo.name,
             phoneNumber: managerInfo.phoneNumber,
