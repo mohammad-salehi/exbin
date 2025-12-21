@@ -9,6 +9,7 @@ import LoadingComponent from '../../../../components/LoadingComponent/LoadingCom
 import ExpandableTable from '../../../../components/ExpandableTable/ExpandableTable';
 import Pagination from '../../../../components/Pagination/Pagination';
 import { GetRequest } from '../../../../functions/GetRequest';
+import SearchableSelect from '../../../../components/Select/Select';
 
 type TxKind = 'deposit' | 'withdraw';
 
@@ -485,11 +486,28 @@ const Page = () => {
         if (e.target === modalBackdropRef.current) setIsModalOpen(false);
     };
 
+
+    const [open, setOpen] = useState(false);
+
+    const rootRef = useRef<HTMLDivElement | null>(null);
+
+    // ✅ بستن منو با کلیک بیرون
+    useEffect(() => {
+        if (!open) return;
+
+        const handler = (e: MouseEvent) => {
+            if (!rootRef.current) return;
+            if (!rootRef.current.contains(e.target as Node)) setOpen(false);
+        };
+
+        document.addEventListener("mousedown", handler, true);
+        return () => document.removeEventListener("mousedown", handler, true);
+    }, [open]);
+
     return (
         <div className="p-2 sm:p-0">
             <div className="mt-4">
                 <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4" >
-                    {/* RIGHT (Switch) */}
                     {/* Switch wrapper */}
                     <div className="order-1 lg:order-2 flex w-full lg:w-auto">
                         <div className="mt-5 w-full lg:w-auto">
@@ -516,87 +534,30 @@ const Page = () => {
                         </div>
                     </div>
 
-
-
                     {/* LEFT (Exchange + More Filters) */}
                     <div className="order-2 lg:order-1 w-full lg:w-auto">
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 w-full justify-start">
                             {/* exchange */}
                             <div className="relative w-full sm:w-80 text-sm text-titleText dark:text-titleText-dark">
-                                صرافی
-                                <Dropdown
+                                <SearchableSelect
+                                    label="سکو"
+                                    loading={usersLoading}
                                     value={exchangeSelected}
-                                    className="outline-none w-full"
-                                    onChange={(v: string) => {
-                                        const val = (v as string) ?? '';
+                                    onChange={(val) => {
                                         setExchangeSelected(val);
                                         setCurrentPage(1);
                                     }}
-                                >
-                                    <Dropdown.Trigger className="w-full">
-                                        <Button
-                                            as="span"
-                                            role="button"
-                                            variant="ghost"
-                                            className="flex items-center justify-between w-full pl-10 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
-                        border border-gray-300 rounded-lg dark:border-buttonBorderColor-dark focus:outline-none appearance-none relative outline-none shadow-none"
-                                        >
-                                            <span>
-                                                {usersLoading
-                                                    ? 'در حال بارگذاری...'
-                                                    : exchangeSelected
-                                                        ? exchanges.find((u) => u.name === exchangeSelected)?.name ?? exchangeSelected
-                                                        : 'همه سکوها'}
-                                            </span>
-                                        </Button>
-                                    </Dropdown.Trigger>
-
-                                    <Dropdown.Options
-                                        className="absolute left-0 mt-2 w-72 pl-2 pr-2 text-gray-700 bg-white dark:bg-buttonColor-dark
-                      border border-gray-300 dark:border-buttonBorderColor-dark rounded-lg dark:text-gray-100 appearance-none z-50
-                      max-h-60 overflow-y-auto"
-                                    >
-                                        <div className="sticky top-0 z-10 bg-white dark:bg-buttonColor-dark pt-2 pb-2">
-                                            <input
-                                                value={exchangeSearch}
-                                                onChange={(e) => setExchangeSearch(e.target.value)}
-                                                placeholder="جستجوی نام صرافی..."
-                                                className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
-                          bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
-                                            />
-                                        </div>
-
-                                        <Dropdown.Option value="">
-                                            {({ selected, active }) => (
-                                                <MenuItem
-                                                    isActive={active}
-                                                    isSelected={selected}
-                                                    className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${selected ? 'bg-gray-100 border-gray-200 dark:bg-gray-700' : ''
-                                                        }`}
-                                                >
-                                                    <MenuItem.Title>همه سکوها</MenuItem.Title>
-                                                </MenuItem>
-                                            )}
-                                        </Dropdown.Option>
-
-                                        {filteredExchanges.map((u) => (
-                                            <Dropdown.Option value={u.name} key={u.id}>
-                                                {({ selected, active }) => (
-                                                    <MenuItem
-                                                        isActive={active}
-                                                        isSelected={selected}
-                                                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${selected ? 'bg-gray-100 border-gray-200 dark:bg-gray-700' : ''
-                                                            }`}
-                                                    >
-                                                        <MenuItem.Title>{u.name}</MenuItem.Title>
-                                                    </MenuItem>
-                                                )}
-                                            </Dropdown.Option>
-                                        ))}
-                                    </Dropdown.Options>
-                                </Dropdown>
-
-                                <ControlsChevronDown className="absolute left-3 top-[33px] text-titleText dark:text-titleText-dark pointer-events-none" />
+                                    options={exchanges.map((e) => ({
+                                        id: e.id,
+                                        label: e.name,
+                                        value: e.name,
+                                    }))}
+                                    placeholder="همه سکوها"
+                                    allLabel="همه سکوها"
+                                    searchable
+                                    searchPlaceholder="جستجوی نام سکو..."
+                                    className="sm:w-80 text-sm"
+                                />
                             </div>
 
                             {/* more filters */}
@@ -721,70 +682,20 @@ const Page = () => {
                             </div>
 
                             {/* userIdentity */}
-                            <div className="relative w-full text-sm text-titleText dark:text-titleText-dark">
-                                هویت کاربر
-                                <Dropdown
+                            <div className="w-full">
+                                <SearchableSelect
+                                    label="هویت کاربر"
                                     value={filterUserIdentity}
-                                    className="outline-none"
-                                    onChange={(v: string) => {
-                                        const val = (v as string) ?? '';
+                                    onChange={(val) => {
                                         setFilterUserIdentity(val);
                                         setCurrentPage(1);
                                     }}
-                                >
-                                    <Dropdown.Trigger className="w-full">
-                                        <Button
-                                            as="span"
-                                            role="button"
-                                            variant="ghost"
-                                            className="mt-2 flex items-center justify-between w-full pl-10 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
-                        border border-gray-300 rounded-lg dark:border-buttonBorderColor-dark focus:outline-none appearance-none relative outline-none shadow-none"
-                                        >
-                                            <span>
-                                                {filterUserIdentity
-                                                    ? userIdentityOptions.find((x) => x.value === filterUserIdentity)?.label ??
-                                                    translateUserIdentity(filterUserIdentity)
-                                                    : 'همه'}
-                                            </span>
-                                        </Button>
-                                    </Dropdown.Trigger>
-
-                                    <Dropdown.Options
-                                        className="absolute left-0 mt-2 w-72 pl-2 pr-2 text-gray-700 bg-white dark:bg-buttonColor-dark
-                      border border-gray-300 dark:border-buttonBorderColor-dark rounded-lg dark:text-gray-100 appearance-none z-50
-                      max-h-60 overflow-y-auto"
-                                    >
-                                        <Dropdown.Option value="">
-                                            {({ selected, active }) => (
-                                                <MenuItem
-                                                    isActive={active}
-                                                    isSelected={selected}
-                                                    className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${selected ? 'bg-gray-100 border-gray-200 dark:bg-gray-700' : ''
-                                                        }`}
-                                                >
-                                                    <MenuItem.Title>همه</MenuItem.Title>
-                                                </MenuItem>
-                                            )}
-                                        </Dropdown.Option>
-
-                                        {userIdentityOptions.map((opt) => (
-                                            <Dropdown.Option value={opt.value} key={opt.value}>
-                                                {({ selected, active }) => (
-                                                    <MenuItem
-                                                        isActive={active}
-                                                        isSelected={selected}
-                                                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${selected ? 'bg-gray-100 border-gray-200 dark:bg-gray-700' : ''
-                                                            }`}
-                                                    >
-                                                        <MenuItem.Title>{opt.label}</MenuItem.Title>
-                                                    </MenuItem>
-                                                )}
-                                            </Dropdown.Option>
-                                        ))}
-                                    </Dropdown.Options>
-                                </Dropdown>
-
-                                <ControlsChevronDown className="absolute left-3 top-[45px] text-titleText dark:text-titleText-dark pointer-events-none" />
+                                    options={userIdentityOptions.map((x) => ({ label: x.label, value: x.value }))}
+                                    placeholder="همه"
+                                    allLabel="همه"
+                                    searchable={false}
+                                    className="text-sm"
+                                />
                             </div>
 
                             {/* cryptocurrency */}
