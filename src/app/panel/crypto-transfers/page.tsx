@@ -648,7 +648,7 @@ const Page = () => {
                     <LoadingComponent />
                 ) : (
                     <div className="mt-4 w-full overflow-x-auto">
-                        <div className="min-w-[3000px]">
+                        <div className="">
                             <ExpandableTable<CryptoTxRow>
                                 data={rows}
                                 columns={columns as any}
