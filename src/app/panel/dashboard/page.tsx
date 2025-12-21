@@ -53,6 +53,43 @@ export default function Page() {
   const CryptoShareRef = useRef(false);
   const CryptoListRef = useRef(false);
 
+  const formatJalaliDateTime = (value?: string | number) => {
+    if (value === null || value === undefined || value === '') return '';
+    let d: Date | null = null;
+
+    // ✅ اگر unix بود: sec یا ms
+    if (typeof value === 'number') {
+      const ms = value < 10_000_000_000 ? value * 1000 : value; // sec -> ms
+      d = new Date(ms);
+    } else {
+      const trimmed = String(value).trim();
+      const asNum = Number(trimmed);
+      if (!Number.isNaN(asNum) && trimmed.length >= 10) {
+        const ms = asNum < 10_000_000_000 ? asNum * 1000 : asNum;
+        d = new Date(ms);
+      } else {
+        const parsed = new Date(trimmed);
+        if (!Number.isNaN(parsed.getTime())) d = parsed;
+      }
+    }
+
+    if (!d || Number.isNaN(d.getTime())) return String(value);
+
+    const fa = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(d);
+
+    const time = new Intl.DateTimeFormat('fa-IR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).format(d);
+
+    return `${fa}`;
+  };
+
   //تعداد کاربران صرافی‌ها
   useEffect(() => {
     if (usersNumberRef.current) return;
@@ -270,49 +307,49 @@ export default function Page() {
   useEffect(() => {
     if (CryptoSelected1 !== '') {
       GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/daily-deposits-withdrawals/${CryptoSelected1}`)
-      .then((response) => {
-        const getData = []
-        for (let i = 0; i < response.result.length; i++) {
-          getData.push(
-            {
-              label: response.result[i].date,
-              x: response.result[i].inflow,
-              y: response.result[i].outflow
-            }
-          )
-        }
-        SetDepWitList(getData)
-      })
-      .catch(console.log);
+        .then((response) => {
+          const getData = []
+          for (let i = 0; i < response.result.length; i++) {
+            getData.push(
+              {
+                label: formatJalaliDateTime(response.result[i].date),
+                x: response.result[i].inflow,
+                y: response.result[i].outflow
+              }
+            )
+          }
+          SetDepWitList(getData)
+        })
+        .catch(console.log);
     }
 
-  }, [,CryptoSelected1]);
+  }, [, CryptoSelected1]);
   //حجم معاملات ماهانه
   useEffect(() => {
     if (CryptoSelected2 !== '') {
       GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/daily-trading-volume/${CryptoSelected2}`)
-      .then((response) => {
-        const getData = []
-        for (let i = 0; i < response.result.length; i++) {
-          getData.push(
-            {
-              label: response.result[i].date,
-              x: response.result[i].volume,
-            }
-          )
-        }
-        SetDailyTradingList(getData)
-      })
-      .catch(console.log);
+        .then((response) => {
+          const getData = []
+          for (let i = 0; i < response.result.length; i++) {
+            getData.push(
+              {
+                label: formatJalaliDateTime(response.result[i].date),
+                x: response.result[i].volume,
+              }
+            )
+          }
+          SetDailyTradingList(getData)
+        })
+        .catch(console.log);
     }
 
-  }, [,CryptoSelected2]);
+  }, [, CryptoSelected2]);
 
   return (
     <div className="px-4 xl:px-0">
       {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
       <MemoStatsMarquee data={DashboardData} />
-  
+
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
         <div>
           <MemoCircleChart
@@ -327,7 +364,7 @@ export default function Page() {
             }
           />
         </div>
-  
+
         <div>
           <MemoCircleChart
             data={MarketShare}
@@ -336,7 +373,7 @@ export default function Page() {
           />
         </div>
       </div>
-  
+
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-4 pb-4">
         <div>
           <MemoDoubleLinearChart
@@ -352,7 +389,7 @@ export default function Page() {
           />
         </div>
       </div>
-  
+
       <div className="grid grid-cols-1 xl:grid-cols-1 gap-4 mt-0 pb-4">
         <div>
           <MemoSingleLinearChart
@@ -367,7 +404,7 @@ export default function Page() {
           />
         </div>
       </div>
-  
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4 pb-4">
         <div>
           <MemoCircleChart
@@ -376,11 +413,11 @@ export default function Page() {
             unit="USDT"
           />
         </div>
-  
+
         <div>
           <MemoCircleChart data={CryptoShare} title="حجم معاملات" unit="USDT" />
         </div>
-  
+
         <div>
           <MemoCircleChart
             data={USDTBuyerData}
@@ -391,5 +428,5 @@ export default function Page() {
       </div>
     </div>
   );
-  
+
 }

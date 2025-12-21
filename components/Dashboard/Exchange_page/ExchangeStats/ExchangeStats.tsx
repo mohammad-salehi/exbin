@@ -68,6 +68,45 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
     const [C10, SetC10] = useState<boolean>(false);
 
     const [IsLoading, SetIsLoading] = useState<boolean>(true);
+
+    const formatJalaliDateTime = (value?: string | number) => {
+        if (value === null || value === undefined || value === '') return '';
+        let d: Date | null = null;
+    
+        // ✅ اگر unix بود: sec یا ms
+        if (typeof value === 'number') {
+          const ms = value < 10_000_000_000 ? value * 1000 : value; // sec -> ms
+          d = new Date(ms);
+        } else {
+          const trimmed = String(value).trim();
+          const asNum = Number(trimmed);
+          if (!Number.isNaN(asNum) && trimmed.length >= 10) {
+            const ms = asNum < 10_000_000_000 ? asNum * 1000 : asNum;
+            d = new Date(ms);
+          } else {
+            const parsed = new Date(trimmed);
+            if (!Number.isNaN(parsed.getTime())) d = parsed;
+          }
+        }
+    
+        if (!d || Number.isNaN(d.getTime())) return String(value);
+    
+        const fa = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+        }).format(d);
+    
+        const time = new Intl.DateTimeFormat('fa-IR', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        }).format(d);
+    
+        return `${fa}`;
+      };
+
+      
     useEffect(() => {
         if (C1 && C2 && C3 && C4 && C5 && C6 && C7 && C8 && C9 && C10) {
             SetIsLoading(false);
@@ -117,7 +156,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 const getData = []
                 for (let i = 0; i < response.result.length; i++) {
                     getData.push({
-                        label: response.result[i].loginDate,
+                        label: formatJalaliDateTime(response.result[i].loginDate),
                         x: response.result[i].dau
                     })
                 }
@@ -220,7 +259,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 const getData = []
                 for (let i = 0; i < response.result.length; i++) {
                     getData.push({
-                        label: response.result[i].date,
+                        label: formatJalaliDateTime(response.result[i].date),
                         x: response.result[i].totalAssetsUsd,
                         y: response.result[i].totalLiabilitiesUsd
                     })
@@ -275,7 +314,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     const getData = []
                     for (let i = 0; i < response.result.length; i++) {
                         getData.push({
-                            label: response.result[i].date,
+                            label: formatJalaliDateTime(response.result[i].date),
                             x: response.result[i].volume
                         })
                     }

@@ -335,7 +335,7 @@ const Page = () => {
         if (exchangeSelected) {
             badges.push({
                 key: 'exchangeName',
-                label: `صرافی ${exchangeSelected}`,
+                label: `سکو ${exchangeSelected}`,
                 onRemove: () => {
                     setExchangeSelected('');
                     setCurrentPage(1);
