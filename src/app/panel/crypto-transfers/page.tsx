@@ -2,14 +2,13 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import RiskSwitch from '../../../../components/Dashboard/ExchangeList/Switch/Switch';
-import { Dropdown, MenuItem } from '@heathmont/moon-core-tw';
 import { Button } from '@heathmont/moon-base-tw';
-import { ControlsChevronDown } from '@heathmont/moon-icons-tw';
 import LoadingComponent from '../../../../components/LoadingComponent/LoadingComponent';
 import ExpandableTable from '../../../../components/ExpandableTable/ExpandableTable';
 import Pagination from '../../../../components/Pagination/Pagination';
 import { GetRequest } from '../../../../functions/GetRequest';
 import SearchableSelect from '../../../../components/Select/Select';
+import { useSearchParams } from 'next/navigation';
 
 type TxKind = 'deposit' | 'withdraw';
 
@@ -56,10 +55,13 @@ type ApiResponse = {
     };
 };
 
-const WITHDRAW_URL = 'https://sand-em-api.bahfara.ir/api/analytics/search/crypto-withdraws';
-const DEPOSIT_URL = 'https://sand-em-api.bahfara.ir/api/analytics/search/crypto-deposits';
+const WITHDRAW_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/search/crypto-withdraws`;
+const DEPOSIT_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/search/crypto-deposits`;
 
 const Page = () => {
+
+    const sp = useSearchParams();
+
     const [usersLoading, setUsersLoading] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -67,20 +69,12 @@ const Page = () => {
     const [txKind, setTxKind] = useState<TxKind>('deposit');
 
     // ✅ exchange dropdown
-    const [exchangeSelected, setExchangeSelected] = useState<string>('');
+    const [exchangeSelected, setExchangeSelected] = useState<string>(sp.get('exchange') || '');
     const [exchangeSearch, setExchangeSearch] = useState<string>('');
 
     // ✅ modal
     const [isModalOpen, setIsModalOpen] = useState(false);
     const modalBackdropRef = useRef<HTMLDivElement | null>(null);
-
-    // ✅ filters (modal)
-    const [filterUserId, setFilterUserId] = useState<string>('');
-    const [filterUserIdentity, setFilterUserIdentity] = useState<string>('');
-    const [filterCryptocurrency, setFilterCryptocurrency] = useState<string>('');
-    const [filterTransactionDestination, setFilterTransactionDestination] = useState<string>('');
-    const [filterTransactionSource, setFilterTransactionSource] = useState<string>('');
-    const [filterTransactionId, setFilterTransactionId] = useState<string>('');
 
     // ✅ data & pagination
     const [rows, setRows] = useState<CryptoTxRow[]>([]);
@@ -90,10 +84,6 @@ const Page = () => {
 
     // ✅ exchanges
     const [exchanges, setExchanges] = useState<Company[]>([]);
-
-
-
-
 
     type CryptoFilters = {
         userId: string;
@@ -118,10 +108,6 @@ const Page = () => {
 
     // ✅ فیلترهای داخل مودال (تا وقتی Apply نزدی، اعمال نمی‌شن)
     const [draftFilters, setDraftFilters] = useState<CryptoFilters>(emptyFilters);
-
-
-
-
 
     const txKindOptions: { label: string; value: TxKind }[] = [
         { label: 'واریز', value: 'deposit' },

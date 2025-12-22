@@ -56,7 +56,7 @@ type ApiResponse = {
     };
 };
 
-const TRADES_URL = 'https://sand-em-api.bahfara.ir/api/analytics/search/trades';
+const TRADES_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/search/trades`;
 
 type CryptoFilters = {
     userId: string;
