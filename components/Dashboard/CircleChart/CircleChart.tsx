@@ -164,7 +164,7 @@ export const CircleChart: React.FC<Props> = ({
         >
             {/* ✅ هدر: دسکتاپ یک‌خطی | موبایل لینک زیر عنوان */}
             <div className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="textTitle text-moon-18 md:text-moon-20 text-titleText dark:text-titleText-dark">
+                <h2 className="textTitle text-moon-18 md:text-moon-20 text-titleText dark:text-titleText-dark font-bold">
                     {title}
                 </h2>
 

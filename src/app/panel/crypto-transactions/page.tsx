@@ -22,27 +22,19 @@ type Company = {
 type TradeRow = {
     id: string;
     subRows?: TradeRow[];
-
     exchangeName?: string;
     cryptoBrokerId?: string;
-
     userId?: string;
     userIdentity?: string;
-
     tradeId?: string;
     orderId?: string;
-
     tradeTime?: string | number;
-
     givenCurrencyUnit?: string;
     givenCurrencyAmount?: number;
-
     takenCurrencyUnit?: string;
     takenCurrencyAmount?: number;
-
     feeCurrency?: string;
     feeAmount?: number;
-
     marketType?: string;
     transactionType?: string;
 };
@@ -63,10 +55,8 @@ type CryptoFilters = {
     userId: string;
     userIdentity: string;
     tradeId: string;
-
     givenCurrencyUnit: string;
     takenCurrencyUnit: string;
-
     marketType: string;
     transactionType: string;
 };
@@ -263,10 +253,8 @@ const Page = () => {
         if (appliedFilters.userId) params.set('userId', appliedFilters.userId);
         if (appliedFilters.tradeId) params.set('tradeId', appliedFilters.tradeId);
         if (appliedFilters.userIdentity) params.set('userIdentity', appliedFilters.userIdentity);
-
         if (appliedFilters.givenCurrencyUnit) params.set('givenCurrencyUnit', appliedFilters.givenCurrencyUnit);
         if (appliedFilters.takenCurrencyUnit) params.set('takenCurrencyUnit', appliedFilters.takenCurrencyUnit);
-
         if (appliedFilters.marketType) params.set('marketType', appliedFilters.marketType);
         if (appliedFilters.transactionType) params.set('transactionType', appliedFilters.transactionType);
 
@@ -285,27 +273,19 @@ const Page = () => {
 
         return {
             id: rowId,
-
             exchangeName: item?.exchangeName,
             cryptoBrokerId: item?.cryptoBrokerId,
-
             userId: item?.userId,
             userIdentity: item?.userIdentity,
-
             tradeId: tradeId ? String(tradeId) : undefined,
             orderId: orderId ? String(orderId) : undefined,
-
             tradeTime,
-
             givenCurrencyUnit: item?.givenCurrencyUnit,
             givenCurrencyAmount: item?.givenCurrencyAmount,
-
             takenCurrencyUnit: item?.takenCurrencyUnit,
             takenCurrencyAmount: item?.takenCurrencyAmount,
-
             feeCurrency: item?.feeCurrency,
             feeAmount: item?.feeAmount,
-
             marketType: item?.marketType,
             transactionType: item?.transactionType,
         };
@@ -335,7 +315,6 @@ const Page = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         exchangeSelected,
-
         appliedFilters.userId,
         appliedFilters.userIdentity,
         appliedFilters.tradeId,
@@ -343,7 +322,6 @@ const Page = () => {
         appliedFilters.takenCurrencyUnit,
         appliedFilters.marketType,
         appliedFilters.transactionType,
-
         currentPage,
         pageSize,
     ]);
@@ -435,19 +413,6 @@ const Page = () => {
                 },
             });
         }
-
-        if (appliedFilters.transactionType) {
-            badges.push({
-                key: 'transactionType',
-                label: `نوع تراکنش ${translateTransactionType(appliedFilters.transactionType)}`,
-                onRemove: () => {
-                    setAppliedFilters((p) => ({ ...p, transactionType: '' }));
-                    setDraftFilters((p) => ({ ...p, transactionType: '' }));
-                    setCurrentPage(1);
-                },
-            });
-        }
-
         return badges;
     }, [
         exchangeSelected,

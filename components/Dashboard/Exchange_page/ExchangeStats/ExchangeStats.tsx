@@ -45,7 +45,6 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
     const [name, SetName] = useState<string>("");
 
     const [HeaderData, SetHeaderData] = useState<CryptoTradingValueUsers[]>([])
-
     const [DailyActiveUsers, SetDailyActiveUsers] = useState<dailyActiveUsers[]>([])
     const [Topcryptocurrencies, SetTopcryptocurrencies] = useState<TopcryptocurrenciesChart[]>([])
     const [TopTradedcryptocurrencies, SetTopTradedcryptocurrencies] = useState<CryptoTradingValueUsers[]>([])
@@ -53,10 +52,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
     const [DepWithHistory, SetDepWithHistory] = useState<DoubleLinearChart[]>([])
     const [IRRDepWithHistory, SetIRRDepWithHistory] = useState<DoubleLinearChart[]>([])
     const [TradingVolume, SetTradingVolume] = useState<dailyActiveUsers[]>([])
-
     const [CryptoList, SetCryptoList] = useState([])
     const [CryptoSelected1, SetCryptoSelected1] = useState('')
     const [CryptoSelected2, SetCryptoSelected2] = useState('')
+
+    const [DailyPOR, SetDailyPOR] = useState<CryptoTradingValueUsers[]>([])
+    const [DailyWithDep, SetDailyWithDep] = useState<CryptoTradingValueUsers[]>([])
+    const [DailyIRRWithDep, SetDailyIRRWithDep] = useState<CryptoTradingValueUsers[]>([])
 
     const [C1, SetC1] = useState<boolean>(false);
     const [C2, SetC2] = useState<boolean>(false);
@@ -261,6 +263,16 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     })
                 }
                 getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
+                SetDailyPOR([
+                    {
+                        label:'دارایی',
+                        value:getData[getData.length-1].x
+                    },
+                    {
+                        label:'بدهی',
+                        value:getData[getData.length-1].y
+                    }
+                ])
                 SetPORHistory(getData)
                 SetC7(true)
             })
@@ -339,6 +351,18 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                         })
                     }
                     getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
+                    SetDailyWithDep(
+                        [
+                            {
+                                label:'واریز',
+                                value:getData[getData.length - 1].x
+                            },
+                            {
+                                label:'برداشت',
+                                value:getData[getData.length - 1].y
+                            }
+                        ]
+                    )
                     SetDepWithHistory(getData)
                     SetC11(true)
                 })
@@ -363,6 +387,18 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 }
                 getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
                 SetIRRDepWithHistory(getData)
+                SetDailyIRRWithDep(
+                    [
+                        {
+                            label:'واریز',
+                            value:getData[getData.length - 1].x
+                        },
+                        {
+                            label:'برداشت',
+                            value:getData[getData.length - 1].y
+                        }
+                    ]
+                )
                 SetC12(true)
             })
             .catch((err) => {
@@ -414,15 +450,89 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     <MemoTreeMap data={Topcryptocurrencies} title="حجم دارایی رمزارزها" />
                 </div>
             </div>
-            <div className="p-0 mt-4">
-                <MemoDoubleLinearChart
-                    data={PORHistory}
-                    title="اثبات ذخیره دارایی‌ها"
-                    unitSuffix="M"
-                    assetLabel='دارایی'
-                    liabilityLabel='بدهی'
-                    useLastItemForNet
-                />
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4">
+                <div className="min-h-full xl:col-span-2">
+                    <MemoDoubleLinearChart
+                        data={PORHistory}
+                        title="تاریخچه اثبات ذخیره دارایی‌ها"
+                        unitSuffix="M"
+                        assetLabel='دارایی'
+                        liabilityLabel='بدهی'
+                        useLastItemForNet
+                    />
+                </div>
+
+                <div className="min-h-full xl:col-span-1">
+                    <MemoCircleChart
+                        data={DailyPOR}
+                        title="نسبت دارایی به بدهی"
+                        unit="USDT"
+                        description="برایند دارایی‌ها و بدهی‌ها محاسبه شده است!"
+                        value={
+                            DailyPOR.length !== 0
+                            ? DailyPOR[0].value - DailyPOR[1].value
+                            : null
+                        }
+                    />
+                </div>
+            </div>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4">
+                <div className="min-h-full xl:col-span-1">
+                    <MemoCircleChart
+                        data={DailyWithDep}
+                        title="واریز و برداشت‌های رمزارزی روزانه"
+                        unit="USDT"
+                        description="برایند واریز و برداشت‌ها محاسبه شده است!"
+                        value={
+                            DailyWithDep.length !== 0
+                            ? DailyWithDep[0].value - DailyWithDep[1].value
+                            : null
+                        }
+                    />
+                </div>
+
+                <div className="min-h-full xl:col-span-2">
+                    <MemoDoubleLinearChart
+                        data={DepWithHistory}
+                        title="واریز و برداشت های رمزارزی سکو"
+                        unitSuffix="M"
+                        assetLabel='واریز'
+                        liabilityLabel='برداشت'
+                        useLastItemForNet
+                        List={CryptoList}
+                        CryptoSelected={CryptoSelected2}
+                        SetCryptoSelected={SetCryptoSelected2}
+                        ShowList={true}
+                        headerLink={{ href: `/panel/crypto-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های رمزارزی سکو" }}
+                    />
+                </div>
+            </div>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4">
+                <div className="min-h-full xl:col-span-2">
+                    <MemoDoubleLinearChart
+                        data={IRRDepWithHistory}
+                        title="واریز و برداشت های ریالی سکو"
+                        unitSuffix="M"
+                        assetLabel='واریز'
+                        liabilityLabel='برداشت'
+                        useLastItemForNet
+                        headerLink={{ href: `/panel/rial-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های ریالی سکو" }}
+                    />
+                </div>
+
+                <div className="min-h-full xl:col-span-1">
+                    <MemoCircleChart
+                        data={DailyIRRWithDep}
+                        title="واریز و برداشت‌های ریالی روزانه"
+                        unit="USDT"
+                        description="برایند واریز و برداشت‌ها محاسبه شده است!"
+                        value={
+                            DailyIRRWithDep.length !== 0
+                            ? DailyIRRWithDep[0].value - DailyIRRWithDep[1].value
+                            : null
+                        }
+                    />
+                </div>
             </div>
             <div className="p-0 mt-4">
                 <MemoSingleLinearChart
@@ -446,32 +556,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     topLeftLink={{ href: `/panel/exchange-users?exchange=${name}`, label: "جزئیات دارایی کاربران" }}
                 />
             </div>
-            <div className="p-0 mt-4">
-                <MemoDoubleLinearChart
-                    data={DepWithHistory}
-                    title="واریز و برداشت های رمزارزی سکو"
-                    unitSuffix="M"
-                    assetLabel='واریز'
-                    liabilityLabel='برداشت'
-                    useLastItemForNet
-                    List={CryptoList}
-                    CryptoSelected={CryptoSelected2}
-                    SetCryptoSelected={SetCryptoSelected2}
-                    ShowList={true}
-                    headerLink={{ href: `/panel/crypto-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های رمزارزی سکو" }}
-                />
-            </div>
-            <div className="p-0 mt-4">
-                <MemoDoubleLinearChart
-                    data={IRRDepWithHistory}
-                    title="واریز و برداشت های ریالی سکو"
-                    unitSuffix="M"
-                    assetLabel='واریز'
-                    liabilityLabel='برداشت'
-                    useLastItemForNet
-                    headerLink={{ href: `/panel/rial-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های ریالی سکو" }}
-                />
-            </div>
+
         </div>
     )
 }
