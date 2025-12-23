@@ -8,6 +8,7 @@ import ExpandableTable from '../../../../components/ExpandableTable/ExpandableTa
 import Pagination from '../../../../components/Pagination/Pagination';
 import { GetRequest } from '../../../../functions/GetRequest';
 import SearchableSelect from '../../../../components/Select/Select';
+import { useSearchParams } from 'next/navigation';
 
 type Company = {
     id: string;
@@ -81,11 +82,14 @@ const emptyFilters: CryptoFilters = {
 };
 
 const Page = () => {
+
+    const sp = useSearchParams();
+
     const [usersLoading, setUsersLoading] = useState(false);
     const [loading, setLoading] = useState(false);
 
     // ✅ exchange dropdown (with search)
-    const [exchangeSelected, setExchangeSelected] = useState<string>('');
+    const [exchangeSelected, setExchangeSelected] = useState<string>(sp.get('exchange') || '');
 
     // ✅ modal
     const [isModalOpen, setIsModalOpen] = useState(false);

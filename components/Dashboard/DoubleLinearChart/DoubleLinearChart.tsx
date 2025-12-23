@@ -21,6 +21,12 @@ type CryptoItem = {
   cryptocurrency: string;
 };
 
+type HeaderLink = {
+  title: string;
+  href: string;
+  target?: "_self" | "_blank";
+};
+
 type ProofOfReserveChartProps = {
   data: ProofOfReserveDataItem[];
   title?: string;
@@ -33,9 +39,12 @@ type ProofOfReserveChartProps = {
   CryptoSelected?: string;
   SetCryptoSelected?: React.Dispatch<React.SetStateAction<string>>;
 
-  // ✅ NEW
   useLastItemForNet?: boolean;
+
+  // ✅ NEW
+  headerLink?: HeaderLink;
 };
+
 const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
   data,
   title = "اثبات ذخیره دارایی‌ها",
@@ -47,9 +56,10 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
   CryptoSelected = "",
   SetCryptoSelected,
   ShowList = false,
+  useLastItemForNet = false,
 
   // ✅ NEW
-  useLastItemForNet = false,
+  headerLink,
 }) => {
   const { totalX, totalY, net } = useMemo(() => {
     if (!data || data.length === 0) return { totalX: 0, totalY: 0, net: 0 };
@@ -71,7 +81,6 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
 
   const rootRef = useRef<HTMLDivElement | null>(null);
 
-  // ✅ بستن منو با کلیک بیرون
   useEffect(() => {
     if (!open) return;
 
@@ -87,7 +96,9 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
   const filteredList = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return List;
-    return List.filter((x) => (x.cryptocurrency || "").toLowerCase().includes(q));
+    return List.filter((x) =>
+      (x.cryptocurrency || "").toLowerCase().includes(q)
+    );
   }, [List, search]);
 
   const formatCompact = (n: number) => {
@@ -114,95 +125,132 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
       className="w-full rounded-xl border bg-boxColor dark:bg-boxColor-dark p-6 shadow-sm text-titleText dark:text-titleText-dark border-boxBorderColor dark:border-boxBorderColor-dark"
     >
       {/* هدر */}
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        {/* RIGHT: Title */}
         <div className="flex flex-col items-start gap-1">
           <h2 className="text-base font-semibold text-titleText dark:text-titleText-dark">
             {title}
           </h2>
         </div>
 
-        {ShowList && (
-          <div ref={rootRef} className="relative w-full mt-2 max-w-[200px]">
-            <Dropdown
-              value={CryptoSelected}
-              onChange={(e) => {
-                if (typeof e === "string" && SetCryptoSelected) {
-                  SetCryptoSelected(e);
-                }
-              }}
-            >
-              <Dropdown.Trigger className="w-full ">
-                <Button
-                  as="span"
-                  role="button"
-                  variant="ghost"
-                  onClick={() => setOpen((v) => !v)} // ✅ فقط کنترل باز/بسته
-                  className="flex items-center justify-between w-full pl-10 py-2
-        text-gray-700 border border-gray-300 rounded-lg
-        dark:border-buttonBorderColor-dark dark:text-gray-100
-        appearance-none relative bg-boxColor dark:bg-boxColor-dark outline-none shadow-none"
+        {/* LEFT: Select بالا | Link پایین */}
+        <div className="flex w-full flex-col items-start gap-2 sm:w-auto sm:items-end">
+          {/* ✅ Select */}
+          {ShowList && (
+            <div ref={rootRef} className="w-full sm:w-auto">
+              <div className="relative w-full mt-2 lg:w-[260px]">
+                <Dropdown
+                  value={CryptoSelected}
+                  onChange={(e) => {
+                    if (typeof e === "string" && SetCryptoSelected) {
+                      SetCryptoSelected(e);
+                    }
+                  }}
                 >
-                  <span>{CryptoSelected !== "" ? CryptoSelected : "درحال دریافت..."}</span>
-                </Button>
-              </Dropdown.Trigger>
+                  <Dropdown.Trigger className="w-full ">
+                    <Button
+                      as="span"
+                      role="button"
+                      variant="ghost"
+                      onClick={() => setOpen((v) => !v)}
+                      className="flex items-center justify-between w-full pl-10 py-2
+                text-gray-700 border border-gray-300 rounded-lg
+                dark:border-buttonBorderColor-dark dark:text-gray-100
+                appearance-none relative bg-boxColor dark:bg-boxColor-dark outline-none shadow-none"
+                    >
+                      <span>{CryptoSelected !== "" ? CryptoSelected : "درحال دریافت..."}</span>
+                    </Button>
+                  </Dropdown.Trigger>
 
-              {/* ✅ اینجا به جای Dropdown.Options: همون کلاس‌ها، همون UI، ولی بدون scroll-lock */}
-              {open && (
-                <div
-                  className="absolute left-0 mt-2 w-72 pl-2 pr-2 py-0
-      text-gray-700 bg-white dark:bg-buttonColor-dark
-      border border-gray-300 dark:border-buttonBorderColor-dark
-      rounded-lg dark:text-gray-100 appearance-none z-50
-      max-h-60 overflow-y-auto outline-none shadow-none"
-                >
-                  {/* ✅ Search input */}
-                  <div className="sticky top-0 z-50 -mx-2 px-2 pt-2 pb-2 bg-white dark:bg-buttonColor-dark border-b border-gray-200 dark:border-buttonBorderColor-dark">
-                    <input
-                      value={search}
-                      onChange={(ev) => setSearch(ev.target.value)}
-                      placeholder="جستجو..."
-                      className="w-full px-3 py-2 text-sm rounded-md
-      border border-gray-200 dark:border-buttonBorderColor-dark
-      bg-bgColor dark:bg-boxColor-dark
-      text-titleText dark:text-titleText-dark
-      outline-none"
-                    />
-                  </div>
-
-                  {/* ✅ Filtered items */}
-                  {filteredList.length > 0 ? (
-                    filteredList.map((item, index) => (
-                      <div
-                        key={`option${index}`}
-                        onClick={() => {
-                          SetCryptoSelected?.(item.cryptocurrency);
-                          setOpen(false);
-                        }}
-                      >
-                        <MenuItem
-                          isActive={false}
-                          isSelected={CryptoSelected === item.cryptocurrency}
-                          className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${CryptoSelected === item.cryptocurrency
-                            ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                            : ""
-                            }`}
-                        >
-                          <MenuItem.Title>{item.cryptocurrency}</MenuItem.Title>
-                        </MenuItem>
+                  {open && (
+                    <div
+                      className="absolute left-0 mt-2 w-72 pl-2 pr-2 py-0
+                text-gray-700 bg-white dark:bg-buttonColor-dark
+                border border-gray-300 dark:border-buttonBorderColor-dark
+                rounded-lg dark:text-gray-100 appearance-none z-50
+                max-h-60 overflow-y-auto outline-none shadow-none"
+                    >
+                      <div className="sticky top-0 z-50 -mx-2 px-2 pt-2 pb-2 bg-white dark:bg-buttonColor-dark border-b border-gray-200 dark:border-buttonBorderColor-dark">
+                        <input
+                          value={search}
+                          onChange={(ev) => setSearch(ev.target.value)}
+                          placeholder="جستجو..."
+                          className="w-full px-3 py-2 text-sm rounded-md
+                    border border-gray-200 dark:border-buttonBorderColor-dark
+                    bg-bgColor dark:bg-boxColor-dark
+                    text-titleText dark:text-titleText-dark
+                    outline-none"
+                        />
                       </div>
-                    ))
-                  ) : (
-                    <div className="py-3 text-center text-sm opacity-70">موردی پیدا نشد</div>
-                  )}
-                </div>
-              )}
-            </Dropdown>
 
-            {/* فلش سمت راست */}
-            <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
-          </div>
-        )}
+                      {filteredList.length > 0 ? (
+                        filteredList.map((item, index) => (
+                          <div
+                            key={`option${index}`}
+                            onClick={() => {
+                              SetCryptoSelected?.(item.cryptocurrency);
+                              setOpen(false);
+                            }}
+                          >
+                            <MenuItem
+                              isActive={false}
+                              isSelected={CryptoSelected === item.cryptocurrency}
+                              className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${CryptoSelected === item.cryptocurrency
+                                  ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                  : ""
+                                }`}
+                            >
+                              <MenuItem.Title>{item.cryptocurrency}</MenuItem.Title>
+                            </MenuItem>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="py-3 text-center text-sm opacity-70">موردی پیدا نشد</div>
+                      )}
+                    </div>
+                  )}
+                </Dropdown>
+
+                <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+              </div>
+            </div>
+          )}
+
+          {/* ✅ Link زیر Select */}
+          {headerLink?.href ? (
+            <a
+              href={headerLink.href}
+              target={headerLink.target ?? "_self"}
+              rel={headerLink.target === "_blank" ? "noopener noreferrer" : undefined}
+              className="w-full lg:w-auto text-sm md:text-[14px]
+        text-primary hover:text-primary
+        dark:text-primary-dark dark:hover:text-primary-dark
+        whitespace-nowrap sm:self-end"
+            >
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="inline-block ml-1"
+              >
+                <path
+                  d="M14 12C14 14.7614 11.7614 17 9 17H7C4.23858 17 2 14.7614 2 12C2 9.23858 4.23858 7 7 7H7.5M10 12C10 9.23858 12.2386 7 15 7H17C19.7614 7 22 9.23858 22 12C22 14.7614 19.7614 17 17 17H16.5"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+              {headerLink.title}
+            </a>
+          ) : null}
+        </div>
+
       </div>
+
+
+
 
       {/* نمودار */}
       <div className="w-full text-titleText dark:text-titleText-dark" style={{ height }}>
@@ -258,11 +306,11 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
       <div className="mt-6 flex flex-col gap-3 border-t border-gray-100 pt-4 text-xs sm:flex-row sm:items-center sm:justify-between text-titleText dark:text-titleText-dark">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
+            <span className="h-4 w-4 rounded-full bg-green-500" />
             <span>{assetLabel}</span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="h-2 w-2 rounded-full bg-red-500" />
+            <span className="h-4 w-4 rounded-full bg-red-500" />
             <span>{liabilityLabel}</span>
           </div>
         </div>

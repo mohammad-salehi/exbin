@@ -10,6 +10,7 @@ import ExpandableTable from '../../../../components/ExpandableTable/ExpandableTa
 import Pagination from '../../../../components/Pagination/Pagination';
 import { GetRequest } from '../../../../functions/GetRequest';
 import SearchableSelect from '../../../../components/Select/Select';
+import { useSearchParams } from 'next/navigation';
 
 type TransactionType = 'all' | 'deposit' | 'withdraw' | 'refund';
 
@@ -55,6 +56,9 @@ type ApiResponse = {
 };
 
 const Page = () => {
+
+    const sp = useSearchParams();
+
     const [usersLoading, setUsersLoading] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -62,7 +66,7 @@ const Page = () => {
     const [transactionType, setTransactionType] = useState<TransactionType>('all');
 
     // ✅ انتخاب سکو در صفحه اصلی (فیلتر exchangeName)
-    const [exchangeSelected, setExchangeSelected] = useState<string>('');
+    const [exchangeSelected, setExchangeSelected] = useState<string>(sp.get('exchange') || '');
     const [exchangeSearch, setExchangeSearch] = useState<string>('');
 
     // ✅ مودال فیلترهای بیشتر (فقط 4 فیلتر: userId, userIdentity, irrTransactionId, transactionType از سوییچ است نه مودال)

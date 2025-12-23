@@ -11,7 +11,6 @@ type ExchangeInfoProps = {
     SetLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-
 const MemoStatsMarquee = React.memo(StatsMarquee);
 const MemoCircleChart = React.memo(CircleChart);
 const MemoSingleLinearChart = React.memo(SingleLinearChart);
@@ -51,10 +50,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
     const [Topcryptocurrencies, SetTopcryptocurrencies] = useState<TopcryptocurrenciesChart[]>([])
     const [TopTradedcryptocurrencies, SetTopTradedcryptocurrencies] = useState<CryptoTradingValueUsers[]>([])
     const [PORHistory, SetPORHistory] = useState<DoubleLinearChart[]>([])
+    const [DepWithHistory, SetDepWithHistory] = useState<DoubleLinearChart[]>([])
+    const [IRRDepWithHistory, SetIRRDepWithHistory] = useState<DoubleLinearChart[]>([])
     const [TradingVolume, SetTradingVolume] = useState<dailyActiveUsers[]>([])
 
     const [CryptoList, SetCryptoList] = useState([])
     const [CryptoSelected1, SetCryptoSelected1] = useState('')
+    const [CryptoSelected2, SetCryptoSelected2] = useState('')
 
     const [C1, SetC1] = useState<boolean>(false);
     const [C2, SetC2] = useState<boolean>(false);
@@ -66,55 +68,50 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
     const [C8, SetC8] = useState<boolean>(false);
     const [C9, SetC9] = useState<boolean>(false);
     const [C10, SetC10] = useState<boolean>(false);
+    const [C11, SetC11] = useState<boolean>(false);
+    const [C12, SetC12] = useState<boolean>(false);
 
     const [IsLoading, SetIsLoading] = useState<boolean>(true);
 
     const formatJalaliDateTime = (value?: string | number) => {
         if (value === null || value === undefined || value === '') return '';
         let d: Date | null = null;
-    
+
         // ✅ اگر unix بود: sec یا ms
         if (typeof value === 'number') {
-          const ms = value < 10_000_000_000 ? value * 1000 : value; // sec -> ms
-          d = new Date(ms);
-        } else {
-          const trimmed = String(value).trim();
-          const asNum = Number(trimmed);
-          if (!Number.isNaN(asNum) && trimmed.length >= 10) {
-            const ms = asNum < 10_000_000_000 ? asNum * 1000 : asNum;
+            const ms = value < 10_000_000_000 ? value * 1000 : value; // sec -> ms
             d = new Date(ms);
-          } else {
-            const parsed = new Date(trimmed);
-            if (!Number.isNaN(parsed.getTime())) d = parsed;
-          }
+        } else {
+            const trimmed = String(value).trim();
+            const asNum = Number(trimmed);
+            if (!Number.isNaN(asNum) && trimmed.length >= 10) {
+                const ms = asNum < 10_000_000_000 ? asNum * 1000 : asNum;
+                d = new Date(ms);
+            } else {
+                const parsed = new Date(trimmed);
+                if (!Number.isNaN(parsed.getTime())) d = parsed;
+            }
         }
-    
-        if (!d || Number.isNaN(d.getTime())) return String(value);
-    
-        const fa = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-        }).format(d);
-    
-        const time = new Intl.DateTimeFormat('fa-IR', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-        }).format(d);
-    
-        return `${fa}`;
-      };
 
-      
+        if (!d || Number.isNaN(d.getTime())) return String(value);
+
+        const fa = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+        }).format(d);
+
+        return `${fa}`;
+    };
+
     useEffect(() => {
-        if (C1 && C2 && C3 && C4 && C5 && C6 && C7 && C8 && C9 && C10) {
+        if (C1 && C2 && C3 && C4 && C5 && C6 && C7 && C8 && C9 && C10 && C11 && C12) {
             SetIsLoading(false);
         }
-    }, [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10]);
+    }, [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12]);
     useEffect(() => {
         SetLoading(IsLoading)
-    },[IsLoading])
+    }, [IsLoading])
     // نام و لوگو
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
@@ -128,7 +125,6 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 SetC1(true)
             })
     }, [])
-
     // تعداد کاربران
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/number-of-users`)
@@ -299,6 +295,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             .then((response) => {
                 SetCryptoList(response.result)
                 SetCryptoSelected1(response.result[0].cryptocurrency)
+                SetCryptoSelected2(response.result[0].cryptocurrency)
                 SetC9(true)
             })
             .catch((err) => {
@@ -328,6 +325,51 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 })
         }
     }, [CryptoSelected1]);
+    // تاریخچه واریز و برداشت رمزارزی
+    useEffect(() => {
+        if (CryptoSelected2 !== '') {
+            GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/deposits-withdrawals/${CryptoSelected2}`)
+                .then((response) => {
+                    const getData = []
+                    for (let i = 0; i < response.result.length; i++) {
+                        getData.push({
+                            label: formatJalaliDateTime(response.result[i].date),
+                            x: response.result[i].inflow,
+                            y: response.result[i].outflow
+                        })
+                    }
+                    getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
+                    SetDepWithHistory(getData)
+                    SetC11(true)
+                })
+                .catch((err) => {
+                    console.log(err)
+                    SetC11(true)
+                })
+        }
+
+    }, [CryptoSelected2])
+    // تاریخچه واریز و برداشت ریالی
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/deposits-withdrawals/IRR`)
+            .then((response) => {
+                const getData = []
+                for (let i = 0; i < response.result.length; i++) {
+                    getData.push({
+                        label: formatJalaliDateTime(response.result[i].date),
+                        x: response.result[i].inflow,
+                        y: response.result[i].outflow
+                    })
+                }
+                getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
+                SetIRRDepWithHistory(getData)
+                SetC12(true)
+            })
+            .catch((err) => {
+                console.log(err)
+                SetC12(true)
+            })
+    }, [])
 
     return (
         <div>
@@ -359,15 +401,16 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 {name}
             </h3>
             <MemoStatsMarquee data={HeaderData} />
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4">
-                <div className="min-h-full">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4">
+                <div className="min-h-full xl:col-span-1">
                     <MemoCircleChart
                         data={TopTradedcryptocurrencies}
                         title="حجم معاملات رمزارزها"
                         unit="USDT"
                     />
                 </div>
-                <div className="min-h-full">
+
+                <div className="min-h-full xl:col-span-2">
                     <MemoTreeMap data={Topcryptocurrencies} title="حجم دارایی رمزارزها" />
                 </div>
             </div>
@@ -391,6 +434,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     CryptoSelected={CryptoSelected1}
                     SetCryptoSelected={SetCryptoSelected1}
                     ShowList={true}
+                    topLeftLink={{ label: 'جزئیات معاملات کاربران', href: `/panel/crypto-transactions?exchange=${name}` }}
                 />
             </div>
             <div className="p-0 mt-4">
@@ -399,6 +443,33 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     title="کاربران فعال ماهانه"
                     seriesLabel="کاربر"
                     unitSuffix="M"
+                    topLeftLink={{ href: `/panel/exchange-users?exchange=${name}`, label: "جزئیات دارایی کاربران" }}
+                />
+            </div>
+            <div className="p-0 mt-4">
+                <MemoDoubleLinearChart
+                    data={DepWithHistory}
+                    title="واریز و برداشت های رمزارزی سکو"
+                    unitSuffix="M"
+                    assetLabel='واریز'
+                    liabilityLabel='برداشت'
+                    useLastItemForNet
+                    List={CryptoList}
+                    CryptoSelected={CryptoSelected2}
+                    SetCryptoSelected={SetCryptoSelected2}
+                    ShowList={true}
+                    headerLink={{ href: `/panel/crypto-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های رمزارزی سکو" }}
+                />
+            </div>
+            <div className="p-0 mt-4">
+                <MemoDoubleLinearChart
+                    data={IRRDepWithHistory}
+                    title="واریز و برداشت های ریالی سکو"
+                    unitSuffix="M"
+                    assetLabel='واریز'
+                    liabilityLabel='برداشت'
+                    useLastItemForNet
+                    headerLink={{ href: `/panel/rial-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های ریالی سکو" }}
                 />
             </div>
         </div>
