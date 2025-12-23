@@ -43,6 +43,7 @@ type ProofOfReserveChartProps = {
 
   // ✅ NEW
   headerLink?: HeaderLink;
+  ShowSummary?: boolean
 };
 
 const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
@@ -57,7 +58,7 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
   SetCryptoSelected,
   ShowList = false,
   useLastItemForNet = false,
-
+  ShowSummary = true,
   // ✅ NEW
   headerLink,
 }) => {
@@ -196,8 +197,8 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
                               isActive={false}
                               isSelected={CryptoSelected === item.cryptocurrency}
                               className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${CryptoSelected === item.cryptocurrency
-                                  ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                  : ""
+                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                : ""
                                 }`}
                             >
                               <MenuItem.Title>{item.cryptocurrency}</MenuItem.Title>
@@ -314,13 +315,18 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
             <span>{liabilityLabel}</span>
           </div>
         </div>
+        {
+          ShowSummary ?
+            <div className="flex flex-wrap items-center gap-4 text-[11px] sm:text-xs text-titleText dark:text-titleText-dark">
+              <span className={net >= 0 ? "text-green-500" : "text-red-500"}>
+                مجموع فعلی: {net >= 0 ? "+" : "-"}
+                {Math.abs(net).toLocaleString()} {unitSuffix}
+              </span>
+            </div>
+            :
+            null
+        }
 
-        <div className="flex flex-wrap items-center gap-4 text-[11px] sm:text-xs text-titleText dark:text-titleText-dark">
-          <span className={net >= 0 ? "text-green-500" : "text-red-500"}>
-            مجموع فعلی: {net >= 0 ? "+" : "-"}
-            {Math.abs(net).toLocaleString()} {unitSuffix}
-          </span>
-        </div>
       </div>
     </div>
   );

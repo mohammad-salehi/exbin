@@ -149,24 +149,59 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
     }, [])
     // تعداد کاربران فعال ماهانه
     useEffect(() => {
-        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/daily-active-users`)
-            .then((response) => {
-                const getData = []
-                for (let i = 0; i < response.result.length; i++) {
-                    getData.push({
-                        label: formatJalaliDateTime(response.result[i].loginDate),
-                        x: response.result[i].dau
-                    })
-                }
-                getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
-                SetDailyActiveUsers(getData)
-                SetC3(true)
-            })
-            .catch((err) => {
-                console.log(err)
-                SetC3(true)
-            })
-    }, [])
+        if (!id) return;
+      
+        GetRequest(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/exchange/${id}/daily-active-users`
+        )
+          .then((response) => {
+            const getData: dailyActiveUsers[] = [];
+      
+            for (let i = 0; i < response.result.length; i++) {
+              getData.push({
+                label: formatJalaliDateTime(response.result[i].loginDate),
+                x: response.result[i].dau,
+              });
+            }
+      
+            // اگر label تاریخِ فرمت‌شده‌ست، مرتب‌سازی متنی همیشه دقیق نیست.
+            // ولی برای اینکه مثل خودت بمونه:
+            getData.sort((a, b) =>
+              String(a.label).localeCompare(String(b.label))
+            );
+      
+            SetDailyActiveUsers(getData);
+      
+            SetHeaderData((prev) => {
+              const lastX = getData.length ? Number(getData[getData.length - 1].x ?? 0) : 0;
+              const item: CryptoTradingValueUsers = {
+                label: "کاربران فعال روزانه",
+                value: lastX,
+              };
+              const next = prev.filter((x) => x.label !== item.label);
+              return [...next, item];
+            });
+
+            SetHeaderData((prev) => {
+                const sumX = getData.reduce((acc, cur) => acc + Number(cur.x ?? 0), 0);
+              
+                const item = {
+                  label: "کاربران فعال ماهانه",
+                  value: sumX,
+                };
+              
+                const next = prev.filter((x) => x.label !== item.label);
+                return [...next, item];
+              });
+      
+            SetC3(true);
+          })
+          .catch((err) => {
+            console.log(err);
+            SetC3(true);
+          });
+      }, []);
+      
     // میانگین زمان تسویه
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/avg-withdrawal-time-24h`)
@@ -184,6 +219,15 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             })
             .catch((err) => {
                 console.log(err)
+                SetHeaderData((prev) => {
+                    const item: CryptoTradingValueUsers = {
+                        label: "میانگین زمان تسویه کاربران(میلی‌ثانیه)",
+                        value: Number(0),
+                    };
+
+                    const next = prev.filter((x) => x.label !== item.label);
+                    return [...next, item];
+                });
                 SetC4(true)
             })
     }, [])
@@ -209,20 +253,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     const next = prev.filter((x) => x.label !== item.label);
                     return [...next, item];
                 });
-                const assets = Number(response?.result?.totalAssetsUsd ?? 0);
-                const liabilities = Number(response?.result?.totalLiabilitiesUsd ?? 0);
 
-                const ratioPct = liabilities > 0 ? (assets / liabilities) * 100 : 0;
-
-                SetHeaderData((prev) => {
-                    const item: CryptoTradingValueUsers = {
-                        label: "نسبت دارایی به بدهی(درصد)",
-                        value: Number(ratioPct.toFixed(2)),
-                    };
-
-                    const next = prev.filter((x) => x.label !== item.label);
-                    return [...next, item];
-                });
                 SetC5(true)
             })
             .catch((err) => {
@@ -454,11 +485,11 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 <div className="min-h-full xl:col-span-2">
                     <MemoDoubleLinearChart
                         data={PORHistory}
-                        title="تاریخچه اثبات ذخیره دارایی‌ها"
+                        title="تاریخچه نسبت دارایی به بدهی"
                         unitSuffix="M"
                         assetLabel='دارایی'
                         liabilityLabel='بدهی'
-                        useLastItemForNet
+                        ShowSummary={false}
                     />
                 </div>
 
@@ -504,6 +535,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                         SetCryptoSelected={SetCryptoSelected2}
                         ShowList={true}
                         headerLink={{ href: `/panel/crypto-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های رمزارزی سکو" }}
+                        ShowSummary={false}
                     />
                 </div>
             </div>
@@ -517,6 +549,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                         liabilityLabel='برداشت'
                         useLastItemForNet
                         headerLink={{ href: `/panel/rial-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های ریالی سکو" }}
+                        ShowSummary={false}
                     />
                 </div>
 
@@ -524,7 +557,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     <MemoCircleChart
                         data={DailyIRRWithDep}
                         title="واریز و برداشت‌های ریالی روزانه"
-                        unit="USDT"
+                        unit="IRR"
                         description="برایند واریز و برداشت‌ها محاسبه شده است!"
                         value={
                             DailyIRRWithDep.length !== 0
@@ -554,6 +587,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     seriesLabel="کاربر"
                     unitSuffix="M"
                     topLeftLink={{ href: `/panel/exchange-users?exchange=${name}`, label: "جزئیات دارایی کاربران" }}
+                    ShowSummary={false}
                 />
             </div>
 

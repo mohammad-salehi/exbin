@@ -40,6 +40,7 @@ type SingleLinearChartProps = {
 
   // ✅ NEW: لینک اختیاری بالا سمت چپ
   topLeftLink?: TopLeftLink;
+  ShowSummary?: boolean
 };
 
 const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
@@ -52,7 +53,7 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
   CryptoSelected = "",
   SetCryptoSelected,
   ShowList = false,
-
+  ShowSummary = true,
   // ✅ NEW
   topLeftLink,
 }) => {
@@ -184,8 +185,8 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                             isActive={false}
                             isSelected={CryptoSelected === item.cryptocurrency}
                             className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${CryptoSelected === item.cryptocurrency
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
+                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              : ""
                               }`}
                           >
                             <MenuItem.Title>{item.cryptocurrency}</MenuItem.Title>
@@ -295,12 +296,17 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
             <span>{seriesLabel}</span>
           </div>
         </div>
+        {
+          ShowSummary ?
+            <div className="flex flex-wrap items-center gap-4 text-[11px] sm:text-xs text-titleText dark:text-titleText-dark">
+              <span className="text-green-500">
+                مجموع: {totalX.toLocaleString()} {unitSuffix}
+              </span>
+            </div>
+            :
+            null
+        }
 
-        <div className="flex flex-wrap items-center gap-4 text-[11px] sm:text-xs text-titleText dark:text-titleText-dark">
-          <span className="text-green-500">
-            مجموع: {totalX.toLocaleString()} {unitSuffix}
-          </span>
-        </div>
       </div>
     </div>
   );
