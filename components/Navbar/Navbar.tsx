@@ -83,7 +83,7 @@ const Navbar = ({ isOpen, setIsOpen, isMobileOpen, setIsMobileOpen, toggleDarkMo
     {
       link: "rial-transfers",
       label: "واریز و برداشت ریالی",
-      access: 'ADMIN',
+      access: '',
       icon: (
         <svg fill="currentColor" height="20" width="20" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 220 220">
