@@ -20,7 +20,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
 
     const params = useParams<{ id: string }>();
 
-    const id = 'source1'
+    const id = params.id
 
     type dailyActiveUsers = {
         label: string;
