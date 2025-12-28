@@ -110,7 +110,7 @@ const Page = () => {
   }, [])
 
   return (
-    <div className="p-4 md:p-0">
+    <div className="p-4 lg:p-0">
       {/* Search box */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
         <div className="relative w-full h-[48px] mb-4 mt-8">
@@ -140,7 +140,7 @@ const Page = () => {
               </div>
             </div>)
         }
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
           {filteredData.map((item) => {
             const risk = Math.floor(Math.random() * 140);
 
