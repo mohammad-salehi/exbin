@@ -52,10 +52,10 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
       onSubmit={handleSubmit}
       autoComplete="off"
       className="
-        w-full max-w-[520px]
-        rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark
-        bg-boxColor/40 dark:bg-boxColor-dark/30
-        p-4 sm:p-5
+        w-full max-w-[620px]
+        rounded-xl sm:border sm:border-boxBorderColor sm:dark:border-boxBorderColor-dark
+        sm:bg-boxColor/40 sm:dark:bg-boxColor-dark/30
+         sm:p-5
         shadow-sm
       "
     >
@@ -63,9 +63,9 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <div className="text-base font-semibold text-titleText dark:text-titleText-dark">
-            تنظیمات اتصال
+            تنظیمات اتصال سکو
           </div>
-          <div className="mt-1 text-xs text-secondaryText dark:text-secondaryText-dark">
+          <div className="mt-1 text-xs text-titleText dark:text-titleText-dark">
             اطلاعات دامنه و دسترسی را وارد کنید
           </div>
         </div>
@@ -129,10 +129,10 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
           className="
             w-full sm:w-auto
             h-10 px-4 rounded-lg
-            border border-red-300 dark:border-red-700
-            bg-red-50 dark:bg-red-950/30
-            text-red-700 dark:text-red-300
-            hover:bg-red-100 dark:hover:bg-red-950/45
+            border border-gray-300 dark:border-gray-500
+            
+            text-gray-700 dark:text-gray-300
+            
             transition
           "
         >

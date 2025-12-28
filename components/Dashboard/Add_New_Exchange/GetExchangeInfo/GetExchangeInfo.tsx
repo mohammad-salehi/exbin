@@ -121,11 +121,11 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     };
 
     return (
-        <div className='mt-4'>
+        <div className='mt-4 mb-4'>
             <h5 className='font-bold text-lg text-titleText dark:text-titleText-dark'>
                 ثبت سکو جدید
             </h5>
-            <div className='bg-boxColor dark:bg-boxColor-dark border border-boxBorderColor dark:border-boxBorderColor-dark rounded-xl mt-4 p-4'>
+            <div className='sm:bg-boxColor sm:dark:bg-boxColor-dark sm:border sm:border-boxBorderColor sm:dark:border-boxBorderColor-dark rounded-xl mt-4 sm:p-4'>
                 <h6 className='font-bold text-md text-titleText dark:text-titleText-dark'>
                     مشخصات سکو
                 </h6>
