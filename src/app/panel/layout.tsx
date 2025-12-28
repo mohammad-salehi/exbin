@@ -83,7 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         <footer className="text-titleText dark:text-titleText-dark mx-auto w-full max-w-screen-xl text-sm py-2">
           <div className="text-center">
-            <p>© طراحی‌ و توسعه توسط شرکت پردازش داده های زنجیره امین v2.1.0</p>
+            <p>© طراحی‌ و توسعه توسط شرکت پردازش داده های زنجیره ای امین v2.1.0</p>
           </div>
         </footer>
       </div>
