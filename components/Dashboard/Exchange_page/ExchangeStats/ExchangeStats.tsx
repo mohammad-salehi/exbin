@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react'
 import { CircleChart } from '../../CircleChart/CircleChart'
 import { CryptoVolumeTreemap } from '../../CryptoVolumeTreemap/CryptoVolumeTreemap'
 import SingleLinearChart from '../../SingleLinearChart/SingleLinearChart'
@@ -6,6 +5,13 @@ import DoubleLinearChart from '../../DoubleLinearChart/DoubleLinearChart'
 import { GetRequest } from '../../../../functions/GetRequest'
 import { useParams } from "next/navigation";
 import StatsMarquee from "../../../../components/Dashboard/Band/Band";
+import React, { useEffect, useState, useMemo } from 'react';
+
+
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
+
 
 type ExchangeInfoProps = {
     SetLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -150,58 +156,58 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
     // تعداد کاربران فعال ماهانه
     useEffect(() => {
         if (!id) return;
-      
-        GetRequest(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/exchange/${id}/daily-active-users`
-        )
-          .then((response) => {
-            const getData: dailyActiveUsers[] = [];
-      
-            for (let i = 0; i < response.result.length; i++) {
-              getData.push({
-                label: formatJalaliDateTime(response.result[i].loginDate),
-                x: response.result[i].dau,
-              });
-            }
-      
-            // اگر label تاریخِ فرمت‌شده‌ست، مرتب‌سازی متنی همیشه دقیق نیست.
-            // ولی برای اینکه مثل خودت بمونه:
-            getData.sort((a, b) =>
-              String(a.label).localeCompare(String(b.label))
-            );
-      
-            SetDailyActiveUsers(getData);
-      
-            SetHeaderData((prev) => {
-              const lastX = getData.length ? Number(getData[getData.length - 1].x ?? 0) : 0;
-              const item: CryptoTradingValueUsers = {
-                label: "کاربران فعال روزانه",
-                value: lastX,
-              };
-              const next = prev.filter((x) => x.label !== item.label);
-              return [...next, item];
-            });
 
-            SetHeaderData((prev) => {
-                const sumX = getData.reduce((acc, cur) => acc + Number(cur.x ?? 0), 0);
-              
-                const item = {
-                  label: "کاربران فعال ماهانه",
-                  value: sumX,
-                };
-              
-                const next = prev.filter((x) => x.label !== item.label);
-                return [...next, item];
-              });
-      
-            SetC3(true);
-          })
-          .catch((err) => {
-            console.log(err);
-            SetC3(true);
-          });
-      }, []);
-      
+        GetRequest(
+            `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/exchange/${id}/daily-active-users`
+        )
+            .then((response) => {
+                const getData: dailyActiveUsers[] = [];
+
+                for (let i = 0; i < response.result.length; i++) {
+                    getData.push({
+                        label: formatJalaliDateTime(response.result[i].loginDate),
+                        x: response.result[i].dau,
+                    });
+                }
+
+                // اگر label تاریخِ فرمت‌شده‌ست، مرتب‌سازی متنی همیشه دقیق نیست.
+                // ولی برای اینکه مثل خودت بمونه:
+                getData.sort((a, b) =>
+                    String(a.label).localeCompare(String(b.label))
+                );
+
+                SetDailyActiveUsers(getData);
+
+                SetHeaderData((prev) => {
+                    const lastX = getData.length ? Number(getData[getData.length - 1].x ?? 0) : 0;
+                    const item: CryptoTradingValueUsers = {
+                        label: "کاربران فعال روزانه",
+                        value: lastX,
+                    };
+                    const next = prev.filter((x) => x.label !== item.label);
+                    return [...next, item];
+                });
+
+                SetHeaderData((prev) => {
+                    const sumX = getData.reduce((acc, cur) => acc + Number(cur.x ?? 0), 0);
+
+                    const item = {
+                        label: "کاربران فعال ماهانه",
+                        value: sumX,
+                    };
+
+                    const next = prev.filter((x) => x.label !== item.label);
+                    return [...next, item];
+                });
+
+                SetC3(true);
+            })
+            .catch((err) => {
+                console.log(err);
+                SetC3(true);
+            });
+    }, []);
+
     // میانگین زمان تسویه
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/avg-withdrawal-time-24h`)
@@ -296,12 +302,12 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
                 SetDailyPOR([
                     {
-                        label:'دارایی',
-                        value:getData[getData.length-1].x
+                        label: 'دارایی',
+                        value: getData[getData.length - 1].x
                     },
                     {
-                        label:'بدهی',
-                        value:getData[getData.length-1].y
+                        label: 'بدهی',
+                        value: getData[getData.length - 1].y
                     }
                 ])
                 SetPORHistory(getData)
@@ -385,12 +391,12 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                     SetDailyWithDep(
                         [
                             {
-                                label:'واریز',
-                                value:getData[getData.length - 1].x
+                                label: 'واریز',
+                                value: getData[getData.length - 1].x
                             },
                             {
-                                label:'برداشت',
-                                value:getData[getData.length - 1].y
+                                label: 'برداشت',
+                                value: getData[getData.length - 1].y
                             }
                         ]
                     )
@@ -421,12 +427,12 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 SetDailyIRRWithDep(
                     [
                         {
-                            label:'واریز',
-                            value:getData[getData.length - 1].x
+                            label: 'واریز',
+                            value: getData[getData.length - 1].x
                         },
                         {
-                            label:'برداشت',
-                            value:getData[getData.length - 1].y
+                            label: 'برداشت',
+                            value: getData[getData.length - 1].y
                         }
                     ]
                 )
@@ -438,35 +444,451 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             })
     }, [])
 
+
+
+
+
+
+
+
+
+
+
+
+    // ---------- helpers ----------
+    const urlToDataUrl = async (url: string): Promise<string | null> => {
+        try {
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.decoding = "async";
+
+            const dataUrl = await new Promise<string>((resolve, reject) => {
+                img.onload = () => {
+                    try {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = img.naturalWidth || img.width;
+                        canvas.height = img.naturalHeight || img.height;
+
+                        const ctx = canvas.getContext("2d");
+                        if (!ctx) return reject(new Error("Canvas context not available"));
+
+                        ctx.drawImage(img, 0, 0);
+                        // Force PNG (jsPDF safe)
+                        resolve(canvas.toDataURL("image/png", 1.0));
+                    } catch (e) {
+                        reject(e);
+                    }
+                };
+                img.onerror = reject;
+                img.src = url;
+            });
+
+            return dataUrl;
+        } catch {
+            return null;
+        }
+    };
+    const handleDownloadPDF = async () => {
+        // ---------- helpers ----------
+        const toEnNumber = (v: any) => {
+            if (v === null || v === undefined || v === "") return "0";
+            const s = String(v);
+            const map: Record<string, string> = {
+              "۰": "0", "۱": "1", "۲": "2", "۳": "3", "۴": "4",
+              "۵": "5", "۶": "6", "۷": "7", "۸": "8", "۹": "9",
+              "٫": ".", "٬": ",",
+            };
+            return s.replace(/[۰-۹٫٬]/g, (ch) => map[ch] ?? ch);
+          };
+        
+          const toEnText = (v: any) => {
+            if (v === null || v === undefined) return "";
+            return toEnNumber(String(v));
+          };
+        
+          const labelToEnglish = (label: string) => {
+            const s = (label || "").trim();
+            const dict: Record<string, string> = {
+              "تعداد کاربران": "Number of Users",
+              "کاربران فعال روزانه": "Daily Active Users",
+              "کاربران فعال ماهانه": "Monthly Active Users (Sum)",
+              "میانگین زمان تسویه کاربران(میلی‌ثانیه)": "Avg Settlement Time (ms)",
+              "مجموع دارایی(USDT)": "Total Assets (USDT)",
+              "مجموع بدهی(USDT)": "Total Liabilities (USDT)",
+              "دارایی": "Assets",
+              "بدهی": "Liabilities",
+              "واریز": "Deposits",
+              "برداشت": "Withdrawals",
+            };
+            return dict[s] ?? toEnText(s);
+          };
+        
+          const addSectionTitle = (doc: any, title: string, y: number) => {
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(11);
+            doc.text(toEnText(title), 14, y);
+            doc.setFont("helvetica", "normal");
+          };
+        
+          // ✅ local url -> dataURL
+          const urlToDataUrl = async (url: string): Promise<string | null> => {
+            try {
+              const res = await fetch(url);
+              const blob = await res.blob();
+              return await new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(String(reader.result));
+                reader.onerror = () => resolve(null);
+                reader.readAsDataURL(blob);
+              });
+            } catch {
+              return null;
+            }
+          };
+        
+          // ✅ read image size from dataURL (for aspect ratio)
+          const getImageSizeFromDataUrl = (dataUrl: string) =>
+            new Promise<{ w: number; h: number }>((resolve, reject) => {
+              const img = new Image();
+              img.onload = () => resolve({ w: img.naturalWidth || img.width, h: img.naturalHeight || img.height });
+              img.onerror = reject;
+              img.src = dataUrl;
+            });
+        
+          const getImageFormatFromDataUrl = (dataUrl: string) => {
+            const m = /^data:image\/(png|jpeg|jpg|webp);/i.exec(dataUrl);
+            const t = (m?.[1] || "png").toLowerCase();
+            if (t === "jpg") return "JPEG";
+            if (t === "jpeg") return "JPEG";
+            if (t === "webp") return "WEBP";
+            return "PNG";
+          };
+        
+          // ---------- PDF init ----------
+          const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+          const pageW = doc.internal.pageSize.getWidth();
+          const pageH = doc.internal.pageSize.getHeight();
+          const marginX = 14;
+        
+          // ---------- Header ----------
+          const title = "Exchange Analytics Report";
+          const subtitle = `Exchange Name: ${toEnText(name || "Unknown Exchange")}`;
+        
+          // ✅ use local logo from public/images/shaparak.webp
+          const logoDataUrl = await urlToDataUrl("/images/shaparak.webp");
+        
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(16);
+          doc.text(toEnText(title), marginX, 16);
+        
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(10);
+          doc.text(toEnText(subtitle), marginX, 22);
+        
+          doc.setFontSize(9);
+          doc.text(
+            `Report Date: ${new Intl.DateTimeFormat("en-CA", { dateStyle: "medium" }).format(new Date())}`,
+            marginX,
+            27
+          );
+        
+          // ✅ logo (top-right) with auto width (keep aspect ratio)
+          if (logoDataUrl) {
+            try {
+              const { w, h } = await getImageSizeFromDataUrl(logoDataUrl);
+              const ratio = w / h;
+        
+              const logoH = 18;              // فقط ارتفاع ثابت
+              const logoW = logoH * ratio;   // عرض خودکار
+              const x = pageW - marginX - logoW;
+              const y = 10;
+        
+              const fmt = getImageFormatFromDataUrl(logoDataUrl); // WEBP/PNG/JPEG
+              doc.addImage(logoDataUrl, fmt as any, x, y, logoW, logoH);
+            } catch {
+              // ignore image errors
+            }
+          }
+        
+          // ✅ divider line under header
+          const headerBottomY = 30;
+          doc.setDrawColor(200);
+          doc.setLineWidth(0.6);
+          doc.line(marginX, headerBottomY + 4, pageW - marginX, headerBottomY + 4);
+
+        let cursorY = headerBottomY + 12;
+
+        // ---------- 1) Overview (HeaderData) ----------
+        addSectionTitle(doc, "Overview Metrics", cursorY);
+        cursorY += 3;
+
+        autoTable(doc, {
+            startY: cursorY,
+            head: [["Metric", "Value"]],
+            body: (HeaderData || []).map((x: any) => [
+                toEnText(labelToEnglish(String(x.label ?? ""))),
+                toEnText(toEnNumber(x.value)),
+            ]),
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+            theme: "grid",
+            margin: { left: marginX, right: marginX },
+            pageBreak: "auto",
+        });
+
+        // @ts-ignore
+        cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+        // ---------- 2) Top traded cryptocurrencies ----------
+        addSectionTitle(doc, "Top Traded Cryptocurrencies (USDT)", cursorY);
+        cursorY += 3;
+
+        autoTable(doc, {
+            startY: cursorY,
+            head: [["Currency", "Total Volume (USDT)"]],
+            body: (TopTradedcryptocurrencies || []).map((x: any) => [
+                toEnText(x.label),
+                toEnText(toEnNumber(x.value)),
+            ]),
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+            theme: "grid",
+            margin: { left: marginX, right: marginX },
+            pageBreak: "auto",
+        });
+
+        // @ts-ignore
+        cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+        // ---------- 3) Portfolio ----------
+        addSectionTitle(doc, "Portfolio - Top Assets (USD Value)", cursorY);
+        cursorY += 3;
+
+        autoTable(doc, {
+            startY: cursorY,
+            head: [["Asset", "Symbol", "Total USD Value"]],
+            body: (Topcryptocurrencies || []).map((x: any) => [
+                toEnText(x.name),
+                toEnText(x.symbol),
+                toEnText(toEnNumber(x.value)),
+            ]),
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+            theme: "grid",
+            margin: { left: marginX, right: marginX },
+            pageBreak: "auto",
+        });
+
+        // @ts-ignore
+        cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+        // ---------- 4) Assets vs Liabilities (Historical) ----------
+        addSectionTitle(doc, "Assets vs Liabilities (Historical)", cursorY);
+        cursorY += 3;
+
+        autoTable(doc, {
+            startY: cursorY,
+            head: [["Date", "Assets (USD)", "Liabilities (USD)"]],
+            body: (PORHistory || []).map((x: any) => [
+                toEnText(x.label),
+                toEnText(toEnNumber(x.x)),
+                toEnText(toEnNumber(x.y)),
+            ]),
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+            theme: "grid",
+            margin: { left: marginX, right: marginX },
+            pageBreak: "auto",
+        });
+
+        // @ts-ignore
+        cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+        // ---------- 5) Crypto deposits/withdrawals ----------
+        addSectionTitle(doc, `Crypto Deposits & Withdrawals - ${toEnText(CryptoSelected2 || "N/A")}`, cursorY);
+        cursorY += 3;
+
+        autoTable(doc, {
+            startY: cursorY,
+            head: [["Date", "Deposits", "Withdrawals"]],
+            body: (DepWithHistory || []).map((x: any) => [
+                toEnText(x.label),
+                toEnText(toEnNumber(x.x)),
+                toEnText(toEnNumber(x.y)),
+            ]),
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+            theme: "grid",
+            margin: { left: marginX, right: marginX },
+            pageBreak: "auto",
+        });
+
+        // @ts-ignore
+        cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+        // ---------- 6) IRR deposits/withdrawals ----------
+        addSectionTitle(doc, "IRR Deposits & Withdrawals (Historical)", cursorY);
+        cursorY += 3;
+
+        autoTable(doc, {
+            startY: cursorY,
+            head: [["Date", "Deposits (IRR)", "Withdrawals (IRR)"]],
+            body: (IRRDepWithHistory || []).map((x: any) => [
+                toEnText(x.label),
+                toEnText(toEnNumber(x.x)),
+                toEnText(toEnNumber(x.y)),
+            ]),
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+            theme: "grid",
+            margin: { left: marginX, right: marginX },
+            pageBreak: "auto",
+        });
+
+        // @ts-ignore
+        cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+        // ---------- 7) Trading volume ----------
+        addSectionTitle(doc, `Trading Volume (Monthly) - ${toEnText(CryptoSelected1 || "N/A")}`, cursorY);
+        cursorY += 3;
+
+        autoTable(doc, {
+            startY: cursorY,
+            head: [["Date", "Volume"]],
+            body: (TradingVolume || []).map((x: any) => [
+                toEnText(x.label),
+                toEnText(toEnNumber(x.x)),
+            ]),
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+            theme: "grid",
+            margin: { left: marginX, right: marginX },
+            pageBreak: "auto",
+        });
+
+        // @ts-ignore
+        cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+        // ---------- 8) Daily Active Users ----------
+        addSectionTitle(doc, "Daily Active Users (Time Series)", cursorY);
+        cursorY += 3;
+
+        autoTable(doc, {
+            startY: cursorY,
+            head: [["Date", "DAU"]],
+            body: (DailyActiveUsers || []).map((x: any) => [
+                toEnText(x.label),
+                toEnText(toEnNumber(x.x)),
+            ]),
+            styles: { font: "helvetica", fontSize: 9 },
+            headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+            theme: "grid",
+            margin: { left: marginX, right: marginX },
+            pageBreak: "auto",
+        });
+
+        // ---------- Footer + page numbers ----------
+        const pageCount = doc.getNumberOfPages();
+
+        for (let p = 1; p <= pageCount; p++) {
+            doc.setPage(p);
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(9);
+
+            doc.text(`Page ${p} of ${pageCount}`, marginX, pageH - 10);
+
+            if (p === pageCount) {
+                doc.text(
+                    "This report was automatically generated by the CED portal system.",
+                    marginX,
+                    pageH - 16
+                );
+            }
+        }
+
+        const safeName = (name || "exchange").toString().replace(/\s+/g, "_");
+        doc.save(`CED_Report_${toEnText(safeName)}_${toEnText(id || "")}.pdf`);
+    };
+
     return (
         <div>
-            {logo !== null && logo !== "" ? (
-                <img alt="image" className="w-8 inline-block" src={logo} />
-            ) : (
-                <div
-                    className=" items-center text-titleText dark:text-titleText-dark inline-block "
-                    style={{ marginBottom: "-6px" }}
-                >
-                    <svg
-                        width="30px"
-                        height="30px"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                    >
-                        <path
-                            d="M14.2639 15.9376L12.5958 14.2835C11.7909 13.4852 11.3884 13.0861 10.9266 12.9402C10.5204 12.8119 10.0838 12.8166 9.68048 12.9537C9.22188 13.1096 8.82814 13.5173 8.04068 14.3327L4.04409 18.2802M14.2639 15.9376L14.6053 15.5991C15.4112 14.7999 15.8141 14.4003 16.2765 14.2544C16.6831 14.1262 17.12 14.1312 17.5236 14.2688C17.9824 14.4252 18.3761 14.834 19.1634 15.6515L20 16.4936M14.2639 15.9376L18.275 19.9566M20.9992 6.00011H14.9992M11 3.99951L7.2 4.00011C6.07989 4.00011 5.51984 4.00011 5.09202 4.21809C4.71569 4.40984 4.40973 4.7158 4.21799 5.09213C4 5.51995 4 6.08 4 7.20011V16.8001C4 17.4576 4 17.9222 4.04409 18.2802M20 9.99951V16.4936M4.04409 18.2802C4.07512 18.5322 4.12796 18.7314 4.21799 18.9081C4.40973 19.2844 4.71569 19.5904 5.09202 19.7821C5.51984 20.0001 6.07989 20.0001 7.2 20.0001H16.8C17.9201 20.0001 18.4802 20.0001 18.908 19.7821C19.2843 19.5904 19.5903 19.2844 19.782 18.9081C20 18.4803 20 17.9202 20 16.8001V16.4936"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                        />
-                    </svg>
+            <div className="flex items-center justify-between gap-3 mb-4">
+
+
+                {/* RIGHT: Logo + Name */}
+                <div className="flex items-center gap-2 min-w-0">
+                    {logo ? (
+                        <img alt="logo" className="w-8 h-8 object-contain" src={logo} />
+                    ) : (
+                        <div
+                            className="text-titleText dark:text-titleText-dark "
+                        >
+                            <svg
+                                width="30px"
+                                height="30px"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                            >
+                                <path
+                                    d="M14.2639 15.9376L12.5958 14.2835C11.7909 13.4852 11.3884 13.0861 10.9266 12.9402C10.5204 12.8119 10.0838 12.8166 9.68048 12.9537C9.22188 13.1096 8.82814 13.5173 8.04068 14.3327L4.04409 18.2802M14.2639 15.9376L14.6053 15.5991C15.4112 14.7999 15.8141 14.4003 16.2765 14.2544C16.6831 14.1262 17.12 14.1312 17.5236 14.2688C17.9824 14.4252 18.3761 14.834 19.1634 15.6515L20 16.4936M14.2639 15.9376L18.275 19.9566M20.9992 6.00011H14.9992M11 3.99951L7.2 4.00011C6.07989 4.00011 5.51984 4.00011 5.09202 4.21809C4.71569 4.40984 4.40973 4.7158 4.21799 5.09213C4 5.51995 4 6.08 4 7.20011V16.8001C4 17.4576 4 17.9222 4.04409 18.2802M20 9.99951V16.4936M4.04409 18.2802C4.07512 18.5322 4.12796 18.7314 4.21799 18.9081C4.40973 19.2844 4.71569 19.5904 5.09202 19.7821C5.51984 20.0001 6.07989 20.0001 7.2 20.0001H16.8C17.9201 20.0001 18.4802 20.0001 18.908 19.7821C19.2843 19.5904 19.5903 19.2844 19.782 18.9081C20 18.4803 20 17.9202 20 16.8001V16.4936"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    )}
+
+                    <h3 className="text-2xl font-bold text-titleText dark:text-titleText-dark truncate mb-0">
+                        {name}
+                    </h3>
                 </div>
-            )}
-            <h3 className="inline-block text-2xl text-bold mr-2 text-titleText dark:text-titleText-dark mb-4">
-                {name}
-            </h3>
+
+                {/* LEFT: Download button */}
+                <div className="shrink-0">
+                    <button
+                        onClick={handleDownloadPDF}
+                        type="button"
+                        className="
+    inline-flex items-center gap-2
+    rounded-xl px-4 py-2.5
+    text-sm font-semibold
+    text-white
+    bg-gradient-to-r from-sky-600 to-indigo-600
+    shadow-sm shadow-indigo-600/20
+    hover:from-sky-500 hover:to-indigo-500 hover:shadow-md hover:shadow-indigo-600/30
+    active:scale-[0.98]
+    transition-all duration-200
+    focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
+    focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0B1220]
+    disabled:opacity-60 disabled:cursor-not-allowed
+  "
+                    >
+                        <svg
+                            width="18"
+                            height="18"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="opacity-95"
+                        >
+                            <path
+                                d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </svg>
+
+                        <span>دریافت  PDF</span>
+                    </button>
+
+                </div>
+            </div>
+
             <MemoStatsMarquee data={HeaderData} />
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4">
                 <div className="min-h-full xl:col-span-1">
@@ -501,8 +923,8 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                         description="برایند دارایی‌ها و بدهی‌ها محاسبه شده است!"
                         value={
                             DailyPOR.length !== 0
-                            ? DailyPOR[0].value - DailyPOR[1].value
-                            : null
+                                ? DailyPOR[0].value - DailyPOR[1].value
+                                : null
                         }
                     />
                 </div>
@@ -516,8 +938,8 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                         description="برایند واریز و برداشت‌ها محاسبه شده است!"
                         value={
                             DailyWithDep.length !== 0
-                            ? DailyWithDep[0].value - DailyWithDep[1].value
-                            : null
+                                ? DailyWithDep[0].value - DailyWithDep[1].value
+                                : null
                         }
                     />
                 </div>
@@ -561,8 +983,8 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                         description="برایند واریز و برداشت‌ها محاسبه شده است!"
                         value={
                             DailyIRRWithDep.length !== 0
-                            ? DailyIRRWithDep[0].value - DailyIRRWithDep[1].value
-                            : null
+                                ? DailyIRRWithDep[0].value - DailyIRRWithDep[1].value
+                                : null
                         }
                     />
                 </div>
