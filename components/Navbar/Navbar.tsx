@@ -300,15 +300,7 @@ const Navbar = ({
               </svg>
             </button>
 
-            <div className="flex items-center gap-2">
-              <img src="../../../images/pantaLogo.png" className="w-8 h-8 rounded-lg" alt="logo" />
-              <div className="leading-4">
-                <div className="text-sm font-semibold text-titleText dark:text-titleText-dark">Panta</div>
-                <div className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-1" dir="rtl">
-                  {activeLink ? activeLink.replaceAll('-', ' ') : 'پنل'}
-                </div>
-              </div>
-            </div>
+
 
             <button
               type="button"
