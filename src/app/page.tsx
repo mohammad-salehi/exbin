@@ -258,10 +258,10 @@ export default function Home() {
             :
             null
         }
-        <h2 className="text-2xl mb-6 text-titleText mt-16">
+        <h2 className="text-2xl mb-1 text-titleText mt-16">
           ورود به حساب کاربری
         </h2>
-
+        <span className="text-titleText text-sm">سامانه نظارت بر سکوهای مبادله رمزارز</span>
         {/* فرم */}
         <form className="flex flex-col gap-4 mt-4" onSubmit={Login}>
           <div>
