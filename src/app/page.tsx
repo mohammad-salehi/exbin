@@ -11,8 +11,14 @@ import { LoaderCircle } from "../../components/Loader/Loader";
 
 export default function Home() {
   const router = useRouter();
-  const DottedPatternLeft = () => (
-    <svg width="150" height="60" xmlns="http://www.w3.org/2000/svg">
+
+  const DottedPatternLeft = ({ className = "" }: { className?: string }) => (
+    <svg
+      viewBox="0 0 150 60"
+      className={`w-full h-auto ${className}`}
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
       <circle cx="5" cy="20" r="2" fill="#ccc" />
       <circle cx="20" cy="20" r="2" fill="#ccc" />
       <circle cx="35" cy="20" r="2" fill="#ccc" />
@@ -42,12 +48,51 @@ export default function Home() {
       <circle cx="95" cy="50" r="2" fill="#ccc" />
       <circle cx="110" cy="50" r="2" fill="#ccc" />
       <circle cx="125" cy="50" r="2" fill="#ccc" />
-
     </svg>
   );
 
-  const DottedPatternRight = () => (
-    <svg width="150" height="60" xmlns="http://www.w3.org/2000/svg">
+  // const DottedPatternLeft = () => (
+  //   <svg width="150" height="60" xmlns="http://www.w3.org/2000/svg">
+  //     <circle cx="5" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="20" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="35" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="50" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="65" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="80" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="95" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="110" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="125" cy="20" r="2" fill="#ccc" />
+
+  //     <circle cx="20" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="35" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="50" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="65" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="80" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="95" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="110" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="125" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="140" cy="35" r="2" fill="#ccc" />
+
+  //     <circle cx="5" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="20" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="35" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="50" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="65" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="80" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="95" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="110" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="125" cy="50" r="2" fill="#ccc" />
+
+  //   </svg>
+  // );
+
+  const DottedPatternRight = ({ className = "" }: { className?: string }) => (
+    <svg
+      viewBox="0 0 150 60"
+      className={`w-full h-auto ${className}`}
+      preserveAspectRatio="xMidYMid meet"
+      aria-hidden="true"
+    >
       <circle cx="20" cy="20" r="2" fill="#ccc" />
       <circle cx="35" cy="20" r="2" fill="#ccc" />
       <circle cx="50" cy="20" r="2" fill="#ccc" />
@@ -78,9 +123,44 @@ export default function Home() {
       <circle cx="110" cy="50" r="2" fill="#ccc" />
       <circle cx="125" cy="50" r="2" fill="#ccc" />
       <circle cx="140" cy="50" r="2" fill="#ccc" />
-
     </svg>
   );
+
+  // const DottedPatternRight = () => (
+  //   <svg width="150" height="60" xmlns="http://www.w3.org/2000/svg">
+  //     <circle cx="20" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="35" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="50" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="65" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="80" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="95" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="110" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="125" cy="20" r="2" fill="#ccc" />
+  //     <circle cx="140" cy="20" r="2" fill="#ccc" />
+
+  //     <circle cx="5" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="20" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="35" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="50" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="65" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="80" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="95" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="110" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="125" cy="35" r="2" fill="#ccc" />
+  //     <circle cx="125" cy="35" r="2" fill="#ccc" />
+
+  //     <circle cx="20" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="35" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="50" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="65" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="80" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="95" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="110" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="125" cy="50" r="2" fill="#ccc" />
+  //     <circle cx="140" cy="50" r="2" fill="#ccc" />
+
+  //   </svg>
+  // );
 
   const [UsernameError, SetUsernameError] = useState<boolean>(false)
   const [hasError, SetHasError] = useState<boolean>(false)
@@ -156,11 +236,11 @@ export default function Home() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 px-4">
-      <div className="bg-white dark:bg-gray-800 shadow-lg rounded-2xl p-8 max-w-[490px] w-full ">
+      <div className="sm:bg-white sm:dark:bg-gray-800 sm:shadow-lg sm:rounded-2xl sm:p-8 sm:max-w-[490px] sm:w-full ">
         {/* عنوان */}
         <div className="flex justify-between ">
           <DottedPatternLeft />
-          <img src="/images/pantaLogo.png" className="w-14 h-16" alt="image" />
+          <img src="/images/pantaLogo.png" className="w-14 mx-2" alt="image" />
           <DottedPatternRight />
         </div>
         {
@@ -170,7 +250,7 @@ export default function Home() {
             >
               <div className="flex items-center justify-between w-full">
                 <Alert.Message className="text-red-500 flex items-left space-x-2">
-                  <ControlsClose className="text-red-500 cursor-pointer mt-1 me-2" />
+                  <ControlsClose className="text-red-500 mt-1 me-2" />
                   <span className="float-left">{ErrorText}</span>
                 </Alert.Message>
               </div>
@@ -183,7 +263,7 @@ export default function Home() {
         </h2>
 
         {/* فرم */}
-        <form className="flex flex-col gap-4 mt-14" onSubmit={Login}>
+        <form className="flex flex-col gap-4 mt-4" onSubmit={Login}>
           <div>
             <label className="block mb-1 text-sm font-medium text-titleText">نام کاربری</label>
             <input
@@ -203,7 +283,7 @@ export default function Home() {
             />
           </div>
 
-          <div className="mt-6">
+          <div className="">
             <label className="block mb-1 text-sm font-medium text-titleText">گذرواژه</label>
             <div className="relative">
               <input
@@ -239,7 +319,7 @@ export default function Home() {
 
           <Button
             type="submit"
-            className="w-full bg-primary text-white hover:bg-primary-600 rounded-lg mt-16 h-[48px]"
+            className="w-full bg-primary text-white hover:bg-primary-600 rounded-lg mt-8 h-[48px]"
             disabled={loading} // اگر لودینگ هست، دکمه غیرفعال بشه
           >
             {loading ? <LoaderCircle size={8} color="border-white-500" /> : 'ورود'}
