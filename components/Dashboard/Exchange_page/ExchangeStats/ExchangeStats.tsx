@@ -225,15 +225,6 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             })
             .catch((err) => {
                 console.log(err)
-                SetHeaderData((prev) => {
-                    const item: CryptoTradingValueUsers = {
-                        label: "میانگین زمان تسویه کاربران(میلی‌ثانیه)",
-                        value: Number(0),
-                    };
-
-                    const next = prev.filter((x) => x.label !== item.label);
-                    return [...next, item];
-                });
                 SetC4(true)
             })
     }, [])
