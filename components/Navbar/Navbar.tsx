@@ -415,7 +415,7 @@ const Navbar = ({
                 <button
                   type="button"
                   className={clsx(
-                    'w-full flex items-center justify-between gap-3 px-3 py-3 rounded-2xl transition border', // ✅ items-center
+                    'w-full flex items-center justify-between gap-1 px-1 py-1 rounded-xl transition border', // ✅ items-center
                     active
                       ? 'bg-BgPrimary dark:bg-BgPrimary-dark border-transparent'
                       : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
