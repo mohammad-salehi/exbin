@@ -300,8 +300,6 @@ const Navbar = ({
               </svg>
             </button>
 
-
-
             <button
               type="button"
               onClick={toggleDarkMode}
@@ -385,7 +383,6 @@ const Navbar = ({
 
                 <div className="min-w-0 flex-1" dir="rtl">
                   <div className="text-sm font-semibold text-titleText dark:text-titleText-dark truncate">{fullName || 'کاربر'}</div>
-                  <div className="text-xs text-gray-600 dark:text-gray-300 truncate">{username || '—'}</div>
                   <div className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{role || '—'}</div>
                 </div>
 
