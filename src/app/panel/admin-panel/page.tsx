@@ -6,7 +6,7 @@ import { PantaTabs, TabItem } from "../../../../components/Tabs/Tabs";
 import AdminPanel from "../../../../components/AdminPanel/AdminPanel";
 
 const Page = () => {
-  const [Loading, SetLoading] = useState<boolean>(true);
+  const [Loading, SetLoading] = useState<boolean>(false);
 
   // اختیاری: برای اینکه اگر یکی از بخش‌ها fail شد گیر نکنه
   useEffect(() => {
