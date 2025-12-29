@@ -6,12 +6,8 @@ import { GetRequest } from '../../../../functions/GetRequest'
 import { useParams } from "next/navigation";
 import StatsMarquee from "../../../../components/Dashboard/Band/Band";
 import React, { useEffect, useState, useMemo } from 'react';
-
-
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-
-
 
 type ExchangeInfoProps = {
     SetLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -207,7 +203,6 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 SetC3(true);
             });
     }, []);
-
     // میانگین زمان تسویه
     useEffect(() => {
         GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/analytics/exchange/${id}/avg-withdrawal-time-24h`)
@@ -446,39 +441,6 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
 
 
 
-    // ---------- helpers ----------
-    const urlToDataUrl = async (url: string): Promise<string | null> => {
-        try {
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.decoding = "async";
-
-            const dataUrl = await new Promise<string>((resolve, reject) => {
-                img.onload = () => {
-                    try {
-                        const canvas = document.createElement("canvas");
-                        canvas.width = img.naturalWidth || img.width;
-                        canvas.height = img.naturalHeight || img.height;
-
-                        const ctx = canvas.getContext("2d");
-                        if (!ctx) return reject(new Error("Canvas context not available"));
-
-                        ctx.drawImage(img, 0, 0);
-                        // Force PNG (jsPDF safe)
-                        resolve(canvas.toDataURL("image/png", 1.0));
-                    } catch (e) {
-                        reject(e);
-                    }
-                };
-                img.onerror = reject;
-                img.src = url;
-            });
-
-            return dataUrl;
-        } catch {
-            return null;
-        }
-    };
     const handleDownloadPDF = async () => {
         // ---------- helpers ----------
         const toEnNumber = (v: any) => {
@@ -618,7 +580,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             head: [["Metric", "Value"]],
             body: (HeaderData || []).map((x: any) => [
                 toEnText(labelToEnglish(String(x.label ?? ""))),
-                toEnText(toEnNumber(x.value)),
+                toEnText(toEnNumber(x.value.toLocaleString())),
             ]),
             styles: { font: "helvetica", fontSize: 9 },
             headStyles: { fillColor: [240, 240, 240], textColor: 20 },
@@ -639,7 +601,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             head: [["Currency", "Total Volume (USDT)"]],
             body: (TopTradedcryptocurrencies || []).map((x: any) => [
                 toEnText(x.label),
-                toEnText(toEnNumber(x.value)),
+                toEnText(toEnNumber(x.value.toLocaleString())),
             ]),
             styles: { font: "helvetica", fontSize: 9 },
             headStyles: { fillColor: [240, 240, 240], textColor: 20 },
@@ -661,7 +623,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             body: (Topcryptocurrencies || []).map((x: any) => [
                 toEnText(x.name),
                 toEnText(x.symbol),
-                toEnText(toEnNumber(x.value)),
+                toEnText(toEnNumber(x.value.toLocaleString())),
             ]),
             styles: { font: "helvetica", fontSize: 9 },
             headStyles: { fillColor: [240, 240, 240], textColor: 20 },
@@ -682,8 +644,8 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             head: [["Date", "Assets (USD)", "Liabilities (USD)"]],
             body: (PORHistory || []).map((x: any) => [
                 toEnText(x.label),
-                toEnText(toEnNumber(x.x)),
-                toEnText(toEnNumber(x.y)),
+                toEnText(toEnNumber(x.x.toLocaleString())),
+                toEnText(toEnNumber(x.y.toLocaleString())),
             ]),
             styles: { font: "helvetica", fontSize: 9 },
             headStyles: { fillColor: [240, 240, 240], textColor: 20 },
@@ -704,8 +666,8 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             head: [["Date", "Deposits", "Withdrawals"]],
             body: (DepWithHistory || []).map((x: any) => [
                 toEnText(x.label),
-                toEnText(toEnNumber(x.x)),
-                toEnText(toEnNumber(x.y)),
+                toEnText(toEnNumber(x.x.toLocaleString())),
+                toEnText(toEnNumber(x.y.toLocaleString())),
             ]),
             styles: { font: "helvetica", fontSize: 9 },
             headStyles: { fillColor: [240, 240, 240], textColor: 20 },
@@ -726,8 +688,8 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             head: [["Date", "Deposits (IRR)", "Withdrawals (IRR)"]],
             body: (IRRDepWithHistory || []).map((x: any) => [
                 toEnText(x.label),
-                toEnText(toEnNumber(x.x)),
-                toEnText(toEnNumber(x.y)),
+                toEnText(toEnNumber(x.x.toLocaleString())),
+                toEnText(toEnNumber(x.y.toLocaleString())),
             ]),
             styles: { font: "helvetica", fontSize: 9 },
             headStyles: { fillColor: [240, 240, 240], textColor: 20 },
@@ -748,7 +710,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             head: [["Date", "Volume"]],
             body: (TradingVolume || []).map((x: any) => [
                 toEnText(x.label),
-                toEnText(toEnNumber(x.x)),
+                toEnText(toEnNumber(x.x.toLocaleString())),
             ]),
             styles: { font: "helvetica", fontSize: 9 },
             headStyles: { fillColor: [240, 240, 240], textColor: 20 },
@@ -769,7 +731,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             head: [["Date", "DAU"]],
             body: (DailyActiveUsers || []).map((x: any) => [
                 toEnText(x.label),
-                toEnText(toEnNumber(x.x)),
+                toEnText(toEnNumber(x.x.toLocaleString())),
             ]),
             styles: { font: "helvetica", fontSize: 9 },
             headStyles: { fillColor: [240, 240, 240], textColor: 20 },
