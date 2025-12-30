@@ -22,7 +22,7 @@ type Company = {
 type TradeRow = {
     id: string;
     subRows?: TradeRow[];
-    exchangeName?: string;
+    exchangeId?: number;
     cryptoBrokerId?: string;
     userId?: string;
     userIdentity?: string;
@@ -50,26 +50,6 @@ type ApiResponse = {
 };
 
 const TRADES_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/analytics/search/trades`;
-
-type CryptoFilters = {
-    userId: string;
-    userIdentity: string;
-    tradeId: string;
-    givenCurrencyUnit: string;
-    takenCurrencyUnit: string;
-    marketType: string;
-    transactionType: string;
-};
-
-const emptyFilters: CryptoFilters = {
-    userId: '',
-    userIdentity: '',
-    tradeId: '',
-    givenCurrencyUnit: '',
-    takenCurrencyUnit: '',
-    marketType: '',
-    transactionType: '',
-};
 
 const Page = () => {
 
@@ -116,7 +96,7 @@ const Page = () => {
         userId: string;
         tradeId: string;
         userIdentity: string;
-        exchangeName: string;
+        exchangeId: number;
         givenCurrencyUnit: string;
         takenCurrencyUnit: string;
         marketType: MarketType | '';
@@ -127,7 +107,7 @@ const Page = () => {
         userId: '',
         tradeId: '',
         userIdentity: '',
-        exchangeName: '',
+        exchangeId: 0,
         givenCurrencyUnit: '',
         takenCurrencyUnit: '',
         marketType: '',
@@ -247,7 +227,7 @@ const Page = () => {
         params.set('size', String(pageSize));
 
         // exchange dropdown بیرون صفحه
-        if (exchangeSelected) params.set('exchangeName', exchangeSelected);
+        if (exchangeSelected) params.set('exchangeId', exchanges.find(item => item.name === exchangeSelected)?.id ?? '');
 
         // modal filters
         if (appliedFilters.userId) params.set('userId', appliedFilters.userId);
@@ -273,7 +253,7 @@ const Page = () => {
 
         return {
             id: rowId,
-            exchangeName: item?.exchangeName,
+            exchangeId: item?.exchangeId,
             cryptoBrokerId: item?.cryptoBrokerId,
             userId: item?.userId,
             userIdentity: item?.userIdentity,
@@ -332,8 +312,8 @@ const Page = () => {
 
         if (exchangeSelected) {
             badges.push({
-                key: 'exchangeName',
-                label: `سکو ${exchangeSelected}`,
+                key: 'exchangeId',
+                label: `سکو ${exchanges.find(item => item.name === exchangeSelected)?.name}`,
                 onRemove: () => {
                     setExchangeSelected('');
                     setCurrentPage(1);
@@ -431,9 +411,9 @@ const Page = () => {
         return [
             {
                 header: 'سکو',
-                accessorKey: 'exchangeName',
+                accessorKey: 'exchangeId',
                 cell: (row: TradeRow) => (
-                    <span className="text-titleText dark:text-titleText-dark">{row?.exchangeName || ''}</span>
+                    <span className="text-titleText dark:text-titleText-dark">{exchanges.find(item => Number(item.id) === row.exchangeId)?.name ?? ''}</span>
                 ),
             },
             {

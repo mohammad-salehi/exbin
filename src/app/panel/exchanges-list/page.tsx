@@ -12,24 +12,26 @@ import RiskSwitch from "../../../../components/Dashboard/ExchangeList/Switch/Swi
 
 type Person = {
   id: string;
-  logo?: string;
-  name?: string;
-  legalName?: number;
-  registrationNumber?: number;
-  siteAddress?: number;
-  title?: string;
-  link?: string;
-  progress?: number;
-  subRows?: Person[];
+  name: string;
+  legalName: string;
+  logo: string;
+  registrationNumber: number;
+  reserveRatio: number;
+  siteAddress: string;
+  uniqueCoins: number;
+  uniqueUserCount: number;
 };
 
 type Company = {
-  id: number;
+  id: string;
   name: string;
-  logo: string;
   legalName: string;
-  registrationNumber: string;
+  logo: string;
+  registrationNumber: number;
+  reserveRatio: number;
   siteAddress: string;
+  uniqueCoins: number;
+  uniqueUserCount: number;
 };
 
 // کمکی: چک مچ روی یک فیلد
@@ -52,12 +54,10 @@ function filterTree(items: Person[], rawQuery: string, keys: (keyof Person)[]): 
   return items
     .map((node) => {
       const selfMatches = keys.some((k) => matchVal(node[k], q));
-      const children = node.subRows ? filterTree(node.subRows, q, keys) : undefined;
-      const hasChildMatches = !!children && children.length > 0;
 
-      if (selfMatches || hasChildMatches) {
+      if (selfMatches) {
         // فقط زیرشاخه‌های مچ‌شده را نگه داریم
-        return { ...node, subRows: children };
+        return { ...node};
       }
       return null;
     })
@@ -77,7 +77,7 @@ const Page = () => {
   const [filter, setFilter] = useState("all");
 
   // فیلدهایی که می‌خوای سرچ روی‌شون اعمال بشه:
-  const searchKeys: (keyof Person)[] = ["name", "legalName", "registrationNumber", "siteAddress", "title", "link"];
+  const searchKeys: (keyof Person)[] = ["name", "legalName", "registrationNumber", "siteAddress"];
 
   // دیتای فیلترشده برای جدول
   const filteredData = useMemo(() => filterTree(data, q, searchKeys), [data, q]);
@@ -86,16 +86,19 @@ const Page = () => {
 
   useEffect(() => {
     SetLoading(true)
-    GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges?page=0&size=100`)
+    GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges?page=0&size=1000`)
       .then((response) => {
-
+        console.log(response)
         const people: Person[] = response.result.content.map((item: Company) => ({
           id: String(item.id),
           name: item.name,
-          logo: item.logo,
           legalName: item.legalName,
+          logo: item.logo,
           registrationNumber: item.registrationNumber,
           siteAddress: item.siteAddress,
+          uniqueCoins: item.uniqueCoins,
+          uniqueUserCount: item.uniqueUserCount,
+          reserveRatio:item.reserveRatio ? item.reserveRatio * 100 : 0
         }));
 
         people.sort((a, b) => Number(b.id) - Number(a.id));
@@ -155,14 +158,15 @@ const Page = () => {
             return (
               <ExchangeCard
                 key={item.id}
-                rank={3}
                 id={item.id}
-                name={item.name ?? ""}
-                volume="123123123"
-                risk={risk}             
-                coins={220}
-                lastUpdate="۱۴۰۴/۰۸/۱۷"
-                logo={item.logo ?? ""}
+                name={item.name ?? ''}
+                legalName={item.legalName ?? ''}
+                logo={item.logo ?? ''}
+                registrationNumber={item.registrationNumber ?? ''}
+                reserveRatio={item.reserveRatio ?? ''}
+                siteAddress={item.siteAddress ?? ''}
+                uniqueCoins={item.uniqueCoins ?? ''}
+                uniqueUserCount={item.uniqueUserCount ?? ''}
               />
             );
           })}
