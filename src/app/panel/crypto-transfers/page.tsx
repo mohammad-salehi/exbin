@@ -9,7 +9,6 @@ import Pagination from '../../../../components/Pagination/Pagination';
 import { GetRequest } from '../../../../functions/GetRequest';
 import SearchableSelect from '../../../../components/Select/Select';
 import { useSearchParams } from 'next/navigation';
-
 type TxKind = 'deposit' | 'withdraw';
 
 type Company = {
@@ -196,18 +195,12 @@ const Page = () => {
             .finally(() => setUsersLoading(false));
     }, []);
 
-    const filteredExchanges = useMemo(() => {
-        const q = exchangeSearch.trim().toLowerCase();
-        if (!q) return exchanges;
-        return exchanges.filter((e) => (e.name ?? '').toLowerCase().includes(q));
-    }, [exchanges, exchangeSearch]);
-
     const buildQueryUrl = (base: string) => {
         const params = new URLSearchParams();
         params.set('page', String(Math.max(0, currentPage - 1)));
         params.set('size', String(pageSize));
 
-        if (exchangeSelected) params.set('exchangeName', exchangeSelected);
+        if (exchangeSelected) params.set('exchangeId', exchanges.find(item => item.name === exchangeSelected)?.id ?? '');
         if (appliedFilters.userId) params.set('userId', appliedFilters.userId);
         if (appliedFilters.userIdentity) params.set('userIdentity', appliedFilters.userIdentity);
         if (appliedFilters.cryptocurrency) params.set('cryptocurrency', appliedFilters.cryptocurrency);
@@ -412,14 +405,13 @@ const Page = () => {
         appliedFilters.transactionId,
     ]);
 
-
     const columns = useMemo(() => {
         return [
             {
                 header: 'سکو',
                 accessorKey: 'exchangeName',
                 cell: (row: CryptoTxRow) => (
-                    <span className="text-titleText dark:text-titleText-dark">{row?.exchangeName || ''}</span>
+                    <span className="text-titleText dark:text-titleText-dark">{row?.cryptoBrokerId || ''}</span>
                 ),
             },
             {
@@ -508,7 +500,6 @@ const Page = () => {
             setIsModalOpen(false);
         }
     };
-
 
     const [open, setOpen] = useState(false);
 

@@ -271,7 +271,7 @@ const Page = () => {
         if (transactionType !== 'all') params.set('transactionType', transactionType);
 
         // exchangeName از dropdown صفحه اصلی
-        if (exchangeSelected) params.set('exchangeName', exchangeSelected);
+        if (exchangeSelected) params.set('exchangeId', exchanges.find(item => item.name === exchangeSelected)?.id ?? '');
 
         // فیلترهای مودال
         if (filterUserId) params.set('userId', filterUserId);
@@ -405,7 +405,7 @@ const Page = () => {
                 accessorKey: 'exchangeName',
                 cell: (row: IrrTransactionRow) => (
                     <span className="text-titleText dark:text-titleText-dark">
-                        {row?.exchangeName || ''}
+                        {row?.cryptoBrokerId || ''}
                     </span>
                 ),
             },

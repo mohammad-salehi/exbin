@@ -193,7 +193,7 @@ const Page = () => {
         params.set('size', String(pageSize));
 
         // ✅ فیلترها (Flat)
-        if (exchangeSelected) params.set('exchangeName', exchangeSelected);
+        if (exchangeSelected) params.set('exchangeId', exchanges.find(item => item.name === exchangeSelected)?.id ?? '');
         if (appliedFilters.userId) params.set('userId', appliedFilters.userId);
         if (appliedFilters.userIdentity) params.set('userIdentity', appliedFilters.userIdentity);
         if (appliedFilters.currency) params.set('currency', appliedFilters.currency);
@@ -323,7 +323,7 @@ const Page = () => {
                 header: 'سکو',
                 accessorKey: 'exchangeName',
                 cell: (row: BalanceRow) => (
-                    <span className="text-titleText dark:text-titleText-dark">{row?.exchangeName || ''}</span>
+                    <span className="text-titleText dark:text-titleText-dark">{row?.cryptoBrokerId || ''}</span>
                 ),
             },
             {

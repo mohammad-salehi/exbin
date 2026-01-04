@@ -413,7 +413,7 @@ const Page = () => {
                 header: 'سکو',
                 accessorKey: 'exchangeId',
                 cell: (row: TradeRow) => (
-                    <span className="text-titleText dark:text-titleText-dark">{exchanges.find(item => Number(item.id) === row.exchangeId)?.name ?? ''}</span>
+                    <span className="text-titleText dark:text-titleText-dark">{row?.cryptoBrokerId}</span>
                 ),
             },
             {
