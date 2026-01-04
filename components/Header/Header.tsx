@@ -199,7 +199,7 @@ export default function Header({
 
       <div className="flex items-center gap-5">
         {isOpen ? (
-          <div className="relative flex items-center gap-1 text-titleText dark:text-titleText-dark">
+          <div className="relative flex items-center gap-1 text-titleText dark:text-titleText-dark font-bold">
               سامانه نظارت بر سکوهای مبادله رمزارز ایران
           </div>
         ) : (

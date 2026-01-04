@@ -27,8 +27,8 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
     marginBottom: "4px",
     lineHeight: 1.2,
     direction: "rtl",
-    textAlign: "right",
-    marginTop:'8px'
+    marginTop:'8px',
+    textAlign:'center'
   };
 
   const labelStyle: React.CSSProperties = {
@@ -36,6 +36,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
     fontSize: "12px",
     opacity: 0.75,
     lineHeight: 1.4,
+    textAlign:'center'
   };
 
   return (
@@ -51,11 +52,11 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
             flex flex-col items-start
             dark:border-boxBorderColor-dark
             text-titleText dark:text-titleText-dark
-            rounded-full px-4 py-2
+            rounded-full px-4 py-2 text-center align-middle
           "
           style={{ minWidth: "max-content" }}
         >
-          <div style={labelStyle}>{item.label}</div>
+          <div style={labelStyle} >{item.label}</div>
           <div style={valueStyle}>{Number(item.value).toLocaleString()}</div>
         </div>
       ))}
