@@ -38,6 +38,7 @@ export default function Page() {
   const [DepWitList, SetDepWitList] = useState<DoubleChartItem[]>([])
   const [DailyTradingList, SetDailyTradingList] = useState<SingleChartItem[]>([])
   const [CryptoList, SetCryptoList] = useState([])
+  const [CryptoListLoading, SetCryptoListLoading] = useState<boolean>(false)
   const [CryptoSelected1, SetCryptoSelected1] = useState('')
   const [CryptoSelected2, SetCryptoSelected2] = useState('')
 
@@ -161,11 +162,11 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "حجم معاملات روزانه بازار تتری",
+            label: "حجم معاملات روزانه بازار تتری(USDT)",
             value: Number(response?.result?.totalVolumeUsdt ?? 0),
           };
           const item2: DashboardItem = {
-            label: "حجم معاملات روزانه بازار ریالی",
+            label: "حجم معاملات روزانه بازار ریالی(IRR)",
             value: Number(response?.result?.totalVolumeIrr ?? 0),
           };
           const next = prev.filter((x) => x.label !== item1.label);
@@ -183,7 +184,7 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "حجم معاملات روزانه (USD)",
+            label: "حجم معاملات روزانه(USD)",
             value: Number(response?.result?.totalVolumeUsd ?? 0),
           };
           const next = prev.filter((x) => x.label !== item1.label);
@@ -295,13 +296,18 @@ export default function Page() {
   useEffect(() => {
     if (CryptoListRef.current) return;
     CryptoListRef.current = true;
+    SetCryptoListLoading(true)
     GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/valid-currencies`)
       .then((response) => {
         SetCryptoList(response.result)
-        SetCryptoSelected1(response.result[0].cryptocurrency)
-        SetCryptoSelected2(response.result[0].cryptocurrency)
+        SetCryptoSelected1(response.result.find((item: { cryptocurrency: string; }) => item.cryptocurrency === 'IRR').cryptocurrency ?? response.result[0].cryptocurrency)
+        SetCryptoSelected2(response.result.find((item: { cryptocurrency: string; }) => item.cryptocurrency === 'IRR').cryptocurrency ?? response.result[0].cryptocurrency)
+        SetCryptoListLoading(false)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetCryptoListLoading(false)
+        console.log(err)
+      });
   }, []);
   //واریز و برداشت ماهانه
   useEffect(() => {
@@ -386,6 +392,7 @@ export default function Page() {
             CryptoSelected={CryptoSelected1}
             SetCryptoSelected={SetCryptoSelected1}
             ShowList={true}
+            CryptoListLoading={CryptoListLoading}
           />
         </div>
       </div>
@@ -401,6 +408,7 @@ export default function Page() {
             CryptoSelected={CryptoSelected2}
             SetCryptoSelected={SetCryptoSelected2}
             ShowList={true}
+            CryptoListLoading={CryptoListLoading}
           />
         </div>
       </div>

@@ -38,7 +38,7 @@ type ProofOfReserveChartProps = {
   ShowList?: boolean;
   CryptoSelected?: string;
   SetCryptoSelected?: React.Dispatch<React.SetStateAction<string>>;
-
+  CryptoListLoading?:boolean;
   useLastItemForNet?: boolean;
 
   // ✅ NEW
@@ -59,6 +59,7 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
   ShowList = false,
   useLastItemForNet = false,
   ShowSummary = true,
+  CryptoListLoading=false,
   // ✅ NEW
   headerLink,
 }) => {
@@ -159,7 +160,7 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
                 dark:border-buttonBorderColor-dark dark:text-gray-100
                 appearance-none relative bg-boxColor dark:bg-boxColor-dark outline-none shadow-none"
                     >
-                      <span>{CryptoSelected !== "" ? CryptoSelected : "درحال دریافت..."}</span>
+                      <span>{CryptoSelected !== "" ? CryptoSelected : CryptoListLoading ? "درحال دریافت..." : 'موردی یافت نشد!'}</span>
                     </Button>
                   </Dropdown.Trigger>
 

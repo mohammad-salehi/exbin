@@ -37,7 +37,7 @@ type SingleLinearChartProps = {
   CryptoSelected?: string;
   ShowList?: boolean;
   SetCryptoSelected?: React.Dispatch<React.SetStateAction<string>>;
-
+  CryptoListLoading?: boolean,
   // ✅ NEW: لینک اختیاری بالا سمت چپ
   topLeftLink?: TopLeftLink;
   ShowSummary?: boolean
@@ -55,6 +55,7 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
   ShowList = false,
   ShowSummary = true,
   // ✅ NEW
+  CryptoListLoading = false,
   topLeftLink,
 }) => {
   const totalX = data.reduce((sum, w) => sum + (w.x || 0), 0);
@@ -146,7 +147,7 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                 min-w-0"
                   >
                     <span className="truncate">
-                      {CryptoSelected !== "" ? CryptoSelected : "درحال دریافت..."}
+                      {CryptoSelected !== "" ? CryptoSelected : CryptoListLoading ? "درحال دریافت..." : 'موردی یافت نشد!'}
                     </span>
                   </Button>
                 </Dropdown.Trigger>

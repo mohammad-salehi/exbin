@@ -199,8 +199,10 @@ const Navbar = ({
   // ---------- change password modal ----------
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [retryPassword, setretryPassword] = useState('');
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
+  const [showRetry, setshowRetry] = useState(false);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -228,6 +230,7 @@ const Navbar = ({
   const validate = () => {
     if (!oldPassword) return setError('رمز فعلی را وارد کنید'), false;
     if (!newPassword) return setError('رمز جدید را وارد کنید'), false;
+    if (newPassword !== retryPassword) return setError('تکرار رمزعبور جدید را به درستی وارد کنید'), false;
     if (newPassword.length < 8) return setError('رمز جدید باید حداقل ۸ کاراکتر باشد'), false;
     setError(null);
     return true;
@@ -521,13 +524,13 @@ const Navbar = ({
 
               <form onSubmit={submit} className="mt-4 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">رمز فعلی</label>
+                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">رمزعبور فعلی</label>
                   <div className="relative mt-1">
                     <input
                       type={showOld ? 'text' : 'password'}
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
-                      placeholder="رمز فعلی"
+                      placeholder="رمزعبور فعلی"
                       className="w-full rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/40 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark"
                       autoComplete="current-password"
                       required
@@ -543,13 +546,13 @@ const Navbar = ({
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">رمز جدید</label>
+                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">رمزعبور جدید</label>
                   <div className="relative mt-1">
                     <input
                       type={showNew ? 'text' : 'password'}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="رمز جدید"
+                      placeholder="رمزعبور جدید"
                       className="w-full rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/40 border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark"
                       autoComplete="new-password"
                       required
@@ -563,6 +566,28 @@ const Navbar = ({
                     </button>
                   </div>
                   <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">رمز جدید حداقل ۸ کاراکتر باشد.</p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">تکرار رمزعبور جدید</label>
+                  <div className="relative mt-1">
+                    <input
+                      type={showRetry ? 'text' : 'password'}
+                      value={retryPassword}
+                      onChange={(e) => setretryPassword(e.target.value)}
+                      placeholder="تکرار رمزعبور جدید"
+                      className="w-full rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary/40 border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark"
+                      autoComplete="new-password"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setshowRetry((s) => !s)}
+                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300"
+                    >
+                      {showRetry ? 'مخفی' : 'نمایش'}
+                    </button>
+                  </div>
                 </div>
 
                 {!!error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}

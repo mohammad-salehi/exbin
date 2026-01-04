@@ -86,20 +86,44 @@ function RatioProgress({ value }: { value: number }) {
     const fill = clamp(ratio, 0, 100);
     const color = ratioColor(ratio);
 
-    const label = useMemo(() => `${toFaInt(ratio)}٪`, [ratio]);
+
+    function formatNumberWithUnit(num: number) {
+        if (!Number.isFinite(num)) return "نامشخص";
+      
+        const absNum = Math.abs(num);
+        let value: string;
+        let unit = "";
+      
+        if (absNum >= 1_000_000_000) {
+          value = (num / 1_000_000_000).toLocaleString(undefined, { maximumFractionDigits: 1 });
+          unit = "B";
+        } else if (absNum >= 1_000_000) {
+          value = (num / 1_000_000).toLocaleString(undefined, { maximumFractionDigits: 1 });
+          unit = "M";
+        } else if (absNum >= 1_000) {
+          value = (num / 1_000).toLocaleString(undefined, { maximumFractionDigits: 1 });
+          unit = "K";
+        } else {
+          value = num.toLocaleString();
+        }
+      
+        return `${value}${unit} %`;
+      }
+      const label = useMemo(() => formatNumberWithUnit(ratio), [ratio]);
 
     return (
         <div className="w-full h-full rounded-2xl border text-titleText dark:text-titleText-dark border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-bgColor-dark/40 p-4 flex flex-col justify-between">
             <div className="flex items-center justify-between">
                 <div className="text-[13px] font-semibold text-titleText dark:text-titleText-dark">دارایی به بدهی</div>
-                {
-                    value ?
-                        <div className="text-[14px] font-extrabold text-titleText dark:text-titleText-dark">{label}</div>
-                        :
-                        <div className="text-[14px] font-extrabold text-titleText dark:text-titleText-dark">نامشخص</div>
 
-                }
             </div>
+            {
+                value ?
+                    <div className="text-[14px] font-extrabold text-titleText dark:text-titleText-dark">{label}</div>
+                    :
+                    null
+
+            }
             {
                 value ?
                     <div className="mt-3">
@@ -119,11 +143,12 @@ function RatioProgress({ value }: { value: number }) {
                         </div>
                     </div>
                     :
-                    <div className='text-center w-full items-center m-auto align-middle'>
-                        <svg width="50" height="50" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className='m-auto'>
+                    <div className='text-center w-full items-center m-auto align-middle mt-3'>
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className='m-auto'>
                             <path d="M10.5 15L13.5 12M13.5 15L10.5 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                             <path d="M22 11.7979C22 9.16554 22 7.84935 21.2305 6.99383C21.1598 6.91514 21.0849 6.84024 21.0062 6.76946C20.1506 6 18.8345 6 16.2021 6H15.8284C14.6747 6 14.0979 6 13.5604 5.84678C13.2651 5.7626 12.9804 5.64471 12.7121 5.49543C12.2237 5.22367 11.8158 4.81578 11 4L10.4497 3.44975C10.1763 3.17633 10.0396 3.03961 9.89594 2.92051C9.27652 2.40704 8.51665 2.09229 7.71557 2.01738C7.52976 2 7.33642 2 6.94975 2C6.06722 2 5.62595 2 5.25839 2.06935C3.64031 2.37464 2.37464 3.64031 2.06935 5.25839C2 5.62595 2 6.06722 2 6.94975M21.9913 16C21.9554 18.4796 21.7715 19.8853 20.8284 20.8284C19.6569 22 17.7712 22 14 22H10C6.22876 22 4.34315 22 3.17157 20.8284C2 19.6569 2 17.7712 2 14V11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                         </svg>
+                        <p>نامشخص</p>
                     </div>
 
             }
@@ -189,13 +214,13 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
             {/* body */}
             <div className="p-4">
                 {/* ✅ دو ستون هم‌ارتفاع */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 items-stretch">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 items-stretch">
                     {/* left: progress */}
 
 
                     {/* right: stats (هم‌ارتفاع با چپ) */}
-                    <div className="h-full  flex flex-col justify-between">
-                        <div className=" rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/50 dark:bg-bgColor-dark/30 p-3">
+                    <div className="h-full  flex flex-col justify-between col-span-2">
+                        <div className="col-span-1 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/50 dark:bg-bgColor-dark/30 p-3">
                             <div className="flex items-center justify-between">
                                 <div className="text-[13px] font-bold text-titleText dark:text-titleText-dark">{legalName}</div>
                             </div>
@@ -208,7 +233,8 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
                                     {
                                         uniqueUserCount ?
                                             <div>
-                                                {uniqueUserCount.toLocaleString()}
+                                                {/* {uniqueUserCount.toLocaleString()} */}
+                                                12312312
                                             </div>
                                             :
                                             <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-300">نامشخص</span>
