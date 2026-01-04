@@ -212,6 +212,7 @@ const Navbar = ({
   const resetForm = () => {
     setOldPassword('');
     setNewPassword('');
+    setretryPassword('');
     setShowOld(false);
     setShowNew(false);
     setLoading(false);
