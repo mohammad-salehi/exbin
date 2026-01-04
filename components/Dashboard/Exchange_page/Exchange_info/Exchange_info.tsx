@@ -1252,7 +1252,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                       className={cx(
                         "absolute left-0 mt-2 w-full p-2 z-50",
                         "rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
-                        "bg-white dark:bg-buttonColor-dark",
+                        "bg-white dark:bg-buttonColor-dark  text-titleText dark:text-titleText-dark",
                         "max-h-60 overflow-y-auto"
                       )}
                     >
@@ -1265,7 +1265,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                               className={cx(
                                 "rounded-lg border mt-1 mb-1",
                                 "border-gray-100 dark:border-buttonBorderColor-dark",
-                                type === v && "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                type === v && "bg-gray-100 border-gray-200 dark:bg-gray-700 text-titleText dark:text-titleText-dark"
                               )}
                             >
                               <MenuItem.Title>{v}</MenuItem.Title>
@@ -1481,7 +1481,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
           <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-24 overflow-hidden")}>
             <div className="p-5">
-              <p className="font-semibold mb-2">حذف صورت مالی</p>
+              <p className="font-semibold mb-2  text-titleText dark:text-titleText-dark">حذف صورت مالی</p>
               <p className={subtleText}>
                 {`آیا از حذف صورت مالی ${financialToDelete?.date ?? ""} مطمئن هستید؟ این عملیات قابل بازگشت نیست.`}
               </p>
@@ -1490,7 +1490,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 <Button
                   variant="ghost"
                   disabled={deleteLoading}
-                  className="rounded-xl"
+                  className="rounded-xl text-titleText dark:text-titleText-dark"
                   onClick={() => {
                     setConfirmFinancialOpen(false);
                     setFinancialToDelete(null);
@@ -1501,7 +1501,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 <Button
                   variant="primary"
                   disabled={deleteLoading}
-                  className="rounded-xl text-white bg-red-600 hover:bg-red-700"
+                  className="rounded-xl  text-titleText dark:text-titleText-dark bg-red-600 hover:bg-red-700"
                   onClick={handleConfirmDeleteFinancial}
                 >
                   {deleteLoading ? <LoaderCircle size={8} color="border-white-500" /> : "حذف"}

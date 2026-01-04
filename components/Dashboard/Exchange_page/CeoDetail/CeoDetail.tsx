@@ -307,7 +307,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       header: "عملیات",
       cell: (row: Person) => (
         <div className="flex items-center gap-2">
-          <IconBtn id={`EditCeo${row.id}`} title="ویرایش" onClick={() => openEdit(row)}>
+          <IconBtn id={`EditCeo0`} title="ویرایش" onClick={() => openEdit(row)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
               <path
                 d="M20 16v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h4"
@@ -327,7 +327,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
           </IconBtn>
 
           <IconBtn
-            id={`ChangesCeo${row.id}`}
+            id={`ChangesCeo0`}
             title="تغییرات"
             onClick={() => {
               setForm(row);
