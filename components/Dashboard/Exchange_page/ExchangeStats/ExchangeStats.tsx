@@ -69,6 +69,9 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
 
   const [IsLoading, SetIsLoading] = useState(true);
 
+  // ✅ NEW: download loading state (no style changes)
+  const [IsDownloading, SetIsDownloading] = useState(false);
+
   const formatJalaliDateTime = (value?: string | number) => {
     if (value === null || value === undefined || value === "") return "";
     let d: Date | null = null;
@@ -421,311 +424,415 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
   }, []);
 
   const handleDownloadPDF = async () => {
-    const toEnNumber = (v: any) => {
-      if (v === null || v === undefined || v === "") return "0";
-      const s = String(v);
-      const map: Record<string, string> = {
-        "۰": "0",
-        "۱": "1",
-        "۲": "2",
-        "۳": "3",
-        "۴": "4",
-        "۵": "5",
-        "۶": "6",
-        "۷": "7",
-        "۸": "8",
-        "۹": "9",
-        "٫": ".",
-        "٬": ",",
+    if (IsDownloading) return;
+
+    SetIsDownloading(true);
+    try {
+      const toEnNumber = (v: any) => {
+        if (v === null || v === undefined || v === "") return "0";
+        const s = String(v);
+        const map: Record<string, string> = {
+          "۰": "0",
+          "۱": "1",
+          "۲": "2",
+          "۳": "3",
+          "۴": "4",
+          "۵": "5",
+          "۶": "6",
+          "۷": "7",
+          "۸": "8",
+          "۹": "9",
+          "٫": ".",
+          "٬": ",",
+        };
+        return s.replace(/[۰-۹٫٬]/g, (ch) => map[ch] ?? ch);
       };
-      return s.replace(/[۰-۹٫٬]/g, (ch) => map[ch] ?? ch);
-    };
 
-    const toEnText = (v: any) => {
-      if (v === null || v === undefined) return "";
-      return toEnNumber(String(v));
-    };
-
-    const labelToEnglish = (label: string) => {
-      const s = (label || "").trim();
-      const dict: Record<string, string> = {
-        "تعداد کاربران": "Number of Users",
-        "کاربران فعال روزانه": "Daily Active Users",
-        "کاربران فعال ماهانه": "Monthly Active Users (Sum)",
-        "میانگین زمان تسویه کاربران(میلی‌ثانیه)": "Avg Settlement Time (ms)",
-        "مجموع دارایی(USDT)": "Total Assets (USDT)",
-        "مجموع بدهی(USDT)": "Total Liabilities (USDT)",
-        "دارایی": "Assets",
-        "بدهی": "Liabilities",
-        "واریز": "Deposits",
-        "برداشت": "Withdrawals",
+      const toEnText = (v: any) => {
+        if (v === null || v === undefined) return "";
+        return toEnNumber(String(v));
       };
-      return dict[s] ?? toEnText(s);
-    };
 
-    const addSectionTitle = (doc: any, title: string, y: number) => {
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(11);
-      doc.text(toEnText(title), 14, y);
-      doc.setFont("helvetica", "normal");
-    };
+      const labelToEnglish = (label: string) => {
+        const s = (label || "").trim();
+        const dict: Record<string, string> = {
+          "تعداد کاربران": "Number of Users",
+          "کاربران فعال روزانه": "Daily Active Users",
+          "کاربران فعال ماهانه": "Monthly Active Users (Sum)",
+          "میانگین زمان تسویه کاربران(میلی‌ثانیه)": "Avg Settlement Time (ms)",
+          "مجموع دارایی(USDT)": "Total Assets (USDT)",
+          "مجموع بدهی(USDT)": "Total Liabilities (USDT)",
+          "دارایی": "Assets",
+          "بدهی": "Liabilities",
+          "واریز": "Deposits",
+          "برداشت": "Withdrawals",
+        };
+        return dict[s] ?? toEnText(s);
+      };
 
-    const urlToDataUrl = async (url: string): Promise<string | null> => {
-      try {
-        const res = await fetch(url);
-        const blob = await res.blob();
-        return await new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onload = () => resolve(String(reader.result));
-          reader.onerror = () => resolve(null);
-          reader.readAsDataURL(blob);
+      const addSectionTitle = (doc: any, title: string, y: number) => {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(11);
+        doc.text(toEnText(title), 14, y);
+        doc.setFont("helvetica", "normal");
+      };
+
+      const urlToDataUrl = async (url: string): Promise<string | null> => {
+        try {
+          const res = await fetch(url);
+          const blob = await res.blob();
+          return await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(String(reader.result));
+            reader.onerror = () => resolve(null);
+            reader.readAsDataURL(blob);
+          });
+        } catch {
+          return null;
+        }
+      };
+
+      const getImageSizeFromDataUrl = (dataUrl: string) =>
+        new Promise<{ w: number; h: number }>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve({ w: img.naturalWidth || img.width, h: img.naturalHeight || img.height });
+          img.onerror = reject;
+          img.src = dataUrl;
         });
-      } catch {
-        return null;
-      }
-    };
 
-    const getImageSizeFromDataUrl = (dataUrl: string) =>
-      new Promise<{ w: number; h: number }>((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve({ w: img.naturalWidth || img.width, h: img.naturalHeight || img.height });
-        img.onerror = reject;
-        img.src = dataUrl;
+      const getImageFormatFromDataUrl = (dataUrl: string) => {
+        const m = /^data:image\/(png|jpeg|jpg|webp);/i.exec(dataUrl);
+        const t = (m?.[1] || "png").toLowerCase();
+        if (t === "jpg") return "JPEG";
+        if (t === "jpeg") return "JPEG";
+        if (t === "webp") return "WEBP";
+        return "PNG";
+      };
+
+      // ---- concurrency helper ----
+      const mapWithConcurrency = async <T, R>(
+        items: T[],
+        limit: number,
+        worker: (item: T, index: number) => Promise<R>
+      ): Promise<R[]> => {
+        const results: R[] = new Array(items.length);
+        let i = 0;
+
+        const runners = new Array(Math.min(limit, items.length)).fill(0).map(async () => {
+          while (true) {
+            const idx = i++;
+            if (idx >= items.length) break;
+            results[idx] = await worker(items[idx], idx);
+          }
+        });
+
+        await Promise.all(runners);
+        return results;
+      };
+
+      type SymResult = {
+        symbol: string;
+        tradingVolume: DailyActiveUsers[];
+        depositsWithdrawals: DoubleLinearPoint[];
+        error?: string;
+      };
+
+      const symbols: string[] = (CryptoList || [])
+        .map((x: any) => x?.cryptocurrency)
+        .filter(Boolean);
+
+      const fetchPerSymbol = async (symbol: string): Promise<SymResult> => {
+        try {
+          const [tvRes, dwRes] = await Promise.all([
+            GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/exchange/${id}/trading-volume/${symbol}`),
+            GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/exchange/${id}/deposits-withdrawals/${symbol}`),
+          ]);
+
+          const tradingVolume: DailyActiveUsers[] = (tvRes?.result || [])
+            .map((r: any) => ({
+              label: formatJalaliDateTime(r.date),
+              x: r.volume,
+            }))
+            .sort((a: any, b: any) => String(a.label).localeCompare(String(b.label)));
+
+          const depositsWithdrawals: DoubleLinearPoint[] = (dwRes?.result || [])
+            .map((r: any) => ({
+              label: formatJalaliDateTime(r.date),
+              x: r.inflow,
+              y: r.outflow,
+            }))
+            .sort((a: any, b: any) => String(a.label).localeCompare(String(b.label)));
+
+          return { symbol, tradingVolume, depositsWithdrawals };
+        } catch (e: any) {
+          return {
+            symbol,
+            tradingVolume: [],
+            depositsWithdrawals: [],
+            error: e?.message || "fetch failed",
+          };
+        }
+      };
+
+      // ---- PDF ----
+      const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+      const marginX = 14;
+
+      const title = "Exchange Analytics Report";
+      const subtitle = `Exchange Name: ${toEnText(name || "Unknown Exchange")}`;
+
+      const logoDataUrl = await urlToDataUrl("/images/shaparak.webp");
+
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.text(toEnText(title), marginX, 16);
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.text(toEnText(subtitle), marginX, 22);
+
+      doc.setFontSize(9);
+      doc.text(
+        `Report Date: ${new Intl.DateTimeFormat("en-CA", { dateStyle: "medium" }).format(new Date())}`,
+        marginX,
+        27
+      );
+
+      if (logoDataUrl) {
+        try {
+          const { w, h } = await getImageSizeFromDataUrl(logoDataUrl);
+          const ratio = w / h;
+
+          const logoH = 18;
+          const logoW = logoH * ratio;
+          const x = pageW - marginX - logoW;
+          const y = 10;
+
+          const fmt = getImageFormatFromDataUrl(logoDataUrl);
+          doc.addImage(logoDataUrl, fmt as any, x, y, logoW, logoH);
+        } catch {
+          // ignore
+        }
+      }
+
+      const headerBottomY = 30;
+      doc.setDrawColor(200);
+      doc.setLineWidth(0.6);
+      doc.line(marginX, headerBottomY + 4, pageW - marginX, headerBottomY + 4);
+
+      let cursorY = headerBottomY + 12;
+
+      addSectionTitle(doc, "Overview Metrics", cursorY);
+      cursorY += 3;
+
+      autoTable(doc, {
+        startY: cursorY,
+        head: [["Metric", "Value"]],
+        body: (HeaderData || []).map((x: any) => [
+          toEnText(labelToEnglish(String(x.label ?? ""))),
+          toEnText(toEnNumber(Number(x.value ?? 0).toLocaleString())),
+        ]),
+        styles: { font: "helvetica", fontSize: 9 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        theme: "grid",
+        margin: { left: marginX, right: marginX },
+        pageBreak: "auto",
       });
 
-    const getImageFormatFromDataUrl = (dataUrl: string) => {
-      const m = /^data:image\/(png|jpeg|jpg|webp);/i.exec(dataUrl);
-      const t = (m?.[1] || "png").toLowerCase();
-      if (t === "jpg") return "JPEG";
-      if (t === "jpeg") return "JPEG";
-      if (t === "webp") return "WEBP";
-      return "PNG";
-    };
+      // @ts-ignore
+      cursorY = (doc as any).lastAutoTable.finalY + 8;
 
-    const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
-    const pageW = doc.internal.pageSize.getWidth();
-    const pageH = doc.internal.pageSize.getHeight();
-    const marginX = 14;
+      addSectionTitle(doc, "Top Traded Cryptocurrencies (USDT)", cursorY);
+      cursorY += 3;
 
-    const title = "Exchange Analytics Report";
-    const subtitle = `Exchange Name: ${toEnText(name || "Unknown Exchange")}`;
+      autoTable(doc, {
+        startY: cursorY,
+        head: [["Currency", "Total Volume (USDT)"]],
+        body: (TopTradedcryptocurrencies || []).map((x: any) => [
+          toEnText(x.label),
+          toEnText(toEnNumber(Number(x.value ?? 0).toLocaleString())),
+        ]),
+        styles: { font: "helvetica", fontSize: 9 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        theme: "grid",
+        margin: { left: marginX, right: marginX },
+        pageBreak: "auto",
+      });
 
-    const logoDataUrl = await urlToDataUrl("/images/shaparak.webp");
+      // @ts-ignore
+      cursorY = (doc as any).lastAutoTable.finalY + 8;
 
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(toEnText(title), marginX, 16);
+      addSectionTitle(doc, "Portfolio - Top Assets (USD Value)", cursorY);
+      cursorY += 3;
 
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.text(toEnText(subtitle), marginX, 22);
+      autoTable(doc, {
+        startY: cursorY,
+        head: [["Asset", "Symbol", "Total USD Value"]],
+        body: (Topcryptocurrencies || []).map((x: any) => [
+          toEnText(x.name),
+          toEnText(x.symbol),
+          toEnText(toEnNumber(Number(x.value ?? 0).toLocaleString())),
+        ]),
+        styles: { font: "helvetica", fontSize: 9 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        theme: "grid",
+        margin: { left: marginX, right: marginX },
+        pageBreak: "auto",
+      });
 
-    doc.setFontSize(9);
-    doc.text(
-      `Report Date: ${new Intl.DateTimeFormat("en-CA", { dateStyle: "medium" }).format(new Date())}`,
-      marginX,
-      27
-    );
+      // @ts-ignore
+      cursorY = (doc as any).lastAutoTable.finalY + 8;
 
-    if (logoDataUrl) {
-      try {
-        const { w, h } = await getImageSizeFromDataUrl(logoDataUrl);
-        const ratio = w / h;
+      addSectionTitle(doc, "Assets vs Liabilities (Historical)", cursorY);
+      cursorY += 3;
 
-        const logoH = 18;
-        const logoW = logoH * ratio;
-        const x = pageW - marginX - logoW;
-        const y = 10;
+      autoTable(doc, {
+        startY: cursorY,
+        head: [["Date", "Assets (USD)", "Liabilities (USD)"]],
+        body: (PORHistory || []).map((x: any) => [
+          toEnText(x.label),
+          toEnText(toEnNumber(Number(x.x ?? 0).toLocaleString())),
+          toEnText(toEnNumber(Number(x.y ?? 0).toLocaleString())),
+        ]),
+        styles: { font: "helvetica", fontSize: 9 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        theme: "grid",
+        margin: { left: marginX, right: marginX },
+        pageBreak: "auto",
+      });
 
-        const fmt = getImageFormatFromDataUrl(logoDataUrl);
-        doc.addImage(logoDataUrl, fmt as any, x, y, logoW, logoH);
-      } catch {
-        // ignore
+      // @ts-ignore
+      cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+      // ---- NEW: fetch ALL symbols and put them into ONE shared table with a Symbol column ----
+      const allSymbolData = symbols.length ? await mapWithConcurrency(symbols, 4, (sym) => fetchPerSymbol(sym)) : [];
+
+      // Crypto Deposits & Withdrawals - single table
+      addSectionTitle(doc, "Crypto Deposits & Withdrawals - All Symbols", cursorY);
+      cursorY += 3;
+
+      const depRows: Array<[string, string, string, string]> = [];
+      for (const item of allSymbolData) {
+        if (item.error) {
+          depRows.push([toEnText(item.symbol), "ERROR", toEnText(item.error), ""]);
+          continue;
+        }
+        for (const p of item.depositsWithdrawals || []) {
+          depRows.push([
+            toEnText(item.symbol),
+            toEnText(p.label),
+            toEnText(toEnNumber(Number(p.x ?? 0).toLocaleString())),
+            toEnText(toEnNumber(Number(p.y ?? 0).toLocaleString())),
+          ]);
+        }
       }
-    }
 
-    const headerBottomY = 30;
-    doc.setDrawColor(200);
-    doc.setLineWidth(0.6);
-    doc.line(marginX, headerBottomY + 4, pageW - marginX, headerBottomY + 4);
+      autoTable(doc, {
+        startY: cursorY,
+        head: [["Symbol", "Date", "Deposits", "Withdrawals"]],
+        body: depRows,
+        styles: { font: "helvetica", fontSize: 8 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        theme: "grid",
+        margin: { left: marginX, right: marginX },
+        pageBreak: "auto",
+      });
 
-    let cursorY = headerBottomY + 12;
+      // @ts-ignore
+      cursorY = (doc as any).lastAutoTable.finalY + 8;
 
-    addSectionTitle(doc, "Overview Metrics", cursorY);
-    cursorY += 3;
+      // IRR Deposits & Withdrawals (Historical) - unchanged
+      addSectionTitle(doc, "IRR Deposits & Withdrawals (Historical)", cursorY);
+      cursorY += 3;
 
-    autoTable(doc, {
-      startY: cursorY,
-      head: [["Metric", "Value"]],
-      body: (HeaderData || []).map((x: any) => [
-        toEnText(labelToEnglish(String(x.label ?? ""))),
-        toEnText(toEnNumber(Number(x.value ?? 0).toLocaleString())),
-      ]),
-      styles: { font: "helvetica", fontSize: 9 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-      theme: "grid",
-      margin: { left: marginX, right: marginX },
-      pageBreak: "auto",
-    });
+      autoTable(doc, {
+        startY: cursorY,
+        head: [["Date", "Deposits (IRR)", "Withdrawals (IRR)"]],
+        body: (IRRDepWithHistory || []).map((x: any) => [
+          toEnText(x.label),
+          toEnText(toEnNumber(Number(x.x ?? 0).toLocaleString())),
+          toEnText(toEnNumber(Number(x.y ?? 0).toLocaleString())),
+        ]),
+        styles: { font: "helvetica", fontSize: 9 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        theme: "grid",
+        margin: { left: marginX, right: marginX },
+        pageBreak: "auto",
+      });
 
-    // @ts-ignore
-    cursorY = (doc as any).lastAutoTable.finalY + 8;
+      // @ts-ignore
+      cursorY = (doc as any).lastAutoTable.finalY + 8;
 
-    addSectionTitle(doc, "Top Traded Cryptocurrencies (USDT)", cursorY);
-    cursorY += 3;
+      // Trading Volume (Monthly) - single table
+      addSectionTitle(doc, "Trading Volume (Monthly) - All Symbols", cursorY);
+      cursorY += 3;
 
-    autoTable(doc, {
-      startY: cursorY,
-      head: [["Currency", "Total Volume (USDT)"]],
-      body: (TopTradedcryptocurrencies || []).map((x: any) => [
-        toEnText(x.label),
-        toEnText(toEnNumber(Number(x.value ?? 0).toLocaleString())),
-      ]),
-      styles: { font: "helvetica", fontSize: 9 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-      theme: "grid",
-      margin: { left: marginX, right: marginX },
-      pageBreak: "auto",
-    });
-
-    // @ts-ignore
-    cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-    addSectionTitle(doc, "Portfolio - Top Assets (USD Value)", cursorY);
-    cursorY += 3;
-
-    autoTable(doc, {
-      startY: cursorY,
-      head: [["Asset", "Symbol", "Total USD Value"]],
-      body: (Topcryptocurrencies || []).map((x: any) => [
-        toEnText(x.name),
-        toEnText(x.symbol),
-        toEnText(toEnNumber(Number(x.value ?? 0).toLocaleString())),
-      ]),
-      styles: { font: "helvetica", fontSize: 9 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-      theme: "grid",
-      margin: { left: marginX, right: marginX },
-      pageBreak: "auto",
-    });
-
-    // @ts-ignore
-    cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-    addSectionTitle(doc, "Assets vs Liabilities (Historical)", cursorY);
-    cursorY += 3;
-
-    autoTable(doc, {
-      startY: cursorY,
-      head: [["Date", "Assets (USD)", "Liabilities (USD)"]],
-      body: (PORHistory || []).map((x: any) => [
-        toEnText(x.label),
-        toEnText(toEnNumber(Number(x.x ?? 0).toLocaleString())),
-        toEnText(toEnNumber(Number(x.y ?? 0).toLocaleString())),
-      ]),
-      styles: { font: "helvetica", fontSize: 9 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-      theme: "grid",
-      margin: { left: marginX, right: marginX },
-      pageBreak: "auto",
-    });
-
-    // @ts-ignore
-    cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-    addSectionTitle(doc, `Crypto Deposits & Withdrawals - ${toEnText(CryptoSelected2 || "N/A")}`, cursorY);
-    cursorY += 3;
-
-    autoTable(doc, {
-      startY: cursorY,
-      head: [["Date", "Deposits", "Withdrawals"]],
-      body: (DepWithHistory || []).map((x: any) => [
-        toEnText(x.label),
-        toEnText(toEnNumber(Number(x.x ?? 0).toLocaleString())),
-        toEnText(toEnNumber(Number(x.y ?? 0).toLocaleString())),
-      ]),
-      styles: { font: "helvetica", fontSize: 9 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-      theme: "grid",
-      margin: { left: marginX, right: marginX },
-      pageBreak: "auto",
-    });
-
-    // @ts-ignore
-    cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-    addSectionTitle(doc, "IRR Deposits & Withdrawals (Historical)", cursorY);
-    cursorY += 3;
-
-    autoTable(doc, {
-      startY: cursorY,
-      head: [["Date", "Deposits (IRR)", "Withdrawals (IRR)"]],
-      body: (IRRDepWithHistory || []).map((x: any) => [
-        toEnText(x.label),
-        toEnText(toEnNumber(Number(x.x ?? 0).toLocaleString())),
-        toEnText(toEnNumber(Number(x.y ?? 0).toLocaleString())),
-      ]),
-      styles: { font: "helvetica", fontSize: 9 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-      theme: "grid",
-      margin: { left: marginX, right: marginX },
-      pageBreak: "auto",
-    });
-
-    // @ts-ignore
-    cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-    addSectionTitle(doc, `Trading Volume (Monthly) - ${toEnText(CryptoSelected1 || "N/A")}`, cursorY);
-    cursorY += 3;
-
-    autoTable(doc, {
-      startY: cursorY,
-      head: [["Date", "Volume"]],
-      body: (TradingVolume || []).map((x: any) => [
-        toEnText(x.label),
-        toEnText(toEnNumber(Number(x.x ?? 0).toLocaleString())),
-      ]),
-      styles: { font: "helvetica", fontSize: 9 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-      theme: "grid",
-      margin: { left: marginX, right: marginX },
-      pageBreak: "auto",
-    });
-
-    // @ts-ignore
-    cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-    addSectionTitle(doc, "Daily Active Users (Time Series)", cursorY);
-    cursorY += 3;
-
-    autoTable(doc, {
-      startY: cursorY,
-      head: [["Date", "DAU"]],
-      body: (DailyActiveUsers || []).map((x: any) => [
-        toEnText(x.label),
-        toEnText(toEnNumber(Number(x.x ?? 0).toLocaleString())),
-      ]),
-      styles: { font: "helvetica", fontSize: 9 },
-      headStyles: { fillColor: [240, 240, 240], textColor: 20 },
-      theme: "grid",
-      margin: { left: marginX, right: marginX },
-      pageBreak: "auto",
-    });
-
-    const pageCount = doc.getNumberOfPages();
-    for (let p = 1; p <= pageCount; p++) {
-      doc.setPage(p);
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(9);
-      doc.text(`Page ${p} of ${pageCount}`, marginX, pageH - 10);
-
-      if (p === pageCount) {
-        doc.text("This report was automatically generated by the CED portal system.", marginX, pageH - 16);
+      const tvRows: Array<[string, string, string]> = [];
+      for (const item of allSymbolData) {
+        if (item.error) {
+          tvRows.push([toEnText(item.symbol), "ERROR", toEnText(item.error)]);
+          continue;
+        }
+        for (const p of item.tradingVolume || []) {
+          tvRows.push([
+            toEnText(item.symbol),
+            toEnText(p.label),
+            toEnText(toEnNumber(Number(p.x ?? 0).toLocaleString())),
+          ]);
+        }
       }
-    }
 
-    const safeName = (name || "exchange").toString().replace(/\s+/g, "_");
-    doc.save(`CED_Report_${toEnText(safeName)}_${toEnText(id || "")}.pdf`);
+      autoTable(doc, {
+        startY: cursorY,
+        head: [["Symbol", "Date", "Volume"]],
+        body: tvRows,
+        styles: { font: "helvetica", fontSize: 8 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        theme: "grid",
+        margin: { left: marginX, right: marginX },
+        pageBreak: "auto",
+      });
+
+      // @ts-ignore
+      cursorY = (doc as any).lastAutoTable.finalY + 8;
+
+      // Daily Active Users (Time Series) - unchanged
+      addSectionTitle(doc, "Daily Active Users (Time Series)", cursorY);
+      cursorY += 3;
+
+      autoTable(doc, {
+        startY: cursorY,
+        head: [["Date", "DAU"]],
+        body: (DailyActiveUsers || []).map((x: any) => [
+          toEnText(x.label),
+          toEnText(toEnNumber(Number(x.x ?? 0).toLocaleString())),
+        ]),
+        styles: { font: "helvetica", fontSize: 9 },
+        headStyles: { fillColor: [240, 240, 240], textColor: 20 },
+        theme: "grid",
+        margin: { left: marginX, right: marginX },
+        pageBreak: "auto",
+      });
+
+      const pageCount = doc.getNumberOfPages();
+      for (let p = 1; p <= pageCount; p++) {
+        doc.setPage(p);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9);
+        doc.text(`Page ${p} of ${pageCount}`, marginX, pageH - 10);
+
+        if (p === pageCount) {
+          doc.text("This report was automatically generated by the CED portal system.", marginX, pageH - 16);
+        }
+      }
+
+      const safeName = (name || "exchange").toString().replace(/\s+/g, "_");
+      doc.save(`CED_Report_${toEnText(safeName)}_${toEnText(id || "")}.pdf`);
+    } finally {
+      SetIsDownloading(false);
+    }
   };
 
   // ✅ wrappers to force equal height per row (items stretch)
@@ -736,7 +843,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
   const logoNode = useMemo(() => {
     if (logo) return <img alt="logo" className="w-8 h-8 object-contain" src={logo} />;
     return (
-        <div
+      <div
         className={cx(
           "w-10 h-10 rounded-xl grid place-items-center  text-titleText dark:text-titleText-dark",
           "bg-boxColor dark:bg-boxColor-dark",
@@ -779,6 +886,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             <button
               onClick={handleDownloadPDF}
               type="button"
+              disabled={IsDownloading}
               className="
                 inline-flex items-center gap-2
                 rounded-xl px-4 py-2.5
@@ -794,7 +902,14 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                 disabled:opacity-60 disabled:cursor-not-allowed
               "
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="opacity-95">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="opacity-95"
+              >
                 <path
                   d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
                   stroke="currentColor"
@@ -803,7 +918,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
                   strokeLinejoin="round"
                 />
               </svg>
-              <span>دریافت PDF</span>
+              <span>{IsDownloading ? "درحال دانلود..." : "دریافت PDF"}</span>
             </button>
           </div>
         </div>
