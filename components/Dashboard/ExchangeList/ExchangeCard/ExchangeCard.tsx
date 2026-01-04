@@ -16,19 +16,6 @@ interface ExchangeCardProps {
     uniqueUserCount: number;
 }
 
-function toFaNumberWithSep(v: string | number) {
-    if (v === null || v === undefined) return '—';
-    const raw = typeof v === 'number' ? v : String(v).replaceAll(',', '').replaceAll('٬', '').trim();
-    const n = typeof raw === 'number' ? raw : Number(raw);
-    if (!Number.isFinite(n)) return String(v);
-    return new Intl.NumberFormat('fa-IR').format(n);
-}
-
-function toFaInt(v: number) {
-    if (!Number.isFinite(v)) return '—';
-    return new Intl.NumberFormat('fa-IR', { maximumFractionDigits: 0 }).format(v);
-}
-
 function clamp(n: number, a: number, b: number) {
     return Math.min(b, Math.max(a, n));
 }
@@ -40,44 +27,6 @@ function ratioColor(ratio: number) {
     const hue = Math.round((r / 140) * 135);
     return `hsl(${hue} 90% 50%)`;
 }
-
-function toShortNumberEN(v: string | number) {
-    if (v === null || v === undefined) return '—';
-
-    const raw = typeof v === 'number' ? v : String(v).replaceAll(',', '').replaceAll('٬', '').trim();
-    const n = typeof raw === 'number' ? raw : Number(raw);
-    if (!Number.isFinite(n)) return String(v);
-
-    const abs = Math.abs(n);
-
-    const units = [
-        { value: 1e12, suffix: 'T' },
-        { value: 1e9, suffix: 'B' },
-        { value: 1e6, suffix: 'M' },
-        { value: 1e3, suffix: 'K' },
-    ];
-
-    const LRM = '\u200E'; // Left-to-Right Mark
-    const NBSP = '\u00A0'; // فاصله‌ی نشکن (مثل space)
-
-    for (const u of units) {
-        if (abs >= u.value) {
-            const scaled = n / u.value;
-
-            const digits = Math.floor(Math.log10(Math.abs(scaled))) + 1;
-            const decimals = Math.max(0, 3 - digits);
-
-            let s = scaled.toFixed(decimals);
-            s = s.replace(/\.0+$/, '').replace(/(\.\d*[1-9])0+$/, '$1');
-
-            // ✅ عدد + فاصله + واحد (و جلوگیری از جابجایی در RTL)
-            return `${LRM}${s}${NBSP}${u.suffix}`;
-        }
-    }
-    // زیر 1000
-    return `${LRM}${Math.round(n)}`;
-}
-
 
 function RatioProgress({ value }: { value: number }) {
     const ratio = Number.isFinite(value) ? value : 0;
