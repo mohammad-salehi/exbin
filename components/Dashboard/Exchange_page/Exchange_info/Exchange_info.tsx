@@ -1,4 +1,4 @@
-import React, { JSX, useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import DetailBox from "../../../DetailBox/DetailBox";
 import {
   Modal,
@@ -8,29 +8,30 @@ import {
   Dropdown,
   MenuItem,
 } from "@heathmont/moon-core-tw";
-import { GetRequest, GetRequestRaw } from "../../../../functions/GetRequest";
 import { useParams } from "next/navigation";
 import toast from "react-hot-toast";
-import { LoaderCircle } from "../../../Loader/Loader";
-import { PostRequest, PutRequest } from "../../../../functions/PostRequest";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+
+import { LoaderCircle } from "../../../Loader/Loader";
+import LoadingComponent from "../../../LoadingComponent/LoadingComponent";
+import Pagination from "../../../Pagination/Pagination";
+import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
+import PersianYearSelect from "../../../YearSelection/YearSelection";
+import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
+
+import { GetRequest, GetRequestRaw, DeleteRequest } from "../../../../functions/GetRequest";
+import { PostRequest, PutRequest } from "../../../../functions/PostRequest";
 import {
   addHttps,
   removeProtocolAndWWW,
   validateEmail,
+  validateNumbers,
 } from "../../../../functions/Validations";
-import { validateNumbers } from "../../../../functions/Validations";
 import { LogViewer } from "../../../../functions/changesHandler";
-import LoadingComponent from "../../../LoadingComponent/LoadingComponent";
-import Pagination from "../../../Pagination/Pagination";
 import { toJalaliDate } from "../../../../functions/toJalaliDate";
-import JalaliLocalDatePicker from "../../../DatePicker/JalaliLocalDatePicker";
-import { ControlsChevronDown } from "@heathmont/moon-icons-tw";
-import PersianYearSelect from "../../../YearSelection/YearSelection";
 import { BoardmemderRoleTypes } from "../../../../functions/BoardmemberRoleTypes";
 import { ExchangeLegalTypes } from "../../../../functions/ExchangeLegalTypes";
-import { DeleteRequest } from "../../../../functions/GetRequest";
 import { handlePostErrors } from "../../../../functions/handlePostErrors";
 
 type AnyObj = Record<string, any>;
@@ -51,16 +52,76 @@ type ExchangeInfoProps = {
   SetC1: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
+const cx = (...c: Array<string | false | undefined | null>) => c.filter(Boolean).join(" ");
+
+const Field = ({
+  label,
+  children,
+  className,
+}: {
+  label: string;
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div className={cx("flex flex-col gap-2", className)}>
+    <Label className="text-sm font-medium text-titleText dark:text-titleText-dark">
+      {label}
+    </Label>
+    {children}
+  </div>
+);
+
+const inputBase =
+  "h-12 px-4 rounded-xl bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark " +
+  "border border-boxBorderColor dark:border-boxBorderColor-dark shadow-sm " +
+  "focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-primary-dark/30";
+
+const panelBase =
+  "w-full rounded-2xl bg-white dark:bg-bgColor-dark shadow-lg ring-1 ring-black/5 dark:ring-white/5";
+
+const sectionTitle =
+  "text-lg font-bold text-titleText dark:text-titleText-dark";
+
+const subtleText =
+  "text-sm text-titleText/70 dark:text-titleText-dark/70";
+
 const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   const params = useParams<{ id: string }>();
+
   const [logo, SetLogo] = useState<string>("");
   const [name, SetName] = useState<string>("");
+
   const [ConfirmDelete, SetConfirmDelete] = useState<string>("");
+
   const [DownloadLoading, SetDownloadLoading] = useState<boolean>(false);
+
   const [AddFileModal, SetAddFileModal] = useState<boolean>(false);
   const [type, Settype] = useState<string>("");
   const [FinancialName, SetFinancialName] = useState<number>(0);
-  const [Loading, setLoading] = useState<boolean>(false);
+
+  const [Loading, setLoading] = useState<boolean>(false); // save
+  const [isOpen, setIsOpen] = useState(false); // edit modal
+  const [isLogOpen, setisLogOpen] = useState(false);
+
+  const [file, setFile] = useState<File | null>(null);
+  const [fileName, setFileName] = useState<string>("");
+  const [uploading, setUploading] = useState(false);
+
+  const [LogNumber, setLogNumber] = useState(0);
+  const [LogPage, setLogPage] = useState(0);
+  const [LogLoading, setLogLoading] = useState(false);
+  const [Changes, setChanges] = useState<string[]>([]);
+
+  const [confirmAssociationOpen, setConfirmAssociationOpen] = useState(false);
+  const [confirmDeleteExchangeOpen, setconfirmDeleteExchangeOpen] = useState(false);
+  const [confirmFinancialOpen, setConfirmFinancialOpen] = useState(false);
+
+  const [financialToDelete, setFinancialToDelete] = useState<{ id: number; date: string } | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [ExchangedeleteLoading, setDeleteExchangeLoading] = useState(false);
+
+  const didInit = useRef(false);
+
   const [form, setForm] = useState({
     legalName: "",
     establishmentDate: "",
@@ -76,28 +137,16 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     registrationNumber: "",
     zipCode: "",
   });
-  const [LogNumber, setLogNumber] = useState(0);
-  const [LogPage, setLogPage] = useState(0);
-  const [LogLoading, setLogLoading] = useState(false);
-  const [isLogOpen, setisLogOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [loading, setLoading2] = useState(false);
-  const [fileName, setFileName] = useState<string>("");
-  const [Changes, setChanges] = useState<string[]>([]);
-  const [ExchangedeleteLoading, setDeleteExchangeLoading] = useState(false);
-
-  const didInit = useRef(false);
 
   async function generateCompanyExcel(data: AnyObj) {
     const wb = new ExcelJS.Workbook();
 
-    // مشخصات پایه
     const base = wb.addWorksheet("مشخصات پایه");
     base.columns = [
       { header: "عنوان", key: "label", width: 25 },
-      { header: "مقدار", key: "value", width: 40 },
+      { header: "مقدار", key: "value", width: 45 },
     ];
+
     [
       ["عنوان", data.name],
       ["عنوان حقوقی", data.legalName],
@@ -106,10 +155,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       ["شماره ثبت", data.registrationNumber],
       ["شناسه ملی", data.nationalCode],
       ["کد اقتصادی", data.financialCode],
-      [
-        "تاریخ تأسیس",
-        data.establishmentDate ? toJalaliDate(data.establishmentDate) : "",
-      ],
+      ["تاریخ تأسیس", data.establishmentDate ? toJalaliDate(data.establishmentDate) : ""],
       ["تلفن", data.phoneNumber],
       ["تلفن اضطراری", data.emergencyPhoneNumber],
       ["ایمیل", data.email],
@@ -119,7 +165,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       base.addRow({ label, value: value ?? "-" });
     });
 
-    // مدیرعامل
     if (data.managerInfo) {
       const ws = wb.addWorksheet("مدیرعامل");
       ws.columns = [
@@ -134,7 +179,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       ws.addRow(data.managerInfo);
     }
 
-    // هیئت مدیره
     if (Array.isArray(data.boardMemberInfo) && data.boardMemberInfo.length) {
       const ws = wb.addWorksheet("هیئت‌مدیره");
       ws.columns = [
@@ -159,11 +203,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       });
     }
 
-    // نمایندگان
-    if (
-      Array.isArray(data.exchangeAgentInfo) &&
-      data.exchangeAgentInfo.length
-    ) {
+    if (Array.isArray(data.exchangeAgentInfo) && data.exchangeAgentInfo.length) {
       const ws = wb.addWorksheet("نمایندگان");
       ws.columns = [
         { header: "نام", key: "name", width: 20 },
@@ -173,7 +213,6 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       data.exchangeAgentInfo.forEach((a: AnyObj) => ws.addRow(a));
     }
 
-    // کارکنان
     if (Array.isArray(data.employeeInfo) && data.employeeInfo.length) {
       const ws = wb.addWorksheet("کارکنان");
       ws.columns = [
@@ -193,22 +232,14 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         ws.addRow({
           ...e,
           startDate: e.startDate ? toJalaliDate(e.startDate) : "",
-          insuranceStartDate: e.insuranceStartDate
-            ? toJalaliDate(e.insuranceStartDate)
-            : "",
-          insuranceEndDate: e.insuranceEndDate
-            ? toJalaliDate(e.insuranceEndDate)
-            : "",
+          insuranceStartDate: e.insuranceStartDate ? toJalaliDate(e.insuranceStartDate) : "",
+          insuranceEndDate: e.insuranceEndDate ? toJalaliDate(e.insuranceEndDate) : "",
           isSpecialAccess: e.isSpecialAccess ? "دارد" : "ندارد",
         });
       });
     }
 
-    // صورت‌های مالی
-    if (
-      Array.isArray(data.financialStatements) &&
-      data.financialStatements.length
-    ) {
+    if (Array.isArray(data.financialStatements) && data.financialStatements.length) {
       const ws = wb.addWorksheet("صورت‌های مالی");
       ws.columns = [
         { header: "عنوان", key: "title", width: 25 },
@@ -218,12 +249,13 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       data.financialStatements.forEach((f: AnyObj) => ws.addRow(f));
     }
 
-    // ذخیره به فایل
     const buf = await wb.xlsx.writeBuffer();
     saveAs(new Blob([buf]), `${data.name || "report"}.xlsx`);
   }
+
   const download = async () => {
     try {
+      SetDownloadLoading(true);
       const res = await GetRequest(
         `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`
       );
@@ -237,23 +269,26 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       console.error(error);
       toast.error("خطا در دانلود داده‌ها");
     } finally {
+      SetDownloadLoading(false);
     }
   };
-  const deleteExchange = () => {
-    if (ConfirmDelete === name) {
-      setDeleteExchangeLoading(true)
-      DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`)
-        .then((response) => {
-          toast.success("سکو با موفقیت حذف شد");
-          setDeleteExchangeLoading(true)
-          window.location.assign(`/panel/exchanges-list`);
-        })
-        .catch((err) => {
-          toast.error("خطا در حذف سکو");
-          setDeleteExchangeLoading(true)
-        })
+
+  const deleteExchange = async () => {
+    if (ConfirmDelete !== name) return;
+
+    setDeleteExchangeLoading(true);
+    try {
+      await DeleteRequest(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`
+      );
+      toast.success("سکو با موفقیت حذف شد");
+      window.location.assign(`/panel/exchanges-list`);
+    } catch (err) {
+      toast.error("خطا در حذف سکو");
+    } finally {
+      setDeleteExchangeLoading(false);
     }
-  }
+  };
 
   const [invoiceData, setInvoiceData] = useState<InvoiceSection[]>([
     {
@@ -289,171 +324,20 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     {
       id: 4,
       title: "عملیات",
-      content: [
-        {
-          id: 1,
-          content: (
-            <div
-              id="EditExInfo"
-              className="text-center w-full cursor-pointer"
-              onClick={() => {
-                setIsOpen(true);
-              }}
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                className="inline-block ml-1"
-              >
-                <path
-                  d="M13.2594 3.60022L5.04936 12.2902C4.73936 12.6202 4.43936 13.2702 4.37936 13.7202L4.00936 16.9602C3.87936 18.1302 4.71936 18.9302 5.87936 18.7302L9.09936 18.1802C9.54936 18.1002 10.1794 17.7702 10.4894 17.4302L18.6994 8.74022C20.1194 7.24022 20.7594 5.53022 18.5494 3.44022C16.3494 1.37022 14.6794 2.10022 13.2594 3.60022Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeMiterlimit="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M11.8906 5.0498C12.3206 7.8098 14.5606 9.9198 17.3406 10.1998"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeMiterlimit="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M3 22H21"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeMiterlimit="10"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-
-              <span>ویرایش</span>
-            </div>
-          ),
-          title: "",
-        },
-        {
-          id: 2,
-          content: (
-            <div
-              id="DownloadExInfo"
-              className="flex justify-between items-center cursor-pointer"
-              onClick={() => {
-                download();
-              }}
-            >
-              <span className="flex items-center ml-1">
-                {DownloadLoading ? (
-                  <LoaderCircle size={8} color="border-white-500" />
-                ) : (
-                  <svg
-                    width="24px"
-                    height="24px"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                )}
-              </span>
-              <p className="text-right">دریافت Excel</p>
-            </div>
-          ),
-          title: "",
-        },
-        {
-          id: 3,
-          content: (
-            <div
-              className="flex justify-between items-center cursor-pointer"
-              id="DeleteExInfo"
-              onClick={() => {
-                setExchangeToDelete({ id: params.id });
-                setconfirmDeleteExchangeOpen(true);
-                SetConfirmDelete('')
-              }}
-            >
-              <span className="flex items-center ml-1">
-
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M21 5.98C17.67 5.65 14.32 5.48 10.98 5.48c-1.98 0-3.96.1-5.94.3L3 5.98"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M8.5 4.97 8.72 3.66C8.88 2.71 9 2 10.69 2h2.62c1.69 0 1.82.75 1.97 1.67l.22 1.3"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M18.85 9.14 18.2 19.21c-.11 1.57-.2 2.79-2.99 2.79H8.79c-2.79 0-2.88-1.22-2.99-2.79L5.15 9.14"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M10.33 16.5h3.33M9.5 12.5h5"
-                    stroke="currentColor"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-              <p className="text-right">حذف سکو</p>
-            </div>
-          ),
-          title: "",
-        },
-      ],
+      content: [],
     },
   ]);
-  const handleEdit = (
-    sectionId: number,
-    contentId: number,
-    newContent: React.ReactNode
-  ) => {
+
+  const handleEdit = (sectionId: number, contentId: number, newContent: React.ReactNode) => {
     setInvoiceData((prevData) =>
       prevData.map((section) => {
-        if (section.id === sectionId) {
-          return {
-            ...section,
-            content: section.content.map((item) => {
-              if (item.id === contentId) {
-                return { ...item, content: newContent };
-              }
-              return item;
-            }),
-          };
-        }
-        return section;
+        if (section.id !== sectionId) return section;
+        return {
+          ...section,
+          content: section.content.map((item) =>
+            item.id === contentId ? { ...item, content: newContent } : item
+          ),
+        };
       })
     );
   };
@@ -486,273 +370,275 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   }
 
   const handleDownload = async () => {
-    GetRequestRaw(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/download`)
-      .then(async (res) => {
-        const disposition = res.headers.get("Content-Disposition");
-        let filename = "";
+    try {
+      const res = await GetRequestRaw(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/download`
+      );
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = "";
 
-        if (disposition) {
-          const starMatch = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
-          if (starMatch && starMatch[1]) {
-            filename = decodeURIComponent(starMatch[1]);
-          } else {
-            const match = disposition.match(
-              /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
-            );
-            if (match && match[1]) {
-              filename = match[1].replace(/['"]/g, "");
-            }
-          }
+      if (disposition) {
+        const starMatch = disposition.match(/filename\*\s*=\s*UTF-8''([^;]+)/i);
+        if (starMatch && starMatch[1]) filename = decodeURIComponent(starMatch[1]);
+        else {
+          const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+          if (match && match[1]) filename = match[1].replace(/['"]/g, "");
         }
-        if (!filename) {
-          filename = "association";
-        }
-        await saveBlobResponse(res, filename);
-        toast.success("دانلود اساسنامه آغاز شد.", { position: "bottom-left" });
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error("خطا در دانلود اساسنامه", { position: "bottom-left" });
-      });
+      }
+
+      if (!filename) filename = "association";
+      await saveBlobResponse(res, filename);
+      toast.success("دانلود اساسنامه آغاز شد.", { position: "bottom-left" });
+    } catch (err) {
+      console.error(err);
+      toast.error("خطا در دانلود اساسنامه", { position: "bottom-left" });
+    }
   };
 
   const handleDownloadFinancial = async (fileId: number, date: string) => {
-    GetRequestRaw(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/download`)
-      .then(async (res) => {
-        const disposition = res.headers.get("Content-Disposition");
-        let filename = `financial-${date || fileId}`; // بدون پسوند
+    try {
+      const res = await GetRequestRaw(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/download`
+      );
+      const disposition = res.headers.get("Content-Disposition");
+      let filename = `financial-${date || fileId}`;
 
-        if (disposition && disposition.includes("filename=")) {
-          const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
-          if (match && match[1]) {
-            filename = match[1].replace(/['"]/g, "");
-          }
-        }
+      if (disposition && disposition.includes("filename=")) {
+        const match = disposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (match && match[1]) filename = match[1].replace(/['"]/g, "");
+      }
 
-        await saveBlobResponse(res, filename);
-        toast.success("دانلود صورت مالی آغاز شد.", { position: "bottom-left" });
-      })
-      .catch((err) => {
-        try {
-          toast.error(err?.error || "خطا در دانلود صورت مالی", { position: "bottom-left" });
-        } catch {
-          toast.error("خطا در دانلود صورت مالی", { position: "bottom-left" });
-        }
-      })
+      await saveBlobResponse(res, filename);
+      toast.success("دانلود صورت مالی آغاز شد.", { position: "bottom-left" });
+    } catch (err: any) {
+      toast.error(err?.error || "خطا در دانلود صورت مالی", { position: "bottom-left" });
+    }
   };
-
-  const [confirmAssociationOpen, setConfirmAssociationOpen] = useState(false);
-  const [confirmDeleteExchangeOpen, setconfirmDeleteExchangeOpen] = useState(false);
-  const [confirmFinancialOpen, setConfirmFinancialOpen] = useState(false);
-  const [financialToDelete, setFinancialToDelete] = useState<{
-    id: number;
-    date: string;
-  } | null>(null);
-  const [ExchangeToDelete, setExchangeToDelete] = useState<{
-    id: string;
-  } | null>(null);
-  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const handleConfirmDeleteAssociation = async () => {
     setDeleteLoading(true);
-    DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/delete`)
-      .then((res) => {
-        toast.success("اساسنامه با موفقیت حذف شد.", {
-          position: "bottom-left",
-        });
-        window.location.reload();
-      })
-      .catch((err) => {
-        console.log(err)
-        toast.error("خطا در حذف اساسنامه", { position: "bottom-left" });
-      })
-      .finally(() => {
-        setDeleteLoading(false);
-        setConfirmAssociationOpen(false);
-      })
+    try {
+      await DeleteRequest(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/association/delete`
+      );
+      toast.success("اساسنامه با موفقیت حذف شد.", { position: "bottom-left" });
+      window.location.reload();
+    } catch (err) {
+      toast.error("خطا در حذف اساسنامه", { position: "bottom-left" });
+    } finally {
+      setDeleteLoading(false);
+      setConfirmAssociationOpen(false);
+    }
   };
 
   const handleConfirmDeleteFinancial = async () => {
     if (!financialToDelete) return;
+
     setDeleteLoading(true);
-    DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${financialToDelete.id}`)
-      .then((res) => {
-        toast.success("صورت مالی با موفقیت حذف شد.", {
-          position: "bottom-left",
-        });
-        window.location.reload();
-      })
-      .catch((err) => {
-        toast.error("خطا در حذف صورت مالی", { position: "bottom-left" });
-      })
-      .finally(() => {
-        setDeleteLoading(false);
-        setConfirmFinancialOpen(false);
-        setFinancialToDelete(null);
-      })
+    try {
+      await DeleteRequest(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${financialToDelete.id}`
+      );
+      toast.success("صورت مالی با موفقیت حذف شد.", { position: "bottom-left" });
+      window.location.reload();
+    } catch (err) {
+      toast.error("خطا در حذف صورت مالی", { position: "bottom-left" });
+    } finally {
+      setDeleteLoading(false);
+      setConfirmFinancialOpen(false);
+      setFinancialToDelete(null);
+    }
+  };
+
+  const operations = useMemo(
+    () => [
+      {
+        id: 1,
+        title: "",
+        content: (
+          <button
+            id="EditExInfo"
+            className={cx(
+              "w-full flex items-center justify-between",
+              "rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+              "bg-boxColor/30 dark:bg-boxColor-dark/30",
+              "px-4 py-3 hover:bg-boxColor/60 dark:hover:bg-boxColor-dark/60 transition"
+            )}
+            onClick={() => setIsOpen(true)}
+          >
+            <span className="font-medium">ویرایش</span>
+          </button>
+        ),
+      },
+      {
+        id: 2,
+        title: "",
+        content: (
+          <button
+            id="DownloadExInfo"
+            className={cx(
+              "w-full flex items-center justify-between",
+              "rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+              "bg-boxColor/30 dark:bg-boxColor-dark/30",
+              "px-4 py-3 hover:bg-boxColor/60 dark:hover:bg-boxColor-dark/60 transition"
+            )}
+            onClick={download}
+            disabled={DownloadLoading}
+          >
+            <span className="font-medium">دریافت Excel</span>
+            <span className="flex items-center gap-2">
+              {DownloadLoading ? <LoaderCircle size={8} color="border-white-500" /> : null}
+            </span>
+          </button>
+        ),
+      },
+      {
+        id: 3,
+        title: "",
+        content: (
+          <button
+            id="DeleteExInfo"
+            className={cx(
+              "w-full flex items-center justify-between",
+              "rounded-xl border border-red-200/60 dark:border-red-500/30",
+              "bg-red-50/60 dark:bg-red-900/10",
+              "px-4 py-3 hover:bg-red-50 dark:hover:bg-red-900/15 transition"
+            )}
+            onClick={() => {
+              setconfirmDeleteExchangeOpen(true);
+              SetConfirmDelete("");
+            }}
+          >
+            <span className="font-medium text-red-700 dark:text-red-300">حذف سکو</span>
+          </button>
+        ),
+      },
+    ],
+    [DownloadLoading, name]
+  );
+
+  const buildDocumentsBlock = (
+    association?: string | null,
+    financialStatement: Array<{ id: number; date: string; file: string }> = []
+  ) => {
+    const key = Date.now();
+
+    return {
+      id: key,
+      title: "",
+      content: (
+        <div className="w-full col-span-full flex flex-col gap-3">
+          {association && (
+            <div
+              className={cx(
+                "flex items-center justify-between gap-3 w-full",
+                "rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+                "bg-boxColor/30 dark:bg-boxColor-dark/30 px-4 py-3"
+              )}
+            >
+              <div className="flex flex-col">
+                <span className="font-semibold">اساسنامه</span>
+                <span className={subtleText}>فایل بارگذاری‌شده</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button id="downloadAssociation" variant="ghost" onClick={handleDownload}>
+                  دانلود
+                </Button>
+                <Button
+                  id="deleteAssociation"
+                  variant="ghost"
+                  onClick={() => setConfirmAssociationOpen(true)}
+                  className="text-red-600 dark:text-red-300"
+                >
+                  حذف
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {financialStatement.map((item, index) => (
+            <div
+              key={`${item.id}-${item.date}-${index}`}
+              className={cx(
+                "flex items-center justify-between gap-3 w-full",
+                "rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+                "bg-boxColor/30 dark:bg-boxColor-dark/30 px-4 py-3"
+              )}
+            >
+              <div className="flex flex-col">
+                <span className="font-semibold">صورت مالی {item.date}</span>
+                <span className={subtleText}>فایل بارگذاری‌شده</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  id={`DownloadFinancial${index}`}
+                  variant="ghost"
+                  onClick={() => handleDownloadFinancial(item.id, item.date)}
+                >
+                  دانلود
+                </Button>
+                <Button
+                  id={`DeleteFinancial${index}`}
+                  variant="ghost"
+                  onClick={() => {
+                    setFinancialToDelete({ id: item.id, date: item.date });
+                    setConfirmFinancialOpen(true);
+                  }}
+                  className="text-red-600 dark:text-red-300"
+                >
+                  حذف
+                </Button>
+              </div>
+            </div>
+          ))}
+
+          <Button
+            id="AddDocument"
+            variant="primary"
+            className="w-full rounded-xl border border-primary bg-transparent text-primary dark:text-primary-dark"
+            onClick={() => SetAddFileModal(true)}
+          >
+            افزودن مورد جدید
+          </Button>
+        </div>
+      ),
+    };
   };
 
   const addAssociationDocuments = (
     association?: string | null,
     financialStatement: Array<{ id: number; date: string; file: string }> = []
   ) => {
-    const buildItem = () => ({
-      id: Date.now(),
-      title: "",
-      content: (
-        // اطمینان از تمام‌عرض بودن در هر دو حالت Grid و Flex
-        <div className="w-full col-span-full flex flex-col ">
-          {association && (
-            <div className="flex justify-between items-center w-full">
-              <div className="flex items-center">
-                <h6 className="inline-block">اساسنامه</h6>
-              </div>
-              <div className="flex items-center">
-                <button
-                  id="downloadAssociation"
-                  onClick={handleDownload}
-                  className="text-titleText dark:text-titleText-dark mr-2"
-                >
-                  {/* ... SVG دانلود ... */}
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-
-                <button
-                  id="deleteAssociation"
-                  onClick={() => {
-                    setConfirmAssociationOpen(true);
-                  }}
-                  className="text-titleText dark:text-titleText-dark mr-1"
-                >
-                  {/* ... SVG حذف ... */}
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 1024 1024"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          )}
-          {/* رندر آیتم‌های صورت‌های مالی؛ حتماً return بده و key یکتا بذار */}
-          {financialStatement.map((item, index) => (
-            <div className="flex justify-between items-center w-full">
-              <div className="flex items-center">
-                <h6 className="inline-block">صورت مالی {item.date}</h6>
-              </div>
-              <div className="flex items-center">
-                <button
-                  id={`DownloadFinancial${index}`}
-                  onClick={() => {
-                    handleDownloadFinancial(item.id, item.date);
-                  }}
-                  className="text-titleText dark:text-titleText-dark mr-2"
-                >
-                  {/* ... SVG دانلود ... */}
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M12 3V16M12 16L16 11.625M12 16L8 11.625"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                    <path
-                      d="M15 21H9C6.17157 21 4.75736 21 3.87868 20.1213C3 19.2426 3 17.8284 3 15M21 15C21 17.8284 21 19.2426 20.1213 20.1213C19.8215 20.4211 19.4594 20.6186 19 20.7487"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-
-                <button
-                  id={`DownloadFinancial${index}`}
-                  onClick={() => {
-                    setFinancialToDelete({ id: item.id, date: item.date });
-                    setConfirmFinancialOpen(true);
-                  }}
-                  className="text-titleText dark:text-titleText-dark mr-1"
-                >
-                  {/* ... SVG حذف ... */}
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 1024 1024"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M160 256H96a32 32 0 0 1 0-64h256V95.936a32 32 0 0 1 32-32h256a32 32 0 0 1 32 32V192h256a32 32 0 1 1 0 64h-64v672a32 32 0 0 1-32 32H192a32 32 0 0 1-32-32V256zm448-64v-64H416v64h192zM224 896h576V256H224v640zm192-128a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32zm192 0a32 32 0 0 1-32-32V416a32 32 0 0 1 64 0v320a32 32 0 0 1-32 32z"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ))}
-          {/* ردیف دوم: دکمه افزودن — همیشه زیرِ ردیف اول می‌آید */}
-          <div className="mt-4 w-full">
-            <Button
-              id="AddDocument"
-              variant="primary"
-              className="text-primary dark:text-primary-dark border border-primary rounded-md w-full"
-              onClick={() => SetAddFileModal(true)}
-            >
-              افزودن مورد جدید
-            </Button>
-          </div>
-        </div>
-      ),
-    });
-
-    // الحاق (append) به سکشن ۳؛ نه جایگزینی کل content
     setInvoiceData((prev) =>
       prev.map((section) =>
         section.id === 3
           ? {
-            ...section,
-            content: [...section.content, buildItem()], // ← اضافه‌کردن به انتهای لیست
-          }
+              ...section,
+              content: [buildDocumentsBlock(association, financialStatement)],
+            }
           : section
       )
     );
   };
 
-  //ادیت
+  const Audit = () => {
+    setLogLoading(true);
+    GetRequest(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange/${params.id}?page=${LogPage}&size=10&sort=updatedAt,DESC`
+    )
+      .then((response) => {
+        setLogLoading(false);
+        setChanges(response.result.content);
+        setLogNumber(response.result.totalElements);
+      })
+      .catch(() => {
+        setLogLoading(false);
+        setChanges([]);
+      });
+  };
+
   const handleSave = async () => {
     const isDigits = (val: string, len?: number) =>
       /^\d+$/.test(val) && (!len || val.length === len);
@@ -764,129 +650,94 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     const financialCode = String(form.financialCode || "");
     const registrationNumber = String(form.registrationNumber || "");
     const phoneNumber = String(form.phoneNumber || "");
-    const emergencyPhoneNumber = String(form.emergencyPhoneNumber || "");
     const zipCode = String(form.zipCode || "");
     const email = String(form.email || "");
-    const siteAddress = String(form.siteAddress || "");
 
-    if (!legalName.trim()) {
-      toast.error("نام حقوقی سکو الزامی است", { position: "bottom-left" });
-      return;
-    }
-    if (!hasNoSpecialChars(legalName)) {
-      toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد", {
-        position: "bottom-left",
-      });
-      return;
-    }
-    if (!isDigits(nationalCode, 11)) {
-      toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد", {
-        position: "bottom-left",
-      });
-      return;
-    }
-    if (!/^\d{11,16}$/.test(financialCode)) {
-      toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد", {
-        position: "bottom-left",
-      });
-      return;
-    }
-    if (!/^\d{6}$/.test(registrationNumber)) {
-      toast.error("شماره ثبت باید عددی ۶ رقمی باشد", {
-        position: "bottom-left",
-      });
-      return;
-    }
-    if (!form.type) {
-      toast.error("نوع سکو را انتخاب کنید", { position: "bottom-left" });
-      return;
-    }
-    if (!form.exchangeType) {
-      toast.error("شکل حقوقی سکو را انتخاب کنید", { position: "bottom-left" });
-      return;
-    }
-    if (phoneNumber === "") {
-      toast.error("شماره تماس اشتباه وارد شده است", {
-        position: "bottom-left",
-      });
-      return;
-    }
-    if (zipCode && !isDigits(zipCode, 10)) {
-      toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد", {
-        position: "bottom-left",
-      });
-      return;
-    }
-    if (email && !validateEmail(email)) {
-      toast.error("ایمیل وارد شده معتبر نیست", { position: "bottom-left" });
-      return;
-    }
-    if (!form.establishmentDate) {
-      toast.error("تاریخ تأسیس را وارد کنید", { position: "bottom-left" });
-      return;
-    }
+    if (!legalName.trim()) return toast.error("نام حقوقی سکو الزامی است", { position: "bottom-left" });
+    if (!hasNoSpecialChars(legalName))
+      return toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
+    if (!isDigits(nationalCode, 11))
+      return toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد", { position: "bottom-left" });
+    if (!/^\d{11,16}$/.test(financialCode))
+      return toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد", { position: "bottom-left" });
+    if (!/^\d{6}$/.test(registrationNumber))
+      return toast.error("شماره ثبت باید عددی ۶ رقمی باشد", { position: "bottom-left" });
+    if (!form.type) return toast.error("نوع سکو را انتخاب کنید", { position: "bottom-left" });
+    if (!form.exchangeType)
+      return toast.error("شکل حقوقی سکو را انتخاب کنید", { position: "bottom-left" });
+    if (phoneNumber === "")
+      return toast.error("شماره تماس اشتباه وارد شده است", { position: "bottom-left" });
+    if (zipCode && !isDigits(zipCode, 10))
+      return toast.error("کد پستی باید دقیقاً ۱۰ رقم باشد", { position: "bottom-left" });
+    if (email && !validateEmail(email))
+      return toast.error("ایمیل وارد شده معتبر نیست", { position: "bottom-left" });
+    if (!form.establishmentDate)
+      return toast.error("تاریخ تأسیس را وارد کنید", { position: "bottom-left" });
 
-    setIsOpen(true);
-    PutRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`, form)
-      .then((response) => {
-        toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", {
-          position: "bottom-left",
-        });
+    setLoading(true);
+    try {
+      await PutRequest(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`,
+        form
+      );
 
-        handleEdit(1, 1, form.legalName);
-        handleEdit(1, 2, toJalaliDate(form.establishmentDate));
-        handleEdit(1, 3, form.nationalCode);
-        handleEdit(1, 4, form.type);
-        handleEdit(
-          1,
-          5,
-          ExchangeLegalTypes.find((item) => item.value === form.exchangeType)
-            ?.label
-        );
-        handleEdit(1, 6, form.financialCode);
-        handleEdit(
-          1,
-          7,
-          form.registrationNumber ? String(form.registrationNumber) : ""
-        );
-        handleEdit(
-          2,
-          1,
-          form.siteAddress ? (
-            <a
-              href={form.siteAddress}
-              className="text-primary dark:text-primary-dark"
-            >
-              {form.siteAddress}
-            </a>
-          ) : (
-            ""
-          )
-        );
-        handleEdit(2, 2, form.phoneNumber);
-        handleEdit(2, 3, form.emergencyPhoneNumber);
-        handleEdit(2, 4, form.officeAddress);
-        handleEdit(2, 5, form.zipCode);
-        handleEdit(2, 6, form.email);
+      toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", { position: "bottom-left" });
 
+      handleEdit(1, 1, form.legalName);
+      handleEdit(1, 2, toJalaliDate(form.establishmentDate));
+      handleEdit(1, 3, form.nationalCode);
+      handleEdit(1, 4, form.type);
+      handleEdit(
+        1,
+        5,
+        ExchangeLegalTypes.find((item) => item.value === form.exchangeType)?.label
+      );
+      handleEdit(1, 6, form.financialCode);
+      handleEdit(1, 7, form.registrationNumber ? String(form.registrationNumber) : "");
 
-      })
-      .catch((err) => {
-        handlePostErrors(err)
-      })
-      .finally(() => {
-        setIsOpen(false);
-      })
+      handleEdit(
+        2,
+        1,
+        form.siteAddress ? (
+          <a href={form.siteAddress} className="text-primary dark:text-primary-dark underline underline-offset-4">
+            {form.siteAddress}
+          </a>
+        ) : (
+          ""
+        )
+      );
+      handleEdit(2, 2, form.phoneNumber);
+      handleEdit(2, 3, form.emergencyPhoneNumber);
+      handleEdit(2, 4, form.officeAddress);
+      handleEdit(2, 5, form.zipCode);
+      handleEdit(2, 6, form.email);
+
+      setIsOpen(false);
+    } catch (err) {
+      handlePostErrors(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onPickFile = (f: File | null) => {
+    setFile(f);
+    setFileName(f ? f.name : "");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0] || null;
-    setFile(f);
-    setFileName(f ? f.name : "");
+    onPickFile(f);
   };
+
   const uploadFile = async () => {
     try {
-      setLoading2(true);
+      setUploading(true);
+
+      if (!type) {
+        toast.error("نوع فایل را انتخاب کنید");
+        return;
+      }
 
       // اساسنامه
       if (type === "اساسنامه") {
@@ -903,254 +754,238 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 
         toast.success("اساسنامه با موفقیت بارگذاری شد");
         setTimeout(() => window.location.reload(), 500);
-        return; // مهم: که ادامه اجرا نشه
+        return;
       }
 
       // صورت مالی
       if (type === "صورت مالی") {
-        // 1. چک کن فایل هست؟
         if (!file) {
           toast.error("فایل صورت مالی انتخاب نشده");
           return;
         }
 
-        // 2. چک کن نام/تاریخ وارد شده؟
         if (!FinancialName) {
           toast.error("عنوان یا تاریخ صورت مالی مشخص نشده");
           return;
         }
 
-        try {
-          // اول ردیف صورت مالی رو بساز
-          const result = await PostRequest(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
-            { date: String(FinancialName) }
-          );
+        const result = await PostRequest(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements`,
+          { date: String(FinancialName) }
+        );
 
-          // اگر API ساختن ردیف به هر دلیلی چیزی برنگردوند
-          const fileId = result?.result?.id;
-          if (!fileId) {
-            toast.error("خطا در ایجاد رکورد صورت مالی");
-            return;
-          }
-
-          // حالا خود فایل رو آپلود کن
-          await PostRequest(
-            `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/upload`,
-            { financialFile: file },
-            { asFormData: true }
-          );
-
-          toast.success("صورت مالی با موفقیت بارگذاری شد");
-          setFile(null);
-          setFileName("");
-          SetAddFileModal(false);
-          setTimeout(() => window.location.reload(), 500);
-        } catch (error: any) {
-          console.log(error);
-          // اگر هر کدوم از دو درخواست بالا خورد به خطا
-          toast.error(
-            error?.message || "خطا در بارگذاری صورت مالی. دوباره تلاش کنید."
-          );
+        const fileId = result?.result?.id;
+        if (!fileId) {
+          toast.error("خطا در ایجاد رکورد صورت مالی");
+          return;
         }
 
+        await PostRequest(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/financial-statements/${fileId}/upload`,
+          { financialFile: file },
+          { asFormData: true }
+        );
+
+        toast.success("صورت مالی با موفقیت بارگذاری شد");
+        onPickFile(null);
+        SetAddFileModal(false);
+        setTimeout(() => window.location.reload(), 500);
         return;
       }
     } catch (e: any) {
       toast.error(e?.message || "خطا در آپلود");
     } finally {
-      setLoading2(false);
+      setUploading(false);
     }
   };
 
-  const handleSelectChange = (event: string) => {
-    Settype(event);
+  const handleSelectChange = (event: string) => Settype(event);
+
+  // Drag & Drop (بدون کتابخانه)
+  const [isDragging, setIsDragging] = useState(false);
+
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const f = e.dataTransfer.files?.[0] || null;
+    onPickFile(f);
   };
-  const Audit = () => {
-    setLogLoading(true);
-    GetRequest(
-      `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/audit/exchange/${params.id}?page=${LogPage}&size=10&sort=updatedAt,DESC`
-    )
-      .then((response) => {
-        setLogLoading(false);
-        setChanges(response.result.content);
-        setLogNumber(response.result.totalElements);
-      })
-      .catch((err) => {
-        setLogLoading(false);
-        setChanges([]);
-      });
+
+  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
   };
+
+  const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
   useEffect(() => {
-    if (didInit.current) return; // ← جلوی بار دوم را می‌گیرد
+    if (didInit.current) return;
     didInit.current = true;
+
+    // عملیات‌ها را داخل سکشن ۴ بنشان
+    setInvoiceData((prev) =>
+      prev.map((s) => (s.id === 4 ? { ...s, content: operations } : s))
+    );
 
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
       .then((response) => {
-        SetLogo(response.result.logo);
-        SetName(response.result.name);
-        handleEdit(1, 1, response.result.legalName);
-        handleEdit(1, 2, toJalaliDate(response.result.establishmentDate));
-        handleEdit(1, 3, response.result.nationalCode);
-        handleEdit(1, 4, response.result.type);
-        handleEdit(
-          1,
-          5,
-          ExchangeLegalTypes.find(
-            (item) => item.value === response.result.exchangeType
-          )?.label
-        );
-        handleEdit(1, 6, response.result.financialCode);
-        handleEdit(1, 7, String(response.result.registrationNumber));
-        if (
-          response.result.siteAddress !== "" &&
-          response.result.siteAddress !== null
-        ) {
+        const r = response.result;
+
+        SetLogo(r.logo);
+        SetName(r.name);
+
+        handleEdit(1, 1, r.legalName);
+        handleEdit(1, 2, toJalaliDate(r.establishmentDate));
+        handleEdit(1, 3, r.nationalCode);
+        handleEdit(1, 4, r.type);
+        handleEdit(1, 5, ExchangeLegalTypes.find((item) => item.value === r.exchangeType)?.label);
+        handleEdit(1, 6, r.financialCode);
+        handleEdit(1, 7, String(r.registrationNumber));
+
+        if (r.siteAddress) {
           handleEdit(
             2,
             1,
-            <a
-              href={response.result.siteAddress}
-              className="text-primary dark:text-primary-dark"
-            >
-              {response.result.siteAddress}
+            <a href={r.siteAddress} className="text-primary dark:text-primary-dark underline underline-offset-4">
+              {r.siteAddress}
             </a>
           );
         }
 
-        handleEdit(2, 2, response.result.phoneNumber);
-        handleEdit(2, 3, response.result.emergencyPhoneNumber);
-        handleEdit(2, 4, response.result.officeAddress);
-        handleEdit(2, 5, response.result.zipCode);
-        handleEdit(2, 6, response.result.email);
-        if (
-          response.result.association !== null &&
-          response.result.association !== ""
-        ) {
-          handleEdit(
-            3,
-            1,
-            <a
-              href={response.result.association}
-              className="text-primary dark:text-primary-dark"
-            >
-              دریافت
-            </a>
-          );
-        }
-        addAssociationDocuments(
-          response.result.association,
-          response.result.financialStatements
-        );
+        handleEdit(2, 2, r.phoneNumber);
+        handleEdit(2, 3, r.emergencyPhoneNumber);
+        handleEdit(2, 4, r.officeAddress);
+        handleEdit(2, 5, r.zipCode);
+        handleEdit(2, 6, r.email);
+
+        addAssociationDocuments(r.association, r.financialStatements);
 
         setForm({
-          legalName: response.result.legalName,
-          establishmentDate: response.result.establishmentDate,
-          nationalCode: response.result.nationalCode,
-          type: response.result.type,
-          exchangeType: response.result.exchangeType,
-          siteAddress: response.result.siteAddress,
-          phoneNumber: response.result.phoneNumber,
-          emergencyPhoneNumber: response.result.emergencyPhoneNumber,
-          officeAddress: response.result.officeAddress,
-          email: response.result.email,
-          financialCode: response.result.financialCode,
-          registrationNumber: response.result.registrationNumber,
-          zipCode: response.result.zipCode,
+          legalName: r.legalName,
+          establishmentDate: r.establishmentDate,
+          nationalCode: r.nationalCode,
+          type: r.type,
+          exchangeType: r.exchangeType,
+          siteAddress: r.siteAddress,
+          phoneNumber: r.phoneNumber,
+          emergencyPhoneNumber: r.emergencyPhoneNumber,
+          officeAddress: r.officeAddress,
+          email: r.email,
+          financialCode: r.financialCode,
+          registrationNumber: r.registrationNumber,
+          zipCode: r.zipCode,
         });
+
         SetC1(true);
       })
-      .catch((err) => {
+      .catch(() => {
         SetC1(true);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   useEffect(() => {
-    if (isLogOpen) {
-      Audit();
-    }
+    if (isLogOpen) Audit();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isLogOpen, LogPage]);
+
   return (
-    <div>
-      {logo !== null && logo !== "" ? (
-        <img alt="image" className="w-8 h-8 inline-block" src={logo} />
-      ) : (
-        <div
-          className=" items-center text-titleText dark:text-titleText-dark inline-block "
-          style={{ marginBottom: "-6px" }}
-        >
-          <svg
-            width="30px"
-            height="30px"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M14.2639 15.9376L12.5958 14.2835C11.7909 13.4852 11.3884 13.0861 10.9266 12.9402C10.5204 12.8119 10.0838 12.8166 9.68048 12.9537C9.22188 13.1096 8.82814 13.5173 8.04068 14.3327L4.04409 18.2802M14.2639 15.9376L14.6053 15.5991C15.4112 14.7999 15.8141 14.4003 16.2765 14.2544C16.6831 14.1262 17.12 14.1312 17.5236 14.2688C17.9824 14.4252 18.3761 14.834 19.1634 15.6515L20 16.4936M14.2639 15.9376L18.275 19.9566M20.9992 6.00011H14.9992M11 3.99951L7.2 4.00011C6.07989 4.00011 5.51984 4.00011 5.09202 4.21809C4.71569 4.40984 4.40973 4.7158 4.21799 5.09213C4 5.51995 4 6.08 4 7.20011V16.8001C4 17.4576 4 17.9222 4.04409 18.2802M20 9.99951V16.4936M4.04409 18.2802C4.07512 18.5322 4.12796 18.7314 4.21799 18.9081C4.40973 19.2844 4.71569 19.5904 5.09202 19.7821C5.51984 20.0001 6.07989 20.0001 7.2 20.0001H16.8C17.9201 20.0001 18.4802 20.0001 18.908 19.7821C19.2843 19.5904 19.5903 19.2844 19.782 18.9081C20 18.4803 20 17.9202 20 16.8001V16.4936"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+    <div className="space-y-5">
+      {/* Header Card */}
+      <div className={cx(panelBase, "p-5")}>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 min-w-0">
+            {logo ? (
+              <img alt="logo" className="w-10 h-10 rounded-xl object-cover ring-1 ring-black/5" src={logo} />
+            ) : (
+              <div
+                className={cx(
+                  "w-10 h-10 rounded-xl grid place-items-center  text-titleText dark:text-titleText-dark",
+                  "bg-boxColor dark:bg-boxColor-dark",
+                  "border border-boxBorderColor dark:border-boxBorderColor-dark"
+                )}
+              >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M4 7.2C4 6.08 4 5.52 4.218 5.092c.192-.376.498-.682.874-.874C5.52 4 6.08 4 7.2 4h9.6c1.12 0 1.68 0 2.108.218.376.192.682.498.874.874C20 5.52 20 6.08 20 7.2v9.6c0 1.12 0 1.68-.218 2.108a2 2 0 0 1-.874.874C18.48 20 17.92 20 16.8 20H7.2c-1.12 0-1.68 0-2.108-.218a2 2 0 0 1-.874-.874C4 18.48 4 17.92 4 16.8V7.2Z"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                  />
+                  <path
+                    d="M8 14.5 10.2 12.3a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 0 1.4 0L18 11.5"
+                    stroke="currentColor"
+                    strokeWidth="1.7"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+            )}
+
+            <div className="min-w-0">
+              <h3 className="text-2xl font-extrabold truncate text-titleText dark:text-titleText-dark">
+                {name}
+              </h3>
+            </div>
+          </div>
+
         </div>
-      )}
-      <h3 className="inline-block text-2xl text-bold mr-2 text-titleText dark:text-titleText-dark">
-        {name}
-      </h3>
-      <h5 className="font-bold text-lg text-titleText dark:text-titleText-dark mt-4">
-        مشخصات سکو
-      </h5>
-      <DetailBox
-        data={invoiceData.map((section) => ({
-          title: section.title,
-          content: section.content.map((item) => ({
-            title: item.title,
-            content:
-              typeof item.content === "string"
-                ? item.content
-                : React.isValidElement(item.content)
+      </div>
+
+      {/* Detail Box */}
+      <div className={cx(panelBase, "p-5")}>
+        <h5 className={cx(sectionTitle, "mb-4")}>مشخصات سکو</h5>
+
+        <DetailBox
+          data={invoiceData.map((section) => ({
+            title: section.title,
+            content: section.content.map((item) => ({
+              title: item.title,
+              content:
+                typeof item.content === "string"
                   ? item.content
-                  : "", // تبدیل به string یا Element
-          })),
-        }))}
-        downloadLink="/path/to/pdf"
-      />
+                  : React.isValidElement(item.content)
+                  ? item.content
+                  : "",
+            })),
+          }))}
+          downloadLink="/path/to/pdf"
+        />
+      </div>
 
       {/* ویرایش سکو */}
       <Modal open={isOpen} onClose={() => setIsOpen(false)}>
         <Modal.Backdrop />
-        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-          <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[100px] text-titleText dark:text-titleText-dark">
-            <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-              <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
-                ویرایش مشخصات سکو {name}
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
+          <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-10 overflow-hidden")}>
+            <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+              <Modal.Title className={cx("text-xl font-extrabold", "text-titleText dark:text-titleText-dark")}>
+                ویرایش مشخصات سکو <span className="font-black">{name}</span>
               </Modal.Title>
+              <p className={cx(subtleText, "mt-1")}>اطلاعات را ویرایش کنید و در پایان ذخیره کنید.</p>
             </div>
 
-            <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label>نام حقوقی</label>
+            <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
+              <Field label="نام حقوقی">
                 <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  className={inputBase}
                   value={form.legalName}
-                  onChange={(e) =>
-                    setForm({ ...form, legalName: e.target.value })
-                  }
+                  onChange={(e) => setForm({ ...form, legalName: e.target.value })}
                 />
-              </div>
-              <div>
-                <label>تاریخ تأسیس</label>
-                <div className="mt-2">
+              </Field>
+
+              <Field label="تاریخ تأسیس">
+                <div className="h-12">
                   <JalaliLocalDatePicker
                     value={form.establishmentDate}
                     onChange={(val) =>
-                      setForm((p) => ({
-                        ...p,
-                        establishmentDate: val !== null ? val : "",
-                      }))
+                      setForm((p) => ({ ...p, establishmentDate: val !== null ? val : "" }))
                     }
                     placeholder=""
                     clearable
@@ -1158,13 +993,11 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                     max="2030-12-31"
                   />
                 </div>
-              </div>
-              <div>
-                <label>شناسه ملی سکو</label>
+              </Field>
+
+              <Field label="شناسه ملی سکو">
                 <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  className={inputBase}
                   value={form.nationalCode}
                   onChange={(e) => {
                     if (validateNumbers(e.target.value)) {
@@ -1172,17 +1005,14 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                     }
                   }}
                 />
-              </div>
-              <div>
-                <label>نوع سکو</label>
+              </Field>
 
-                <div className="relative w-full mt-2">
+              <Field label="نوع سکو">
+                <div className="relative">
                   <Dropdown
                     value={form.type}
                     onChange={(v: unknown) => {
-                      if (v === "P2P" || v === "OTC") {
-                        setForm((p) => ({ ...p, type: v }));
-                      }
+                      if (v === "P2P" || v === "OTC") setForm((p) => ({ ...p, type: v }));
                     }}
                   >
                     <Dropdown.Trigger className="w-full">
@@ -1190,92 +1020,74 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         as="span"
                         role="button"
                         variant="ghost"
-                        className="flex items-center justify-between w-full pl-10 py-2 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
-                    border border-gray-300 
-                   rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                   appearance-none relative"
+                        className={cx(
+                          "w-full h-12 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+                          "bg-boxColor dark:bg-boxColor-dark",
+                          "flex items-center justify-between px-4",
+                          "text-titleText dark:text-titleText-dark"
+                        )}
                       >
-                        <span>{form.type !== "" ? form.type : "انتخاب"}</span>
+                        <span>{form.type ? form.type : "انتخاب"}</span>
                       </Button>
                     </Dropdown.Trigger>
 
                     <Dropdown.Options
-                      className="absolute left-0 mt-2 w-72 pl-2 pr-2
-                 text-gray-700 bg-white dark:bg-buttonColor-dark
-                 border border-gray-300 dark:border-buttonBorderColor-dark 
-                 rounded-lg dark:text-gray-100 appearance-none z-50
-                 max-h-60 overflow-y-auto"
+                      className={cx(
+                        "absolute left-0 mt-2 w-full p-2 z-50",
+                        "rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+                        "bg-white dark:bg-buttonColor-dark",
+                        "max-h-60 overflow-y-auto"
+                      )}
                     >
-                      <Dropdown.Option value="P2P" key="option1">
-                        {({ selected, active }) => (
-                          <MenuItem
-                            isActive={active}
-                            isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "P2P"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                              }`}
-                          >
-                            <MenuItem.Title>P2P</MenuItem.Title>
-                          </MenuItem>
-                        )}
-                      </Dropdown.Option>
-                      <Dropdown.Option value="OTC" key="option2">
-                        {({ active }) => (
-                          <MenuItem
-                            isActive={active}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.type === "OTC"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                              }`}
-                          >
-                            <MenuItem.Title>OTC</MenuItem.Title>
-                          </MenuItem>
-                        )}
-                      </Dropdown.Option>
+                      {["P2P", "OTC"].map((v) => (
+                        <Dropdown.Option value={v} key={v}>
+                          {({ selected, active }) => (
+                            <MenuItem
+                              isActive={active}
+                              isSelected={selected}
+                              className={cx(
+                                "rounded-lg border mt-1 mb-1",
+                                "border-gray-100 dark:border-buttonBorderColor-dark",
+                                form.type === v && "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              )}
+                            >
+                              <MenuItem.Title>{v}</MenuItem.Title>
+                            </MenuItem>
+                          )}
+                        </Dropdown.Option>
+                      ))}
                     </Dropdown.Options>
                   </Dropdown>
                   <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
                 </div>
-              </div>
-              <div>
-                <label>کد اقتصادی</label>
+              </Field>
+
+              <Field label="کد اقتصادی">
                 <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  className={inputBase}
                   value={form.financialCode}
                   onChange={(e) => {
-                    if (validateNumbers(e.target.value)) {
-                      setForm({ ...form, financialCode: e.target.value });
-                    }
+                    if (validateNumbers(e.target.value)) setForm({ ...form, financialCode: e.target.value });
                   }}
                 />
-              </div>
-              <div>
-                <label>شماره ثبت</label>
+              </Field>
+
+              <Field label="شماره ثبت">
                 <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  className={inputBase}
                   value={form.registrationNumber}
                   onChange={(e) => {
-                    if (validateNumbers(e.target.value)) {
-                      setForm({ ...form, registrationNumber: e.target.value });
-                    }
+                    if (validateNumbers(e.target.value)) setForm({ ...form, registrationNumber: e.target.value });
                   }}
                 />
-              </div>
-              <div>
-                <label>شکل حقوقی</label>
+              </Field>
 
-                <div className="relative w-full mt-2">
+              <Field label="شکل حقوقی">
+                <div className="relative">
                   <Dropdown
                     value={form.exchangeType}
                     onChange={(v: unknown) => {
-                      if (typeof v === "string") {
-                        setForm((p) => ({ ...p, exchangeType: v }));
-                      }
+                      if (typeof v === "string") setForm((p) => ({ ...p, exchangeType: v }));
                     }}
                   >
                     <Dropdown.Trigger className="w-full">
@@ -1283,152 +1095,121 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                         as="span"
                         role="button"
                         variant="ghost"
-                        className="flex items-center justify-between w-full pl-10  py-2 
-                   text-gray-700 border border-gray-300 
-                   rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                   dark:text-gray-100 appearance-none relative bg-boxColor dark:bg-boxColor-dark"
+                        className={cx(
+                          "w-full h-12 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+                          "bg-boxColor dark:bg-boxColor-dark",
+                          "flex items-center justify-between px-4",
+                          "text-titleText dark:text-titleText-dark"
+                        )}
                       >
                         <span>
-                          {form.exchangeType !== ""
-                            ? ExchangeLegalTypes.find(
-                              (item) => item.value === form.exchangeType
-                            )?.label
+                          {form.exchangeType
+                            ? ExchangeLegalTypes.find((item) => item.value === form.exchangeType)?.label
                             : "انتخاب"}
                         </span>
                       </Button>
                     </Dropdown.Trigger>
 
                     <Dropdown.Options
-                      className="absolute left-0 mt-2 w-72 pl-2 pr-2
-                 text-gray-700 bg-white dark:bg-buttonColor-dark
-                 border border-gray-300 dark:border-buttonBorderColor-dark 
-                 rounded-lg dark:text-gray-100 appearance-none z-50
-                 max-h-60 overflow-y-auto"
+                      className={cx(
+                        "absolute left-0 mt-2 w-full p-2 z-50",
+                        "rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+                        "bg-white dark:bg-buttonColor-dark",
+                        "max-h-60 overflow-y-auto"
+                      )}
                     >
-                      {ExchangeLegalTypes.map((item, index) => {
-                        return (
-                          <Dropdown.Option
-                            value={item.value}
-                            key={`option${index}`}
-                          >
-                            {({ selected, active }) => (
-                              <MenuItem
-                                isActive={active}
-                                isSelected={selected}
-                                className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${form.exchangeType === item.value
-                                  ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                  : ""
-                                  }`}
-                              >
-                                <MenuItem.Title>{item.label}</MenuItem.Title>
-                              </MenuItem>
-                            )}
-                          </Dropdown.Option>
-                        );
-                      })}
+                      {ExchangeLegalTypes.map((item, index) => (
+                        <Dropdown.Option value={item.value} key={`option-${index}`}>
+                          {({ selected, active }) => (
+                            <MenuItem
+                              isActive={active}
+                              isSelected={selected}
+                              className={cx(
+                                "rounded-lg border mt-1 mb-1",
+                                "border-gray-100 dark:border-buttonBorderColor-dark",
+                                form.exchangeType === item.value &&
+                                  "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              )}
+                            >
+                              <MenuItem.Title>{item.label}</MenuItem.Title>
+                            </MenuItem>
+                          )}
+                        </Dropdown.Option>
+                      ))}
                     </Dropdown.Options>
                   </Dropdown>
-
-                  {/* فلش سمت راست */}
                   <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
                 </div>
-              </div>
-              <div>
-                <label>آدرس سایت</label>
+              </Field>
+
+              <Field label="آدرس سایت">
                 <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  className={inputBase}
                   value={form.siteAddress}
-                  onChange={(e) => {
+                  onChange={(e) =>
                     setForm({
                       ...form,
-                      siteAddress: addHttps(
-                        removeProtocolAndWWW(e.target.value)
-                      ),
-                    });
-                  }}
-                />
-              </div>
-              <div>
-                <label>شماره تماس</label>
-                <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  value={form.phoneNumber}
-                  onChange={(e) => {
-                    if (validateNumbers(e.target.value)) {
-                      setForm({ ...form, phoneNumber: e.target.value });
-                    }
-                  }}
-                />
-              </div>
-              <div>
-                <label>شماره تماس اضطراری</label>
-                <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  value={form.emergencyPhoneNumber}
-                  onChange={(e) => {
-                    if (validateNumbers(e.target.value)) {
-                      setForm({
-                        ...form,
-                        emergencyPhoneNumber: e.target.value,
-                      });
-                    }
-                  }}
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label>آدرس دفتر</label>
-                <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  value={form.officeAddress}
-                  onChange={(e) =>
-                    setForm({ ...form, officeAddress: e.target.value })
+                      siteAddress: addHttps(removeProtocolAndWWW(e.target.value)),
+                    })
                   }
                 />
-              </div>
-              <div>
-                <label>کد پستی</label>
+              </Field>
+
+              <Field label="شماره تماس">
                 <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-                  value={form.zipCode}
+                  className={inputBase}
+                  value={form.phoneNumber}
                   onChange={(e) => {
-                    if (validateNumbers(e.target.value)) {
-                      setForm({ ...form, zipCode: e.target.value });
-                    }
+                    if (validateNumbers(e.target.value)) setForm({ ...form, phoneNumber: e.target.value });
                   }}
                 />
-              </div>
-              <div>
-                <label>ایمیل</label>
+              </Field>
+
+              <Field label="شماره تماس اضطراری">
                 <Input
-                  className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  className={inputBase}
+                  value={form.emergencyPhoneNumber}
+                  onChange={(e) => {
+                    if (validateNumbers(e.target.value))
+                      setForm({ ...form, emergencyPhoneNumber: e.target.value });
+                  }}
+                />
+              </Field>
+
+              <Field label="آدرس دفتر" className="md:col-span-2">
+                <Input
+                  className={inputBase}
+                  value={form.officeAddress}
+                  onChange={(e) => setForm({ ...form, officeAddress: e.target.value })}
+                />
+              </Field>
+
+              <Field label="کد پستی">
+                <Input
+                  className={inputBase}
+                  value={form.zipCode}
+                  onChange={(e) => {
+                    if (validateNumbers(e.target.value)) setForm({ ...form, zipCode: e.target.value });
+                  }}
+                />
+              </Field>
+
+              <Field label="ایمیل">
+                <Input
+                  className={inputBase}
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
                 />
-              </div>
+              </Field>
             </div>
 
-            <div className="p-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex justify-end gap-2">
-              <Button variant="ghost" onClick={() => setIsOpen(false)}>
+            {/* Footer sticky-ish */}
+            <div className="px-5 py-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 bg-white/80 dark:bg-bgColor-dark/80 backdrop-blur">
+              <Button variant="ghost" onClick={() => setIsOpen(false)} className="rounded-xl text-titleText dark:text-titleText-dark">
                 انصراف
               </Button>
-              <Button variant="primary" onClick={handleSave}>
-                {Loading ? (
-                  <LoaderCircle size={8} color="border-white-500" />
-                ) : (
-                  "ذخیره"
-                )}
+              <Button variant="primary" onClick={handleSave} className="rounded-xl text-titleText dark:text-titleText-dark">
+                {Loading ? <LoaderCircle size={8} color="border-white-500" /> : "ذخیره"}
               </Button>
             </div>
           </Modal.Panel>
@@ -1436,115 +1217,134 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       </Modal>
 
       {/* افزودن فایل */}
-      <Modal
-        open={AddFileModal}
-        onClose={() => {
-          SetAddFileModal(false);
-        }}
-      >
+      <Modal open={AddFileModal} onClose={() => SetAddFileModal(false)}>
         <Modal.Backdrop />
-        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-          <Modal.Panel className="w-full max-w-xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark">
-            <div className="p-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-              <Modal.Title className="text-lg font-bold text-titleText dark:text-titleText-dark">
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
+          <Modal.Panel className={cx(panelBase, "max-w-xl mx-auto my-16 overflow-hidden")}>
+            <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+              <Modal.Title className={cx("text-xl font-extrabold", "text-titleText dark:text-titleText-dark")}>
                 افزودن فایل
               </Modal.Title>
+              <p className={cx(subtleText, "mt-1")}>نوع فایل را انتخاب کنید و سپس فایل را بارگذاری کنید.</p>
+            </div>
 
-              <Label className="mt-4">نوع فایل</Label>
-              <Dropdown onChange={handleSelectChange} value={type}>
-                <Dropdown.Trigger className="w-full">
-                  <Button
-                    as="span"
-                    role="button"
-                    variant="ghost"
-                    className="flex items-center justify-between w-full pl-10
-                      text-gray-700 border border-gray-300 
-                      rounded-lg dark:border-buttonBorderColor-dark focus:outline-none 
-                      dark:text-gray-100 appearance-none relative bg-bgColor dark:bg-bgColor-dark"
-                  >
-                    <span>{type !== "" ? type : "انتخاب"}</span>
-                  </Button>
-                </Dropdown.Trigger>
+            <div className="p-5 space-y-5">
+              <Field label="نوع فایل">
+                <div className="relative">
+                  <Dropdown onChange={handleSelectChange} value={type}>
+                    <Dropdown.Trigger className="w-full">
+                      <Button
+                        as="span"
+                        role="button"
+                        variant="ghost"
+                        className={cx(
+                          "w-full h-12 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+                          "bg-boxColor dark:bg-boxColor-dark",
+                          "flex items-center justify-between px-4",
+                          "text-titleText dark:text-titleText-dark"
+                        )}
+                      >
+                        <span>{type ? type : "انتخاب"}</span>
+                      </Button>
+                    </Dropdown.Trigger>
 
-                <Dropdown.Options
-                  className="absolute left-0 mt-2 w-72 pl-2 pr-2
-                    text-gray-700 bg-white dark:bg-buttonColor-dark
-                    border border-gray-300 dark:border-buttonBorderColor-dark 
-                    rounded-lg dark:text-gray-100 appearance-none z-50
-                    max-h-60 overflow-y-auto"
-                >
-                  <Dropdown.Option value="اساسنامه" key="option1">
-                    {({ selected, active }) => (
-                      <MenuItem
-                        isActive={active}
-                        isSelected={selected}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "اساسنامه"
-                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                          : ""
-                          }`}
-                      >
-                        <MenuItem.Title>اساسنامه</MenuItem.Title>
-                      </MenuItem>
-                    )}
-                  </Dropdown.Option>
-                  <Dropdown.Option value="صورت مالی" key="option2">
-                    {({ active }) => (
-                      <MenuItem
-                        isActive={active}
-                        className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${type === "صورت مالی"
-                          ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                          : ""
-                          }`}
-                      >
-                        <MenuItem.Title>صورت مالی</MenuItem.Title>
-                      </MenuItem>
-                    )}
-                  </Dropdown.Option>
-                </Dropdown.Options>
-              </Dropdown>
+                    <Dropdown.Options
+                      className={cx(
+                        "absolute left-0 mt-2 w-full p-2 z-50",
+                        "rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark",
+                        "bg-white dark:bg-buttonColor-dark",
+                        "max-h-60 overflow-y-auto"
+                      )}
+                    >
+                      {["اساسنامه", "صورت مالی"].map((v) => (
+                        <Dropdown.Option value={v} key={v}>
+                          {({ selected, active }) => (
+                            <MenuItem
+                              isActive={active}
+                              isSelected={selected}
+                              className={cx(
+                                "rounded-lg border mt-1 mb-1",
+                                "border-gray-100 dark:border-buttonBorderColor-dark",
+                                type === v && "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                              )}
+                            >
+                              <MenuItem.Title>{v}</MenuItem.Title>
+                            </MenuItem>
+                          )}
+                        </Dropdown.Option>
+                      ))}
+                    </Dropdown.Options>
+                  </Dropdown>
+
+                  <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
+                </div>
+              </Field>
 
               {type === "صورت مالی" ? (
-                <div>
-                  <Label className="mt-4">عنوان</Label>
+                <Field label="عنوان / سال">
                   <PersianYearSelect
-                    onChange={(e) => {
-                      if (e !== null) {
-                        SetFinancialName(e);
-                      } else {
-                        SetFinancialName(0);
-                      }
-                    }}
+                    onChange={(e) => SetFinancialName(e !== null ? e : 0)}
                     value={FinancialName}
                   />
-                </div>
+                </Field>
               ) : null}
 
-              {/* ✅ NEW: اینپوت فقط‌خوان برای نمایش نام فایل + دکمه انتخاب فایل */}
-              <div className="items-center gap-2">
-                <Label className="mt-4">بارگذاری</Label>
-                <label className="block cursor-pointer p-2 rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark shadow-sm">
-                  <span
-                    className="block truncate text-start"
-                    title={fileName || "انتخاب فایل"}
-                  >
-                    {fileName || "انتخاب فایل"}
-                  </span>
-                  <input
-                    type="file"
-                    accept="*/*" // یا این خط رو کاملاً حذف کن
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-              </div>
+              <Field label="بارگذاری فایل">
+                <div
+                  onDrop={onDrop}
+                  onDragOver={onDragOver}
+                  onDragLeave={onDragLeave}
+                  className={cx(
+                    "rounded-2xl border-2 border-dashed p-4",
+                    "bg-boxColor/20 dark:bg-boxColor-dark/20",
+                    "border-boxBorderColor dark:border-boxBorderColor-dark",
+                    isDragging && "border-primary dark:border-primary-dark bg-primary/5 dark:bg-primary-dark/10"
+                  )}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="font-semibold  text-titleText dark:text-titleText-dark">فایل را بکشید و رها کنید</p>
+                      <p className={cx(subtleText, "mt-1")}>
+                        یا از دکمه «انتخاب فایل» استفاده کنید.
+                      </p>
+                      <p className={cx("mt-2 text-sm", fileName ? "text-titleText dark:text-titleText-dark" : subtleText)}>
+                        {fileName ? `انتخاب شده: ${fileName}` : "هنوز فایلی انتخاب نشده"}
+                      </p>
+                    </div>
+
+                    <div className="shrink-0">
+                      <label className="cursor-pointer">
+                        <span
+                          className={cx(
+                            "inline-flex items-center justify-center",
+                            "h-10 px-4 rounded-xl",
+                            "border border-boxBorderColor dark:border-boxBorderColor-dark",
+                            "bg-white dark:bg-bgColor-dark",
+                            "text-titleText dark:text-titleText-dark",
+                            "hover:bg-boxColor/40 dark:hover:bg-boxColor-dark/40 transition"
+                          )}
+                        >
+                          انتخاب فایل
+                        </span>
+                        <input
+                          type="file"
+                          accept="*/*"
+                          onChange={handleFileChange}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </Field>
 
               <Button
                 variant="primary"
-                className="bg-primary dark:bg-primary-dark border text-white border-primary rounded-md w-full mt-4"
-                disabled={!file || loading}
+                className="w-full rounded-xl  text-titleText dark:text-titleText-dark"
+                disabled={!file || uploading}
                 onClick={uploadFile}
               >
-                {loading ? "در حال بارگذاری..." : "بارگذاری"}
+                {uploading ? "در حال بارگذاری..." : "بارگذاری"}
               </Button>
             </div>
           </Modal.Panel>
@@ -1552,174 +1352,161 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       </Modal>
 
       {/* تغییر مشخصات سکو */}
-      <Modal
-        open={isLogOpen}
-        onClose={() => {
-          setisLogOpen(false);
-        }}
-      >
+      <Modal open={isLogOpen} onClose={() => setisLogOpen(false)}>
         <Modal.Backdrop />
-        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-          <Modal.Panel className="w-full max-w-2xl rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
-            <h4 className="mb-2 mt-2">تغییرات مشخصات سکو</h4>
-            {LogLoading ? (
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
+          <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-16 overflow-hidden")}>
+            <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+              <h4 className={cx("text-xl font-extrabold", "text-titleText dark:text-titleText-dark")}>
+                تغییرات مشخصات سکو
+              </h4>
+              <p className={cx(subtleText, "mt-1")}>لاگ تغییرات اخیر نمایش داده می‌شود.</p>
+            </div>
+
+            <div className="p-5">
+              {LogLoading ? (
+                <div className="mt-2">
+                  <LoadingComponent />
+                </div>
+              ) : (
+                <LogViewer logs={Changes} />
+              )}
+
               <div className="mt-4">
-                <LoadingComponent />
+                <Pagination
+                  rtl
+                  totalItems={LogNumber}
+                  pageSize={10}
+                  currentPage={LogPage + 1}
+                  onPageChange={(e) => setLogPage(e - 1)}
+                />
               </div>
-            ) : (
-              <LogViewer logs={Changes} />
-            )}
-            <Pagination
-              rtl
-              totalItems={LogNumber}
-              pageSize={10}
-              currentPage={LogPage + 1}
-              onPageChange={(e) => {
-                setLogPage(e - 1);
-              }}
-            />
-            <div className="flex justify-end gap-4 w-full mt-2">
-              <button
-                onClick={() => {
-                  setisLogOpen(false);
-                }}
-                className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-              >
-                بستن
-              </button>
+
+              <div className="mt-4 flex justify-end">
+                <Button variant="ghost" className="rounded-xl" onClick={() => setisLogOpen(false)}>
+                  بستن
+                </Button>
+              </div>
             </div>
           </Modal.Panel>
         </div>
       </Modal>
 
       {/* Modal تأیید حذف اساسنامه */}
-      <Modal
-        open={confirmAssociationOpen}
-        onClose={() => {
-          if (!deleteLoading) setConfirmAssociationOpen(false);
-        }}
-      >
+      <Modal open={confirmAssociationOpen} onClose={() => !deleteLoading && setConfirmAssociationOpen(false)}>
         <Modal.Backdrop />
-        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-          <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
-            <p className="mb-4">
-              آیا از حذف اساسنامه سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="ghost"
-                disabled={deleteLoading}
-                onClick={() => setConfirmAssociationOpen(false)}
-              >
-                انصراف
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleConfirmDeleteAssociation}
-                disabled={deleteLoading}
-              >
-                {deleteLoading ? (
-                  <LoaderCircle size={8} color="border-white-500" />
-                ) : (
-                  "حذف"
-                )}
-              </Button>
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
+          <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-24 overflow-hidden")}>
+            <div className="p-5">
+              <p className="font-semibold mb-2 text-titleText dark:text-titleText-dark">
+                حذف اساسنامه
+              </p>
+              <p className={subtleText}>
+                آیا از حذف اساسنامه سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
+              </p>
+
+              <div className="mt-5 flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  disabled={deleteLoading}
+                  className="rounded-xl text-titleText dark:text-titleText-dark"
+                  onClick={() => setConfirmAssociationOpen(false)}
+                >
+                  انصراف
+                </Button>
+                <Button
+                  variant="primary"
+                  disabled={deleteLoading}
+                  className="rounded-xl bg-red-600 hover:bg-red-700 text-titleText dark:text-titleText-dark"
+                  onClick={handleConfirmDeleteAssociation}
+                >
+                  {deleteLoading ? <LoaderCircle size={8} color="border-white-500" /> : "حذف"}
+                </Button>
+              </div>
             </div>
           </Modal.Panel>
         </div>
       </Modal>
 
       {/* Modal تأیید حذف سکو */}
-      <Modal
-        open={confirmDeleteExchangeOpen}
-        onClose={() => {
-          if (!deleteLoading) setconfirmDeleteExchangeOpen(false);
-        }}
-      >
+      <Modal open={confirmDeleteExchangeOpen} onClose={() => !deleteLoading && setconfirmDeleteExchangeOpen(false)}>
         <Modal.Backdrop />
-        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-          <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[100px] text-titleText dark:text-titleText-dark p-4">
-            <p className="mb-4">
-              آیا از حذف سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
-            </p>
-            <small className="select-none">
-              نام سکوی مورد نظر ({name}) را در کادر زیر وارد کنید
-            </small>
-            <Input
-              className="p-0 mt-2 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md 
-                                    bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark 
-                                    shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
-              placeholder={name}
-              value={ConfirmDelete}
-              onChange={(e) =>
-                SetConfirmDelete(e.target.value)
-              }
-            />
-            <div className="flex justify-end gap-2 mt-4">
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
+          <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-20 overflow-hidden")}>
+            <div className="p-5">
+              <p className="font-semibold mb-2 text-titleText dark:text-titleText-dark">حذف سکو</p>
+              <p className={subtleText}>
+                آیا از حذف سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
+              </p>
 
-              <Button
-                variant="ghost"
-                disabled={deleteLoading}
-                onClick={() => setconfirmDeleteExchangeOpen(false)}
-                className="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-              >
-                انصراف
-              </Button>
-              <Button
-                variant="primary"
-                onClick={deleteExchange}
-                disabled={deleteLoading || name !== ConfirmDelete}
+              <div className="mt-4">
+                <small className={cx(subtleText, "select-none")}>
+                  نام سکوی مورد نظر (<b>{name}</b>) را در کادر زیر وارد کنید
+                </small>
 
-                className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
-              >
-                {ExchangedeleteLoading ? (
-                  <LoaderCircle size={8} color="border-white-500" />
-                ) : (
-                  "حذف"
-                )}
-              </Button>
+                <Input
+                  className={cx(inputBase, "mt-2")}
+                  placeholder={name}
+                  value={ConfirmDelete}
+                  onChange={(e) => SetConfirmDelete(e.target.value)}
+                />
+              </div>
 
+              <div className="mt-5 flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  disabled={ExchangedeleteLoading}
+                  className="rounded-xl text-titleText dark:text-titleText-dark"
+                  onClick={() => setconfirmDeleteExchangeOpen(false)}
+                >
+                  انصراف
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={deleteExchange}
+                  disabled={ExchangedeleteLoading || name !== ConfirmDelete}
+                  className="rounded-xl text-white bg-red-600 hover:bg-red-700"
+                >
+                  {ExchangedeleteLoading ? <LoaderCircle size={8} color="border-white-500" /> : "حذف"}
+                </Button>
+              </div>
             </div>
           </Modal.Panel>
         </div>
       </Modal>
 
       {/* Modal تأیید حذف صورت مالی */}
-      <Modal
-        open={confirmFinancialOpen}
-        onClose={() => {
-          if (!deleteLoading) setConfirmFinancialOpen(false);
-        }}
-      >
+      <Modal open={confirmFinancialOpen} onClose={() => !deleteLoading && setConfirmFinancialOpen(false)}>
         <Modal.Backdrop />
-        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-white/10">
-          <Modal.Panel className="w-full max-w-md rounded-lg bg-white dark:bg-bgColor-dark shadow-lg mt-[200px] text-titleText dark:text-titleText-dark p-4">
-            <p className="mb-4">
-              {`آیا از حذف صورت مالی ${financialToDelete?.date ?? ""
-                } مطمئن هستید؟ این عملیات قابل بازگشت نیست.`}
-            </p>
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="ghost"
-                disabled={deleteLoading}
-                onClick={() => {
-                  setConfirmFinancialOpen(false);
-                  setFinancialToDelete(null);
-                }}
-              >
-                انصراف
-              </Button>
-              <Button
-                variant="primary"
-                onClick={handleConfirmDeleteFinancial}
-                disabled={deleteLoading}
-              >
-                {deleteLoading ? (
-                  <LoaderCircle size={8} color="border-white-500" />
-                ) : (
-                  "حذف"
-                )}
-              </Button>
+        <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
+          <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-24 overflow-hidden")}>
+            <div className="p-5">
+              <p className="font-semibold mb-2">حذف صورت مالی</p>
+              <p className={subtleText}>
+                {`آیا از حذف صورت مالی ${financialToDelete?.date ?? ""} مطمئن هستید؟ این عملیات قابل بازگشت نیست.`}
+              </p>
+
+              <div className="mt-5 flex justify-end gap-2">
+                <Button
+                  variant="ghost"
+                  disabled={deleteLoading}
+                  className="rounded-xl"
+                  onClick={() => {
+                    setConfirmFinancialOpen(false);
+                    setFinancialToDelete(null);
+                  }}
+                >
+                  انصراف
+                </Button>
+                <Button
+                  variant="primary"
+                  disabled={deleteLoading}
+                  className="rounded-xl text-white bg-red-600 hover:bg-red-700"
+                  onClick={handleConfirmDeleteFinancial}
+                >
+                  {deleteLoading ? <LoaderCircle size={8} color="border-white-500" /> : "حذف"}
+                </Button>
+              </div>
             </div>
           </Modal.Panel>
         </div>

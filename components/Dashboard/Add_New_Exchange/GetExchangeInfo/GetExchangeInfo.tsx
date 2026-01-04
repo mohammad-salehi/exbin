@@ -239,6 +239,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             <Field label="نام سکو" required hint="حداکثر ۲۰۰ کاراکتر">
               <Input
+                id="exchange_name"
                 value={name}
                 onChange={(e) => Setname(e.target.value)}
                 placeholder="نام سکو"
@@ -248,6 +249,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="نام حقوقی سکو" required hint="حداکثر ۲۰۰ کاراکتر">
               <Input
+                id="exchange_legal_name"
                 value={legalName}
                 onChange={(e) => SetlegalName(e.target.value)}
                 placeholder="نام حقوقی سکو"
@@ -257,6 +259,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="شناسه ملی سکو" required hint="دقیقاً ۱۱ رقم">
               <Input
+                id="exchange_national_code"
                 value={nationalCode}
                 onChange={(e) => {
                   if (validateNumbers(e.target.value)) SetnationalCode(e.target.value)
@@ -277,6 +280,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                 render={(val, openCalendar) => (
                   <div className="relative">
                     <Input
+                      id="exchange_establishment_date"
                       readOnly
                       value={val}
                       onClick={openCalendar}
@@ -441,6 +445,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="کد اقتصادی" required hint="بین ۱۱ تا ۱۶ رقم">
               <Input
+                id="exchange_financial_code"
                 value={financialCode}
                 onChange={(e) => {
                   if (validateNumbers(e.target.value)) SetfinancialCode(e.target.value)
@@ -452,6 +457,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="آدرس سایت" required hint="مثال: example.com">
               <Input
+                id="exchange_site_address"
                 value={siteAddress}
                 onChange={(e) => SetsiteAddress(e.target.value)}
                 placeholder="آدرس سایت"
@@ -461,6 +467,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="شماره ثبت" required hint="۶ رقم (۱۰۰۰۰۰ تا ۹۹۹۹۹۹)">
               <Input
+                id="exchange_registration_number"
                 type="text"
                 value={registrationNumber}
                 onChange={(e) => {
@@ -473,6 +480,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="شماره تماس" required>
               <Input
+                id="exchange_phone_number"
                 value={phoneNumber}
                 onChange={(e) => {
                   if (validateNumbers(e.target.value)) SetphoneNumber(e.target.value)
@@ -500,6 +508,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
                 <span className="text-xs text-gray-500 dark:text-gray-400">Upload</span>
 
                 <input
+                  id="exchange_logo"
                   type="file"
                   accept="image/png, image/jpeg, image/jpg, image/gif"
                   onChange={handleFileChange}
@@ -510,6 +519,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="شماره تماس اضطراری">
               <Input
+                id="exchange_emergency_phone_number"
                 value={emergencyPhoneNumber}
                 onChange={(e) => {
                   if (validateNumbers(e.target.value)) SetemergencyPhoneNumber(e.target.value)
@@ -521,6 +531,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="ایمیل سکو" hint="اختیاری">
               <Input
+                id="exchange_email"
                 style={{ direction: 'ltr' }}
                 value={email}
                 onChange={(e) => Setemail(e.target.value)}
@@ -531,6 +542,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="آدرس دفتر رسمی" hint="حداکثر ۱۰۰۰ کاراکتر">
               <Input
+                id="exchange_office_address"
                 value={officeAddress}
                 onChange={(e) => SetofficeAddress(e.target.value)}
                 placeholder="آدرس دفتر رسمی"
@@ -540,6 +552,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
 
             <Field label="کد پستی" hint="۱۰ رقم (اختیاری)">
               <Input
+                id="exchange_zip_code"
                 value={zipCode}
                 onChange={(e) => {
                   if (validateNumbers(e.target.value)) SetzipCode(e.target.value)

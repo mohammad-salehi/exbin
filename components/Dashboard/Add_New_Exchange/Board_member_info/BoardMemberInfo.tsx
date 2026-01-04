@@ -321,6 +321,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="نام و نام‌خانوادگی" required hint="حداکثر ۲۰۰ کاراکتر">
                 <Input
+                  id="boardmember_full_name"
                   className={inputBaseClass}
                   value={form.name}
                   onChange={(e) => handleChange("name", e.target.value)}
@@ -330,6 +331,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="شماره همراه" required hint="۱۱ رقم و با ۰ شروع شود">
                 <Input
+                  id="boardmember_phone_number"
                   className={inputBaseClass}
                   value={form.phoneNumber}
                   onChange={(e) => {
@@ -341,6 +343,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="کد ملی" required hint="دقیقاً ۱۰ رقم">
                 <Input
+                  id="boardmember_national_code"
                   className={inputBaseClass}
                   value={form.nationalCode}
                   onChange={(e) => {
@@ -412,6 +415,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="سوابق تحصیلی" hint="اختیاری (حداکثر ۱۰۰۰ کاراکتر)">
                 <textarea
+                  id="boardmember_educational_history"
                   className={textareaClass}
                   value={form.educationalHistory}
                   onChange={(e) => handleChange("educationalHistory", e.target.value)}
@@ -421,6 +425,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="سوابق شغلی" hint="اختیاری (حداکثر ۱۰۰۰ کاراکتر)">
                 <textarea
+                  id="boardmember_career_history"
                   className={textareaClass}
                   value={form.careerHistory}
                   onChange={(e) => handleChange("careerHistory", e.target.value)}
@@ -430,6 +435,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="درصد سهام" required hint="بین ۰ تا ۱۰۰ (اعشار مجاز)">
                 <Input
+                  id="boardmember_share_percentage"
                   className={inputBaseClass}
                   type="text"
                   value={form.sharePercentage ?? ""}
@@ -452,6 +458,7 @@ const BoardMemberInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="ایمیل" hint="اختیاری">
                 <Input
+                  id="boardmember_email"
                   className={inputBaseClass}
                   value={form.email}
                   onChange={(e) => handleChange("email", e.target.value)}

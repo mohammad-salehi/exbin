@@ -187,6 +187,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
         <div className="mt-5 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           <Field label="نام و نام‌خانوادگی" required hint="حداکثر ۲۰۰ کاراکتر">
             <Input
+              id="ceo_full_name"
               value={name}
               onChange={(e) => Setname(e.target.value)}
               placeholder="نام و نام‌خانوادگی"
@@ -196,6 +197,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
           <Field label="شماره همراه" required hint="۱۱ رقم و با ۰ شروع شود">
             <Input
+              id="ceo_phone_number"
               value={phoneNumber}
               onChange={(e) => {
                 if (validateNumbers(e.target.value)) SetphoneNumber(e.target.value);
@@ -207,6 +209,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
           <Field label="کد ملی" required hint="دقیقاً ۱۰ رقم">
             <Input
+              id="ceo_national_code"
               value={nationalCode}
               onChange={(e) => {
                 if (validateNumbers(e.target.value)) SetnationalCode(e.target.value);
@@ -218,6 +221,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
           <Field label="سوابق تحصیلی" hint="اختیاری (حداکثر ۱۰۰۰ کاراکتر)">
             <Input
+              id="ceo_educational_history"
               value={educationalHistory}
               onChange={(e) => SeteducationalHistory(e.target.value)}
               placeholder="سوابق تحصیلی"
@@ -227,6 +231,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
           <Field label="سوابق شغلی" hint="اختیاری (حداکثر ۱۰۰۰ کاراکتر)">
             <Input
+              id="ceo_career_history"
               value={careerHistory}
               onChange={(e) => SetcareerHistory(e.target.value)}
               placeholder="سوابق شغلی"
@@ -236,6 +241,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
           <Field label="درصد سهام" required hint="بین ۰ تا ۱۰۰ (اعشار مجاز)">
             <Input
+              id="ceo_share_percentage"
               type="text"
               value={sharePercentage ?? ""}
               onChange={(e) => {
@@ -258,6 +264,7 @@ const Get_CEO_info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
           <Field label="ایمیل" hint="اختیاری">
             <Input
+              id="ceo_email"
               value={email}
               onChange={(e) => Setemail(e.target.value)}
               placeholder="example@domain.com"

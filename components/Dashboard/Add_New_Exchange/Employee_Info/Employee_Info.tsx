@@ -359,6 +359,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
             <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="نام و نام‌خانوادگی" required hint="حداکثر ۲۰۰ کاراکتر">
                 <Input
+                  id="employee_full_name"
                   className={inputBaseClass}
                   value={form.name}
                   onChange={(e) => handleChange("name", e.target.value)}
@@ -368,6 +369,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="شماره همراه" required hint="۱۱ رقم و با ۰ شروع شود">
                 <Input
+                  id="employee_phone_number"
                   className={inputBaseClass}
                   value={form.phoneNumber}
                   onChange={(e) => {
@@ -379,6 +381,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="کد ملی" required hint="دقیقاً ۱۰ رقم">
                 <Input
+                  id="employee_national_code"
                   className={inputBaseClass}
                   value={form.nationalCode}
                   onChange={(e) => {
@@ -390,6 +393,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="سمت" required hint="حداکثر ۱۰۰ کاراکتر">
                 <Input
+                  id="employee_job_position"
                   className={inputBaseClass}
                   value={form.jobPosition}
                   onChange={(e) => handleChange("jobPosition", e.target.value)}
@@ -399,6 +403,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="سوابق تحصیلی" hint="اختیاری (حداکثر ۱۰۰۰ کاراکتر)">
                 <textarea
+                  id="employee_educational_history"
                   className={textareaClass}
                   value={form.educationalHistory}
                   onChange={(e) => handleChange("educationalHistory", e.target.value)}
@@ -408,6 +413,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
 
               <Field label="سوابق شغلی" hint="اختیاری (حداکثر ۱۰۰۰ کاراکتر)">
                 <textarea
+                  id="employee_career_history"
                   className={textareaClass}
                   value={form.careerHistory}
                   onChange={(e) => handleChange("careerHistory", e.target.value)}
@@ -416,7 +422,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               </Field>
 
               <Field label="تاریخ شروع به کار" hint="اختیاری">
-                <div className="mt-1">
+                <div className="mt-1" id="employee_start_date">
                   <JalaliLocalDatePicker
                     value={form.startDate}
                     onChange={(val) =>
@@ -431,7 +437,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               </Field>
 
               <Field label="تاریخ شروع بیمه" hint="اختیاری">
-                <div className="mt-1">
+                <div className="mt-1" id="employee_insurance_start_date">
                   <JalaliLocalDatePicker
                     value={form.insuranceStartDate}
                     onChange={(val) =>
@@ -446,7 +452,7 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
               </Field>
 
               <Field label="تاریخ پایان بیمه" hint="اختیاری">
-                <div className="mt-1">
+                <div className="mt-1" id="employee_insurance_end_date">
                   <JalaliLocalDatePicker
                     value={form.insuranceEndDate}
                     onChange={(val) =>
@@ -464,12 +470,12 @@ const Employee_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) => {
                 <div className="flex items-center gap-3 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-boxColor-dark px-4 py-3">
                   <input
                     type="checkbox"
-                    id="isSpecialAccess"
+                    id="employee_is_special_access"
                     checked={form.isSpecialAccess === true}
                     onChange={(e) => handleChange("isSpecialAccess", e.target.checked)}
                     className="w-4 h-4 accent-primary cursor-pointer"
                   />
-                  <label htmlFor="isSpecialAccess" className="cursor-pointer text-sm font-semibold">
+                  <label htmlFor="employee_is_special_access" className="cursor-pointer text-sm font-semibold">
                     دسترسی خاص
                   </label>
                   <span className="text-xs text-gray-500 dark:text-gray-400">

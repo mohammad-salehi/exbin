@@ -115,24 +115,24 @@ export function LogViewer({ logs }: { logs: any }) {
       {rows.length === 0 ? (
         <p className="text-gray-500 text-sm">هیچ تغییری ثبت نشده است.</p>
       ) : (
-        <div className="max-h-96 overflow-y-auto overflow-x-auto border border-boxBorderColor dark:border-boxBorderColor-dark rounded-md w-full">
+        <div className="max-h-96 overflow-y-auto overflow-x-auto border border-boxBorderColor dark:border-boxBorderColor-dark rounded-md w-full  text-titleText dark:text-titleText-dark">
           {/* 👇 جدول تمام عرض */}
           <table className="min-w-full w-full text-sm table-auto border-collapse">
             <thead className="bg-boxBorderColor dark:bg-boxBorderColor-dark sticky top-0">
               <tr>
-                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-36">
+                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-36  text-titleText dark:text-titleText-dark">
                   کاربر
                 </th>
-                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-48">
+                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-48 text-titleText dark:text-titleText-dark">
                   تاریخ
                 </th>
-                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-40">
+                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark w-40 text-titleText dark:text-titleText-dark">
                   پارامتر
                 </th>
-                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark">
                   قبل
                 </th>
-                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+                <th className="px-3 py-2 text-right border-b border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark">
                   بعد
                 </th>
               </tr>
@@ -140,19 +140,19 @@ export function LogViewer({ logs }: { logs: any }) {
             <tbody>
               {rows.map((r, i) => (
                 <tr key={i}>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top">
+                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top text-titleText dark:text-titleText-dark">
                     {r.username}
                   </td>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top whitespace-nowrap">
+                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top whitespace-nowrap text-titleText dark:text-titleText-dark">
                     {r.dateTime}
                   </td>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top font-semibold text-blue-700">
+                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top font-semibold  text-titleText dark:text-titleText-dark">
                     {r.field}
                   </td>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top text-gray-600">
+                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top  text-titleText dark:text-titleText-dark">
                     {r.newValue}
                   </td>
-                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top text-gray-600">
+                  <td className="px-3 py-2 border-b border-boxBorderColor dark:border-boxBorderColor-dark align-top  text-titleText dark:text-titleText-dark">
                     {r.oldValue}
                   </td>
                 </tr>

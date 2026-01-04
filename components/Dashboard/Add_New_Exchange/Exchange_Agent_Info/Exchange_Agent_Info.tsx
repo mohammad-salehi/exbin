@@ -257,6 +257,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
             <div className="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="نام و نام‌خانوادگی" required hint="حداکثر ۲۰۰ کاراکتر">
                 <Input
+                  id="agent_full_name"
                   className={inputBaseClass}
                   value={form.name}
                   onChange={(e) => handleChange("name", e.target.value)}
@@ -266,6 +267,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
 
               <Field label="شماره همراه" required hint="۱۱ رقم و با ۰ شروع شود">
                 <Input
+                  id="agent_phone_number"
                   className={inputBaseClass}
                   value={form.phoneNumber}
                   onChange={(e) => {
@@ -277,6 +279,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
 
               <Field label="کد ملی" required hint="دقیقاً ۱۰ رقم">
                 <Input
+                  id="agent_national_code"
                   className={inputBaseClass}
                   value={form.nationalCode}
                   onChange={(e) => {
