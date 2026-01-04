@@ -233,8 +233,7 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
                                     {
                                         uniqueUserCount ?
                                             <div>
-                                                {/* {uniqueUserCount.toLocaleString()} */}
-                                                12312312
+                                                {uniqueUserCount.toLocaleString()}
                                             </div>
                                             :
                                             <span className="text-[11px] font-semibold text-gray-600 dark:text-gray-300">نامشخص</span>
