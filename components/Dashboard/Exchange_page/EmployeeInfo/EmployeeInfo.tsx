@@ -462,7 +462,6 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             <h5 className="font-extrabold text-lg text-titleText dark:text-titleText-dark">
               مشخصات کارمندان
             </h5>
-            <p className={cx(subtleText, "mt-1")}>حداکثر ۱۰ ردیف در هر صفحه نمایش داده می‌شود.</p>
           </div>
 
           <Button id="addNewEmployee" variant="primary" onClick={openAdd} className="rounded-xl text-titleText dark:text-titleText-dark">
