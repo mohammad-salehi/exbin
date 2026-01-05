@@ -836,7 +836,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
   };
 
   // ✅ wrappers to force equal height per row (items stretch)
-  const rowGrid3 = "grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4 items-stretch";
+  const rowGrid3 = "grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4 items-stretch";
   const rowGrid2_1 = "grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4 items-stretch";
   const cardStretch = "h-full min-h-full flex flex-col";
 
@@ -931,25 +931,6 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         <div className={cx(cardStretch, "xl:col-span-1")}>
           <MemoCircleChart data={TopTradedcryptocurrencies} title="حجم معاملات رمزارزها" unit="USDT" />
         </div>
-
-        <div className={cx(cardStretch, "xl:col-span-2")}>
-          <MemoTreeMap data={Topcryptocurrencies} title="حجم دارایی رمزارزها" />
-        </div>
-      </div>
-
-      {/* Row 2 */}
-      <div className={rowGrid2_1}>
-        <div className={cx(cardStretch, "xl:col-span-2")}>
-          <MemoDoubleLinearChart
-            data={PORHistory}
-            title="تاریخچه نسبت دارایی به بدهی"
-            unitSuffix="M"
-            assetLabel="دارایی"
-            liabilityLabel="بدهی"
-            ShowSummary={false}
-          />
-        </div>
-
         <div className={cx(cardStretch, "xl:col-span-1")}>
           <MemoCircleChart
             data={DailyPOR}
@@ -959,20 +940,27 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             value={DailyPOR.length !== 0 ? DailyPOR[0].value - DailyPOR[1].value : null}
           />
         </div>
+        <div className={cx(cardStretch, "xl:col-span-2")}>
+          <MemoTreeMap data={Topcryptocurrencies} title="حجم دارایی رمزارزها" />
+        </div>
+      </div>
+
+      {/* Row 2 */}
+      <div className={rowGrid2_1}>
+        <div className={cx(cardStretch, "xl:col-span-3")}>
+          <MemoDoubleLinearChart
+            data={PORHistory}
+            title="تاریخچه نسبت دارایی به بدهی"
+            unitSuffix="M"
+            assetLabel="دارایی"
+            liabilityLabel="بدهی"
+            ShowSummary={false}
+          />
+        </div>
       </div>
 
       {/* Row 3 */}
       <div className={rowGrid3}>
-        <div className={cx(cardStretch, "xl:col-span-1")}>
-          <MemoCircleChart
-            data={DailyWithDep}
-            title="واریز و برداشت‌های رمزارزی روزانه"
-            unit="USDT"
-            description="برایند واریز و برداشت‌ها محاسبه شده است!"
-            value={DailyWithDep.length !== 0 ? DailyWithDep[0].value - DailyWithDep[1].value : null}
-          />
-        </div>
-
         <div className={cx(cardStretch, "xl:col-span-2")}>
           <MemoDoubleLinearChart
             data={DepWithHistory}
@@ -1003,16 +991,6 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             useLastItemForNet
             headerLink={{ href: `/panel/rial-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های ریالی سکو" }}
             ShowSummary={false}
-          />
-        </div>
-
-        <div className={cx(cardStretch, "xl:col-span-1")}>
-          <MemoCircleChart
-            data={DailyIRRWithDep}
-            title="واریز و برداشت‌های ریالی روزانه"
-            unit="IRR"
-            description="برایند واریز و برداشت‌ها محاسبه شده است!"
-            value={DailyIRRWithDep.length !== 0 ? DailyIRRWithDep[0].value - DailyIRRWithDep[1].value : null}
           />
         </div>
       </div>

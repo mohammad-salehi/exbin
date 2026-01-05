@@ -413,7 +413,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mt-4 pb-4">
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 pb-4">
         <div>
           <MemoCircleChart
             data={IRRtoUSDT}

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Treemap, ResponsiveContainer, Tooltip } from 'recharts';
 
 type VolumeItem = {
@@ -12,6 +12,7 @@ type VolumeItem = {
 type Props = {
   data: VolumeItem[];
   title: string;
+  height?: number; // اختیاری برای کنترل ارتفاع (مثل بقیه چارت‌ها)
 };
 
 const TREEMAP_COLORS = [
@@ -21,24 +22,33 @@ const TREEMAP_COLORS = [
   '#F43F5E', '#EC4899', '#D946EF', '#A855F7', '#8B5CF6',
 ];
 
-const CustomTreemapCell: React.FC<any> = (props) => {
-  const { x, y, width, height, name, payload, stroke, index, depth, total, value } = props;
+const formatEN = (n: number) => {
+  if (n === null || n === undefined || Number.isNaN(Number(n))) return '—';
+  return Number(n).toLocaleString('en-US');
+};
 
-  const symbol = payload?.symbol ?? name;
+const formatFA = (n: number) => {
+  if (n === null || n === undefined || Number.isNaN(Number(n))) return '—';
+  return Number(n).toLocaleString('fa-IR');
+};
+
+const CustomTreemapCell: React.FC<any> = (props) => {
+  const { x, y, width, height, name, payload, index, depth, total, value } = props;
+
+  const symbol = payload?.symbol ?? name ?? '';
   const cellValue: number = Number(payload?.value ?? value ?? 0);
 
   const baseColor =
-    depth === 1 ? TREEMAP_COLORS[index % TREEMAP_COLORS.length] : '#E5E7EB';
+    depth === 1 ? TREEMAP_COLORS[index % TREEMAP_COLORS.length] : 'rgba(255,255,255,0.08)';
 
-  const showLabel = width > 70 && height > 40;
+  // جلوگیری از شلوغی: نمایش متن فقط وقتی جا هست
+  const showMain = width > 80 && height > 46;
+  const showSub = width > 110 && height > 72;
 
   const percent = total ? (cellValue / total) * 100 : 0;
-  const percentLabel = `${percent.toFixed(1)}٪`;
 
-  const formattedValue = `${cellValue.toLocaleString('en-US')} USDT`;
-
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
+  const cx = x + width / 2;
+  const cy = y + height / 2;
 
   return (
     <g>
@@ -48,116 +58,205 @@ const CustomTreemapCell: React.FC<any> = (props) => {
         width={width}
         height={height}
         fill={baseColor}
-        stroke={stroke || '#ffffff'}
-        rx={6}
-        ry={6}
+        stroke="rgba(255,255,255,0.9)"
+        strokeWidth={1}
+        rx={12}
+        ry={12}
       />
-      {showLabel && (
+
+      {/* لایه‌ی لطیف برای خوانایی متن */}
+      <rect
+        x={x + 6}
+        y={y + 6}
+        width={Math.max(0, width - 12)}
+        height={Math.max(0, height - 12)}
+        fill="rgba(0,0,0,0.06)"
+        rx={10}
+        ry={10}
+        opacity={showMain ? 1 : 0}
+      />
+
+      {showMain && (
         <text
-          x={centerX}
-          y={centerY}
+          x={cx}
+          y={cy}
           textAnchor="middle"
           dominantBaseline="central"
           fill="#FFFFFF"
-          stroke="none"
-          style={{ paintOrder: 'normal' }}
+          style={{
+            paintOrder: 'stroke',
+            stroke: 'rgba(0,0,0,0.25)',
+            strokeWidth: 3,
+          }}
         >
-          <tspan x={centerX} dy="-0.6em" fontSize={14} fontWeight={500}>
+          <tspan x={cx} dy={showSub ? '-0.8em' : '-0.25em'} fontSize={14} fontWeight={700}>
             {symbol}
           </tspan>
 
-          <tspan x={centerX} dy="1.2em" fontSize={11} fontWeight={400}>
-            {formattedValue}
-          </tspan>
+          {showSub && (
+            <>
+              <tspan x={cx} dy="1.35em" fontSize={11} fontWeight={500} opacity={0.95}>
+                {formatEN(cellValue)} USDT
+              </tspan>
 
-          <tspan x={centerX} dy="1.2em" fontSize={11} fontWeight={300}>
-            {percentLabel}
-          </tspan>
+              <tspan x={cx} dy="1.2em" fontSize={11} fontWeight={400} opacity={0.85}>
+                {percent.toFixed(1)}٪
+              </tspan>
+            </>
+          )}
         </text>
       )}
     </g>
   );
 };
 
-export const CryptoVolumeTreemap: React.FC<Props> = ({ data, title }) => {
+export const CryptoVolumeTreemap: React.FC<Props> = ({ data, title, height = 340 }) => {
   const currentData = data ?? [];
-  const totalValue = currentData.reduce((sum, item) => sum + Number(item.value || 0), 0);
-  const formattedTotal = `${totalValue.toLocaleString('en-US')} USDT`;
+
+  const totalValue = useMemo(
+    () => currentData.reduce((sum, item) => sum + Number(item.value || 0), 0),
+    [currentData]
+  );
+
+  const formattedTotal = `${formatEN(totalValue)} USDT`;
 
   return (
     <div
-      className="w-full rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-gohan p-4 bg-boxColor dark:bg-boxColor-dark"
       dir="rtl"
+      className="
+        w-full h-full min-h-full
+        rounded-2xl
+        border border-boxBorderColor dark:border-boxBorderColor-dark
+        bg-boxColor dark:bg-boxColor-dark
+        shadow-sm
+        p-5 md:p-6
+        text-titleText dark:text-titleText-dark
+        flex flex-col
+        transition
+        hover:shadow-md
+      "
     >
-      {/* هدر: فقط عنوان */}
-      <div className="mb-4 flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-baseline gap-2">
-          <h2 className="text-titleText dark:text-titleText-dark mb-1">{title}</h2>
+      {/* Header */}
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="
+              h-10 w-10 rounded-2xl
+              bg-white/60 dark:bg-white/10
+              border border-black/5 dark:border-white/10
+              flex items-center justify-center
+              shrink-0
+            "
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M4 19V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                className="text-titleText dark:text-titleText-dark"
+              />
+              <path
+                d="M8 17v-5m4 5V7m4 10v-3"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                className="text-titleText dark:text-titleText-dark"
+              />
+            </svg>
+          </div>
+
+          <div className="min-w-0">
+            <h2 className="text-moon-18 md:text-moon-20 font-bold truncate">{title}</h2>
+            <p className="mt-0.5 text-[12px] text-titleText/60 dark:text-titleText-dark/60">
+              نمایش سهم حجمی دارایی‌ها در قالب Treemap
+            </p>
+          </div>
+        </div>
+
+        {/* Total chip */}
+        <div
+          className="
+            inline-flex items-center gap-2
+            rounded-full
+            border border-black/10 dark:border-white/10
+            bg-white/50 dark:bg-white/5
+            px-3 py-2
+            text-xs
+            self-start sm:self-auto
+          "
+        >
+          <span className="opacity-70">مجموع</span>
+          <span dir="ltr" className="font-semibold">
+            {formattedTotal}
+          </span>
         </div>
       </div>
 
-      {/* نمودار TreeMap */}
-      <div className="h-[260px] md:h-[340px]">
-        {currentData.length === 0 ? (
-          <div className="flex h-full items-center justify-center text-sm text-titleText dark:text-titleText-dark">
-            اطلاعاتی برای نمایش موجود نیست.
-          </div>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <Treemap
-              data={currentData}
-              dataKey="value"
-              nameKey="symbol"
-              stroke="#ffffff"
-              aspectRatio={4 / 3}
-              content={(props) => <CustomTreemapCell {...props} total={totalValue} />}
-            >
-              <Tooltip
-                content={({ active, payload }) => {
-                  if (!active || !payload || !payload[0]) return null;
-                  const d = payload[0].payload as any;
-                  return (
-                    <div className="rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark px-3 py-2 text-xs shadow-lg bg-bgColor dark:bg-bgColor-dark text-titleText dark:text-titleText-dark">
-                      <div className="text-moon-14 mb-1">
-                        {d.name} ({d.symbol})
+      {/* Chart area — flex-1 برای پر کردن ارتفاع ردیف */}
+      <div className="flex-1 min-h-[220px] w-full">
+        <div
+          className="
+            h-full w-full
+            rounded-2xl
+            border border-black/5 dark:border-white/10
+            bg-white/40 dark:bg-white/5
+            p-3 md:p-4
+          "
+          style={{ height: Math.max(220, height) }}
+        >
+          {currentData.length === 0 ? (
+            <div className="flex h-full items-center justify-center text-sm text-titleText/70 dark:text-titleText-dark/70">
+              اطلاعاتی برای نمایش موجود نیست.
+            </div>
+          ) : (
+            <ResponsiveContainer width="100%" height="100%">
+              <Treemap
+                data={currentData}
+                dataKey="value"
+                nameKey="symbol"
+                stroke="rgba(255,255,255,0.9)"
+                aspectRatio={4 / 3}
+                content={(props) => <CustomTreemapCell {...props} total={totalValue} />}
+              >
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload || !payload[0]) return null;
+                    const d = payload[0].payload as any;
+
+                    const v = Number(d.value || 0);
+                    const pct = totalValue > 0 ? (v / totalValue) * 100 : 0;
+
+                    return (
+                      <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-buttonColor-dark px-3 py-2 text-xs text-titleText dark:text-titleText-dark shadow-lg">
+                        <div className="mb-1 font-semibold">
+                          {d.name} <span className="opacity-70">({d.symbol})</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="opacity-80">حجم</span>
+                          <span dir="ltr" className="font-semibold">
+                            {formatEN(v)} USDT
+                          </span>
+                        </div>
+                        <div className="mt-1 flex items-center justify-between gap-4">
+                          <span className="opacity-80">سهم</span>
+                          <span dir="ltr" className="font-semibold">
+                            {pct.toFixed(1)}%
+                          </span>
+                        </div>
                       </div>
-                      <div className="text-moon-12 text-mutedText dark:text-mutedText-dark">
-                        حجم دارایی: {Number(d.value || 0).toLocaleString('en-US')} USDT
-                      </div>
-                    </div>
-                  );
-                }}
-              />
-            </Treemap>
-          </ResponsiveContainer>
-        )}
+                    );
+                  }}
+                />
+              </Treemap>
+            </ResponsiveContainer>
+          )}
+        </div>
       </div>
 
-      {/* مجموع */}
-      <div className="mt-2">
-        <span className="text-xs md:text-sm text-titleText dark:text-titleText-dark mt-4">
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            className="inline-block ml-1"
-          >
-            <path d="M12 17V11" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            <circle cx="1" cy="1" r="1" transform="matrix(1 0 0 -1 11 9)" fill="currentColor" />
-            <path
-              d="M7 3.33782C8.47087 2.48697 10.1786 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 10.1786 2.48697 8.47087 3.33782 7"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-            />
-          </svg>
-          مجموع:{' '}
-          <span className="font-semibold text-titleText dark:text-titleText-dark mr-2">
-            {formattedTotal}
-          </span>
-        </span>
+      {/* Footer (اختیاری: خیلی سبک) */}
+      <div className="mt-4 pt-4 border-t border-black/5 dark:border-white/10 text-[11px] sm:text-xs text-titleText/70 dark:text-titleText-dark/70">
+        تعداد آیتم‌ها: <span className="font-semibold text-titleText dark:text-titleText-dark">{formatFA(currentData.length)}</span>
       </div>
     </div>
   );

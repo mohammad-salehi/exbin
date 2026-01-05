@@ -20,13 +20,21 @@ type Props = {
     unit?: string;
     description?: string;
     value?: number | null;
-
-    // ✅ لینک اختیاری بالا-چپ
     link?: ChartLink;
 };
 
 const COLORS = ['#4F46E5', '#06B6D4', '#22C55E', '#F97316', '#EC4899', '#A855F7'];
 const MAX_SLICES = 5;
+
+const formatNumberFA = (n: number) => {
+    if (n === null || n === undefined || Number.isNaN(Number(n))) return '—';
+    return Number(n).toLocaleString('fa-IR');
+};
+
+const formatNumberEN = (n: number) => {
+    if (n === null || n === undefined || Number.isNaN(Number(n))) return '—';
+    return Number(n).toLocaleString('en-US');
+};
 
 export const CircleChart: React.FC<Props> = ({
     data,
@@ -50,7 +58,6 @@ export const CircleChart: React.FC<Props> = ({
         for (const item of data) {
             const v = Number(item.value) || 0;
             const percent = (v / totalRaw) * 100;
-
             if (percent >= MIN_PERCENT) visible.push({ label: item.label, value: v });
             else otherTotal += v;
         }
@@ -62,11 +69,9 @@ export const CircleChart: React.FC<Props> = ({
         otherTotal += rest.reduce((s, x) => s + x.value, 0);
 
         const result = [...top];
-
         if (otherTotal > 0 && (otherTotal / totalRaw) * 100 >= MIN_PERCENT) {
             result.push({ label: 'سایر', value: otherTotal });
         }
-
         return result;
     }, [data]);
 
@@ -75,43 +80,38 @@ export const CircleChart: React.FC<Props> = ({
         [processedData]
     );
 
+    // لیبل‌های بیرونی (همون منطق قبلی، با کمی نرم‌سازی)
     const lastYRef = useRef<{ left: number; right: number }>({ left: -1e9, right: -1e9 });
     const SMALL_PERCENT = 5;
-    const COLLIDE_GAP = 30;
+    const COLLIDE_GAP = 28;
 
     const renderLabel = (props: any) => {
         const RADIAN = Math.PI / 180;
-        const { cx, cy, midAngle, outerRadius, percent, index, payload, value } = props;
+        const { cx, cy, midAngle, outerRadius, percent, index, payload, value: sliceValue } = props;
 
         const sin = Math.sin(-RADIAN * midAngle);
         const cos = Math.cos(-RADIAN * midAngle);
 
-        const sx = cx + (outerRadius + 4) * cos;
-        const sy = cy + (outerRadius + 4) * sin;
+        const sx = cx + (outerRadius + 6) * cos;
+        const sy = cy + (outerRadius + 6) * sin;
 
-        const mx = cx + (outerRadius + 12) * cos;
-        const my = cy + (outerRadius + 12) * sin;
+        const mx = cx + (outerRadius + 16) * cos;
+        const my = cy + (outerRadius + 16) * sin;
 
-        const ex = cx + (outerRadius + 40) * (cos >= 0 ? 1 : -1);
+        const ex = cx + (outerRadius + 44) * (cos >= 0 ? 1 : -1);
         const ey = my;
 
         const textAnchor = cos >= 0 ? 'start' : 'end';
         const side = cos >= 0 ? 'right' : 'left';
 
-        const label: string = payload?.label ?? '';
-        const pct = total > 0 ? (value / total) * 100 : percent * 100;
-
         if (index === 0) lastYRef.current = { left: -1e9, right: -1e9 };
 
-        let dy = 0;
+        const pct = total > 0 ? (sliceValue / total) * 100 : percent * 100;
 
+        let dy = 0;
         if (pct < SMALL_PERCENT) {
             const lastY = side === 'right' ? lastYRef.current.right : lastYRef.current.left;
-
-            if (Math.abs(ey - lastY) < COLLIDE_GAP) {
-                dy = ey < lastY ? -20 : 20;
-            }
-
+            if (Math.abs(ey - lastY) < COLLIDE_GAP) dy = ey < lastY ? -18 : 18;
             const newY = ey + dy;
             if (side === 'right') lastYRef.current.right = newY;
             else lastYRef.current.left = newY;
@@ -122,7 +122,7 @@ export const CircleChart: React.FC<Props> = ({
         }
 
         const percentageText =
-            total > 0 ? ((value / total) * 100).toFixed(1) : (percent * 100).toFixed(1);
+            total > 0 ? ((sliceValue / total) * 100).toFixed(1) : (percent * 100).toFixed(1);
 
         const mx2 = mx;
         const my2 = my + dy;
@@ -131,25 +131,30 @@ export const CircleChart: React.FC<Props> = ({
 
         return (
             <g>
-                <path d={`M${sx},${sy}L${mx2},${my2}L${ex2},${ey2}`} stroke="#9CA3AF" fill="none" />
-                <circle cx={ex2} cy={ey2} r={2} fill="#9CA3AF" />
+                <path
+                    d={`M${sx},${sy}L${mx2},${my2}L${ex2},${ey2}`}
+                    stroke="currentColor"
+                    opacity={0.35}
+                    fill="none"
+                />
+                <circle cx={ex2} cy={ey2} r={2} fill="currentColor" opacity={0.45} />
 
                 <text
-                    x={ex2 + (cos >= 0 ? 4 : -4)}
-                    y={ey2 - 4}
+                    x={ex2 + (cos >= 0 ? 6 : -6)}
+                    y={ey2 - 2}
                     textAnchor={textAnchor}
                     fill="currentColor"
                     className="text-[11px] md:text-[12px] text-titleText dark:text-titleText-dark"
                 >
-                    {label}
+                    {payload?.label ?? ''}
                 </text>
 
                 <text
-                    x={ex2 + (cos >= 0 ? 4 : -4)}
-                    y={ey2 + 12}
+                    x={ex2 + (cos >= 0 ? 6 : -6)}
+                    y={ey2 + 14}
                     textAnchor={textAnchor}
                     fill="currentColor"
-                    className="text-[10px] md:text-[11px] text-titleText dark:text-titleText-dark"
+                    className="text-[10px] md:text-[11px] text-titleText/70 dark:text-titleText-dark/70"
                 >
                     {percentageText}%
                 </text>
@@ -157,125 +162,212 @@ export const CircleChart: React.FC<Props> = ({
         );
     };
 
+    const centerNumber = value === null ? total : value;
+    const centerTone =
+        value !== null && value > 0 ? 'text-green-400' : value !== null && value < 0 ? 'text-red-400' : '';
+
     return (
         <div
-            className="min-h-full w-full rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-gohan p-4 bg-boxColor dark:bg-boxColor-dark"
             dir="rtl"
+            className="
+        w-full min-h-full
+        rounded-2xl
+        border border-boxBorderColor dark:border-boxBorderColor-dark
+        bg-boxColor dark:bg-boxColor-dark
+        p-4 md:p-5
+        shadow-sm
+      "
         >
-            {/* ✅ هدر: دسکتاپ یک‌خطی | موبایل لینک زیر عنوان */}
-            <div className="mb-4 flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="textTitle text-moon-18 md:text-moon-20 text-titleText dark:text-titleText-dark font-bold">
-                    {title}
-                </h2>
+            {/* هدر جدید: تمیزتر + لینک خوش‌فرم */}
+            <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                    <div
+                        className="
+              h-10 w-10 rounded-2xl
+              bg-white/60 dark:bg-white/10
+              border border-black/5 dark:border-white/10
+              flex items-center justify-center
+            "
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                            <path
+                                d="M4 13.5V20h16v-6.5M7 10l5-6 5 6"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                className="text-titleText dark:text-titleText-dark"
+                            />
+                        </svg>
+                    </div>
+
+                    <div className="min-w-0">
+                        <h2 className="text-moon-18 md:text-moon-20 font-bold text-titleText dark:text-titleText-dark truncate">
+                            {title}
+                        </h2>
+                        <p className="mt-0.5 text-[12px] text-titleText/60 dark:text-titleText-dark/60">
+                            {total > 0 ? `مجموع: ${formatNumberFA(total)} ${unit}` : '—'}
+                        </p>
+                    </div>
+                </div>
 
                 {link?.href && link?.label ? (
                     <a
                         href={link.href}
-                        target={link.target ?? "_self"}
-                        rel={link.target === "_blank" ? "noopener noreferrer" : undefined}
+                        target={link.target ?? '_self'}
+                        rel={link.target === '_blank' ? 'noopener noreferrer' : undefined}
                         className="
-        inline-flex items-center gap-1
-        text-sm md:text-[14px]
-        text-titleText dark:text-titleText-dark
-        hover:opacity-80
-        whitespace-nowrap
-        sm:ml-2
-      "
+              inline-flex items-center gap-2
+              rounded-xl
+              border border-black/5 dark:border-white/10
+              bg-white/50 dark:bg-white/5
+              px-3 py-2
+              text-sm
+              text-titleText dark:text-titleText-dark
+              hover:bg-white/70 dark:hover:bg-white/10
+              transition
+              whitespace-nowrap
+            "
                     >
-                        <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="shrink-0"
-                        >
+                        <span>{link.label}</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                             <path
-                                d="M14 12C14 14.7614 11.7614 17 9 17H7C4.23858 17 2 14.7614 2 12C2 9.23858 4.23858 7 7 7H7.5M10 12C10 9.23858 12.2386 7 15 7H17C19.7614 7 22 9.23858 22 12C22 14.7614 19.7614 17 17 17H16.5"
+                                d="M10 14L21 3M21 3h-7M21 3v7"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                            <path
+                                d="M21 14v5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5"
                                 stroke="currentColor"
                                 strokeWidth="2"
                                 strokeLinecap="round"
                             />
                         </svg>
-                        <span>{link.label}</span>
                     </a>
                 ) : null}
             </div>
 
-
-            <div className="h-[260px] md:h-[320px]">
-                {processedData.length === 0 ? (
-                    <div className="flex h-full flex-col items-center justify-center gap-3 text-sm text-titleText dark:text-titleText-dark">
-                        <p className="text-center leading-6">اطلاعاتی موجود نیست!</p>
+            {/* بدنه: چارت + لیست (زیر هم) */}
+            <div className="flex flex-col gap-4">
+                {/* نمودار */}
+                <div
+                    className="
+      relative
+      rounded-2xl
+      border border-black/5 dark:border-white/10
+      bg-white/40 dark:bg-white/5
+      p-3 md:p-4
+    "
+                >
+                    {/* بک‌گراند گرادیانی نرم */}
+                    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+                        <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-primary/10 blur-3xl" />
+                        <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-cyan-500/10 blur-3xl" />
                     </div>
-                ) : (
-                    <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                            <Pie
-                                data={processedData}
-                                dataKey="value"
-                                nameKey="label"
-                                cx="50%"
-                                cy="50%"
-                                innerRadius="60%"
-                                outerRadius="70%"
-                                labelLine={false}
-                                label={renderLabel}
-                                paddingAngle={3}
-                            >
-                                {processedData.map((_, index) => (
-                                    <Cell
-                                        key={`cell-${index}`}
-                                        fill={COLORS[index % COLORS.length]}
-                                        stroke="#111827"
-                                        strokeWidth={1}
-                                    />
-                                ))}
-                            </Pie>
 
-                            {/* متن وسط دونات */}
-                            {total > 0 && unit !== '' && (
-                                <>
-                                    <text
-                                        x="50%"
-                                        y="49%"
-                                        textAnchor="middle"
-                                        dominantBaseline="central"
-                                        style={{ direction: 'ltr', unicodeBidi: 'embed' }}
-                                        className={`text-moon-14 md:text-moon-16 text-sm fill-current ${value !== null && value > 0
-                                                ? 'text-green-400'
-                                                : value !== null && value < 0
-                                                    ? 'text-red-400'
-                                                    : 'text-titleText dark:text-titleText-dark'
-                                            }`}
-                                    >
-                                        {value === null ? total.toLocaleString('en-US') : value.toLocaleString('en-US')}
-                                    </text>
+                    <div className="relative h-[260px] md:h-[320px]">
+                        {processedData.length === 0 ? (
+                            <div className="flex h-full flex-col items-center justify-center gap-2 text-sm text-titleText dark:text-titleText-dark">
+                                <p className="text-center leading-6">اطلاعاتی موجود نیست!</p>
+                            </div>
+                        ) : (
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    {/* گرادیان برای حلقه */}
+                                    <defs>
+                                        {processedData.map((_, idx) => (
+                                            <linearGradient
+                                                key={`grad-${idx}`}
+                                                id={`grad-${idx}`}
+                                                x1="0"
+                                                y1="0"
+                                                x2="1"
+                                                y2="1"
+                                            >
+                                                <stop offset="0%" stopColor={COLORS[idx % COLORS.length]} stopOpacity={0.95} />
+                                                <stop offset="100%" stopColor={COLORS[idx % COLORS.length]} stopOpacity={0.6} />
+                                            </linearGradient>
+                                        ))}
+                                        <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+                                            <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="#000" floodOpacity="0.18" />
+                                        </filter>
+                                    </defs>
 
-                                    <text
-                                        x="50%"
-                                        y="56%"
-                                        textAnchor="middle"
-                                        dominantBaseline="central"
-                                        className={`text-moon-14 md:text-moon-16 text-sm fill-current ${value !== null && value > 0
-                                                ? 'text-green-400'
-                                                : value !== null && value < 0
-                                                    ? 'text-red-400'
-                                                    : 'text-titleText dark:text-titleText-dark'
-                                            }`}
+                                    <Pie
+                                        data={processedData}
+                                        dataKey="value"
+                                        nameKey="label"
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius="62%"
+                                        outerRadius="74%"
+                                        paddingAngle={3}
+                                        labelLine={false}
+                                        // روی موبایل لیبل‌های بیرونی خاموش تا شلوغ نشه
+                                        label={({ viewBox, ...p }: any) => {
+                                            const w = viewBox?.width ?? 0;
+                                            if (w && w < 420) return null;
+                                            return renderLabel(p);
+                                        }}
+                                        isAnimationActive
+                                        animationDuration={650}
+                                        filter="url(#softShadow)"
                                     >
-                                        {unit}
-                                    </text>
-                                </>
-                            )}
-                        </PieChart>
-                    </ResponsiveContainer>
-                )}
+                                        {processedData.map((_, index) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={`url(#grad-${index})`}
+                                                stroke="rgba(17,24,39,0.35)"
+                                                strokeWidth={1}
+                                            />
+                                        ))}
+                                    </Pie>
+
+                                    {/* متن وسط */}
+                                    {total > 0 ? (
+                                        <>
+                                            <text
+                                                x="50%"
+                                                y="48%"
+                                                textAnchor="middle"
+                                                dominantBaseline="central"
+                                                style={{ direction: 'ltr', unicodeBidi: 'embed' }}
+                                                className={`text-moon-18 md:text-moon-20 font-bold fill-current text-titleText dark:text-titleText-dark ${centerTone}`}
+                                            >
+                                                {formatNumberEN(centerNumber)}
+                                            </text>
+
+                                            {unit ? (
+                                                <text
+                                                    x="50%"
+                                                    y="57%"
+                                                    textAnchor="middle"
+                                                    dominantBaseline="central"
+                                                    className="text-moon-14 md:text-moon-16 fill-current text-titleText/70 dark:text-titleText-dark/70"
+                                                >
+                                                    {unit}
+                                                </text>
+                                            ) : null}
+
+                                            <text
+                                                x="50%"
+                                                y="66%"
+                                                textAnchor="middle"
+                                                dominantBaseline="central"
+                                                className="text-[11px] md:text-xs fill-current text-titleText/55 dark:text-titleText-dark/55"
+                                            >
+                                                سهم از کل
+                                            </text>
+                                        </>
+                                    ) : null}
+                                </PieChart>
+                            </ResponsiveContainer>
+                        )}
+                    </div>
+                </div>
             </div>
-
-            {description !== '' ? (
-                <small className="text-titleText dark:text-titleText-dark">* {description}</small>
-            ) : null}
         </div>
     );
 };
