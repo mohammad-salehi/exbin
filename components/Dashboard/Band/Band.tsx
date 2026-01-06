@@ -108,7 +108,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
             <div className="mt-3 flex items-center justify-between text-[11px] text-titleText/55 dark:text-titleText-dark/55">
               <span className="flex items-center gap-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-primary/70" />
-                مقدار
+                تاریخ
               </span>
               <span className="opacity-80">{todayFa}</span>
             </div>
