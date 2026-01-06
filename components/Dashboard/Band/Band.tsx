@@ -73,7 +73,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
             />
 
             <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
+              <div className="min-w-full">
                 <div
                   className="
                     text-[12px] sm:text-[13px]
@@ -87,14 +87,15 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
 
                 <div
                   className="
-                    mt-2
-                    text-xl sm:text-2xl
-                    font-bold
-                    text-titleText dark:text-titleText-dark
-                    tracking-tight
-                    [font-variant-numeric:tabular-nums]
-                  "
-                  style={{ direction: "ltr", textAlign: "left" }}
+    mt-2
+    text-xl sm:text-2xl
+    font-bold
+    text-titleText dark:text-titleText-dark
+    tracking-tight
+    [font-variant-numeric:tabular-nums]
+    text-center min-w-full
+  "
+                  style={{ direction: "ltr" }}
                 >
                   {formatNumber(item.value)}
                 </div>
