@@ -166,20 +166,6 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         getData.sort((a, b) => String(a.label).localeCompare(String(b.label)));
         SetDailyActiveUsers(getData);
 
-        SetHeaderData((prev) => {
-          const lastX = getData.length ? Number(getData[getData.length - 1].x ?? 0) : 0;
-          const item: CryptoTradingValueUsers = { label: "کاربران فعال روزانه", value: lastX };
-          const next = prev.filter((x) => x.label !== item.label);
-          return [...next, item];
-        });
-
-        SetHeaderData((prev) => {
-          const sumX = getData.reduce((acc, cur) => acc + Number(cur.x ?? 0), 0);
-          const item: CryptoTradingValueUsers = { label: "کاربران فعال ماهانه", value: sumX };
-          const next = prev.filter((x) => x.label !== item.label);
-          return [...next, item];
-        });
-
         SetC3(true);
       })
       .catch((err) => {
@@ -320,7 +306,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
 
   // لیست کوین‌ها
   useEffect(() => {
-    GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/valid-currencies`)
+    GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/valid-currencies?exchangeId=${id}`)
       .then((response) => {
         SetCryptoList(response.result);
         SetCryptoSelected1(response.result?.[0]?.cryptocurrency ?? "");

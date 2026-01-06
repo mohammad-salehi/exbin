@@ -300,6 +300,14 @@ export default function Page() {
     GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/valid-currencies`)
       .then((response) => {
         SetCryptoList(response.result)
+        SetDashboardData((prev) => {
+          const item1: DashboardItem = {
+            label: "تعداد ارزهای پشتیبانی شده",
+            value: Number(response?.result?.length ?? 0),
+          };
+          const next = prev.filter((x) => x.label !== item1.label);
+          return [...next, item1];
+        });
         SetCryptoSelected1(response.result.find((item: { cryptocurrency: string; }) => item.cryptocurrency === 'IRR').cryptocurrency ?? response.result[0].cryptocurrency)
         SetCryptoSelected2(response.result.find((item: { cryptocurrency: string; }) => item.cryptocurrency === 'IRR').cryptocurrency ?? response.result[0].cryptocurrency)
         SetCryptoListLoading(false)
