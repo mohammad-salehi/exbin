@@ -409,66 +409,74 @@ const Navbar = ({
         </div>
 
         {/* Nav */}
-        <nav className="px-3 pb-24 pt-4 space-y-2 overflow-y-auto h-[calc(100vh-220px)]">
-          {navItems.map((item) => {
-            if (item.access !== '' && item.access !== role) return null;
-            const active = item.link === activeLink;
+        <nav
+          className="px-3 pt-4 space-y-2 overflow-y-auto h-[calc(100vh-220px)]"
+          style={{ paddingBottom: 'calc(160px + env(safe-area-inset-bottom))' }}
+        >          {navItems.map((item) => {
+          if (item.access !== '' && item.access !== role) return null;
+          const active = item.link === activeLink;
 
-            return (
-              <a href={`/panel/${item.link}`} key={item.label} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-                <button
-                  type="button"
-                  className={clsx(
-                    'w-full flex items-center justify-between gap-1 px-1 py-1 rounded-xl transition border', // ✅ items-center
-                    active
-                      ? 'bg-BgPrimary dark:bg-BgPrimary-dark border-transparent'
-                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
-                  )}
-                >
-                  {/* ✅ سمت چپ: آیکن + متن -> شروع از بالا */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span
-                      className={clsx(
-                        'h-10 w-10 rounded-xl flex items-center justify-center border shrink-0', // ✅ shrink-0
-                        active
-                          ? 'bg-white/70 dark:bg-bgColor-dark/60 border-boxBorderColor dark:border-boxBorderColor-dark text-primary dark:text-primary-dark'
-                          : 'bg-white/50 dark:bg-bgColor-dark/40 border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark'
-                      )}
-                    >
-                      {item.icon}
-                    </span>
-
-                    {/* ✅ متن چندخطی: چپ/راست نشه و وسط‌چین نشه */}
-                    <span
-                      className={clsx(
-                        'text-sm font-medium text-right leading-5 min-w-0 break-words', // ✅ leading + break
-                        active ? 'text-primary dark:text-titleText-dark' : 'text-titleText dark:text-titleText-dark'
-                      )}
-                      dir="rtl"
-                    >
-                      {item.label}
-                    </span>
-                  </div>
-
-                  {/* ✅ فلش همیشه بالا بمونه */}
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className={clsx('transition mt-3 self-start shrink-0', active ? 'opacity-100' : 'opacity-40')} // ✅ self-start
+          return (
+            <a href={`/panel/${item.link}`} key={item.label} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+              <button
+                type="button"
+                className={clsx(
+                  'w-full flex items-center justify-between gap-1 px-1 py-1 rounded-xl transition border', // ✅ items-center
+                  active
+                    ? 'bg-BgPrimary dark:bg-BgPrimary-dark border-transparent'
+                    : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
+                )}
+              >
+                {/* ✅ سمت چپ: آیکن + متن -> شروع از بالا */}
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className={clsx(
+                      'h-10 w-10 rounded-xl flex items-center justify-center border shrink-0', // ✅ shrink-0
+                      active
+                        ? 'bg-white/70 dark:bg-bgColor-dark/60 border-boxBorderColor dark:border-boxBorderColor-dark text-primary dark:text-primary-dark'
+                        : 'bg-white/50 dark:bg-bgColor-dark/40 border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark'
+                    )}
                   >
-                    <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                </button>
-              </a>
-            );
-          })}
+                    {item.icon}
+                  </span>
+
+                  {/* ✅ متن چندخطی: چپ/راست نشه و وسط‌چین نشه */}
+                  <span
+                    className={clsx(
+                      'text-sm font-medium text-right leading-5 min-w-0 break-words', // ✅ leading + break
+                      active ? 'text-primary dark:text-titleText-dark' : 'text-titleText dark:text-titleText-dark'
+                    )}
+                    dir="rtl"
+                  >
+                    {item.label}
+                  </span>
+                </div>
+
+                {/* ✅ فلش همیشه بالا بمونه */}
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  className={clsx('transition mt-3 self-start shrink-0', active ? 'opacity-100' : 'opacity-40')} // ✅ self-start
+                >
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </button>
+            </a>
+          );
+        })}
         </nav>
 
         {/* Sticky bottom actions */}
-        <div className="absolute bottom-0 right-0 left-0 p-3 bg-boxColor/95 dark:bg-boxColor-dark/90 backdrop-blur border-t border-boxBorderColor dark:border-boxBorderColor-dark">
-          <div className="flex items-center gap-2">
+        <div
+          className="fixed bottom-0 right-0 left-0 lg:left-auto lg:right-auto lg:bottom-0 lg:w-64
+             p-3 bg-boxColor/95 dark:bg-boxColor-dark/90 backdrop-blur
+             border-t border-boxBorderColor dark:border-boxBorderColor-dark"
+          style={{
+            paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
+          }}
+        >          <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => {
