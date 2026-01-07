@@ -51,12 +51,6 @@ function ratioBarTone(ratio: number) {
     return 'bg-rose-500';
 }
 
-function ratioBadgeTone(ratio: number): 'success' | 'warning' | 'danger' | 'info' {
-    if (ratio >= 100) return 'success';
-    if (ratio >= 95) return 'warning';
-    return 'danger';
-}
-
 function Pill({
     children,
     tone = 'default',
@@ -132,18 +126,14 @@ function Card({
     );
 }
 
-function Metric({
+function MetricText({
     label,
     value,
-    sub,
     tone,
-    icon,
 }: {
     label: string;
     value: React.ReactNode;
-    sub?: React.ReactNode;
     tone?: 'default' | 'success' | 'warning' | 'danger';
-    icon?: React.ReactNode;
 }) {
     const t =
         tone === 'success'
@@ -155,36 +145,15 @@ function Metric({
                     : 'text-titleText dark:text-titleText-dark';
 
     return (
-        <div
-            className={cn(
-                'group relative overflow-hidden rounded-3xl border p-4 md:p-5',
-                'border-boxBorderColor dark:border-boxBorderColor-dark',
-                'bg-white/65 dark:bg-boxColor-dark/60 backdrop-blur',
-                'shadow-sm hover:shadow-md transition'
-            )}
-        >
-            <div className="pointer-events-none absolute -top-16 -right-16 h-40 w-40 rounded-full bg-primary/10 blur-3xl opacity-70" />
-            <div className="relative flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">{label}</div>
-                    <div className={cn('mt-2 text-xl md:text-2xl font-extrabold tracking-tight', t)}>{value}</div>
-                    {sub ? (
-                        <div className="mt-1 text-[11px] text-titleText/55 dark:text-titleText-dark/55">{sub}</div>
-                    ) : null}
-                </div>
-                {icon ? (
-                    <div className="shrink-0 rounded-2xl border bg-white/60 dark:bg-boxColor-dark/60 px-3 py-2 text-xs font-semibold border-boxBorderColor dark:border-boxBorderColor-dark">
-                        {icon}
-                    </div>
-                ) : null}
-            </div>
+        <div className="min-w-0">
+            <div className="text-[11px] text-titleText/55 dark:text-titleText-dark/55">{label}</div>
+            <div className={cn('mt-1 text-lg md:text-xl font-extrabold tracking-tight', t)}>{value}</div>
         </div>
     );
 }
 
 function AssetPorCard({ row }: { row: AssetRow }) {
     const ratio = row.reserveRatio;
-    const badgeTone = ratioBadgeTone(ratio);
 
     const pct = clamp(ratio, 0, 140);
     const fill = (pct / 140) * 100;
@@ -209,8 +178,8 @@ function AssetPorCard({ row }: { row: AssetRow }) {
             <div className="relative flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <div className="flex items-center gap-3">
-                        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border bg-white/70 dark:bg-boxColor-dark/70 shadow-sm border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <span className="text-base font-extrabold tracking-tight">{row.asset}</span>
+                        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl  bg-white/70 dark:bg-boxColor-dark/70 shadow-sm border-boxBorderColor dark:border-boxBorderColor-dark">
+                            <span className="text-base font-extrabold tracking-tight"><img src={`/images/${row.asset}.png`} /></span>
                             <span className="absolute -bottom-2 left-1/2 h-1.5 w-8 -translate-x-1/2 rounded-full bg-primary/40 blur-[1px]" />
                         </div>
 
@@ -225,18 +194,15 @@ function AssetPorCard({ row }: { row: AssetRow }) {
                                     </span>
                                 ) : null}
                             </div>
-
                         </div>
                     </div>
-
                 </div>
 
                 <div className="shrink-0 text-left">
                     <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">درصد ضریب پوشش</div>
                     <div className={cn('mt-1 text-2xl font-extrabold tracking-tight', ratioTone(ratio))}>
-                        {(ratio).toLocaleString()}٪
+                        {formatNumberFa(ratio)}٪
                     </div>
-
                 </div>
             </div>
 
@@ -253,14 +219,7 @@ function AssetPorCard({ row }: { row: AssetRow }) {
 
                 {/* numbers */}
                 <div className="mt-4 grid grid-cols-1 gap-3">
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                        <div className="rounded-3xl border p-4 border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur">
-                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">خالص دارایی کاربران</div>
-                            <div className="mt-2 font-mono text-sm font-extrabold text-titleText dark:text-titleText-dark">
-                                {row.customerNetBalance.toLocaleString()}
-                            </div>
-                        </div>
-
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
                         <div className="rounded-3xl border p-4 border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur">
                             <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">موجودی سکو</div>
                             <div className="mt-2 font-mono text-sm font-extrabold text-titleText dark:text-titleText-dark">
@@ -269,6 +228,14 @@ function AssetPorCard({ row }: { row: AssetRow }) {
                         </div>
                     </div>
 
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
+                        <div className="rounded-3xl border p-4 border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur">
+                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">خالص دارایی کاربران</div>
+                            <div className="mt-2 font-mono text-sm font-extrabold text-titleText dark:text-titleText-dark">
+                                {row.customerNetBalance.toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -338,9 +305,7 @@ function Pagination({
                         <Btn onClick={() => onPage(1)} active={page === 1}>
                             ۱
                         </Btn>
-                        {realStart > 2 ? (
-                            <span className="px-1 text-titleText/50 dark:text-titleText-dark/50">…</span>
-                        ) : null}
+                        {realStart > 2 ? <span className="px-1 text-titleText/50 dark:text-titleText-dark/50">…</span> : null}
                     </>
                 ) : null}
 
@@ -352,9 +317,7 @@ function Pagination({
 
                 {end < totalPages ? (
                     <>
-                        {end < totalPages - 1 ? (
-                            <span className="px-1 text-titleText/50 dark:text-titleText-dark/50">…</span>
-                        ) : null}
+                        {end < totalPages - 1 ? <span className="px-1 text-titleText/50 dark:text-titleText-dark/50">…</span> : null}
                         <Btn onClick={() => onPage(totalPages)} active={page === totalPages}>
                             {totalPages.toLocaleString('fa-IR')}
                         </Btn>
@@ -374,8 +337,8 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
         () => ({
             auditTime: '۲۰۲۶/۰۱/۰۶ - ۱۲:۳۰',
             verifier: 'Third-Party Auditor (Demo)',
-            verificationMechanism: 'Snapshot-based درصد ضریب پوشش',
-            scope: 'موجودی کیف پول‌های نگه‌داری (Custody) در زمان اسنپ‌شات + خالص دارایی کاربران (Demo)',
+            verificationMechanism: 'گزارش درصد پوشش دارایی‌های سکو',
+            scope: 'موجودی کیف پول‌های نگه‌داری (Custody) + خالص دارایی کاربران',
             riskNote: 'درصد ضریب پوشش به‌تنهایی جایگزین حسابرسی کامل بدهی‌ها و ریسک‌های خارج از زنجیره نیست.',
         }),
         []
@@ -394,8 +357,8 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
                 note: 'Cold + Hot wallets (demo)',
             },
             {
-                asset: 'ETH',
-                fullName: 'Ethereum',
+                asset: 'LTC',
+                fullName: 'litecoin',
                 reserveRatio: 100.02,
                 customerNetBalance: 4_012_340.5123,
                 exchangeBalance: 4_013_143.0812,
@@ -403,8 +366,8 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
                 updatedAt: '2026-01-06T12:30:00Z',
             },
             {
-                asset: 'USDT',
-                fullName: 'Tether',
+                asset: 'BCH',
+                fullName: 'bitcoin cash',
                 network: 'ERC20 / TRC20',
                 reserveRatio: 109.16,
                 customerNetBalance: 9_804_120_345.22,
@@ -413,8 +376,8 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
                 updatedAt: '2026-01-06T12:30:00Z',
             },
             {
-                asset: 'USDC',
-                fullName: 'USD Coin',
+                asset: 'DOGE',
+                fullName: 'dogecoin',
                 reserveRatio: 137.7,
                 customerNetBalance: 1_243_120_000.0,
                 exchangeBalance: 1_711_200_000.0,
@@ -422,8 +385,8 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
                 updatedAt: '2026-01-06T12:30:00Z',
             },
             {
-                asset: 'BNB',
-                fullName: 'BNB',
+                asset: 'ETH',
+                fullName: 'ethereum',
                 reserveRatio: 112.32,
                 customerNetBalance: 36_402_120.55,
                 exchangeBalance: 40_890_112.88,
@@ -431,8 +394,8 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
                 updatedAt: '2026-01-06T12:30:00Z',
             },
             {
-                asset: 'XRP',
-                fullName: 'XRP',
+                asset: 'BNB',
+                fullName: 'binance coin',
                 reserveRatio: 99.4,
                 customerNetBalance: 920_000_000,
                 exchangeBalance: 914_480_000,
@@ -442,8 +405,8 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
             },
             // extras for pagination demo
             {
-                asset: 'SOL',
-                fullName: 'Solana',
+                asset: 'TRX',
+                fullName: 'tron',
                 reserveRatio: 104.22,
                 customerNetBalance: 88_120_000.12,
                 exchangeBalance: 91_843_210.8,
@@ -451,8 +414,8 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
                 updatedAt: '2026-01-06T12:30:00Z',
             },
             {
-                asset: 'ADA',
-                fullName: 'Cardano',
+                asset: 'USDT',
+                fullName: 'USD tether',
                 reserveRatio: 101.08,
                 customerNetBalance: 1_204_000_000,
                 exchangeBalance: 1_217_000_000,
@@ -521,156 +484,164 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
 
     return (
         <section dir="rtl" className="w-full text-titleText dark:text-titleText-dark">
-            {/* HERO */}
-            <div className="relative overflow-hidden rounded-[32px] border bg-white dark:bg-boxColor-dark border-boxBorderColor dark:border-boxBorderColor-dark shadow-sm">
-                {/* decorative */}
+            {/* SINGLE PAGE BOX */}
+
+            {/* HERO (polished, same shapes in both themes) */}
+            <div className="relative w-full overflow-hidden rounded-[28px] border border-boxBorderColor dark:border-none">
+                {/* Base background */}
+                <div className="absolute inset-0 bg-white dark:bg-[#121822]" />
+
+                {/* Glows (behind shapes) */}
                 <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -top-28 -right-28 h-[520px] w-[520px] rounded-full bg-primary/12 blur-3xl" />
-                    <div className="absolute -bottom-36 -left-36 h-[560px] w-[560px] rounded-full bg-emerald-500/10 blur-3xl opacity-80" />
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-emerald-500/35 to-transparent" />
+                    {/* light glows */}
+                    <div className="absolute -top-24 -left-24 h-[520px] w-[520px] rounded-full bg-primary/16 blur-3xl dark:hidden" />
+                    <div className="absolute -bottom-28 -right-28 h-[560px] w-[560px] rounded-full bg-emerald-500/14 blur-3xl dark:hidden" />
+                    <div className="absolute inset-0 bg-gradient-to-l from-primary/8 via-transparent to-emerald-500/6 dark:hidden" />
+
+                    {/* dark glows */}
+                    <div className="hidden dark:block absolute -top-28 -left-28 h-[560px] w-[560px] rounded-full bg-primary/14 blur-3xl" />
+                    <div className="hidden dark:block absolute -bottom-32 -right-32 h-[620px] w-[620px] rounded-full bg-emerald-500/12 blur-3xl" />
+                    <div className="hidden dark:block absolute inset-0 bg-gradient-to-l from-primary/12 via-transparent to-emerald-500/10" />
+
+                    {/* subtle lines */}
+                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-boxBorderColor/70 to-transparent dark:via-white/10" />
+                    <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-boxBorderColor/50 to-transparent dark:via-white/10" />
                 </div>
 
-                <div className="relative p-5 md:p-10 xl:p-12">
-                    <div className="flex flex-col gap-6 md:gap-7">
+                {/* Shapes (same positions always; only colors change) */}
+                <div className="pointer-events-none absolute inset-0">
+                    {/* Big panel */}
+                    <div className="absolute -right-28 top-6 h-80 w-80 rotate-[14deg] rounded-[36px] bg-primary/14 dark:bg-white/7" />
+                    {/* Mid panel */}
+                    <div className="absolute right-16 top-20 h-72 w-72 rotate-[14deg] rounded-[34px] bg-emerald-500/14 dark:bg-white/6" />
+                    {/* Large back panel */}
+                    <div className="absolute right-52 top-24 h-[420px] w-[420px] rotate-[14deg] rounded-[40px] bg-primary/10 dark:bg-white/5" />
+                    {/* Bottom long panel */}
+                    <div className="absolute -right-10 top-72 h-56 w-[520px] rotate-[14deg] rounded-[40px] bg-emerald-500/10 dark:bg-white/6" />
+
+                    {/* Outline strokes to keep shapes visible in light too */}
+                    <div className="absolute -right-28 top-6 h-80 w-80 rotate-[14deg] rounded-[36px] ring-1 ring-titleText/10 dark:ring-white/10" />
+                    <div className="absolute right-16 top-20 h-72 w-72 rotate-[14deg] rounded-[34px] ring-1 ring-titleText/10 dark:ring-white/10" />
+                    <div className="absolute right-52 top-24 h-[420px] w-[420px] rotate-[14deg] rounded-[40px] ring-1 ring-titleText/10 dark:ring-white/10" />
+                    <div className="absolute -right-10 top-72 h-56 w-[520px] rotate-[14deg] rounded-[40px] ring-1 ring-titleText/10 dark:ring-white/10" />
+
+                    {/* Very subtle diagonal highlight */}
+                    <div className="absolute inset-0 bg-[linear-gradient(115deg,transparent_0%,rgba(255,255,255,0.08)_32%,transparent_60%)] opacity-30 dark:opacity-20" />
+                </div>
+
+                {/* Content */}
+                <div className="relative grid grid-cols-1 items-center gap-10 px-6 py-9 md:px-10 md:py-12 lg:grid-cols-12">
+                    {/* LEFT */}
+                    <div className="lg:col-span-7">
                         <div className="flex flex-wrap items-center gap-2">
-                            <Pill tone="info">اثبات ذخیره دارایی‌ها</Pill>
+                            <Pill tone="info">Proof of Reserves</Pill>
+                            <Pill tone="info">تاریخ: {staticMeta.auditTime}</Pill>
+                            <Pill tone={headlineRatios.min >= 100 ? 'success' : 'warning'}>
+                                {headlineRatios.min >= 100 ? 'امنیت مناسب' : 'نیاز به بررسی'}
+                            </Pill>
                         </div>
 
-                        <div className="flex flex-col gap-3">
-                            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.15]">
-                                امنیت دارایی کاربران با سرویس{' '}
-                                <span className='text-primary dark:text-primary-dark'>اثبات ذخیره دارایی‌ها</span>
-                            </h1>
-                            <p className="max-w-3xl text-sm md:text-base text-titleText/70 dark:text-titleText-dark/70 leading-7">
-                                این صفحه وضعیت پشتوانه دارایی‌های سکو را نشان می‌دهد
-                            </p>
+                        <h1 className="mt-6 text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.12] text-titleText dark:text-white">
+                            امنیت دارایی کاربران با سرویس{' '}
+                            <span className="text-primary dark:text-primary-dark">اثبات ذخیره دارایی‌ها</span>
+                        </h1>
+
+                        <p className="mt-4 max-w-2xl text-sm md:text-base leading-7 text-titleText/70 dark:text-white/70">
+                            وضعیت پشتوانه دارایی‌های سکو در قالب یک اسنپ‌شات نمایش داده می‌شود. این صفحه صرفاً نمایشی است و آدرس کیف پول‌ها ارائه نمی‌گردد.
+                        </p>
+
+                        {/* CTA row (optional but makes it look premium) */}
+                        <div className="mt-6 flex flex-wrap items-center gap-3">
+                            <button
+                                type="button"
+                                className={cn(
+                                    'h-11 rounded-2xl px-6 text-sm font-extrabold transition',
+                                    'bg-primary text-white hover:opacity-95',
+                                    'focus:outline-none focus:ring-2 focus:ring-primary/50'
+                                )}
+                            >
+                                مشاهده گزارش
+                            </button>
+                            <span className="text-xs text-titleText/55 dark:text-white/55">{staticMeta.verificationMechanism}</span>
                         </div>
+                    </div>
 
-                        {/* Exchange overview (richer + nicer) */}
-                        <div className="grid grid-cols-1 gap-4 lg:grid-cols-12">
-                            <div className="lg:col-span-12">
-                                <Card
-                                    className="bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur"
-                                    title={
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs text-titleText/60 dark:text-titleText-dark/60">نمای کلی سکو</span>
-                                        </div>
-                                    }
-                                    right={
-                                        <Pill tone={headlineRatios.min >= 100 ? 'success' : 'warning'}>
-                                            {headlineRatios.min >= 100 ? 'امنیت مناسب' : 'نیاز به بررسی'}
-                                        </Pill>
-                                    }
-                                >
-                                    <div className="mt-5 grid grid-cols-1 gap-3 lg:grid-cols-2 xl:grid-cols-4">
-                                        <Metric
-                                            label="دارایی‌های پوشش‌داده‌شده"
-                                            value={formatIntFa(headlineRatios.includedCount)}
-                                            sub="Included assets"
-                                            icon="Assets"
-                                        />
-                                        <Metric
-                                            label="میانگین ضریب پوشش"
-                                            value={<span className={ratioTone(headlineRatios.avg)}>{formatNumberFa(headlineRatios.avg)}٪</span>}
-                                            sub="Average"
-                                            icon="Avg"
-                                        />
-                                        <Metric
-                                            label="کمترین ضریب پوشش"
-                                            value={<span className={ratioTone(headlineRatios.min)}>{formatNumberFa(headlineRatios.min)}٪</span>}
-                                            sub="Minimum"
-                                            tone={headlineRatios.min >= 100 ? 'success' : 'warning'}
-                                            icon="Min"
-                                        />
-                                        <Metric
-                                            label="بیشترین ضریب پوشش"
-                                            value={<span className={ratioTone(headlineRatios.max)}>{formatNumberFa(headlineRatios.max)}٪</span>}
-                                            sub="Maximum"
-                                            icon="Max"
-                                        />
-                                    </div>
-
-                                </Card>
-                            </div>
-
+                    {/* RIGHT (logo, slightly lower for composition) */}
+                    <div className="lg:col-span-5 flex justify-center lg:justify-end">
+                        <div className="relative translate-y-2 md:translate-y-4">
+                            <img
+                                src="/images/pantaLogo.png"
+                                alt="Panta"
+                                className="w-[230px] h-auto md:w-[320px] lg:w-[380px] select-none drop-shadow-[0_18px_60px_rgba(0,0,0,0.28)] dark:drop-shadow-[0_22px_70px_rgba(0,0,0,0.55)]"
+                                draggable={false}
+                            />
                         </div>
+                    </div>
+                </div>
+
+                {/* OVERVIEW (borderless summary) */}
+                <div className="relative px-6 pb-8 md:px-10 md:pb-10">
+                    {/* metrics row */}
+                    <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
+                        <MetricText
+                            label="میانگین ضریب پوشش"
+                            value={
+                                <span className={ratioTone(headlineRatios.avg)}>
+                                    {formatNumberFa(headlineRatios.avg)}٪
+                                </span>
+                            }
+                        />
+                        <MetricText
+                            label="کمترین ضریب پوشش"
+                            value={
+                                <span className={ratioTone(headlineRatios.min)}>
+                                    {formatNumberFa(headlineRatios.min)}٪
+                                </span>
+                            }
+                            tone={headlineRatios.min >= 100 ? 'success' : 'warning'}
+                        />
+                        <MetricText
+                            label="بیشترین ضریب پوشش"
+                            value={
+                                <span className={ratioTone(headlineRatios.max)}>
+                                    {formatNumberFa(headlineRatios.max)}٪
+                                </span>
+                            }
+                        />
+                        <MetricText
+                            label="تعداد دارایی‌های پوشش‌داده‌شده"
+                            value={formatIntFa(headlineRatios.includedCount)}
+                        />
                     </div>
                 </div>
             </div>
 
-            {/* Assets cards */}
-            <div className="mt-6">
-                <Card
-                    title="دارایی‌ها"
-                    right={
+            <Card
+                className="bg-white dark:bg-boxColor-dark w-full mt-4"
+                title={
+                    <div></div>
+                }
+            >
+
+                {/* Assets */}
+                <div className="">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                        <Pill tone="info">دارایی‌ها</Pill>
                         <div className="flex flex-wrap items-center gap-2">
-                            <Pill tone="info">تاریخ: {staticMeta.auditTime}</Pill>
-                            <Pill tone="default">{formatIntFa(PAGE_SIZE).toLocaleString()} مورد در هر صفحه</Pill>
+                            <Pill tone="default">{formatIntFa(PAGE_SIZE)} مورد در هر صفحه</Pill>
                             <Pill tone="info">کل: {formatIntFa(assets.length)}</Pill>
                         </div>
-                    }
-                >
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    </div>
+
+                    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
                         {currentItems.map((row, idx) => (
                             <AssetPorCard key={`${row.asset}-${idx}`} row={row} />
                         ))}
                     </div>
 
                     <Pagination page={safePage} totalPages={totalPages} onPage={(p) => setPage(clamp(p, 1, totalPages))} />
-                </Card>
-            </div>
-
-            {/* FAQ + notes */}
-            {/* FAQ */}
-            <div className="mt-6 grid grid-cols-1 gap-5 xl:grid-cols-1">
-                <Card title="سوالات متداول">
-                    <div className="space-y-3">
-                        {[
-                            {
-                                q: 'آیا درصد ضریب پوشش کافی یعنی سکو کاملاً سالم است؟',
-                                a: 'درصد ضریب پوشش معمولاً نشان می‌دهد دارایی‌های قابل گزارش برای پوشش موجودی کاربران وجود دارد، اما لزوماً همه بدهی‌ها یا تعهدات خارج از زنجیره را پوشش نمی‌دهد. بنابراین درصد ضریب پوشش به‌تنهایی معیار سلامت کامل سکو نیست.',
-                            },
-                            {
-                                q: 'درصد ضریب پوشش بالای ۱۰۰٪ یعنی چه؟',
-                                a: 'به این معناست که موجودی گزارش‌شده سکو برای آن دارایی، بیشتر از خالص دارایی کاربران است. این حالت می‌تواند نشان‌دهنده وجود ذخایر مازاد یا سیاست‌های محافظه‌کارانه در نگه‌داری دارایی باشد.',
-                            },
-                            {
-                                q: 'چرا ممکن است نسبت یک دارایی زیر ۱۰۰٪ باشد؟',
-                                a: 'این موضوع می‌تواند به دلایلی مانند محدودیت دامنه اسنپ‌شات، تأخیر در همگام‌سازی داده‌ها یا روش محاسبه مرتبط باشد. در این صفحه، مقادیر صرفاً برای نمایش نمونه‌ای درج شده‌اند.',
-                            },
-                            {
-                                q: 'آیا اطلاعات ارائه‌شده در درصد ضریب پوشش جایگزین گزارش‌های رسمی نظارتی است؟',
-                                a: 'خیر. اطلاعات درصد ضریب پوشش صرفاً به‌عنوان یک گزارش شفافیت تکمیلی ارائه می‌شود و جایگزین گزارش‌های رسمی، حسابرسی‌های قانونی یا الزامات افشای اطلاعات مورد مطالبه نهاد ناظر نخواهد بود.',
-                            },
-                            {
-                                q: 'مسئولیت صحت و کفایت اطلاعات درصد ضریب پوشش بر عهده چه نهادی است؟',
-                                a: 'مسئولیت صحت، جامعیت و انطباق اطلاعات ارائه‌شده با الزامات قانونی و مقررات ابلاغی، بر عهده سکو بوده و بررسی، راستی‌آزمایی و ارزیابی کفایت آن در چارچوب اختیارات نهاد ناظر انجام می‌پذیرد.',
-                            },
-                        ].map((item, i) => (
-                            <details
-                                key={i}
-                                className="group rounded-3xl border bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur p-5 border-boxBorderColor dark:border-boxBorderColor-dark shadow-sm hover:shadow-md transition"
-                            >
-                                <summary className="cursor-pointer list-none">
-                                    <div className="flex items-center justify-between gap-3">
-                                        <div className="text-sm font-extrabold tracking-tight">
-                                            {item.q}
-                                        </div>
-                                        <div className="rounded-2xl border px-3 py-2 text-xs text-titleText/70 dark:text-titleText-dark/70 border-boxBorderColor dark:border-boxBorderColor-dark group-open:rotate-180 transition">
-                                            ⌄
-                                        </div>
-                                    </div>
-                                </summary>
-                                <div className="mt-3 text-sm leading-7 text-titleText/75 dark:text-titleText-dark/75">
-                                    {item.a}
-                                </div>
-                            </details>
-                        ))}
-                    </div>
-                </Card>
-            </div>
-
+                </div>
+            </Card>
         </section>
     );
 };
