@@ -113,9 +113,9 @@ const Page = () => {
   }, [])
 
   return (
-    <div className="p-4 lg:p-0">
+    <div className=" lg:p-0">
       {/* Search box */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 m-4 lg:m-0">
         <div className="relative w-full h-[48px] mb-4 mt-8">
           <input
             value={q}
@@ -143,8 +143,8 @@ const Page = () => {
               </div>
             </div>)
         }
-        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
-          {filteredData.map((item) => {
+        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-0">
+          {filteredData.map((item, index) => {
             const risk = Math.floor(Math.random() * 140);
 
             const show =
@@ -159,6 +159,7 @@ const Page = () => {
               <ExchangeCard
                 key={item.id}
                 id={item.id}
+                index={index}
                 name={item.name ?? ''}
                 legalName={item.legalName ?? ''}
                 logo={item.logo ?? ''}

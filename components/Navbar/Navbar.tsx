@@ -410,7 +410,7 @@ const Navbar = ({
 
         {/* Nav */}
         <nav
-          className="px-3 pt-4 space-y-2 overflow-y-auto h-[calc(100vh-220px)]"
+          className="px-3 pt-4 space-y-2 overflow-y-auto h-full"
           style={{ paddingBottom: 'calc(160px + env(safe-area-inset-bottom))' }}
         >          {navItems.map((item) => {
           if (item.access !== '' && item.access !== role) return null;
