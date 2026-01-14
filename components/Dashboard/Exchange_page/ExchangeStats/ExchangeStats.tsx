@@ -569,7 +569,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       const title = "Exchange Analytics Report";
       const subtitle = `Exchange Name: ${toEnText(name || "Unknown Exchange")}`;
 
-      const logoDataUrl = await urlToDataUrl("/images/shaparak.webp");
+      const logoDataUrl = await urlToDataUrl("/images/shaparak.png");
 
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
