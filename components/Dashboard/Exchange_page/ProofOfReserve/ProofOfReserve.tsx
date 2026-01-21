@@ -572,7 +572,7 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
                             <img
                                 src="/images/pantaLogo.png"
                                 alt="Panta"
-                                className="w-[230px] h-auto md:w-[320px] lg:w-[380px] select-none drop-shadow-[0_18px_60px_rgba(0,0,0,0.28)] dark:drop-shadow-[0_22px_70px_rgba(0,0,0,0.55)]"
+                                className="w-[150px] h-auto md:w-[220px] lg:w-[260px] select-none drop-shadow-[0_18px_60px_rgba(0,0,0,0.28)] dark:drop-shadow-[0_22px_70px_rgba(0,0,0,0.55)]"
                                 draggable={false}
                             />
                         </div>

@@ -51,41 +51,6 @@ export default function Home() {
     </svg>
   );
 
-  // const DottedPatternLeft = () => (
-  //   <svg width="150" height="60" xmlns="http://www.w3.org/2000/svg">
-  //     <circle cx="5" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="20" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="35" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="50" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="65" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="80" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="95" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="110" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="125" cy="20" r="2" fill="#ccc" />
-
-  //     <circle cx="20" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="35" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="50" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="65" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="80" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="95" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="110" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="125" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="140" cy="35" r="2" fill="#ccc" />
-
-  //     <circle cx="5" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="20" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="35" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="50" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="65" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="80" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="95" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="110" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="125" cy="50" r="2" fill="#ccc" />
-
-  //   </svg>
-  // );
-
   const DottedPatternRight = ({ className = "" }: { className?: string }) => (
     <svg
       viewBox="0 0 150 60"
@@ -125,42 +90,6 @@ export default function Home() {
       <circle cx="140" cy="50" r="2" fill="#ccc" />
     </svg>
   );
-
-  // const DottedPatternRight = () => (
-  //   <svg width="150" height="60" xmlns="http://www.w3.org/2000/svg">
-  //     <circle cx="20" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="35" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="50" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="65" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="80" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="95" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="110" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="125" cy="20" r="2" fill="#ccc" />
-  //     <circle cx="140" cy="20" r="2" fill="#ccc" />
-
-  //     <circle cx="5" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="20" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="35" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="50" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="65" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="80" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="95" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="110" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="125" cy="35" r="2" fill="#ccc" />
-  //     <circle cx="125" cy="35" r="2" fill="#ccc" />
-
-  //     <circle cx="20" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="35" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="50" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="65" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="80" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="95" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="110" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="125" cy="50" r="2" fill="#ccc" />
-  //     <circle cx="140" cy="50" r="2" fill="#ccc" />
-
-  //   </svg>
-  // );
 
   const [UsernameError, SetUsernameError] = useState<boolean>(false)
   const [hasError, SetHasError] = useState<boolean>(false)
@@ -240,7 +169,11 @@ export default function Home() {
         {/* عنوان */}
         <div className="flex justify-between ">
           <DottedPatternLeft />
-          <img src="/images/pantaLogo.png" className="w-14 mx-2" alt="image" />
+          <img
+            src="/images/pantaLogo.png"
+            alt="image"
+            className="w-14 aspect-square object-contain mx-2 shrink-0"
+          />
           <DottedPatternRight />
         </div>
         {

@@ -14,14 +14,13 @@ interface ExchangeCardProps {
   siteAddress: string;
   uniqueCoins: number;
   uniqueUserCount: number;
-  index: number
+  index: number;
 }
 
 function clamp(n: number, a: number, b: number) {
   return Math.min(b, Math.max(a, n));
 }
 
-// رنگ بر اساس نسبت دارایی به بدهی: هرچی بیشتر => بهتر
 function ratioColor(ratio: number) {
   const r = clamp(ratio, 0, 140);
   const hue = Math.round((r / 140) * 135); // red -> green
@@ -51,17 +50,13 @@ function formatNumberWithUnit(num: number) {
   return `${value}${unit} %`;
 }
 
-function RatioProgress({ value, uniqueUserCount }: { value: number, uniqueUserCount: number }) {
+function RatioProgress({ value, uniqueUserCount }: { value: number; uniqueUserCount: number }) {
   const ratio = Number.isFinite(value) ? Number(value) : NaN;
-
   const isKnown = Number.isFinite(ratio) && ratio !== 0;
 
   // امنیت دارایی: 0..100 (اگر ratio > 100 => 100)
   const safety = isKnown ? clamp(ratio, 0, 100) : 0;
-
-  // رنگ بر اساس safety (۰..۱۰۰)
   const safetyColor = ratioColor(safety);
-
   const ratioLabel = useMemo(() => formatNumberWithUnit(ratio), [ratio]);
 
   return (
@@ -69,38 +64,46 @@ function RatioProgress({ value, uniqueUserCount }: { value: number, uniqueUserCo
       {/* 1) امنیت دارایی کاربران */}
       <div
         className="
-            rounded-2xl
-            border border-boxBorderColor dark:border-boxBorderColor-dark
-            bg-white/60 dark:bg-bgColor-dark/35
-            p-4
-            relative overflow-hidden
-          "
+          relative overflow-hidden
+          rounded-2xl
+          border border-boxBorderColor/80 dark:border-boxBorderColor-dark/80
+          bg-white/70 dark:bg-bgColor-dark/40
+          p-4
+          shadow-[0_10px_30px_-20px_rgba(0,0,0,0.35)]
+        "
       >
-        {/* glow */}
-        <div
-          className="pointer-events-none absolute -top-20 -right-20 h-56 w-56 rounded-full blur-3xl opacity-60"
-          style={{
-            background: `radial-gradient(circle, ${safetyColor}33 0%, transparent 70%)`,
-          }}
-        />
+        {/* subtle texture */}
+        <div className="pointer-events-none absolute inset-0 opacity-[0.55] dark:opacity-[0.35]">
+          <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full blur-3xl"
+            style={{ background: `radial-gradient(circle, ${safetyColor}22 0%, transparent 70%)` }}
+          />
+          <div className="absolute -bottom-28 -left-28 h-72 w-72 rounded-full blur-3xl"
+            style={{ background: `radial-gradient(circle, ${safetyColor}14 0%, transparent 72%)` }}
+          />
+        </div>
 
-        <div className="relative flex items-start justify-between gap-2">
+        <div className="relative flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[12px] font-semibold text-titleText dark:text-titleText-dark">
               امنیت دارایی کاربران
+            </div>
+            <div className="mt-1 text-[11px] text-titleText/60 dark:text-titleText-dark/60">
+              برآورد بر اساس نسبت دارایی به بدهی
             </div>
           </div>
 
           <div
             className="
-                shrink-0
-                h-10 px-3
-                rounded-2xl
-                border border-black/5 dark:border-white/10
-                bg-white/60 dark:bg-white/5
-                flex items-center justify-center
-                text-[12px] font-extrabold
-              "
+              shrink-0
+              h-10 px-3
+              rounded-2xl
+              border border-black/5 dark:border-white/10
+              bg-white/70 dark:bg-white/5
+              backdrop-blur
+              flex items-center justify-center
+              text-[12px] font-extrabold
+              shadow-sm
+            "
             style={{ color: safetyColor }}
             dir="ltr"
             title="امنیت"
@@ -113,10 +116,10 @@ function RatioProgress({ value, uniqueUserCount }: { value: number, uniqueUserCo
           <div className="relative mt-4">
             <div className="h-3 rounded-full bg-black/5 dark:bg-white/10 overflow-hidden">
               <div
-                className="h-full rounded-full transition-[width] duration-300"
+                className="h-full rounded-full transition-[width] duration-500"
                 style={{
                   width: `${safety}%`,
-                  background: `linear-gradient(90deg, ${safetyColor} 0%, ${safetyColor} 65%, rgba(255,255,255,0.25) 100%)`,
+                  background: `linear-gradient(90deg, ${safetyColor} 0%, ${safetyColor} 70%, rgba(255,255,255,0.35) 100%)`,
                 }}
               />
             </div>
@@ -135,24 +138,23 @@ function RatioProgress({ value, uniqueUserCount }: { value: number, uniqueUserCo
         <div className="mt-4 h-px w-full bg-gradient-to-l from-transparent via-black/10 dark:via-white/10 to-transparent" />
       </div>
 
-      {/* 2) نسبت دارایی به بدهی */}
-      <div
-        className="
-             items-start justify-between gap-3 grid grid-cols-1 xl:grid-cols-2
+      {/* 2) نسبت دارایی به بدهی + تعداد کاربران */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 items-stretch">
+        <div
+          className="
+            min-w-0 p-4 rounded-2xl
+            border border-boxBorderColor/80 dark:border-boxBorderColor-dark/80
+            bg-white/70 dark:bg-bgColor-dark/40
+            shadow-[0_8px_26px_-22px_rgba(0,0,0,0.35)]
+            flex flex-col justify-between
           "
-      >
-        <div className="min-w-0 p-4 rounded-2xl
-        min-h-full
-            border border-boxBorderColor dark:border-boxBorderColor-dark
-            bg-white/60 dark:bg-bgColor-dark/35">
+        >
           <div className="text-[12px] font-semibold text-titleText dark:text-titleText-dark">
             نسبت دارایی به بدهی
           </div>
+
           {isKnown ? (
-            <div
-              className="mt-3 text-[18px] font-extrabold text-titleText dark:text-titleText-dark text-center"
-              dir="ltr"
-            >
+            <div className="mt-3 text-[18px] font-extrabold text-titleText dark:text-titleText-dark text-center" dir="ltr">
               {ratioLabel}
             </div>
           ) : (
@@ -160,19 +162,24 @@ function RatioProgress({ value, uniqueUserCount }: { value: number, uniqueUserCo
               نامشخص
             </div>
           )}
+
         </div>
-        <div className="min-w-0 p-4 rounded-2xl
-          min-h-full
-            border border-boxBorderColor dark:border-boxBorderColor-dark
-            bg-white/60 dark:bg-bgColor-dark/35">
+
+        <div
+          className="
+            min-w-0 p-4 rounded-2xl
+            border border-boxBorderColor/80 dark:border-boxBorderColor-dark/80
+            bg-white/70 dark:bg-bgColor-dark/40
+            shadow-[0_8px_26px_-22px_rgba(0,0,0,0.35)]
+            flex flex-col justify-between
+          "
+        >
           <div className="text-[12px] font-semibold text-titleText dark:text-titleText-dark">
             تعداد کاربران
           </div>
+
           {uniqueUserCount ? (
-            <div
-              className="mt-3 text-[18px] font-extrabold text-titleText dark:text-titleText-dark text-center"
-              dir="ltr"
-            >
+            <div className="mt-3 text-[18px] font-extrabold text-titleText dark:text-titleText-dark text-center" dir="ltr">
               {uniqueUserCount.toLocaleString()}
             </div>
           ) : (
@@ -180,13 +187,12 @@ function RatioProgress({ value, uniqueUserCount }: { value: number, uniqueUserCo
               نامشخص
             </div>
           )}
-        </div>
 
+        </div>
       </div>
     </div>
   );
 }
-
 
 const ExchangeCard: React.FC<ExchangeCardProps> = ({
   id,
@@ -201,40 +207,54 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
 }) => {
   const safeSite = siteAddress || '';
 
+  const borderClass =
+    index % 3 === 1
+      ? 'border-y border-x border-boxBorderColor/80 dark:border-boxBorderColor-dark/80'
+      : 'border-y border-boxBorderColor/80 dark:border-boxBorderColor-dark/80';
+
   return (
     <Link
       href={`/panel/exchanges-list/exchange/${id}`}
       dir="rtl"
       id={name}
       className={`
-        block w-full
-        ${index % 3 === 1 ? "border-y border-x border-boxBorderColor dark:border-boxBorderColor-dark" : 'border-y border-boxBorderColor dark:border-boxBorderColor-dark'}
-         hover:bg-boxColor hover:dark:bg-[#3e4044]
+        relative block w-full overflow-hidden
+        ${borderClass}
+        bg-transparent
         transition
-        overflow-hidden
-
+        hover:bg-boxColor/70 hover:dark:bg-[#3e4044]
+        hover:shadow-[0_16px_40px_-30px_rgba(0,0,0,0.6)]
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2
+        focus-visible:ring-offset-white dark:focus-visible:ring-offset-bgColor-dark
       `}
     >
-      {/* Top glow */}
-      <div className="pointer-events-none absolute hidden" />
+      {/* soft top highlight */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/5 dark:from-white/5 to-transparent opacity-50" />
 
       {/* Header */}
-      <div className="px-4 pt-4 pb-3">
+      <div className="relative px-4 pt-4 pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div
               className="
+                relative
                 flex h-11 w-11 items-center justify-center
                 rounded-2xl
-                border border-boxBorderColor dark:border-boxBorderColor-dark
-                bg-white/70 dark:bg-bgColor-dark/35
+                border border-boxBorderColor/80 dark:border-boxBorderColor-dark/80
+                bg-white/70 dark:bg-bgColor-dark/40
                 overflow-hidden shrink-0
+                shadow-sm
               "
             >
+              {/* logo glow */}
+              <div className="pointer-events-none absolute inset-0 opacity-60">
+                <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full blur-2xl bg-primary/15" />
+              </div>
+
               {logo ? (
-                <img src={logo} className="w-9 h-9 object-contain" alt={name} />
+                <img src={logo} className="w-9 h-9 object-contain relative" alt={name} />
               ) : (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="relative">
                   <path
                     d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"
                     stroke="currentColor"
@@ -251,15 +271,33 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
                 <span className="text-[18px] md:text-[18px] font-extrabold text-titleText dark:text-titleText-dark truncate">
                   {name}
                 </span>
-                {/* tiny status dot */}
                 <span className="h-2 w-2 rounded-full bg-primary/80 shrink-0" />
               </div>
-              <div className="flex items-center gap-2 min-w-0">
+
+              <div className="mt-0.5 flex items-center gap-2 min-w-0">
                 <span className="text-[12px] md:text-[12px] font-extrabold text-[#6b6b6b] dark:text-[#bebebe] truncate">
                   {legalName}
                 </span>
               </div>
+
             </div>
+          </div>
+
+          {/* small badge on right */}
+          <div
+            className="
+              shrink-0
+              rounded-2xl
+              border border-black/5 dark:border-white/10
+              bg-white/60 dark:bg-white/5
+              backdrop-blur
+              px-3 py-2
+              text-[11px] font-semibold
+              text-titleText/70 dark:text-titleText-dark/70
+              whitespace-nowrap
+            "
+          >
+            {uniqueCoins ? `${uniqueCoins.toLocaleString()} کوین` : '—'}
           </div>
         </div>
       </div>
@@ -269,17 +307,11 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
 
       {/* Body */}
       <div className="p-4">
-        <div className=" items-stretch">
-          {/* Stats */}
-          <div className=" h-full flex flex-col gap-3">
-            {/* Legal name card (compact) */}
+        <div className="items-stretch">
+          <div className="h-full flex flex-col gap-3">
             <div className="grid grid-cols-1 gap-3 flex-1">
               <RatioProgress value={reserveRatio} uniqueUserCount={uniqueUserCount} />
             </div>
-          </div>
-
-          {/* Ratio card */}
-          <div className="h-full">
           </div>
         </div>
       </div>
