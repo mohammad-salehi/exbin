@@ -1,6 +1,8 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { GetRequest } from '../../../../functions/GetRequest';
+import { useParams } from 'next/navigation';
 
 type ExchangeInfoProps = {
     SetLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -332,7 +334,7 @@ function Pagination({
     );
 }
 
-const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
+const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
     const staticMeta = useMemo(
         () => ({
             auditTime: '۲۰۲۶/۰۱/۰۶ - ۱۲:۳۰',
@@ -482,12 +484,85 @@ const ProofOfReserve: React.FC<ExchangeInfoProps> = () => {
         return assets.slice(start, start + PAGE_SIZE);
     }, [assets, safePage]);
 
+
+    const panelBase =
+        "w-full rounded-2xl bg-white dark:bg-bgColor-dark shadow-lg ring-1 ring-black/5 dark:ring-white/5";
+    const params = useParams<{ id: string }>();
+    const id = params.id;
+    const [C1, SetC1] = useState(false);
+    const [IsLoading, SetIsLoading] = useState(true);
+    useEffect(() => {
+        if (C1) {
+            SetIsLoading(false);
+        }
+    }, [C1]);
+    useEffect(() => {
+        SetLoading(IsLoading);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [IsLoading]);
+    // نام و لوگو
+    useEffect(() => {
+        GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${params.id}`)
+            .then((response) => {
+                SetLogo(response.result.logo);
+                SetName(response.result.name);
+                SetC1(true);
+            })
+            .catch((err) => {
+                console.log(err);
+                SetC1(true);
+            });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+    const cx = (...c: Array<string | false | undefined | null>) => c.filter(Boolean).join(" ");
+    const [logo, SetLogo] = useState<string>("");
+    const [name, SetName] = useState<string>("");
+    const logoNode = useMemo(() => {
+        if (logo) return <img alt="logo" className="w-8 h-8 object-contain" src={logo} />;
+        return (
+            <div
+                className={cx(
+                    "w-10 h-10 rounded-xl grid place-items-center  text-titleText dark:text-titleText-dark",
+                    "bg-boxColor dark:bg-boxColor-dark",
+                    "border border-boxBorderColor dark:border-boxBorderColor-dark"
+                )}
+            >
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                    <path
+                        d="M4 7.2C4 6.08 4 5.52 4.218 5.092c.192-.376.498-.682.874-.874C5.52 4 6.08 4 7.2 4h9.6c1.12 0 1.68 0 2.108.218.376.192.682.498.874.874C20 5.52 20 6.08 20 7.2v9.6c0 1.12 0 1.68-.218 2.108a2 2 0 0 1-.874.874C18.48 20 17.92 20 16.8 20H7.2c-1.12 0-1.68 0-2.108-.218a2 2 0 0 1-.874-.874C4 18.48 4 17.92 4 16.8V7.2Z"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                    />
+                    <path
+                        d="M8 14.5 10.2 12.3a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 0 1.4 0L18 11.5"
+                        stroke="currentColor"
+                        strokeWidth="1.7"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    />
+                </svg>
+            </div>
+        );
+    }, [logo]);
+
     return (
         <section dir="rtl" className="w-full text-titleText dark:text-titleText-dark">
             {/* SINGLE PAGE BOX */}
 
+            <div className={cx(panelBase, "p-5")}>
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+                    <div className="min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                            {logoNode}
+                            <h3 className="text-2xl font-extrabold text-titleText dark:text-titleText-dark truncate mb-0">
+                                {name}
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
             {/* HERO (polished, same shapes in both themes) */}
-            <div className="relative w-full overflow-hidden rounded-[28px] border border-boxBorderColor dark:border-none">
+            <div className="relative w-full overflow-hidden rounded-[28px] border border-boxBorderColor dark:border-none mt-4">
                 {/* Base background */}
                 <div className="absolute inset-0 bg-white dark:bg-[#121822]" />
 
