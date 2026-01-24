@@ -99,9 +99,10 @@ export default function Pagination({
         {/* 🔹 تعداد کل دیتا */}
         <div className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
           مجموع:
-          <span className="font-bold mr-1 text-titleText dark:text-titleText-dark">
+          <span className="font-bold mx-1 text-titleText dark:text-titleText-dark">
             {totalItems.toLocaleString("fa-IR")}
           </span>
+          داده
         </div>
       </div>
     </div>
