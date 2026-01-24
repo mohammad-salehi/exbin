@@ -34,7 +34,6 @@ function usePagination(totalItems: number, currentPage: number, pageSize: number
     for (let i = left; i <= right; i++) pages.push(i);
 
     if (right < totalPages - 1) pages.push("…");
-    pages.push(totalPages);
 
     return { pages, totalPages };
   }, [totalItems, currentPage, pageSize]);
@@ -45,16 +44,11 @@ export default function Pagination({
   pageSize,
   currentPage,
   onPageChange,
-  onPageSizeChange,
-  pageSizeOptions = [10, 20, 50, 100],
   className = "",
   rtl = false,
   compact = false,
 }: TablePaginationProps) {
   const { pages, totalPages } = usePagination(totalItems, currentPage, pageSize);
-
-  const start = totalItems === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const end = Math.min(totalItems, currentPage * pageSize);
 
   const isFirst = currentPage <= 1;
   const isLast = currentPage >= totalPages;
@@ -66,40 +60,51 @@ export default function Pagination({
   const size = compact ? "h-8 px-2 text-sm" : "h-10 px-3 text-sm";
 
   return (
-    <div dir={dir} className={`w-full flex flex-col gap-3 ${className}`}>
+    <div dir={dir} className={`w-full flex justify-start mt-4 ${className}`}>
+      <div className="flex items-center gap-4 flex-wrap">
 
-      <div className="flex items-center justify-center gap-1 mt-4">
-        <button
-          className={`rounded-xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 ${size} disabled:opacity-40 text-titleText dark:text-titleText-dark`}
-          onClick={() => onPageChange(currentPage - 1)}
-          disabled={isFirst}
-        >
-          {arrowPrev}
-        </button>
-
-        {pages.map((p, i) => (
+        {/* 🔹 دکمه‌ها */}
+        <div className="flex items-center gap-1">
           <button
-            key={`${p}-${i}`}
-            className={`rounded-xl border border-gray-200 dark:border-gray-700 ${size} ${
-              p === currentPage
-                ? "bg-primary-500 text-black border-primary-500 bg-gray-200 dark:bg-black dark:text-white"
-                : "bg-white/70 dark:bg-gray-900/40 text-titleText dark:text-titleText-dark"
-            }`}
-            onClick={() => typeof p === "number" && onPageChange(p)}
-            disabled={p === "…"}
+            className={`rounded-xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 ${size} disabled:opacity-40 text-titleText dark:text-titleText-dark`}
+            onClick={() => onPageChange(currentPage - 1)}
+            disabled={isFirst}
           >
-            {p}
+            {arrowPrev}
           </button>
-        ))}
 
-        <button
-          className={`rounded-xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 ${size} disabled:opacity-40 text-titleText dark:text-titleText-dark`}
-          onClick={() => onPageChange(currentPage + 1)}
-          disabled={isLast}
-        >
-          {arrowNext}
-        </button>
+          {pages.map((p, i) => (
+            <button
+              key={`${p}-${i}`}
+              className={`rounded-xl border border-gray-200 dark:border-gray-700 ${size} ${p === currentPage
+                  ? "bg-gray-200 dark:bg-black text-black dark:text-white border-primary-500"
+                  : "bg-white/70 dark:bg-gray-900/40 text-titleText dark:text-titleText-dark"
+                }`}
+              onClick={() => typeof p === "number" && onPageChange(p)}
+              disabled={p === "…"}
+            >
+              {p}
+            </button>
+          ))}
+
+          <button
+            className={`rounded-xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-900/40 ${size} disabled:opacity-40 text-titleText dark:text-titleText-dark`}
+            onClick={() => onPageChange(currentPage + 1)}
+            disabled={isLast}
+          >
+            {arrowNext}
+          </button>
+        </div>
+
+        {/* 🔹 تعداد کل دیتا */}
+        <div className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+          مجموع:
+          <span className="font-bold mr-1 text-titleText dark:text-titleText-dark">
+            {totalItems.toLocaleString("fa-IR")}
+          </span>
+        </div>
       </div>
     </div>
   );
+
 }
