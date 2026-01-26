@@ -181,7 +181,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       .then((response) => {
         SetHeaderData((prev) => {
           const item: CryptoTradingValueUsers = {
-            label: "میانگین زمان تسویه کاربران(میلی‌ثانیه)",
+            label: "میانگین زمان تسویه با کاربران طی 24 ساعت گذشته(میلی‌ثانیه)",
             value: Number(response.result.avgWithdrawalDurationMs ?? 0),
           };
           const next = prev.filter((x) => x.label !== item.label);
@@ -202,7 +202,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       .then((response) => {
         SetHeaderData((prev) => {
           const item: CryptoTradingValueUsers = {
-            label: "مجموع دارایی(USDT)",
+            label: "کل دارایی کاربران(USD)",
             value: Number(response.result.totalAssetsUsd ?? 0),
           };
           const next = prev.filter((x) => x.label !== item.label);
@@ -211,7 +211,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
 
         SetHeaderData((prev) => {
           const item: CryptoTradingValueUsers = {
-            label: "مجموع بدهی(USDT)",
+            label: "کل بدهی کاربران(USD)",
             value: Number(response.result.totalLiabilitiesUsd ?? 0),
           };
           const next = prev.filter((x) => x.label !== item.label);
@@ -919,19 +919,19 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       {/* Row 1 */}
       <div className={rowGrid3}>
         <div className={cx(cardStretch, "xl:col-span-1")}>
-          <MemoCircleChart data={TopTradedcryptocurrencies} title="حجم معاملات رمزارزها" unit="USDT" />
+          <MemoCircleChart data={TopTradedcryptocurrencies} title="سهم هر رمزارز از کل حجم معاملات ثبت‌شده" unit="USDT" />
         </div>
         <div className={cx(cardStretch, "xl:col-span-1")}>
           <MemoCircleChart
             data={DailyPOR}
-            title="نسبت دارایی به بدهی"
+            title="نسبت دارایی به تعهد کارگزاری"
             unit="USDT"
             description="برایند دارایی‌ها و بدهی‌ها محاسبه شده است!"
             value={DailyPOR.length !== 0 ? DailyPOR[0].value - DailyPOR[1].value : null}
           />
         </div>
         <div className={cx(cardStretch, "xl:col-span-2")}>
-          <MemoTreeMap data={Topcryptocurrencies} title="حجم دارایی رمزارزها" />
+          <MemoTreeMap data={Topcryptocurrencies} title="سهم هر رمزارز از کل حجم معاملات ثبت‌شده" />
         </div>
       </div>
 
@@ -940,7 +940,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         <div className={cx(cardStretch, "xl:col-span-3")}>
           <MemoDoubleLinearChart
             data={PORHistory}
-            title="تاریخچه نسبت دارایی به بدهی"
+            title="تاریخچه نسبت دارایی به بعهد کارگزاری"
             unitSuffix="M"
             assetLabel="دارایی"
             liabilityLabel="بدهی"
@@ -954,7 +954,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         <div className={cx(cardStretch, "xl:col-span-2")}>
           <MemoDoubleLinearChart
             data={DepWithHistory}
-            title="واریز و برداشت های رمزارزی سکو"
+            title="واریز و برداشت رمزارزی روزانه"
             unitSuffix="M"
             assetLabel="واریز"
             liabilityLabel="برداشت"
@@ -974,7 +974,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         <div className={cx(cardStretch, "xl:col-span-2")}>
           <MemoDoubleLinearChart
             data={IRRDepWithHistory}
-            title="واریز و برداشت های ریالی سکو"
+            title="واریز و برداشت ریالی روزانه"
             unitSuffix="M"
             assetLabel="واریز"
             liabilityLabel="برداشت"
@@ -989,7 +989,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       <div className={cx(cardStretch, panelBase, "p-0 overflow-hidden")}>
         <MemoSingleLinearChart
           data={TradingVolume}
-          title="حجم معاملات ماهانه"
+          title="حجم معاملات روزانه"
           seriesLabel="حجم"
           unitSuffix="M"
           List={CryptoList}
@@ -1003,7 +1003,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       <div className={cx(cardStretch, panelBase, "p-0 overflow-hidden")}>
         <MemoSingleLinearChart
           data={DailyActiveUsers}
-          title="کاربران فعال ماهانه"
+          title="کاربران فعال روزانه"
           seriesLabel="کاربر"
           unitSuffix="M"
           topLeftLink={{ href: `/panel/exchange-users?exchange=${name}`, label: "جزئیات دارایی کاربران" }}

@@ -7,6 +7,7 @@ import ExchangeStats from "../../../../../../components/Dashboard/Exchange_page/
 import ExchangeIdentify from "../../../../../../components/Dashboard/Exchange_page/ExchangeIdentify/ExchangeIdentify";
 import ExchangeSetting from "../../../../../../components/Dashboard/Exchange_page/ExchangeSetting/ExchangeSetting";
 import ProofOfReserve from "../../../../../../components/Dashboard/Exchange_page/ProofOfReserve/ProofOfReserve";
+import ExchangeValidation from "../../../../../../components/Dashboard/Exchange_page/ExchangeValidation/ExchangeValidation";
 
 const Page = () => {
   const [Loading, SetLoading] = useState<boolean>(true);
@@ -74,7 +75,7 @@ const Page = () => {
       </svg>,
       content: (
         <div>
-
+          <ExchangeValidation  SetLoading={SetLoading}/>
         </div>
       ),
     }

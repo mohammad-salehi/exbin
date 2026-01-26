@@ -78,7 +78,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
                   className="
                     text-[12px] sm:text-[13px]
                     text-titleText/70 dark:text-titleText-dark/70
-                    truncate
+                    
                   "
                   title={item.label}
                 >

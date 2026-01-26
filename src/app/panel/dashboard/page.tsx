@@ -100,7 +100,7 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item: DashboardItem = {
-            label: "تعداد کاربران",
+            label: "تعداد کاربران رمزارز",
             value: Number(response?.result?.totalUsers ?? 0),
           };
 
@@ -119,12 +119,12 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "تعداد معاملات روزانه",
+            label: "تعداد معاملات موفق در تمامی بازارها طی 24 ساعت اخیر",
             value: Number(response?.result.totalTradesCount ?? 0),
           };
 
           const item2: DashboardItem = {
-            label: "میانگین معاملات روزانه (USDT)",
+            label: "میانگین دلاری معاملات کاربران طی 24 ساعت اخیر",
             value: Number(response?.result.avgTradeVolumeUsd ?? 0),
           };
 
@@ -143,7 +143,7 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "سکوهای ثبت‌شده",
+            label: "تعداد سکوهای رمزارزی متصل به سامانه",
             value: Number(response?.result?.totalElements ?? 0),
           };
 
@@ -162,11 +162,11 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "حجم معاملات روزانه بازار تتری(USDT)",
+            label: "ارزش دلاری معاملات انجام‌شده طی 24 ساعت اخیر",
             value: Number(response?.result?.totalVolumeUsdt ?? 0),
           };
           const item2: DashboardItem = {
-            label: "حجم معاملات روزانه بازار ریالی(IRR)",
+            label: "مجموع ارزش معاملات مبتنی بر ریال طی 24 ساعت اخیر",
             value: Number(response?.result?.totalVolumeIrr ?? 0),
           };
           const next = prev.filter((x) => x.label !== item1.label);
@@ -184,7 +184,7 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "حجم معاملات روزانه(USD)",
+            label: "ارزش دلاری کل معاملات انجام‌شده طی 24 ساعت اخیر",
             value: Number(response?.result?.totalVolumeUsd ?? 0),
           };
           const next = prev.filter((x) => x.label !== item1.label);
@@ -302,7 +302,7 @@ export default function Page() {
         SetCryptoList(response.result)
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "تعداد ارزهای پشتیبانی شده",
+            label: "تعداد رمزارزهای تحت پوشش کارگزاری‌ها",
             value: Number(response?.result?.length ?? 0),
           };
           const next = prev.filter((x) => x.label !== item1.label);
