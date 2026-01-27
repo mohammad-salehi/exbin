@@ -411,7 +411,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
 
   const handleDownloadPDF = async () => {
     if (IsDownloading) return;
-
+  
     SetIsDownloading(true);
     try {
       const toEnNumber = (v: any) => {
@@ -428,41 +428,105 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           "۷": "7",
           "۸": "8",
           "۹": "9",
+          "٠": "0",
+          "١": "1",
+          "٢": "2",
+          "٣": "3",
+          "٤": "4",
+          "٥": "5",
+          "٦": "6",
+          "٧": "7",
+          "٨": "8",
+          "٩": "9",
           "٫": ".",
           "٬": ",",
         };
-        return s.replace(/[۰-۹٫٬]/g, (ch) => map[ch] ?? ch);
+        return s.replace(/[۰-۹٠-٩٫٬]/g, (ch) => map[ch] ?? ch);
       };
-
+  
       const toEnText = (v: any) => {
         if (v === null || v === undefined) return "";
         return toEnNumber(String(v));
       };
-
+  
+      // ✅ NEW: normalize + robust label translation for new texts
+      const normalizeFa = (input: any) => {
+        const s = String(input ?? "").trim();
+        const map: Record<string, string> = {
+          "۰": "0",
+          "۱": "1",
+          "۲": "2",
+          "۳": "3",
+          "۴": "4",
+          "۵": "5",
+          "۶": "6",
+          "۷": "7",
+          "۸": "8",
+          "۹": "9",
+          "٠": "0",
+          "١": "1",
+          "٢": "2",
+          "٣": "3",
+          "٤": "4",
+          "٥": "5",
+          "٦": "6",
+          "٧": "7",
+          "٨": "8",
+          "٩": "9",
+          "٫": ".",
+          "٬": ",",
+          "‌": " ", // نیم‌فاصله -> فاصله
+        };
+  
+        return s
+          .replace(/[۰-۹٠-٩٫٬‌]/g, (ch) => map[ch] ?? ch)
+          .replace(/\s+/g, " ")
+          .replace(/[()（）]/g, "") // پرانتزها حذف برای match بهتر
+          .trim();
+      };
+  
       const labelToEnglish = (label: string) => {
-        const s = (label || "").trim();
+        const s = normalizeFa(label);
+  
+        // mapping دقیق/کوتاه
         const dict: Record<string, string> = {
           "تعداد کاربران": "Number of Users",
           "کاربران فعال روزانه": "Daily Active Users",
-          "کاربران فعال ماهانه": "Monthly Active Users (Sum)",
-          "میانگین زمان تسویه کاربران(میلی‌ثانیه)": "Avg Settlement Time (ms)",
-          "مجموع دارایی(USDT)": "Total Assets (USDT)",
-          "مجموع بدهی(USDT)": "Total Liabilities (USDT)",
+          "کاربران فعال ماهانه": "Monthly Active Users",
           "دارایی": "Assets",
           "بدهی": "Liabilities",
           "واریز": "Deposits",
           "برداشت": "Withdrawals",
         };
-        return dict[s] ?? toEnText(s);
+        if (dict[s]) return dict[s];
+  
+        // الگوها برای لیبل‌های طولانی/متغیر
+        if (s.includes("میانگین زمان تسویه") && s.includes("میلی")) return "Avg Settlement Time (ms)";
+        if (s.includes("میانگین زمان تسویه") && s.includes("24")) return "Avg Settlement Time (Last 24h) (ms)";
+  
+        // دارایی/بدهی USD
+        if (s.includes("کل دارایی") && s.includes("USD")) return "Total User Assets (USD)";
+        if (s.includes("کل بدهی") && s.includes("USD")) return "Total Liabilities to Users (USD)";
+  
+        // حالت‌های مشابه (اگر متن کمی متفاوت بود)
+        if (s.includes("دارایی کاربران") && s.includes("USD")) return "Total User Assets (USD)";
+        if (s.includes("بدهی به کاربران") && s.includes("USD")) return "Total Liabilities to Users (USD)";
+  
+        // اگر واحد USDT بود (برخی API ها ممکنه اینطور بدن)
+        if (s.includes("دارایی") && s.includes("USDT")) return "Total User Assets (USDT)";
+        if (s.includes("بدهی") && s.includes("USDT")) return "Total Liabilities to Users (USDT)";
+  
+        // fallback: متن نرمال‌شده
+        return s;
       };
-
+  
       const addSectionTitle = (doc: any, title: string, y: number) => {
         doc.setFont("helvetica", "bold");
         doc.setFontSize(11);
         doc.text(toEnText(title), 14, y);
         doc.setFont("helvetica", "normal");
       };
-
+  
       const urlToDataUrl = async (url: string): Promise<string | null> => {
         try {
           const res = await fetch(url);
@@ -477,7 +541,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           return null;
         }
       };
-
+  
       const getImageSizeFromDataUrl = (dataUrl: string) =>
         new Promise<{ w: number; h: number }>((resolve, reject) => {
           const img = new Image();
@@ -485,7 +549,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           img.onerror = reject;
           img.src = dataUrl;
         });
-
+  
       const getImageFormatFromDataUrl = (dataUrl: string) => {
         const m = /^data:image\/(png|jpeg|jpg|webp);/i.exec(dataUrl);
         const t = (m?.[1] || "png").toLowerCase();
@@ -494,16 +558,12 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         if (t === "webp") return "WEBP";
         return "PNG";
       };
-
+  
       // ---- concurrency helper ----
-      const mapWithConcurrency = async <T, R>(
-        items: T[],
-        limit: number,
-        worker: (item: T, index: number) => Promise<R>
-      ): Promise<R[]> => {
+      const mapWithConcurrency = async <T, R>(items: T[], limit: number, worker: (item: T, index: number) => Promise<R>): Promise<R[]> => {
         const results: R[] = new Array(items.length);
         let i = 0;
-
+  
         const runners = new Array(Math.min(limit, items.length)).fill(0).map(async () => {
           while (true) {
             const idx = i++;
@@ -511,108 +571,97 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             results[idx] = await worker(items[idx], idx);
           }
         });
-
+  
         await Promise.all(runners);
         return results;
       };
-
+  
+      type DailyActiveUsers = { label: string; x: number };
+      type DoubleLinearPoint = { label: string; x: number; y: number };
+  
       type SymResult = {
         symbol: string;
         tradingVolume: DailyActiveUsers[];
         depositsWithdrawals: DoubleLinearPoint[];
         error?: string;
       };
-
-      const symbols: string[] = (CryptoList || [])
-        .map((x: any) => x?.cryptocurrency)
-        .filter(Boolean);
-
+  
+      const symbols: string[] = (CryptoList || []).map((x: any) => x?.cryptocurrency).filter(Boolean);
+  
       const fetchPerSymbol = async (symbol: string): Promise<SymResult> => {
         try {
           const [tvRes, dwRes] = await Promise.all([
             GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/exchange/${id}/trading-volume/${symbol}`),
             GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/exchange/${id}/deposits-withdrawals/${symbol}`),
           ]);
-
+  
           const tradingVolume: DailyActiveUsers[] = (tvRes?.result || [])
-            .map((r: any) => ({
-              label: formatJalaliDateTime(r.date),
-              x: r.volume,
-            }))
+            .map((r: any) => ({ label: formatJalaliDateTime(r.date), x: r.volume }))
             .sort((a: any, b: any) => String(a.label).localeCompare(String(b.label)));
-
+  
           const depositsWithdrawals: DoubleLinearPoint[] = (dwRes?.result || [])
-            .map((r: any) => ({
-              label: formatJalaliDateTime(r.date),
-              x: r.inflow,
-              y: r.outflow,
-            }))
+            .map((r: any) => ({ label: formatJalaliDateTime(r.date), x: r.inflow, y: r.outflow }))
             .sort((a: any, b: any) => String(a.label).localeCompare(String(b.label)));
-
+  
           return { symbol, tradingVolume, depositsWithdrawals };
         } catch (e: any) {
-          return {
-            symbol,
-            tradingVolume: [],
-            depositsWithdrawals: [],
-            error: e?.message || "fetch failed",
-          };
+          return { symbol, tradingVolume: [], depositsWithdrawals: [], error: e?.message || "fetch failed" };
         }
       };
-
+  
       // ---- PDF ----
       const doc = new jsPDF({ orientation: "p", unit: "mm", format: "a4" });
       const pageW = doc.internal.pageSize.getWidth();
       const pageH = doc.internal.pageSize.getHeight();
       const marginX = 14;
-
+  
       const title = "Exchange Analytics Report";
       const subtitle = `Exchange Name: ${toEnText(name || "Unknown Exchange")}`;
-
+  
       const logoDataUrl = await urlToDataUrl("/images/shaparak.png");
-
+  
       doc.setFont("helvetica", "bold");
       doc.setFontSize(16);
       doc.text(toEnText(title), marginX, 16);
-
+  
       doc.setFont("helvetica", "normal");
       doc.setFontSize(10);
       doc.text(toEnText(subtitle), marginX, 22);
-
+  
       doc.setFontSize(9);
       doc.text(
         `Report Date: ${new Intl.DateTimeFormat("en-CA", { dateStyle: "medium" }).format(new Date())}`,
         marginX,
         27
       );
-
+  
       if (logoDataUrl) {
         try {
           const { w, h } = await getImageSizeFromDataUrl(logoDataUrl);
           const ratio = w / h;
-
+  
           const logoH = 18;
           const logoW = logoH * ratio;
           const x = pageW - marginX - logoW;
           const y = 10;
-
+  
           const fmt = getImageFormatFromDataUrl(logoDataUrl);
           doc.addImage(logoDataUrl, fmt as any, x, y, logoW, logoH);
         } catch {
           // ignore
         }
       }
-
+  
       const headerBottomY = 30;
       doc.setDrawColor(200);
       doc.setLineWidth(0.6);
       doc.line(marginX, headerBottomY + 4, pageW - marginX, headerBottomY + 4);
-
+  
       let cursorY = headerBottomY + 12;
-
+  
       addSectionTitle(doc, "Overview Metrics", cursorY);
       cursorY += 3;
-
+  
       autoTable(doc, {
         startY: cursorY,
         head: [["Metric", "Value"]],
@@ -626,13 +675,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         margin: { left: marginX, right: marginX },
         pageBreak: "auto",
       });
-
+  
       // @ts-ignore
       cursorY = (doc as any).lastAutoTable.finalY + 8;
-
+  
       addSectionTitle(doc, "Top Traded Cryptocurrencies (USDT)", cursorY);
       cursorY += 3;
-
+  
       autoTable(doc, {
         startY: cursorY,
         head: [["Currency", "Total Volume (USDT)"]],
@@ -646,13 +695,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         margin: { left: marginX, right: marginX },
         pageBreak: "auto",
       });
-
+  
       // @ts-ignore
       cursorY = (doc as any).lastAutoTable.finalY + 8;
-
+  
       addSectionTitle(doc, "Portfolio - Top Assets (USD Value)", cursorY);
       cursorY += 3;
-
+  
       autoTable(doc, {
         startY: cursorY,
         head: [["Asset", "Symbol", "Total USD Value"]],
@@ -667,13 +716,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         margin: { left: marginX, right: marginX },
         pageBreak: "auto",
       });
-
+  
       // @ts-ignore
       cursorY = (doc as any).lastAutoTable.finalY + 8;
-
+  
       addSectionTitle(doc, "Assets vs Liabilities (Historical)", cursorY);
       cursorY += 3;
-
+  
       autoTable(doc, {
         startY: cursorY,
         head: [["Date", "Assets (USD)", "Liabilities (USD)"]],
@@ -688,17 +737,16 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         margin: { left: marginX, right: marginX },
         pageBreak: "auto",
       });
-
+  
       // @ts-ignore
       cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-      // ---- NEW: fetch ALL symbols and put them into ONE shared table with a Symbol column ----
+  
+      // ---- fetch ALL symbols and put them into ONE shared table ----
       const allSymbolData = symbols.length ? await mapWithConcurrency(symbols, 4, (sym) => fetchPerSymbol(sym)) : [];
-
-      // Crypto Deposits & Withdrawals - single table
+  
       addSectionTitle(doc, "Crypto Deposits & Withdrawals - All Symbols", cursorY);
       cursorY += 3;
-
+  
       const depRows: Array<[string, string, string, string]> = [];
       for (const item of allSymbolData) {
         if (item.error) {
@@ -714,7 +762,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           ]);
         }
       }
-
+  
       autoTable(doc, {
         startY: cursorY,
         head: [["Symbol", "Date", "Deposits", "Withdrawals"]],
@@ -725,14 +773,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         margin: { left: marginX, right: marginX },
         pageBreak: "auto",
       });
-
+  
       // @ts-ignore
       cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-      // IRR Deposits & Withdrawals (Historical) - unchanged
+  
       addSectionTitle(doc, "IRR Deposits & Withdrawals (Historical)", cursorY);
       cursorY += 3;
-
+  
       autoTable(doc, {
         startY: cursorY,
         head: [["Date", "Deposits (IRR)", "Withdrawals (IRR)"]],
@@ -747,14 +794,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         margin: { left: marginX, right: marginX },
         pageBreak: "auto",
       });
-
+  
       // @ts-ignore
       cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-      // Trading Volume (Monthly) - single table
+  
       addSectionTitle(doc, "Trading Volume (Monthly) - All Symbols", cursorY);
       cursorY += 3;
-
+  
       const tvRows: Array<[string, string, string]> = [];
       for (const item of allSymbolData) {
         if (item.error) {
@@ -769,7 +815,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           ]);
         }
       }
-
+  
       autoTable(doc, {
         startY: cursorY,
         head: [["Symbol", "Date", "Volume"]],
@@ -780,14 +826,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         margin: { left: marginX, right: marginX },
         pageBreak: "auto",
       });
-
+  
       // @ts-ignore
       cursorY = (doc as any).lastAutoTable.finalY + 8;
-
-      // Daily Active Users (Time Series) - unchanged
+  
       addSectionTitle(doc, "Daily Active Users (Time Series)", cursorY);
       cursorY += 3;
-
+  
       autoTable(doc, {
         startY: cursorY,
         head: [["Date", "DAU"]],
@@ -801,25 +846,26 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         margin: { left: marginX, right: marginX },
         pageBreak: "auto",
       });
-
+  
       const pageCount = doc.getNumberOfPages();
       for (let p = 1; p <= pageCount; p++) {
         doc.setPage(p);
         doc.setFont("helvetica", "normal");
         doc.setFontSize(9);
         doc.text(`Page ${p} of ${pageCount}`, marginX, pageH - 10);
-
+  
         if (p === pageCount) {
           doc.text("This report was automatically generated by the CED portal system.", marginX, pageH - 16);
         }
       }
-
+  
       const safeName = (name || "exchange").toString().replace(/\s+/g, "_");
       doc.save(`CED_Report_${toEnText(safeName)}_${toEnText(id || "")}.pdf`);
     } finally {
       SetIsDownloading(false);
     }
   };
+  
 
   // ✅ wrappers to force equal height per row (items stretch)
   const rowGrid3 = "grid grid-cols-1 xl:grid-cols-2 gap-4 mt-4 items-stretch";
