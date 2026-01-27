@@ -392,7 +392,7 @@ export default function Page() {
         <div>
           <MemoDoubleLinearChart
             data={DepWitList}
-            title="نمودار واریز و برداشت ماهانه"
+            title="نمودار واریز و برداشت روزانه"
             unitSuffix="M"
             assetLabel="واریز"
             liabilityLabel="برداشت"
@@ -409,7 +409,7 @@ export default function Page() {
         <div>
           <MemoSingleLinearChart
             data={DailyTradingList}
-            title="حجم معاملات ماهانه"
+            title="حجم معاملات روزانه"
             seriesLabel="حجم"
             unitSuffix="M"
             List={CryptoList}

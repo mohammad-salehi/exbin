@@ -211,7 +211,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
 
         SetHeaderData((prev) => {
           const item: CryptoTradingValueUsers = {
-            label: "کل بدهی کاربران(USD)",
+            label: "کل بدهی به کاربران(USD)",
             value: Number(response.result.totalLiabilitiesUsd ?? 0),
           };
           const next = prev.filter((x) => x.label !== item.label);
