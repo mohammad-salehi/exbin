@@ -29,6 +29,7 @@ build_front_dev:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
+    - docker pull docker.arvancloud.ir/node:20-alpine
     - echo $IMAGE_NAME
     - docker build . -f Dockerfile --tag $IMAGE_NAME --build-arg NODE_ENV=development
     - docker push $IMAGE_NAME
@@ -74,6 +75,7 @@ deploy_front_dev:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
+    - docker pull docker.arvancloud.ir/node:20-alpine
     - echo $IMAGE_NAME
     - docker pull $IMAGE_NAME
     - docker pull "$IMAGE_NAME"
