@@ -280,12 +280,6 @@ const ExchangeValidation = ({ SetLoading }: ExchangeInfoProps) => {
     const columns = useMemo(
         () => [
             {
-                header: "#",
-                cell: (row: TableRow) =>
-                    row.isExpandedContent ? "" : Number(row.id.split("-")[1]) + 1,
-                width: 60,
-            },
-            {
                 header: "پیام خطا",
                 cell: (row: TableRow) =>
                     row.isExpandedContent ? (
@@ -299,26 +293,21 @@ const ExchangeValidation = ({ SetLoading }: ExchangeInfoProps) => {
             {
                 header: "Endpoint",
                 cell: (row: TableRow) => (row.isExpandedContent ? "" : row.endpointPath),
-                width: 220,
             },
             {
                 header: "IP",
                 cell: (row: TableRow) => (row.isExpandedContent ? "" : row.endpointIp),
-                width: 140,
             },
             {
                 header: "Validator",
                 cell: (row: TableRow) => (row.isExpandedContent ? "" : row.validator),
-                width: 260,
             },
             {
                 header: "زمان",
                 cell: (row: TableRow) => (row.isExpandedContent ? "" : row.timestampFa),
-                width: 180,
             },
             {
                 header: "جزئیات",
-                width: 90,
                 cell: (row: TableRow) =>
                     row.isExpandedContent ? (
                         ""
