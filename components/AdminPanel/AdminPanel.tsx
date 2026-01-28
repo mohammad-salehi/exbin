@@ -19,6 +19,7 @@ import { LoaderCircle } from "../../components/Loader/Loader";
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 import { PostRequest } from "../../functions/PostRequest";
 import { refreshTokenOnly } from "../../functions/TokenRefresh";
+
 type Role = "ADMIN" | "USER";
 
 type Person = {
