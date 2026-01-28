@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import ExpandableTable, { Column } from "../../components/ExpandableTable/ExpandableTable";
 import Pagination from "../../components/Pagination/Pagination";
-import { GetRequest } from '../../functions/GetRequest'; // فرض می‌کنم که این تابع قبلاً ساخته شده است
+import { GetRequest } from '../../functions/GetRequest'; 
 import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 
 type Job = {
@@ -22,13 +22,13 @@ type Job = {
     jobData: string;
 };
 
-type TableRow = Job & { // اضافه کردن id و subRows به نوع Job
-    id: string; // می‌توانیم id را به عنوان ترکیب jobName و index بگذاریم
-    subRows?: TableRow[]; // برای پشتیبانی از subRows
+type TableRow = Job & { 
+    id: string; 
+    subRows?: TableRow[];
 };
 
 const AdminSchedulers = () => {
-    const [jobs, setJobs] = useState<TableRow[]>([]); // تغییر نوع به TableRow
+    const [jobs, setJobs] = useState<TableRow[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string>('');
     const [page, setPage] = useState(0);
@@ -37,17 +37,16 @@ const AdminSchedulers = () => {
 
     useEffect(() => {
         const fetchData = () => {
-            // ارسال درخواست با پارامترهای page و size
             GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/jobs`)
                 .then((response) => {
                     if (response && response.result) {
                         const mappedJobs = response.result.map((job: Job, index: number) => ({
                             ...job,
-                            id: `${job.jobName}-${index}`, // ایجاد id برای هر ردیف
-                            subRows: [], // اگر نیازی به subRows نیست، می‌توانیم خالی بگذاریم
+                            id: `${job.jobName}-${index}`,
+                            subRows: [],
                         }));
                         setJobs(mappedJobs);
-                        setTotal(response.totalElements); // Assuming totalElements is the total count of jobs
+                        setTotal(response.totalElements);
                     } else {
                         setError('No data found');
                     }
@@ -123,7 +122,7 @@ const AdminSchedulers = () => {
         <div className="space-y-6">
             <ExpandableTable<TableRow>
                 columns={columns}
-                data={jobs.slice(page * size, (page + 1) * size)}  // استفاده از slice به جای splice
+                data={jobs.slice(page * size, (page + 1) * size)}
             />
 
 
