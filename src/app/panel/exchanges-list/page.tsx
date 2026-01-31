@@ -57,7 +57,7 @@ function filterTree(items: Person[], rawQuery: string, keys: (keyof Person)[]): 
 
       if (selfMatches) {
         // فقط زیرشاخه‌های مچ‌شده را نگه داریم
-        return { ...node};
+        return { ...node };
       }
       return null;
     })
@@ -98,7 +98,7 @@ const Page = () => {
           siteAddress: item.siteAddress,
           uniqueCoins: item.uniqueCoins,
           uniqueUserCount: item.uniqueUserCount,
-          reserveRatio:item.reserveRatio ? item.reserveRatio * 100 : 0
+          reserveRatio: item.reserveRatio ? item.reserveRatio * 100 : 0
         }));
 
         people.sort((a, b) => Number(b.id) - Number(a.id));
@@ -131,10 +131,26 @@ const Page = () => {
         </div>
       </div>
 
+      {/* Add exchange button (top) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 m-4 lg:m-0 -mt-2 mb-4 items-end">
+        <div></div>
+        <div></div>
+        <div className="flex justify-start xl:justify-end">
+          <Link href={`/panel/add-new-exchange`}>
+            <button
+              className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg"
+              id="addExchangeButton"
+            >
+              افزودن سکو جدید
+            </button>
+          </Link>
+        </div>
+      </div>
+
 
 
       {/* Table with filtered data */}
-      <div className="mb-4">
+      <div className="mb-4 mt-4">
         {
           Loading && (
             <div className="fixed inset-0 z-50 grid place-items-center bg-white/70 dark:bg-bgColor-dark/70 backdrop-blur-sm">
@@ -171,18 +187,6 @@ const Page = () => {
               />
             );
           })}
-        </div>
-      </div>
-      <div className="relative w-full mb-4 ">
-        <div className="flex justify-between items-center">
-          <div className="text-sm text-titleText dark:text-titleText-dark"></div>
-          <div className="text-sm text-titleText dark:text-titleText-dark">
-            <Link href={`/panel/add-new-exchange`}>
-              <button className="w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg" id="addExchangeButton">
-                افزودن سکو جدید
-              </button>
-            </Link>
-          </div>
         </div>
       </div>
 
