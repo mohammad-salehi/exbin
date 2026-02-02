@@ -130,7 +130,7 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <div className="text-base font-semibold text-titleText dark:text-titleText-dark">
-            تنظیمات اتصال سکو
+            تنظیمات اتصال کارگزاری
           </div>
           <div className="mt-1 text-xs text-titleText dark:text-titleText-dark">
             اطلاعات دامنه و دسترسی را وارد کنید

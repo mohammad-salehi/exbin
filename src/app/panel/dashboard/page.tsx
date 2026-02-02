@@ -28,7 +28,7 @@ export default function Page() {
     x: number;
   };
 
-  //دیتای تستی برای تعداد سکو های ثبت شده
+  //دیتای تستی برای تعداد کارگزاری های ثبت شده
   const [DashboardData, SetDashboardData] = useState<DashboardItem[]>([])
   const [ProofOfReserve, SetProofOfReserve] = useState<DashboardItem[]>([])
   const [IRRtoUSDT, SetIRRtoUSDT] = useState<DashboardItem[]>([])
@@ -134,7 +134,7 @@ export default function Page() {
       })
       .catch(console.log);
   }, []);
-  //تعداد سکوها
+  //تعداد کارگزاریها
   useEffect(() => {
     if (totalExchangeNumberRef.current) return;
     totalExchangeNumberRef.current = true;
@@ -143,7 +143,7 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "تعداد سکوهای رمزارزی متصل به سامانه",
+            label: "تعداد کارگزاریهای رمزارزی متصل به سامانه",
             value: Number(response?.result?.totalElements ?? 0),
           };
 

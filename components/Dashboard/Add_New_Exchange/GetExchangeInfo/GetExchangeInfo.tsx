@@ -61,7 +61,7 @@ const Stepper = ({ current = 1, total = 5 }: { current?: number; total?: number 
 
       <div className="mt-3 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
         <span>مرحله {current} از {total}</span>
-        <span className="hidden sm:inline">ثبت اطلاعات پایه سکو</span>
+        <span className="hidden sm:inline">ثبت اطلاعات پایه کارگزاری</span>
       </div>
     </div>
   );
@@ -148,23 +148,23 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
   };
 
   const nextStep = async () => {
-    if (name === '') return toast.error("نام سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (legalName === '') return toast.error("نام حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (nationalCode === '') return toast.error("شناسه ملی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (financialCode === '') return toast.error("کد اقتصادی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (registrationNumber === '') return toast.error("شماره ثبت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (exchangeType === '') return toast.error("شکل حقوقی سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (type === '') return toast.error("نوع سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (establishmentDate === '') return toast.error("تاریخ تاسیس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (siteAddress === '') return toast.error("وبسایت سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
-    if (phoneNumber === '') return toast.error("شماره تماس سکو مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (name === '') return toast.error("نام کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (legalName === '') return toast.error("نام حقوقی کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (nationalCode === '') return toast.error("شناسه ملی کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (financialCode === '') return toast.error("کد اقتصادی کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (registrationNumber === '') return toast.error("شماره ثبت کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (exchangeType === '') return toast.error("شکل حقوقی کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (type === '') return toast.error("نوع کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (establishmentDate === '') return toast.error("تاریخ تاسیس کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (siteAddress === '') return toast.error("وبسایت کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
+    if (phoneNumber === '') return toast.error("شماره تماس کارگزاری مورد نظر را انتخاب کنید", { position: "bottom-left" })
 
     if (email !== '' && email !== null && !validateEmail(email)) {
       return toast.error("ایمیل مورد نظر را به درستی وارد کنید", { position: "bottom-left" })
     }
-    if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت سکو مورد نظر را به درستی وارد کنید", { position: "bottom-left" })
-    if (/[@#!]/.test(name)) return toast.error("نام سکو نباید شامل کاراکترهای خاص باشد (#, @, !)")
-    if (name.length > 200) return toast.error("طول نام سکو نباید بیشتر از ۲۰۰ کاراکتر باشد")
+    if (!validateDomainExtension(siteAddress)) return toast.error("پسوند سایت کارگزاری مورد نظر را به درستی وارد کنید", { position: "bottom-left" })
+    if (/[@#!]/.test(name)) return toast.error("نام کارگزاری نباید شامل کاراکترهای خاص باشد (#, @, !)")
+    if (name.length > 200) return toast.error("طول نام کارگزاری نباید بیشتر از ۲۰۰ کاراکتر باشد")
     if (/[@#!]/.test(legalName)) return toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد (#, @, !)")
     if (legalName.length > 200) return toast.error("طول نام حقوقی نباید بیشتر از ۲۰۰ کاراکتر باشد")
     if (!/^\d{11}$/.test(nationalCode)) return toast.error("شناسه ملی باید دقیقاً ۱۱ رقم باشد")
@@ -195,7 +195,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
     setLoading(true)
     PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges`, payload)
       .then((response) => {
-        toast.success("سکو با موفقیت ذخیره شد.", { position: "bottom-left" })
+        toast.success("کارگزاری با موفقیت ذخیره شد.", { position: "bottom-left" })
         setID(response?.result?.id)
         SetStep(2)
         setLoading(false)
@@ -212,10 +212,10 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
       <div className="flex items-start justify-between gap-3">
         <div>
           <h5 className="font-extrabold text-xl text-titleText dark:text-titleText-dark">
-            ثبت سکو جدید
+            ثبت کارگزاری جدید
           </h5>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            مرحله ۱: اطلاعات پایه و هویتی سکو را وارد کنید.
+            مرحله ۱: اطلاعات پایه و هویتی کارگزاری را وارد کنید.
           </p>
         </div>
       </div>
@@ -227,7 +227,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
       <div className="bg-boxColor dark:bg-boxColor-dark border border-boxBorderColor dark:border-boxBorderColor-dark rounded-2xl p-4 sm:p-5 shadow-sm">
         <div className="flex items-center justify-between gap-3">
           <h6 className="font-bold text-base text-titleText dark:text-titleText-dark">
-            مشخصات سکو
+            مشخصات کارگزاری
           </h6>
           <span className="text-xs text-gray-500 dark:text-gray-400">
             فیلدهای ستاره‌دار الزامی هستند
@@ -237,27 +237,27 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
         {/* Section 1 */}
         <div className="mt-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            <Field label="نام سکو" required hint="حداکثر ۲۰۰ کاراکتر">
+            <Field label="نام کارگزاری" required hint="حداکثر ۲۰۰ کاراکتر">
               <Input
                 id="exchange_name"
                 value={name}
                 onChange={(e) => Setname(e.target.value)}
-                placeholder="نام سکو"
+                placeholder="نام کارگزاری"
                 className={inputBaseClass}
               />
             </Field>
 
-            <Field label="نام حقوقی سکو" required hint="حداکثر ۲۰۰ کاراکتر">
+            <Field label="نام حقوقی کارگزاری" required hint="حداکثر ۲۰۰ کاراکتر">
               <Input
                 id="exchange_legal_name"
                 value={legalName}
                 onChange={(e) => SetlegalName(e.target.value)}
-                placeholder="نام حقوقی سکو"
+                placeholder="نام حقوقی کارگزاری"
                 className={inputBaseClass}
               />
             </Field>
 
-            <Field label="شناسه ملی سکو" required hint="دقیقاً ۱۱ رقم">
+            <Field label="شناسه ملی کارگزاری" required hint="دقیقاً ۱۱ رقم">
               <Input
                 id="exchange_national_code"
                 value={nationalCode}
@@ -329,7 +329,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
               />
             </Field>
 
-            <Field label="شکل حقوقی سکو" required>
+            <Field label="شکل حقوقی کارگزاری" required>
               <div className="relative">
                 <Dropdown onChange={SetexchangeType} value={exchangeType}>
                   <Dropdown.Trigger className="w-full">
@@ -386,7 +386,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
               </div>
             </Field>
 
-            <Field label="نوع سکو" required hint="P2P یا OTC">
+            <Field label="نوع کارگزاری" required hint="P2P یا OTC">
               <div className="relative">
                 <Dropdown onChange={handleSelectChange} value={type}>
                   <Dropdown.Trigger className="w-full">
@@ -529,7 +529,7 @@ const GetExchangeInfo: React.FC<GetExchangeInfoProps> = ({ SetStep, ID, setID })
               />
             </Field>
 
-            <Field label="ایمیل سکو" hint="اختیاری">
+            <Field label="ایمیل کارگزاری" hint="اختیاری">
               <Input
                 id="exchange_email"
                 style={{ direction: 'ltr' }}

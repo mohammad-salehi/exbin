@@ -65,7 +65,7 @@ const Page = () => {
     // ✅ سوییچ نوع تراکنش
     const [transactionType, setTransactionType] = useState<TransactionType>('all');
 
-    // ✅ انتخاب سکو در صفحه اصلی (فیلتر exchangeName)
+    // ✅ انتخاب کارگزاری در صفحه اصلی (فیلتر exchangeName)
     const [exchangeSelected, setExchangeSelected] = useState<string>(sp.get('exchange') || '');
     const [exchangeSearch, setExchangeSearch] = useState<string>('');
 
@@ -341,7 +341,7 @@ const Page = () => {
         if (exchangeSelected) {
             badges.push({
                 key: 'exchangeName',
-                label: `سکو ${exchangeSelected}`,
+                label: `کارگزاری ${exchangeSelected}`,
                 onRemove: () => {
                     setExchangeSelected('');
                     setCurrentPage(1);
@@ -401,7 +401,7 @@ const Page = () => {
                 ,
             },
             {
-                header: 'سکو',
+                header: 'کارگزاری',
                 accessorKey: 'exchangeName',
                 cell: (row: IrrTransactionRow) => (
                     <span className="text-titleText dark:text-titleText-dark">
@@ -564,19 +564,19 @@ const Page = () => {
                     <div className="order-2 lg:order-1 w-full lg:w-auto">
                         {/* ✅ موبایل: ستونی و تمام عرض | از sm به بعد: ردیفی مثل قبل */}
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3 w-full justify-start">
-                            {/* انتخاب سکو */}
+                            {/* انتخاب کارگزاری */}
                             <SearchableSelect
-                                label="سکو"
+                                label="کارگزاری"
                                 value={exchangeSelected}
                                 onChange={(val) => {
                                     setExchangeSelected(val);
                                     setCurrentPage(1);
                                 }}
                                 loading={usersLoading}
-                                placeholder="همه سکوها"
-                                allLabel="همه سکوها"
+                                placeholder="همه کارگزاریها"
+                                allLabel="همه کارگزاریها"
                                 searchable
-                                searchPlaceholder="جستجوی نام سکو..."
+                                searchPlaceholder="جستجوی نام کارگزاری..."
                                 options={filteredExchanges.map((e) => ({
                                     id: e.id,
                                     label: e.name,
@@ -709,7 +709,7 @@ const Page = () => {
                                 />
                             </div>
 
-                            {/* userIdentity (Select مثل سلکت سکو) */}
+                            {/* userIdentity (Select مثل سلکت کارگزاری) */}
                             <SearchableSelect
                                 label="هویت کاربر"
                                 value={draftUserIdentity}

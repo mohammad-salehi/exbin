@@ -820,8 +820,8 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
           <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-              <h3 className="text-xl font-extrabold text-titleText dark:text-titleText-dark text-center">حذف کارمند سکو</h3>
-              <p className={cx(subtleText, "mt-2 text-center")}>آیا از حذف کارمند سکو مطمئن هستید؟</p>
+              <h3 className="text-xl font-extrabold text-titleText dark:text-titleText-dark text-center">حذف کارمند کارگزاری</h3>
+              <p className={cx(subtleText, "mt-2 text-center")}>آیا از حذف کارمند کارگزاری مطمئن هستید؟</p>
             </div>
 
             <div className="p-5">

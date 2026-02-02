@@ -140,7 +140,7 @@ export const handlePostErrors = (e: any) => {
     if (b.found) {
       const label = COMMON_FIELD_LABELS[b.key] || b.key;
       toast.error(
-        `${label} ${b.value} قبلاً برای این سکو ثبت شده است.`,
+        `${label} ${b.value} قبلاً برای این کارگزاری ثبت شده است.`,
         { position: "bottom-left" }
       );
       return true;
@@ -151,7 +151,7 @@ export const handlePostErrors = (e: any) => {
     if (ag.found) {
       const label = COMMON_FIELD_LABELS[ag.key] || ag.key;
       toast.error(
-        `${label} ${ag.value} قبلاً برای نماینده صرافی در این سکو ثبت شده است.`,
+        `${label} ${ag.value} قبلاً برای نماینده صرافی در این کارگزاری ثبت شده است.`,
         { position: "bottom-left" }
       );
       return true;
@@ -162,7 +162,7 @@ export const handlePostErrors = (e: any) => {
     if (emp.found) {
       const label = COMMON_FIELD_LABELS[emp.key] || emp.key;
       toast.error(
-        `${label} ${emp.value} قبلاً برای کارمند در این سکو ثبت شده است.`,
+        `${label} ${emp.value} قبلاً برای کارمند در این کارگزاری ثبت شده است.`,
         { position: "bottom-left" }
       );
       return true;
@@ -199,14 +199,14 @@ export const handlePostErrors = (e: any) => {
   // fallbackهای قدیمی
   const financialCodeError = msg.match(/Exchange with financial code '(.*?)' already exists/i);
   if (financialCodeError) {
-    toast.error(`سکو با کد اقتصادی ${financialCodeError[1]} قبلاً وجود دارد.`, {
+    toast.error(`کارگزاری با کد اقتصادی ${financialCodeError[1]} قبلاً وجود دارد.`, {
       position: "bottom-left",
     });
     return true;
   }
   const nationalCodeError = msg.match(/Exchange with national code '(.*?)' already exists/i);
   if (nationalCodeError) {
-    toast.error(`سکو با شناسه ملی ${nationalCodeError[1]} قبلاً وجود دارد.`, {
+    toast.error(`کارگزاری با شناسه ملی ${nationalCodeError[1]} قبلاً وجود دارد.`, {
       position: "bottom-left",
     });
     return true;

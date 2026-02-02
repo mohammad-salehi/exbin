@@ -223,7 +223,7 @@ function AssetPorCard({ row }: { row: AssetRow }) {
                 <div className="mt-4 grid grid-cols-1 gap-3">
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
                         <div className="rounded-3xl border p-4 border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur">
-                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">موجودی سکو</div>
+                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">موجودی کارگزاری</div>
                             <div className="mt-2 font-mono text-sm font-extrabold text-titleText dark:text-titleText-dark">
                                 {row.exchangeBalance.toLocaleString()}
                             </div>
@@ -339,7 +339,7 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
         () => ({
             auditTime: '۲۰۲۶/۰۱/۰۶ - ۱۲:۳۰',
             verifier: 'Third-Party Auditor (Demo)',
-            verificationMechanism: 'گزارش درصد پوشش دارایی‌های سکو',
+            verificationMechanism: 'گزارش درصد پوشش دارایی‌های کارگزاری',
             scope: 'موجودی کیف پول‌های نگه‌داری (Custody) + خالص دارایی کاربران',
             riskNote: 'درصد ضریب پوشش به‌تنهایی جایگزین حسابرسی کامل بدهی‌ها و ریسک‌های خارج از زنجیره نیست.',
         }),
@@ -622,7 +622,7 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                         </h1>
 
                         <p className="mt-4 max-w-2xl text-sm md:text-base leading-7 text-titleText/70 dark:text-white/70">
-                            وضعیت پشتوانه دارایی‌های سکو در قالب یک اسنپ‌شات نمایش داده می‌شود. این صفحه صرفاً نمایشی است و آدرس کیف پول‌ها ارائه نمی‌گردد.
+                            وضعیت پشتوانه دارایی‌های کارگزاری در قالب یک اسنپ‌شات نمایش داده می‌شود. این صفحه صرفاً نمایشی است و آدرس کیف پول‌ها ارائه نمی‌گردد.
                         </p>
 
                         {/* CTA row (optional but makes it look premium) */}

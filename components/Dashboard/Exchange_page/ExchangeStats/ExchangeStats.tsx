@@ -1009,7 +1009,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             CryptoSelected={CryptoSelected2}
             SetCryptoSelected={SetCryptoSelected2}
             ShowList={true}
-            headerLink={{ href: `/panel/crypto-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های رمزارزی سکو" }}
+            headerLink={{ href: `/panel/crypto-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های رمزارزی کارگزاری" }}
             ShowSummary={false}
           />
         </div>
@@ -1025,7 +1025,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             assetLabel="واریز"
             liabilityLabel="برداشت"
             useLastItemForNet
-            headerLink={{ href: `/panel/rial-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های ریالی سکو" }}
+            headerLink={{ href: `/panel/rial-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های ریالی کارگزاری" }}
             ShowSummary={false}
           />
         </div>

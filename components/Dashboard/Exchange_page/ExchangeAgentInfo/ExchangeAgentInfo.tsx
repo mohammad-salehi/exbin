@@ -211,7 +211,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     setDeleteLoading(true);
     DeleteRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${row.id}`)
       .then(() => {
-        toast.success("نماینده سکو با موفقیت حذف شد.", { position: "bottom-left" });
+        toast.success("نماینده کارگزاری با موفقیت حذف شد.", { position: "bottom-left" });
 
         const afterTotal = Math.max(0, totalItems - 1);
         const lastPageIndex = Math.max(0, Math.ceil(afterTotal / PAGE_SIZE) - 1);
@@ -249,7 +249,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     setEditLoading(true);
     PutRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents/${editingId}`, payload)
       .then(() => {
-        toast.success("نماینده سکو با موفقیت ویرایش شد.", { position: "bottom-left" });
+        toast.success("نماینده کارگزاری با موفقیت ویرایش شد.", { position: "bottom-left" });
         setIsEditOpen(false);
         fetchAgents(page);
       })
@@ -275,7 +275,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
     setAddLoading(true);
     PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}/exchange-agents`, payload)
       .then(() => {
-        toast.success("نماینده سکو با موفقیت افزوده شد.", { position: "bottom-left" });
+        toast.success("نماینده کارگزاری با موفقیت افزوده شد.", { position: "bottom-left" });
         setIsAddOpen(false);
         setPage(0);
         fetchAgents(0);
@@ -379,7 +379,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
             <h5 className="font-extrabold text-lg text-titleText dark:text-titleText-dark">
-              مشخصات نمایندگان سکو
+              مشخصات نمایندگان کارگزاری
             </h5>
           </div>
 
@@ -421,7 +421,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
           <Modal.Panel className={cx(panelBase, "max-w-xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
-                ویرایش مشخصات نماینده سکو
+                ویرایش مشخصات نماینده کارگزاری
               </Modal.Title>
               <p className={cx(subtleText, "mt-1")}>فیلدهای ستاره‌دار الزامی هستند.</p>
             </div>
@@ -547,7 +547,7 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
           <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <h4 className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
-                تغییرات مشخصات نماینده سکو
+                تغییرات مشخصات نماینده کارگزاری
               </h4>
               <p className={cx(subtleText, "mt-1")}>گزارش تغییرات ثبت‌شده نمایش داده می‌شود.</p>
             </div>
@@ -592,9 +592,9 @@ const ExchangeAgentInfo = ({ SetC4 }: ExchangeInfoProps) => {
           <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <h3 className="text-xl font-extrabold text-titleText dark:text-titleText-dark text-center">
-                حذف نماینده سکو
+                حذف نماینده کارگزاری
               </h3>
-              <p className={cx(subtleText, "mt-2 text-center")}>آیا از حذف نماینده سکو مطمئن هستید؟</p>
+              <p className={cx(subtleText, "mt-2 text-center")}>آیا از حذف نماینده کارگزاری مطمئن هستید؟</p>
             </div>
 
             <div className="p-5">

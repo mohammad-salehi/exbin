@@ -281,10 +281,10 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       await DeleteRequest(
         `${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${params.id}`
       );
-      toast.success("سکو با موفقیت حذف شد");
+      toast.success("کارگزاری با موفقیت حذف شد");
       window.location.assign(`/panel/exchanges-list`);
     } catch (err) {
-      toast.error("خطا در حذف سکو");
+      toast.error("خطا در حذف کارگزاری");
     } finally {
       setDeleteExchangeLoading(false);
     }
@@ -297,9 +297,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       content: [
         { id: 1, title: "نام حقوقی", content: "" },
         { id: 2, title: "تاریخ تاسیس", content: "" },
-        { id: 3, title: "شناسه ملی سکو", content: "" },
-        { id: 4, title: "نوع سکو", content: "" },
-        { id: 5, title: "شکل حقوقی سکو", content: "" },
+        { id: 3, title: "شناسه ملی کارگزاری", content: "" },
+        { id: 4, title: "نوع کارگزاری", content: "" },
+        { id: 5, title: "شکل حقوقی کارگزاری", content: "" },
         { id: 6, title: "کد اقتصادی", content: "" },
         { id: 7, title: "شماره ثبت", content: "" },
       ],
@@ -509,7 +509,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
               SetConfirmDelete("");
             }}
           >
-            <span className="font-medium text-red-700 dark:text-red-300">حذف سکو</span>
+            <span className="font-medium text-red-700 dark:text-red-300">حذف کارگزاری</span>
           </button>
         ),
       },
@@ -653,7 +653,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
     const zipCode = String(form.zipCode || "");
     const email = String(form.email || "");
 
-    if (!legalName.trim()) return toast.error("نام حقوقی سکو الزامی است", { position: "bottom-left" });
+    if (!legalName.trim()) return toast.error("نام حقوقی کارگزاری الزامی است", { position: "bottom-left" });
     if (!hasNoSpecialChars(legalName))
       return toast.error("نام حقوقی نباید شامل کاراکترهای خاص باشد", { position: "bottom-left" });
     if (!isDigits(nationalCode, 11))
@@ -662,9 +662,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       return toast.error("کد اقتصادی باید بین ۱۱ تا ۱۶ رقم باشد", { position: "bottom-left" });
     if (!/^\d{6}$/.test(registrationNumber))
       return toast.error("شماره ثبت باید عددی ۶ رقمی باشد", { position: "bottom-left" });
-    if (!form.type) return toast.error("نوع سکو را انتخاب کنید", { position: "bottom-left" });
+    if (!form.type) return toast.error("نوع کارگزاری را انتخاب کنید", { position: "bottom-left" });
     if (!form.exchangeType)
-      return toast.error("شکل حقوقی سکو را انتخاب کنید", { position: "bottom-left" });
+      return toast.error("شکل حقوقی کارگزاری را انتخاب کنید", { position: "bottom-left" });
     if (phoneNumber === "")
       return toast.error("شماره تماس اشتباه وارد شده است", { position: "bottom-left" });
     if (zipCode && !isDigits(zipCode, 10))
@@ -681,7 +681,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         form
       );
 
-      toast.success("مشخصات سکو با موفقیت به‌روزرسانی شد.", { position: "bottom-left" });
+      toast.success("مشخصات کارگزاری با موفقیت به‌روزرسانی شد.", { position: "bottom-left" });
 
       handleEdit(1, 1, form.legalName);
       handleEdit(1, 2, toJalaliDate(form.establishmentDate));
@@ -940,7 +940,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
 
       {/* Detail Box */}
       <div className={cx(panelBase, "p-5")}>
-        <h5 className={cx(sectionTitle, "mb-4")}>مشخصات سکو</h5>
+        <h5 className={cx(sectionTitle, "mb-4")}>مشخصات کارگزاری</h5>
 
         <DetailBox
           data={invoiceData.map((section) => ({
@@ -959,14 +959,14 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         />
       </div>
 
-      {/* ویرایش سکو */}
+      {/* ویرایش کارگزاری */}
       <Modal open={isOpen} onClose={() => setIsOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
           <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-10 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className={cx("text-xl font-extrabold", "text-titleText dark:text-titleText-dark")}>
-                ویرایش مشخصات سکو <span className="font-black">{name}</span>
+                ویرایش مشخصات کارگزاری <span className="font-black">{name}</span>
               </Modal.Title>
               <p className={cx(subtleText, "mt-1")}>اطلاعات را ویرایش کنید و در پایان ذخیره کنید.</p>
             </div>
@@ -995,7 +995,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 </div>
               </Field>
 
-              <Field label="شناسه ملی سکو">
+              <Field label="شناسه ملی کارگزاری">
                 <Input
                   className={inputBase}
                   value={form.nationalCode}
@@ -1007,7 +1007,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 />
               </Field>
 
-              <Field label="نوع سکو">
+              <Field label="نوع کارگزاری">
                 <div className="relative">
                   <Dropdown
                     value={form.type}
@@ -1351,14 +1351,14 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         </div>
       </Modal>
 
-      {/* تغییر مشخصات سکو */}
+      {/* تغییر مشخصات کارگزاری */}
       <Modal open={isLogOpen} onClose={() => setisLogOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
           <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-16 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <h4 className={cx("text-xl font-extrabold", "text-titleText dark:text-titleText-dark")}>
-                تغییرات مشخصات سکو
+                تغییرات مشخصات کارگزاری
               </h4>
               <p className={cx(subtleText, "mt-1")}>لاگ تغییرات اخیر نمایش داده می‌شود.</p>
             </div>
@@ -1402,7 +1402,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 حذف اساسنامه
               </p>
               <p className={subtleText}>
-                آیا از حذف اساسنامه سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
+                آیا از حذف اساسنامه کارگزاری مطمئن هستید؟ این عملیات قابل بازگشت نیست.
               </p>
 
               <div className="mt-5 flex justify-end gap-2">
@@ -1428,20 +1428,20 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
         </div>
       </Modal>
 
-      {/* Modal تأیید حذف سکو */}
+      {/* Modal تأیید حذف کارگزاری */}
       <Modal open={confirmDeleteExchangeOpen} onClose={() => !deleteLoading && setconfirmDeleteExchangeOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
           <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-20 overflow-hidden")}>
             <div className="p-5">
-              <p className="font-semibold mb-2 text-titleText dark:text-titleText-dark">حذف سکو</p>
+              <p className="font-semibold mb-2 text-titleText dark:text-titleText-dark">حذف کارگزاری</p>
               <p className={subtleText}>
-                آیا از حذف سکو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
+                آیا از حذف کارگزاری مطمئن هستید؟ این عملیات قابل بازگشت نیست.
               </p>
 
               <div className="mt-4">
                 <small className={cx(subtleText, "select-none")}>
-                  نام سکوی مورد نظر (<b>{name}</b>) را در کادر زیر وارد کنید
+                  نام کارگزاریی مورد نظر (<b>{name}</b>) را در کادر زیر وارد کنید
                 </small>
 
                 <Input

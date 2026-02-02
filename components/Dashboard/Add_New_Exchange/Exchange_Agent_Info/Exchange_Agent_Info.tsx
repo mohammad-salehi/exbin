@@ -59,7 +59,7 @@ const Stepper = ({ current = 4, total = 5 }: { current?: number; total?: number 
 
       <div className="mt-3 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
         <span>مرحله {current} از {total}</span>
-        <span className="hidden sm:inline">ثبت مشخصات نمایندگان سکو</span>
+        <span className="hidden sm:inline">ثبت مشخصات نمایندگان کارگزاری</span>
       </div>
     </div>
   );
@@ -147,7 +147,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
 
     PostRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/exchanges/${ID}/exchange-agents`, Member)
       .then(() => {
-        toast.success("نماینده سکو با موفقیت افزوده شد.", { position: "bottom-left" });
+        toast.success("نماینده کارگزاری با موفقیت افزوده شد.", { position: "bottom-left" });
 
         const newMember: Person = {
           id: String(data.length + 1),
@@ -178,7 +178,7 @@ const Exchange_Agent_Info: React.FC<GetExchangeInfoProps> = ({ SetStep, ID }) =>
             مشخصات نمایندگان
           </h5>
           <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-            مرحله ۴: نمایندگان سکو را اضافه کنید.
+            مرحله ۴: نمایندگان کارگزاری را اضافه کنید.
           </p>
         </div>
 

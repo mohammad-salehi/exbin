@@ -141,7 +141,7 @@ const Page = () => {
               className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg"
               id="addExchangeButton"
             >
-              افزودن سکو جدید
+              افزودن کارگزاری جدید
             </button>
           </Link>
         </div>
@@ -199,10 +199,10 @@ const Page = () => {
         <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
           <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
             <h3 className="text-lg font-semibold mb-3 text-center">
-              حذف سکو
+              حذف کارگزاری
             </h3>
             <p className="text-sm mb-6 text-center leading-relaxed mt-3">
-              آیا از حذف سکو {Deletedata?.name} مطمئن هستید؟
+              آیا از حذف کارگزاری {Deletedata?.name} مطمئن هستید؟
             </p>
 
             <div className="flex justify-center gap-4 w-full">
@@ -225,7 +225,7 @@ const Page = () => {
                       });
                       if (!response.ok) {
                         SetDeleteLoading(false)
-                        toast.error("خطا در حذف سکو.", { position: "bottom-left" });
+                        toast.error("خطا در حذف کارگزاری.", { position: "bottom-left" });
                         if (response.status === 403) {
                           document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
                           window.location.assign('/')
@@ -234,17 +234,17 @@ const Page = () => {
                       } else {
                         if (response.status === 200) {
                           SetDeleteLoading(false)
-                          toast.success("سکو با موفقیت حذف شد.", { position: "bottom-left" });
+                          toast.success("کارگزاری با موفقیت حذف شد.", { position: "bottom-left" });
                           window.location.reload();
                         }
                       }
                     } else {
                       SetDeleteLoading(false)
-                      toast.error("خطا در حذف سکو.", { position: "bottom-left" });
+                      toast.error("خطا در حذف کارگزاری.", { position: "bottom-left" });
                     }
                   } catch (error) {
                     SetDeleteLoading(false)
-                    toast.error("خطا در حذف سکو.", { position: "bottom-left" });
+                    toast.error("خطا در حذف کارگزاری.", { position: "bottom-left" });
                   }
 
 

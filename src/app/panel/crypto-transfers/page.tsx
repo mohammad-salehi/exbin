@@ -314,7 +314,7 @@ const Page = () => {
         if (exchangeSelected) {
             badges.push({
                 key: 'exchangeName',
-                label: `سکو ${exchangeSelected}`,
+                label: `کارگزاری ${exchangeSelected}`,
                 onRemove: () => {
                     setExchangeSelected('');
                     setCurrentPage(1);
@@ -408,7 +408,7 @@ const Page = () => {
     const columns = useMemo(() => {
         return [
             {
-                header: 'سکو',
+                header: 'کارگزاری',
                 accessorKey: 'exchangeName',
                 cell: (row: CryptoTxRow) => (
                     <span className="text-titleText dark:text-titleText-dark">{row?.cryptoBrokerId || ''}</span>
@@ -554,7 +554,7 @@ const Page = () => {
                             {/* exchange */}
                             <div className="relative w-full sm:w-80 text-sm text-titleText dark:text-titleText-dark">
                                 <SearchableSelect
-                                    label="سکو"
+                                    label="کارگزاری"
                                     loading={usersLoading}
                                     value={exchangeSelected}
                                     onChange={(val) => {
@@ -566,10 +566,10 @@ const Page = () => {
                                         label: e.name,
                                         value: e.name,
                                     }))}
-                                    placeholder="همه سکوها"
-                                    allLabel="همه سکوها"
+                                    placeholder="همه کارگزاری‌ها"
+                                    allLabel="همه کارگزاری‌ها"
                                     searchable
-                                    searchPlaceholder="جستجوی نام سکو..."
+                                    searchPlaceholder="جستجوی نام کارگزاری..."
                                     className="sm:w-80 text-sm"
                                 />
                             </div>

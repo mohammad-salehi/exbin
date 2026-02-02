@@ -383,7 +383,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
             <h5 className="font-extrabold text-lg text-titleText dark:text-titleText-dark">
               مشخصات مدیرعامل
             </h5>
-            <p className={cx(subtleText, "mt-1")}>اطلاعات هویتی و تماس مدیرعامل سکو</p>
+            <p className={cx(subtleText, "mt-1")}>اطلاعات هویتی و تماس مدیرعامل کارگزاری</p>
           </div>
 
           {data.length === 0 ? (
