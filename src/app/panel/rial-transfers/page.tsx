@@ -573,8 +573,8 @@ const Page = () => {
                                     setCurrentPage(1);
                                 }}
                                 loading={usersLoading}
-                                placeholder="همه کارگزاریها"
-                                allLabel="همه کارگزاریها"
+                                placeholder="همه کارگزاری‌ها"
+                                allLabel="همه کارگزاری‌ها"
                                 searchable
                                 searchPlaceholder="جستجوی نام کارگزاری..."
                                 options={filteredExchanges.map((e) => ({

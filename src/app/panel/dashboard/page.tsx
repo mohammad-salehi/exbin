@@ -134,7 +134,7 @@ export default function Page() {
       })
       .catch(console.log);
   }, []);
-  //تعداد کارگزاریها
+  //تعداد کارگزاری‌ها
   useEffect(() => {
     if (totalExchangeNumberRef.current) return;
     totalExchangeNumberRef.current = true;
@@ -143,7 +143,7 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "تعداد کارگزاریهای رمزارزی متصل به سامانه",
+            label: "تعداد کارگزاری‌های رمزارزی متصل به سامانه",
             value: Number(response?.result?.totalElements ?? 0),
           };
 

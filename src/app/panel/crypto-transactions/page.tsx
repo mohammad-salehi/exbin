@@ -574,8 +574,8 @@ const Page = () => {
                                         label: e.name,
                                         value: e.name,
                                     }))}
-                                    placeholder="همه کارگزاریها"
-                                    allLabel="همه کارگزاریها"
+                                    placeholder="همه کارگزاری‌ها"
+                                    allLabel="همه کارگزاری‌ها"
                                     searchable
                                     searchPlaceholder="جستجوی نام کارگزاری..."
                                     className="sm:w-80 text-sm"

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     default: "CedPortal",
     template: "%s | CedPortal",
   },
-  description: "سامانه تحلیل، نظارت و مدیریت کارگزاریهای رمزارزی",
+  description: "سامانه تحلیل، نظارت و مدیریت کارگزاری‌های رمزارزی",
   icons: {
     icon: "/images/pantaLogo.png",
   },

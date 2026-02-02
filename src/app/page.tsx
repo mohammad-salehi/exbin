@@ -194,7 +194,7 @@ export default function Home() {
         <h2 className="text-2xl mb-1 text-titleText mt-16">
           ورود به حساب کاربری
         </h2>
-        <span className="text-titleText text-sm">سامانه نظارت بر کارگزاریهای مبادله رمزارز ایران</span>
+        <span className="text-titleText text-sm">سامانه نظارت بر کارگزاری‌های مبادله رمزارز ایران</span>
         {/* فرم */}
         <form className="flex flex-col gap-4 mt-4" onSubmit={Login}>
           <div>
