@@ -417,16 +417,8 @@ export default function ProjectExceptionsPage(): JSX.Element {
     <div className="flex flex-col gap-5">
       <div
         className={cx(
-          'rounded-2xl p-4 shadow-sm',
-          'bg-white dark:bg-boxColor-dark',
-          'border border-boxBorderColor/60 dark:border-boxBorderColor-dark/60'
         )}
       >
-        <div className="mb-3 flex items-center justify-between">
-          <div className="text-sm text-slate-500 dark:text-slate-400">
-            {loading ? 'در حال دریافت…' : `مجموع: ${totalElements.toLocaleString('fa-IR')} رکورد`}
-          </div>
-        </div>
 
         {error ? (
           <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-600 dark:text-red-400">
