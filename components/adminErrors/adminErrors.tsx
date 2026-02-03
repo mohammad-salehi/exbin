@@ -99,31 +99,6 @@ const severityTone = (sev?: Severity): PillTone => {
 };
 
 // -------------------- Small UI Blocks --------------------
-type FieldProps = {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  placeholder?: string;
-};
-
-const Field: React.FC<FieldProps> = ({ label, value, onChange, placeholder }) => (
-  <label className="flex flex-col gap-2">
-    <span className="text-sm text-titleText dark:text-titleText-dark">{label}</span>
-    <input
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      placeholder={placeholder}
-      className={cx(
-        'h-12 w-full rounded-xl px-4',
-        'border border-boxBorderColor/60 dark:border-boxBorderColor-dark/60',
-        'bg-white/70 dark:bg-boxColor-dark/40',
-        'text-sm text-titleText dark:text-titleText-dark',
-        'outline-none focus:ring-2 focus:ring-primary/40'
-      )}
-    />
-  </label>
-);
-
 type PillProps = {
   children: React.ReactNode;
   tone?: PillTone;
@@ -159,9 +134,6 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
     { k: 'timestamp', v: row.timestamp },
     { k: 'createdAt', v: row.createdAt },
     { k: 'exceptionClass', v: row.exceptionClass },
-    { k: 'cause', v: row.cause },
-    { k: 'rootCauseClass', v: row.rootCauseClass },
-    { k: 'rootCauseMessage', v: row.rootCauseMessage },
     { k: 'className', v: row.className },
     { k: 'methodName', v: row.methodName },
     { k: 'fileName', v: row.fileName },
@@ -178,6 +150,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
         onClick={onClose}
         aria-label="Close"
       />
+
       {/* panel */}
       <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-5xl px-3 pb-3 sm:inset-0 sm:flex sm:items-center sm:justify-center sm:pb-0">
         <div
@@ -202,7 +175,8 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
               </p>
             </div>
 
-            <Button size="sm" variant="secondary" onClick={onClose}>
+            {/* دکمه بستن با تم سایت */}
+            <Button size="sm" onClick={onClose} className='text-titleText dark:text-titleText-dark'>
               بستن
             </Button>
           </div>
@@ -238,6 +212,14 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
                 </div>
 
                 <div className="flex flex-col gap-3">
+                  {/* ✅ rootCauseClass منتقل شد به مودال */}
+                  <div className="rounded-xl border border-boxBorderColor/40 bg-white/70 px-3 py-2 dark:border-boxBorderColor-dark/40 dark:bg-black/10">
+                    <div className="text-[11px] text-slate-500 dark:text-slate-400">rootCauseClass</div>
+                    <div className="mt-0.5 break-words text-sm text-titleText dark:text-titleText-dark">
+                      {row.rootCauseClass || '-'}
+                    </div>
+                  </div>
+
                   <div className="rounded-xl border border-boxBorderColor/40 bg-white/70 px-3 py-2 dark:border-boxBorderColor-dark/40 dark:bg-black/10">
                     <div className="text-[11px] text-slate-500 dark:text-slate-400">
                       rootCauseMessage
@@ -277,7 +259,8 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
 
           {/* footer */}
           <div className="flex items-center justify-end gap-2 border-t border-boxBorderColor/60 px-5 py-4 dark:border-boxBorderColor-dark/60">
-            <Button variant="secondary" onClick={onClose}>
+            {/* دکمه اصلی با تم سایت */}
+            <Button className='text-titleText dark:text-titleText-dark' onClick={onClose}>
               بستن
             </Button>
           </div>
@@ -296,19 +279,13 @@ export default function ProjectExceptionsPage(): JSX.Element {
 
   // API expects 0-based
   const [page, setPage] = useState<number>(0);
-  const [size, setSize] = useState<number>(100);
+
+  // ✅ همیشه 10
+  const size = 10;
 
   const [rows, setRows] = useState<ProjectExceptionRow[]>([]);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalElements, setTotalElements] = useState<number>(0);
-
-  // filters
-  const [severity, setSeverity] = useState<string>('');
-  const [exceptionClass, setExceptionClass] = useState<string>('');
-  const [hostName, setHostName] = useState<string>('');
-  const [className, setClassName] = useState<string>('');
-  const [fromTime, setFromTime] = useState<string>('');
-  const [toTime, setToTime] = useState<string>('');
 
   // modal
   const [selected, setSelected] = useState<ProjectExceptionRow | null>(null);
@@ -318,15 +295,6 @@ export default function ProjectExceptionsPage(): JSX.Element {
     const params = new URLSearchParams();
     params.set('page', String(page));
     params.set('size', String(size));
-
-    // NOTE: اگر بک‌اند شما request=<json> می‌خواهد، این بخش را تغییر می‌دهیم.
-    if (severity) params.set('severity', severity);
-    if (exceptionClass) params.set('exceptionClass', exceptionClass);
-    if (hostName) params.set('hostName', hostName);
-    if (className) params.set('className', className);
-    if (fromTime) params.set('fromTime', fromTime);
-    if (toTime) params.set('toTime', toTime);
-
     return `${API_BASE}/api/analytics/search/project-exceptions?${params.toString()}`;
   };
 
@@ -351,67 +319,94 @@ export default function ProjectExceptionsPage(): JSX.Element {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, size]);
+  }, [page]);
+
+  const IconButton = ({
+    onClick,
+    title,
+  }: {
+    onClick: () => void;
+    title?: string;
+  }) => (
+    <button
+      type="button"
+      onClick={onClick}
+      title={title}
+      className="inline-flex items-center justify-center w-9 h-9 rounded-xl
+               bg-boxColor dark:bg-boxColor-dark
+               border border-boxBorderColor dark:border-boxBorderColor-dark
+               text-titleText dark:text-titleText-dark
+               hover:opacity-90 active:scale-[0.98] transition"
+    >
+      {/* آیکون info */}
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M12 17v-6"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+        />
+        <path
+          d="M12 7.5h.01"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+        />
+        <path
+          d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          stroke="currentColor"
+          strokeWidth="1.8"
+        />
+      </svg>
+    </button>
+  );
 
   const columns: Column<ProjectExceptionRow>[] = useMemo(
     () => [
       {
         header: 'زمان',
-        width: 170,
         cell: (r) => <span className="text-xs">{formatTs(r.timestamp)}</span>,
       },
       {
         header: 'شدت',
-        width: 95,
         cell: (r) => <Pill tone={severityTone(r.severity)}>{r.severity || '-'}</Pill>,
       },
       {
         header: 'Exception',
-        width: 260,
         cell: (r) => (
           <div className="flex flex-col gap-1">
             <span className="text-sm text-titleText dark:text-titleText-dark">
-              {truncate(r.exceptionClass, 64)}
+              {truncate(r.exceptionClass, 70)}
             </span>
-            <span className="text-[11px] text-slate-500 dark:text-slate-400">
-              {truncate(r.rootCauseClass, 70)}
-            </span>
+            {/* ✅ rootCauseClass از جدول حذف شد */}
           </div>
         ),
       },
       {
         header: 'Root Cause Message',
-        width: 360,
         cell: (r) => (
           <span className="text-sm text-titleText dark:text-titleText-dark">
-            {truncate(r.rootCauseMessage, 90)}
+            {truncate(r.rootCauseMessage, 110)}
           </span>
         ),
       },
       {
-        header: 'Class',
-        width: 260,
-        cell: (r) => <span className="text-xs">{truncate(r.className, 90)}</span>,
-      },
-      {
         header: 'Host',
-        width: 150,
         cell: (r) => <span className="text-xs">{r.hostName || '-'}</span>,
       },
       {
-        header: '',
-        width: 120,
+        header: 'جزئیات',
         cell: (r) => (
-          <Button
-            size="sm"
-            variant="secondary"
-            onClick={() => {
-              setSelected(r);
-              setOpenModal(true);
-            }}
-          >
-            جزئیات
-          </Button>
+
+          <div className="flex justify-center">
+            <IconButton
+              title="نمایش requestParams و item"
+              onClick={() => {
+                setSelected(r);
+                setOpenModal(true);
+              }}
+            />
+          </div>
         ),
       },
     ],
@@ -420,93 +415,6 @@ export default function ProjectExceptionsPage(): JSX.Element {
 
   return (
     <div className="flex flex-col gap-5">
-      {/* ---------------- Filters Card ---------------- */}
-      <div
-        className={cx(
-          'rounded-2xl p-5 shadow-sm',
-          'bg-white dark:bg-boxColor-dark',
-          'border border-boxBorderColor/60 dark:border-boxBorderColor-dark/60'
-        )}
-      >
-        <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex flex-col">
-            <h2 className="text-base font-semibold text-titleText dark:text-titleText-dark">
-              Project Exceptions
-            </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              لیست خطاهای پروژه + مشاهده جزئیات کامل در مودال
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setSeverity('');
-                setExceptionClass('');
-                setHostName('');
-                setClassName('');
-                setFromTime('');
-                setToTime('');
-                setPage(0);
-                setTimeout(fetchData, 0);
-              }}
-            >
-              پاک کردن فیلترها
-            </Button>
-
-            <Button
-              onClick={() => {
-                setPage(0);
-                fetchData();
-              }}
-            >
-              جستجو
-            </Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-          <Field label="severity" value={severity} onChange={setSeverity} placeholder="مثلا: ERROR" />
-
-          <Field
-            label="exceptionClass"
-            value={exceptionClass}
-            onChange={setExceptionClass}
-            placeholder="مثلا: org.quartz.JobExecutionException"
-          />
-
-          <Field
-            label="hostName"
-            value={hostName}
-            onChange={setHostName}
-            placeholder="مثلا: 56612589b374"
-          />
-
-          <Field
-            label="className"
-            value={className}
-            onChange={setClassName}
-            placeholder="مثلا: ir.panta.exchangesinker.scheduler.job.AddressesJob"
-          />
-
-          <Field
-            label="fromTime (ISO)"
-            value={fromTime}
-            onChange={setFromTime}
-            placeholder="2026-02-02T08:17:43.721Z"
-          />
-
-          <Field
-            label="toTime (ISO)"
-            value={toTime}
-            onChange={setToTime}
-            placeholder="2026-02-02T08:17:43.721Z"
-          />
-        </div>
-      </div>
-
-      {/* ---------------- Table Card ---------------- */}
       <div
         className={cx(
           'rounded-2xl p-4 shadow-sm',
@@ -514,36 +422,9 @@ export default function ProjectExceptionsPage(): JSX.Element {
           'border border-boxBorderColor/60 dark:border-boxBorderColor-dark/60'
         )}
       >
-        <div className="mb-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-3 flex items-center justify-between">
           <div className="text-sm text-slate-500 dark:text-slate-400">
             {loading ? 'در حال دریافت…' : `مجموع: ${totalElements.toLocaleString('fa-IR')} رکورد`}
-          </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-slate-500 dark:text-slate-400">size:</span>
-            <select
-              value={size}
-              onChange={(e) => {
-                setSize(Number(e.target.value));
-                setPage(0);
-              }}
-              className={cx(
-                'h-10 rounded-xl px-3 text-sm',
-                'border border-boxBorderColor/60 dark:border-boxBorderColor-dark/60',
-                'bg-white/70 dark:bg-boxColor-dark/40',
-                'text-titleText dark:text-titleText-dark',
-                'outline-none focus:ring-2 focus:ring-primary/40'
-              )}
-            >
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-              <option value={200}>200</option>
-            </select>
-
-            <Button variant="secondary" onClick={fetchData}>
-              رفرش
-            </Button>
           </div>
         </div>
 
@@ -554,17 +435,15 @@ export default function ProjectExceptionsPage(): JSX.Element {
         ) : loading ? (
           <LoadingComponent />
         ) : (
-          // اگر ExpandableTable شما Column type خودش رو export می‌کنه، این as any رو حذف/اصلاح می‌کنیم
           <ExpandableTable<ProjectExceptionRow> columns={columns as any} data={rows} />
         )}
 
-        {/* ---------------- Pagination (YOUR COMPONENT) ---------------- */}
         <Pagination
           totalItems={totalElements}
-          pageSize={size}
-          currentPage={page + 1} // Pagination شما 1-based است
+          pageSize={size}          // ✅ همیشه 10
+          currentPage={page + 1}   // 1-based
           rtl
-          onPageChange={(p) => setPage(Math.max(0, p - 1))} // تبدیل به 0-based برای API
+          onPageChange={(p) => setPage(Math.max(0, p - 1))}
         />
       </div>
 
