@@ -174,11 +174,6 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
                 {row.exceptionClass || '-'} • {formatTs(row.timestamp)}
               </p>
             </div>
-
-            {/* دکمه بستن با تم سایت */}
-            <Button size="sm" onClick={onClose} className='text-titleText dark:text-titleText-dark'>
-              بستن
-            </Button>
           </div>
 
           {/* body */}

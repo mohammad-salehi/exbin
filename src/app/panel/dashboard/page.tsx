@@ -6,6 +6,7 @@ import { CircleChart } from "../../../../components/Dashboard/CircleChart/Circle
 import SingleLinearChart from "../../../../components/Dashboard/SingleLinearChart/SingleLinearChart";
 import DoubleLinearChart from "../../../../components/Dashboard/DoubleLinearChart/DoubleLinearChart";
 import { GetRequest } from "../../../../functions/GetRequest";
+import AnimatedText from "../../../../components/AnimatedLoading/AnimatedLoading";
 
 const MemoStatsMarquee = React.memo(StatsMarquee);
 const MemoCircleChart = React.memo(CircleChart);
@@ -91,6 +92,20 @@ export default function Page() {
     return `${fa}`;
   };
 
+  const [Loading, SetLoading] = useState(true)
+  const [C1, SetC1] = useState(false)
+  const [C2, SetC2] = useState(false)
+  const [C3, SetC3] = useState(false)
+  const [C4, SetC4] = useState(false)
+  const [C5, SetC5] = useState(false)
+  const [C6, SetC6] = useState(false)
+  const [C7, SetC7] = useState(false)
+  const [C8, SetC8] = useState(false)
+  const [C9, SetC9] = useState(false)
+  const [C10, SetC10] = useState(false)
+  const [C11, SetC11] = useState(false)
+  const [C12, SetC12] = useState(false)
+  const [C13, SetC13] = useState(false)
   //تعداد کاربران صرافی‌ها
   useEffect(() => {
     if (usersNumberRef.current) return;
@@ -98,6 +113,7 @@ export default function Page() {
 
     GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/total-number-of-users`)
       .then((response) => {
+
         SetDashboardData((prev) => {
           const item: DashboardItem = {
             label: "تعداد کاربران رمزارز",
@@ -107,8 +123,12 @@ export default function Page() {
           const next = prev.filter((x) => x.label !== item.label);
           return [...next, item];
         });
+        SetC1(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC1(true)
+        console.log(err)
+      });
   }, []);
   //تعداد و حجم معاملات
   useEffect(() => {
@@ -131,8 +151,12 @@ export default function Page() {
           const next = prev.filter((x) => x.label !== item1.label);
           return [...next, item1, item2];
         });
+        SetC2(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC2(true)
+        console.log(err)
+      });
   }, []);
   //تعداد کارگزاری‌ها
   useEffect(() => {
@@ -150,8 +174,12 @@ export default function Page() {
           const next = prev.filter((x) => x.label !== item1.label);
           return [...next, item1];
         });
+        SetC3(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC3(true)
+        console.log(err)
+      });
   }, []);
   //حجم معاملات روزانه
   useEffect(() => {
@@ -172,8 +200,12 @@ export default function Page() {
           const next = prev.filter((x) => x.label !== item1.label);
           return [...next, item1, item2];
         });
+        SetC4(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC4(true)
+        console.log(err)
+      });
   }, []);
   //حجم معاملات روزانه
   useEffect(() => {
@@ -190,8 +222,12 @@ export default function Page() {
           const next = prev.filter((x) => x.label !== item1.label);
           return [...next, item1];
         });
+        SetC5(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC5(true)
+        console.log(err)
+      });
   }, []);
   //نسبت دارایی به بدهی
   useEffect(() => {
@@ -211,8 +247,12 @@ export default function Page() {
             }
           ]
         )
+        SetC6(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC6(true)
+        console.log(err)
+      });
   }, []);
   //نسبت تومان به تتر
   useEffect(() => {
@@ -232,8 +272,12 @@ export default function Page() {
             }
           ]
         )
+        SetC7(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC7(true)
+        console.log(err)
+      });
   }, []);
   //نسبت خریداران تتر
   useEffect(() => {
@@ -251,8 +295,12 @@ export default function Page() {
           )
         }
         SetUSDTBuyerData(getData)
+        SetC8(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC8(true)
+        console.log(err)
+      });
   }, []);
   //سهم بازار صرافی ها
   useEffect(() => {
@@ -270,8 +318,12 @@ export default function Page() {
           )
         }
         SetMarketShare(getData)
+        SetC9(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC9(true)
+        console.log(err)
+      });
   }, []);
   //حجم معاملات 
   useEffect(() => {
@@ -289,8 +341,12 @@ export default function Page() {
           )
         }
         SetCryptoShare(getData)
+        SetC10(true)
       })
-      .catch(console.log);
+      .catch((err) => {
+        SetC10(true)
+        console.log(err)
+      });
   }, []);
   //لیست کوین ها
   useEffect(() => {
@@ -311,10 +367,12 @@ export default function Page() {
         SetCryptoSelected1(response.result.find((item: { cryptocurrency: string; }) => item.cryptocurrency === 'IRR').cryptocurrency ?? response.result[0].cryptocurrency)
         SetCryptoSelected2(response.result.find((item: { cryptocurrency: string; }) => item.cryptocurrency === 'IRR').cryptocurrency ?? response.result[0].cryptocurrency)
         SetCryptoListLoading(false)
+        SetC11(true)
       })
       .catch((err) => {
         SetCryptoListLoading(false)
         console.log(err)
+        SetC11(true)
       });
   }, []);
   //واریز و برداشت ماهانه
@@ -333,8 +391,12 @@ export default function Page() {
             )
           }
           SetDepWitList(getData)
+          SetC12(true)
         })
-        .catch(console.log);
+        .catch((err) => {
+          SetC12(true)
+          console.log(err)
+        });
     }
 
   }, [, CryptoSelected1]);
@@ -353,14 +415,31 @@ export default function Page() {
             )
           }
           SetDailyTradingList(getData)
+          SetC13(true)
         })
-        .catch(console.log);
+        .catch((err) => {
+          SetC13(true)
+          console.log(err)
+        });
     }
 
   }, [, CryptoSelected2]);
 
+  useEffect(() => {
+    if (C1 && C2 && C3 && C4 && C5 && C6 && C7 && C8 && C9 && C10 && C11 && C12 && C13) {
+      SetLoading(false)
+    }
+  }, [C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13])
   return (
     <div className="px-4 xl:px-0">
+      {
+        Loading && (
+          <div className="fixed inset-0 z-50 grid place-items-center bg-white/70 dark:bg-bgColor-dark/70 backdrop-blur-sm">
+            <div className="pointer-events-none">
+              <AnimatedText />
+            </div>
+          </div>)
+      }
       {/* ← فاصله افقی در موبایل، بدون فاصله در دسکتاپ */}
       <MemoStatsMarquee data={DashboardData} />
 
