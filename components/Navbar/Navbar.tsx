@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
 const navItems = [
   {
-    link: 'dashboard',
-    label: 'داشبورد',
-    access: '',
+    link: "dashboard",
+    label: "داشبورد",
+    access: "",
     icon: (
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
         <mask id="path-1-inside-1_92_1581" fill="white">
@@ -18,9 +18,9 @@ const navItems = [
     ),
   },
   {
-    link: 'exchanges-list',
-    label: 'لیست کارگزاری‌ها',
-    access: '',
+    link: "exchanges-list",
+    label: "لیست کارگزاری‌ها",
+    access: "",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path
@@ -50,9 +50,9 @@ const navItems = [
   //   ),
   // },
   {
-    link: 'rial-transfers',
-    label: 'واریز و برداشت ریالی',
-    access: '',
+    link: "rial-transfers",
+    label: "واریز و برداشت ریالی",
+    access: "",
     icon: (
       <svg fill="currentColor" height="20" width="20" viewBox="0 0 220 220">
         <g>
@@ -65,9 +65,9 @@ const navItems = [
     ),
   },
   {
-    link: 'crypto-transfers',
-    label: 'واریز و برداشت رمزارزی',
-    access: '',
+    link: "crypto-transfers",
+    label: "واریز و برداشت رمزارزی",
+    access: "",
     icon: (
       <svg fill="currentColor" height="20" width="20" viewBox="0 0 256 238">
         <path d="M122.7,109.9l0.1-30.1c8.5,0,35.2-2.6,35.2,15.2C157.9,112,131.2,109.9,122.7,109.9z M164.8,141.8L164.8,141.8 c0.1-19.5-32-16.7-42.2-16.7l-0.1,33.2C132.7,158.3,164.8,160.5,164.8,141.8z M10.6,119.9C10.6,54.9,62.8,2,127.8,2 c65,0,117.5,52.5,117.5,117.5c0,65-52.9,117.5-117.5,117.5S10.6,184.6,10.6,119.9z M98.1,113.5c-0.5,0-1,0-1.6,0L96.3,153 c-0.3,1.9-1.4,5-5.7,5c0.2,0.2-11,0-11,0l-3.1,18l19.6,0.1c3.7,0,7.2,0.1,10.8,0.1l-0.1,25l15.1,0.1l0.1-24.8 c4.1,0.1,8.1,0.1,12,0.2l-0.1,24.7l15.1,0.1l0.1-25c25.3-1.4,43.1-7.7,45.4-31.5c1.8-19.2-7.1-27.7-21.5-31.2 c8.8-4.4,14.2-12.2,13-25.3h0c-1.7-17.9-17-23.9-36.5-25.7l0.1-24.8l-15.1-0.1L134.5,62c-4,0-8,0.1-12,0.1l0.1-24.3l-15.1-0.1 l-0.1,24.8c-3.3,0.1-6.5,0.1-9.6,0.1l0-0.1l-20.8-0.1L77,78.5c0,0,11.1-0.2,10.9,0c6.1,0,8.1,3.6,8.6,6.6l-0.1,28.2 C96.9,113.4,97.5,113.4,98.1,113.5z" />
@@ -75,9 +75,9 @@ const navItems = [
     ),
   },
   {
-    link: 'crypto-transactions',
-    label: 'معاملات رمزارزی',
-    access: '',
+    link: "crypto-transactions",
+    label: "معاملات رمزارزی",
+    access: "",
     icon: (
       <svg fill="currentColor" width="20" height="20" viewBox="0 0 24 24">
         <path d="M17.0020048,13 C17.5542895,13 18.0020048,13.4477153 18.0020048,14 C18.0020048,14.5128358 17.6159646,14.9355072 17.1186259,14.9932723 L17.0020048,15 L5.41700475,15 L8.70911154,18.2928932 C9.0695955,18.6533772 9.09732503,19.2206082 8.79230014,19.6128994 L8.70911154,19.7071068 C8.34862757,20.0675907 7.78139652,20.0953203 7.38910531,19.7902954 L7.29489797,19.7071068 L2.29489797,14.7071068 C1.69232289,14.1045317 2.07433707,13.0928192 2.88837381,13.0059833 L3.00200475,13 L17.0020048,13 Z M16.6128994,4.20970461 L16.7071068,4.29289322 L21.7071068,9.29289322 C22.3096819,9.8954683 21.9276677,10.9071808 21.1136309,10.9940167 L21,11 L7,11 C6.44771525,11 6,10.5522847 6,10 C6,9.48716416 6.38604019,9.06449284 6.88337887,9.00672773 L7,9 L18.585,9 L15.2928932,5.70710678 C14.9324093,5.34662282 14.9046797,4.77939176 15.2097046,4.38710056 L15.2928932,4.29289322 C15.6533772,3.93240926 16.2206082,3.90467972 16.6128994,4.20970461 Z" />
@@ -85,9 +85,9 @@ const navItems = [
     ),
   },
   {
-    link: 'exchange-users',
-    label: 'دارایی کاربران',
-    access: '',
+    link: "exchange-users",
+    label: "دارایی کاربران",
+    access: "",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path
@@ -101,22 +101,42 @@ const navItems = [
     ),
   },
   {
-    link: 'exchange-wallets',
-    label: 'کیف‌پول های کارگزاری‌ها',
-    access: '',
+    link: "exchange-wallets",
+    label: "کیف‌پول های کارگزاری‌ها",
+    access: "",
     icon: (
-<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z" fill="currentColor"/>
-<path fill-rule="evenodd" clip-rule="evenodd" d="M9.94358 3.25H13.0564C14.8942 3.24998 16.3498 3.24997 17.489 3.40314C18.6614 3.56076 19.6104 3.89288 20.3588 4.64124C21.2831 5.56563 21.5777 6.80363 21.6847 8.41008C22.2619 8.6641 22.6978 9.2013 22.7458 9.88179C22.7501 9.94199 22.75 10.0069 22.75 10.067C22.75 10.0725 22.75 10.0779 22.75 10.0833V13.9167C22.75 13.9221 22.75 13.9275 22.75 13.933C22.75 13.9931 22.7501 14.058 22.7458 14.1182C22.6978 14.7987 22.2619 15.3359 21.6847 15.5899C21.5777 17.1964 21.2831 18.4344 20.3588 19.3588C19.6104 20.1071 18.6614 20.4392 17.489 20.5969C16.3498 20.75 14.8942 20.75 13.0564 20.75H9.94359C8.10583 20.75 6.65019 20.75 5.51098 20.5969C4.33856 20.4392 3.38961 20.1071 2.64124 19.3588C1.89288 18.6104 1.56076 17.6614 1.40314 16.489C1.24997 15.3498 1.24998 13.8942 1.25 12.0564V11.9436C1.24998 10.1058 1.24997 8.65019 1.40314 7.51098C1.56076 6.33856 1.89288 5.38961 2.64124 4.64124C3.38961 3.89288 4.33856 3.56076 5.51098 3.40314C6.65019 3.24997 8.10582 3.24998 9.94358 3.25ZM20.1679 15.75H18.2308C16.0856 15.75 14.25 14.1224 14.25 12C14.25 9.87756 16.0856 8.25 18.2308 8.25H20.1679C20.0541 6.90855 19.7966 6.20043 19.2981 5.7019C18.8749 5.27869 18.2952 5.02502 17.2892 4.88976C16.2615 4.75159 14.9068 4.75 13 4.75H10C8.09318 4.75 6.73851 4.75159 5.71085 4.88976C4.70476 5.02502 4.12511 5.27869 3.7019 5.7019C3.27869 6.12511 3.02502 6.70476 2.88976 7.71085C2.75159 8.73851 2.75 10.0932 2.75 12C2.75 13.9068 2.75159 15.2615 2.88976 16.2892C3.02502 17.2952 3.27869 17.8749 3.7019 18.2981C4.12511 18.7213 4.70476 18.975 5.71085 19.1102C6.73851 19.2484 8.09318 19.25 10 19.25H13C14.9068 19.25 16.2615 19.2484 17.2892 19.1102C18.2952 18.975 18.8749 18.7213 19.2981 18.2981C19.7966 17.7996 20.0541 17.0915 20.1679 15.75ZM5.25 8C5.25 7.58579 5.58579 7.25 6 7.25H10C10.4142 7.25 10.75 7.58579 10.75 8C10.75 8.41421 10.4142 8.75 10 8.75H6C5.58579 8.75 5.25 8.41421 5.25 8ZM20.9235 9.75023C20.9032 9.75001 20.8766 9.75 20.8333 9.75H18.2308C16.8074 9.75 15.75 10.8087 15.75 12C15.75 13.1913 16.8074 14.25 18.2308 14.25H20.8333C20.8766 14.25 20.9032 14.25 20.9235 14.2498C20.936 14.2496 20.9426 14.2495 20.9457 14.2493L20.9479 14.2492C21.1541 14.2367 21.2427 14.0976 21.2495 14.0139C21.2495 14.0139 21.2497 14.0076 21.2498 13.9986C21.25 13.9808 21.25 13.9572 21.25 13.9167V10.0833C21.25 10.0428 21.25 10.0192 21.2498 10.0014C21.2497 9.99238 21.2495 9.98609 21.2495 9.98609C21.2427 9.90242 21.1541 9.7633 20.9479 9.75076C20.9479 9.75076 20.943 9.75043 20.9235 9.75023Z" fill="currentColor"/>
-</svg>
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M19 12C19 12.5523 18.5523 13 18 13C17.4477 13 17 12.5523 17 12C17 11.4477 17.4477 11 18 11C18.5523 11 19 11.4477 19 12Z"
+          fill="currentColor"
+        />
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M9.94358 3.25H13.0564C14.8942 3.24998 16.3498 3.24997 17.489 3.40314C18.6614 3.56076 19.6104 3.89288 20.3588 4.64124C21.2831 5.56563 21.5777 6.80363 21.6847 8.41008C22.2619 8.6641 22.6978 9.2013 22.7458 9.88179C22.7501 9.94199 22.75 10.0069 22.75 10.067C22.75 10.0725 22.75 10.0779 22.75 10.0833V13.9167C22.75 13.9221 22.75 13.9275 22.75 13.933C22.75 13.9931 22.7501 14.058 22.7458 14.1182C22.6978 14.7987 22.2619 15.3359 21.6847 15.5899C21.5777 17.1964 21.2831 18.4344 20.3588 19.3588C19.6104 20.1071 18.6614 20.4392 17.489 20.5969C16.3498 20.75 14.8942 20.75 13.0564 20.75H9.94359C8.10583 20.75 6.65019 20.75 5.51098 20.5969C4.33856 20.4392 3.38961 20.1071 2.64124 19.3588C1.89288 18.6104 1.56076 17.6614 1.40314 16.489C1.24997 15.3498 1.24998 13.8942 1.25 12.0564V11.9436C1.24998 10.1058 1.24997 8.65019 1.40314 7.51098C1.56076 6.33856 1.89288 5.38961 2.64124 4.64124C3.38961 3.89288 4.33856 3.56076 5.51098 3.40314C6.65019 3.24997 8.10582 3.24998 9.94358 3.25ZM20.1679 15.75H18.2308C16.0856 15.75 14.25 14.1224 14.25 12C14.25 9.87756 16.0856 8.25 18.2308 8.25H20.1679C20.0541 6.90855 19.7966 6.20043 19.2981 5.7019C18.8749 5.27869 18.2952 5.02502 17.2892 4.88976C16.2615 4.75159 14.9068 4.75 13 4.75H10C8.09318 4.75 6.73851 4.75159 5.71085 4.88976C4.70476 5.02502 4.12511 5.27869 3.7019 5.7019C3.27869 6.12511 3.02502 6.70476 2.88976 7.71085C2.75159 8.73851 2.75 10.0932 2.75 12C2.75 13.9068 2.75159 15.2615 2.88976 16.2892C3.02502 17.2952 3.27869 17.8749 3.7019 18.2981C4.12511 18.7213 4.70476 18.975 5.71085 19.1102C6.73851 19.2484 8.09318 19.25 10 19.25H13C14.9068 19.25 16.2615 19.2484 17.2892 19.1102C18.2952 18.975 18.8749 18.7213 19.2981 18.2981C19.7966 17.7996 20.0541 17.0915 20.1679 15.75ZM5.25 8C5.25 7.58579 5.58579 7.25 6 7.25H10C10.4142 7.25 10.75 7.58579 10.75 8C10.75 8.41421 10.4142 8.75 10 8.75H6C5.58579 8.75 5.25 8.41421 5.25 8ZM20.9235 9.75023C20.9032 9.75001 20.8766 9.75 20.8333 9.75H18.2308C16.8074 9.75 15.75 10.8087 15.75 12C15.75 13.1913 16.8074 14.25 18.2308 14.25H20.8333C20.8766 14.25 20.9032 14.25 20.9235 14.2498C20.936 14.2496 20.9426 14.2495 20.9457 14.2493L20.9479 14.2492C21.1541 14.2367 21.2427 14.0976 21.2495 14.0139C21.2495 14.0139 21.2497 14.0076 21.2498 13.9986C21.25 13.9808 21.25 13.9572 21.25 13.9167V10.0833C21.25 10.0428 21.25 10.0192 21.2498 10.0014C21.2497 9.99238 21.2495 9.98609 21.2495 9.98609C21.2427 9.90242 21.1541 9.7633 20.9479 9.75076C20.9479 9.75076 20.943 9.75043 20.9235 9.75023Z"
+          fill="currentColor"
+        />
+      </svg>
     ),
   },
   {
-    link: 'admin-panel',
-    label: 'مدیریت سامانه',
-    access: 'ADMIN',
+    link: "admin-panel",
+    label: "مدیریت سامانه",
+    access: "ADMIN",
     icon: (
-      <svg fill="currentColor" width="20" height="20" viewBox="0 0 36 36" preserveAspectRatio="xMidYMid meet">
+      <svg
+        fill="currentColor"
+        width="20"
+        height="20"
+        viewBox="0 0 36 36"
+        preserveAspectRatio="xMidYMid meet"
+      >
         <path d="M14.68,14.81a6.76,6.76,0,1,1,6.76-6.75A6.77,6.77,0,0,1,14.68,14.81Zm0-11.51a4.76,4.76,0,1,0,4.76,4.76A4.76,4.76,0,0,0,14.68,3.3Z"></path>
         <path d="M16.42,31.68A2.14,2.14,0,0,1,15.8,30H4V24.22a14.81,14.81,0,0,1,11.09-4.68l.72,0a2.2,2.2,0,0,1,.62-1.85l.12-.11c-.47,0-1-.06-1.46-.06A16.47,16.47,0,0,0,2.2,23.26a1,1,0,0,0-.2.6V30a2,2,0,0,0,2,2H16.7Z"></path>
         <path d="M33.68,23.32l-2-.61a7.21,7.21,0,0,0-.58-1.41l1-1.86A.38.38,0,0,0,32,19l-1.45-1.45a.36.36,0,0,0-.44-.07l-1.84,1a7.15,7.15,0,0,0-1.43-.61l-.61-2a.36.36,0,0,0-.36-.24H23.82a.36.36,0,0,0-.35.26l-.61,2a7,7,0,0,0-1.44.6l-1.82-1a.35.35,0,0,0-.43.07L17.69,19a.38.38,0,0,0-.06.44l1,1.82A6.77,6.77,0,0,0,18,22.69l-2,.6a.36.36,0,0,0-.26.35v2.05A.35.35,0,0,0,16,26l2,.61a7,7,0,0,0,.6,1.41l-1,1.91a.36.36,0,0,0,.06.43l1.45,1.45a.38.38,0,0,0,.44.07l1.87-1a7.09,7.09,0,0,0,1.4.57l.6,2a.38.38,0,0,0,.35.26h2.05a.37.37,0,0,0,.35-.26l.61-2.05a6.92,6.92,0,0,0,1.38-.57l1.89,1a.36.36,0,0,0,.43-.07L32,30.4A.35.35,0,0,0,32,30l-1-1.88a7,7,0,0,0,.58-1.39l2-.61a.36.36,0,0,0,.26-.35V23.67A.36.36,0,0,0,33.68,23.32ZM24.85,28a3.34,3.34,0,1,1,3.33-3.33A3.34,3.34,0,0,1,24.85,28Z"></path>
@@ -126,13 +146,12 @@ const navItems = [
   },
 ];
 
-
-import { Modal } from '@heathmont/moon-core-tw';
-import clsx from 'clsx';
-import { usePathname } from 'next/navigation';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { PostRequest } from '../../functions/PostRequest';
-import AnimatedHeadingText from '../AnimatedHeadingText/AnimatedHeadingText';
+import { Modal } from "@heathmont/moon-core-tw";
+import clsx from "clsx";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { PostRequest } from "../../functions/PostRequest";
+import AnimatedHeadingText from "../AnimatedHeadingText/AnimatedHeadingText";
 
 type NavbarProps = {
   isOpen: boolean;
@@ -155,35 +174,35 @@ const Navbar = ({
 
   // ---------- cookie helper ----------
   const getCookie = (name: string): string => {
-    if (typeof document === 'undefined') return '';
+    if (typeof document === "undefined") return "";
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) {
-      const cookieValue = parts.pop()?.split(';').shift();
-      return decodeURIComponent(cookieValue || '');
+      const cookieValue = parts.pop()?.split(";").shift();
+      return decodeURIComponent(cookieValue || "");
     }
-    return '';
+    return "";
   };
 
   // ---------- user info ----------
-  const [role, setRole] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [username, setUsername] = useState('');
+  const [role, setRole] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
 
   useEffect(() => {
-    const r = getCookie('role');
-    const firstName = getCookie('firstName');
-    const lastName = getCookie('lastName');
+    const r = getCookie("role");
+    const firstName = getCookie("firstName");
+    const lastName = getCookie("lastName");
     setRole(r);
-    setUsername(getCookie('username'));
+    setUsername(getCookie("username"));
     setFullName(`${firstName} ${lastName}`.trim());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ---------- active route ----------
   const activeLink = useMemo(() => {
-    const parts = pathname.split('/').filter(Boolean);
-    return parts[1] || ''; // /panel/<here>
+    const parts = pathname.split("/").filter(Boolean);
+    return parts[1] || ""; // /panel/<here>
   }, [pathname]);
 
   // ---------- close mobile on route change ----------
@@ -199,7 +218,7 @@ const Navbar = ({
     const prevOverflow = document.body.style.overflow;
     const prevPaddingRight = document.body.style.paddingRight;
 
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
 
     return () => {
       document.body.style.overflow = prevOverflow;
@@ -208,9 +227,9 @@ const Navbar = ({
   }, [isMobileOpen]);
 
   // ---------- change password modal ----------
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [retryPassword, setretryPassword] = useState('');
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [retryPassword, setretryPassword] = useState("");
   const [showOld, setShowOld] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showRetry, setshowRetry] = useState(false);
@@ -221,9 +240,9 @@ const Navbar = ({
   const [formVersion, setFormVersion] = useState(0);
 
   const resetForm = () => {
-    setOldPassword('');
-    setNewPassword('');
-    setretryPassword('');
+    setOldPassword("");
+    setNewPassword("");
+    setretryPassword("");
     setShowOld(false);
     setShowNew(false);
     setLoading(false);
@@ -240,10 +259,12 @@ const Navbar = ({
   const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/auth/change-password`;
 
   const validate = () => {
-    if (!oldPassword) return setError('رمز فعلی را وارد کنید'), false;
-    if (!newPassword) return setError('رمز جدید را وارد کنید'), false;
-    if (newPassword !== retryPassword) return setError('تکرار رمزعبور جدید را به درستی وارد کنید'), false;
-    if (newPassword.length < 8) return setError('رمز جدید باید حداقل ۸ کاراکتر باشد'), false;
+    if (!oldPassword) return setError("رمز فعلی را وارد کنید"), false;
+    if (!newPassword) return setError("رمز جدید را وارد کنید"), false;
+    if (newPassword !== retryPassword)
+      return setError("تکرار رمزعبور جدید را به درستی وارد کنید"), false;
+    if (newPassword.length < 8)
+      return setError("رمز جدید باید حداقل ۸ کاراکتر باشد"), false;
     setError(null);
     return true;
   };
@@ -259,15 +280,19 @@ const Navbar = ({
       setError(null);
       setSuccess(null);
 
-      await PostRequest(API_URL, { oldPassword, newPassword }, { redirectOn403: false, headers: { accept: '*/*' } });
+      await PostRequest(
+        API_URL,
+        { oldPassword, newPassword },
+        { redirectOn403: false, headers: { accept: "*/*" } }
+      );
 
       if (v !== formVersion) return;
-      setSuccess('رمز با موفقیت تغییر کرد.');
-      setOldPassword('');
-      setNewPassword('');
+      setSuccess("رمز با موفقیت تغییر کرد.");
+      setOldPassword("");
+      setNewPassword("");
     } catch (err: any) {
       if (v !== formVersion) return;
-      setError(err?.message || 'خطا در تغییر رمز');
+      setError(err?.message || "خطا در تغییر رمز");
     } finally {
       if (v === formVersion) setLoading(false);
     }
@@ -286,15 +311,16 @@ const Navbar = ({
     const onDown = (e: MouseEvent | TouchEvent) => {
       const el = asideRef.current;
       if (!el) return;
-      if (e.target instanceof Node && !el.contains(e.target)) setIsMobileOpen(false);
+      if (e.target instanceof Node && !el.contains(e.target))
+        setIsMobileOpen(false);
     };
 
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('touchstart', onDown, { passive: true });
+    document.addEventListener("mousedown", onDown);
+    document.addEventListener("touchstart", onDown, { passive: true });
 
     return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('touchstart', onDown);
+      document.removeEventListener("mousedown", onDown);
+      document.removeEventListener("touchstart", onDown);
     };
   }, [isMobileOpen, setIsMobileOpen]);
 
@@ -311,7 +337,12 @@ const Navbar = ({
               aria-label="open menu"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  d="M4 6H20M4 12H20M4 18H20"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
 
@@ -331,7 +362,13 @@ const Navbar = ({
                   />
                 </svg>
               ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="22"
+                  height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
                   <path
                     d="M12 3v2m0 14v2m9-9h-2M5 12H3m15.364-6.364l-1.414 1.414M6.05 17.95l-1.414 1.414m0-13.828l1.414 1.414M17.95 17.95l1.414 1.414M12 8a4 4 0 100 8 4 4 0 000-8z"
                     stroke="currentColor"
@@ -347,16 +384,18 @@ const Navbar = ({
       </div>
 
       {/* ===== Mobile overlay ===== */}
-      {isMobileOpen && <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" />}
+      {isMobileOpen && (
+        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" />
+      )}
 
       {/* ===== Sidebar ===== */}
       <aside
         ref={asideRef}
         className={clsx(
-          'fixed top-0 right-0 h-screen w-[82vw] max-w-[320px] lg:w-64 shadow-[0_10px_40px_rgba(0,0,0,0.18)] transition-transform duration-300 z-50 bg-boxColor dark:bg-boxColor-dark dark:text-titleText-dark',
+          "fixed top-0 right-0 h-screen w-[82vw] max-w-[320px] lg:w-64 shadow-[0_10px_40px_rgba(0,0,0,0.18)] transition-transform duration-300 z-50 bg-boxColor dark:bg-boxColor-dark dark:text-titleText-dark",
           {
-            'translate-x-full lg:translate-x-0': !isOpen && !isMobileOpen,
-            'translate-x-0': isOpen || isMobileOpen,
+            "translate-x-full lg:translate-x-0": !isOpen && !isMobileOpen,
+            "translate-x-0": isOpen || isMobileOpen,
           }
         )}
       >
@@ -365,7 +404,11 @@ const Navbar = ({
           <div className="p-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <img src="../../../images/pantaLogo.png" className="w-11 h-11 rounded-xl" alt="image" />
+                <img
+                  src="../../../images/pantaLogo.png"
+                  className="w-11 h-11 rounded-xl"
+                  alt="image"
+                />
                 <div className="leading-5">
                   <AnimatedHeadingText />
                 </div>
@@ -378,7 +421,12 @@ const Navbar = ({
                 aria-label="close menu"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </button>
             </div>
@@ -397,8 +445,12 @@ const Navbar = ({
                 </div>
 
                 <div className="min-w-0 flex-1" dir="rtl">
-                  <div className="text-sm font-semibold text-titleText dark:text-titleText-dark truncate">{fullName || 'کاربر'}</div>
-                  <div className="text-[11px] text-gray-500 dark:text-gray-400 truncate">{role || '—'}</div>
+                  <div className="text-sm font-semibold text-titleText dark:text-titleText-dark truncate">
+                    {fullName || "کاربر"}
+                  </div>
+                  <div className="text-[11px] text-gray-500 dark:text-gray-400 truncate">
+                    {role || "—"}
+                  </div>
                 </div>
 
                 <button
@@ -408,10 +460,26 @@ const Navbar = ({
                   aria-label="change password"
                 >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                    <path d="M10.6887 11.9999C10.6887 13.0229 9.85974 13.8519 8.83674 13.8519C7.81374 13.8519 6.98474 13.0229 6.98474 11.9999C6.98474 10.9769 7.81374 10.1479 8.83674 10.1479H8.83974C9.86174 10.1489 10.6887 10.9779 10.6887 11.9999Z" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M10.6918 12H17.0098V13.852" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M14.182 13.852V12" stroke="currentColor" strokeWidth="1.5" />
-                    <path d="M2.74988 12C2.74988 5.063 5.06288 2.75 11.9999 2.75C18.9369 2.75 21.2499 5.063 21.2499 12C21.2499 18.937 18.9369 21.25 11.9999 21.25C5.06288 21.25 2.74988 18.937 2.74988 12Z" stroke="currentColor" strokeWidth="1.5" />
+                    <path
+                      d="M10.6887 11.9999C10.6887 13.0229 9.85974 13.8519 8.83674 13.8519C7.81374 13.8519 6.98474 13.0229 6.98474 11.9999C6.98474 10.9769 7.81374 10.1479 8.83674 10.1479H8.83974C9.86174 10.1489 10.6887 10.9779 10.6887 11.9999Z"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M10.6918 12H17.0098V13.852"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M14.182 13.852V12"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
+                    <path
+                      d="M2.74988 12C2.74988 5.063 5.06288 2.75 11.9999 2.75C18.9369 2.75 21.2499 5.063 21.2499 12C21.2499 18.937 18.9369 21.25 11.9999 21.25C5.06288 21.25 2.74988 18.937 2.74988 12Z"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                    />
                   </svg>
                 </button>
               </div>
@@ -422,77 +490,88 @@ const Navbar = ({
         {/* Nav */}
         <nav
           className="px-3 pt-4 space-y-2 overflow-y-auto h-full"
-          style={{ paddingBottom: 'calc(160px + env(safe-area-inset-bottom))' }}
-        >          {navItems.map((item) => {
-          if (item.access !== '' && item.access !== role) return null;
-          const active = item.link === activeLink;
+          style={{ paddingBottom: "calc(160px + env(safe-area-inset-bottom))" }}
+        >
+          {" "}
+          {navItems.map((item) => {
+            if (item.access !== "" && item.access !== role) return null;
+            const active = item.link === activeLink;
 
-          return (
-            <a href={`/panel/${item.link}`} key={item.label} style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-              <button
-                type="button"
-                className={clsx(
-                  'w-full flex items-center justify-between gap-1 px-1 py-1 rounded-xl transition border', // ✅ items-center
-                  active
-                    ? 'bg-BgPrimary dark:bg-BgPrimary-dark border-transparent'
-                    : 'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent'
-                )}
+            return (
+              <a
+                href={`/panel/${item.link}`}
+                key={item.label}
+                style={{
+                  display: "block",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
               >
-                {/* ✅ سمت چپ: آیکن + متن -> شروع از بالا */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <span
-                    className={clsx(
-                      'h-10 w-10 rounded-xl flex items-center justify-center border shrink-0', // ✅ shrink-0
-                      active
-                        ? 'bg-white/70 dark:bg-bgColor-dark/60 border-boxBorderColor dark:border-boxBorderColor-dark text-primary dark:text-primary-dark'
-                        : 'bg-white/50 dark:bg-bgColor-dark/40 border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark'
-                    )}
-                  >
-                    {item.icon}
-                  </span>
-
-                  {/* ✅ متن چندخطی: چپ/راست نشه و وسط‌چین نشه */}
-                  <span
-                    className={clsx(
-                      'text-sm font-medium text-right leading-5 min-w-0 break-words', // ✅ leading + break
-                      active ? 'text-primary dark:text-titleText-dark' : 'text-titleText dark:text-titleText-dark'
-                    )}
-                    dir="rtl"
-                  >
-                    {item.label}
-                  </span>
-                </div>
-
-                {/* ✅ فلش همیشه بالا بمونه */}
-                <svg
-                  width="18"
-                  height="18"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  className={clsx('transition mt-3 self-start shrink-0', active ? 'opacity-100' : 'opacity-40')} // ✅ self-start
+                <button
+                  type="button"
+                  className={clsx(
+                    "w-full flex items-center justify-between gap-1 px-1 py-1 rounded-xl transition border", // ✅ items-center
+                    active
+                      ? "bg-BgPrimary dark:bg-BgPrimary-dark border-transparent"
+                      : "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent"
+                  )}
                 >
-                  <path d="M9 18l6-6-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </button>
-            </a>
-          );
-        })}
-        </nav>
+                  {/* ✅ سمت چپ: آیکن + متن -> شروع از بالا */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span
+                      className={clsx(
+                        "h-10 w-10 rounded-xl flex items-center justify-center border shrink-0", // ✅ shrink-0
+                        active
+                          ? "bg-white/70 dark:bg-bgColor-dark/60 border-boxBorderColor dark:border-boxBorderColor-dark text-primary dark:text-primary-dark"
+                          : "bg-white/50 dark:bg-bgColor-dark/40 border-boxBorderColor dark:border-boxBorderColor-dark text-titleText dark:text-titleText-dark"
+                      )}
+                    >
+                      {item.icon}
+                    </span>
 
-        {/* Sticky bottom actions */}
-        <div
-          className="fixed bottom-0 right-0 left-0 lg:left-auto lg:right-auto lg:bottom-0 lg:w-64
-             p-3 bg-boxColor/95 dark:bg-boxColor-dark/90 backdrop-blur
-             border-t border-boxBorderColor dark:border-boxBorderColor-dark"
-          style={{
-            paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
-          }}
-        >          <div className="flex items-center gap-2">
+                    {/* ✅ متن چندخطی: چپ/راست نشه و وسط‌چین نشه */}
+                    <span
+                      className={clsx(
+                        "text-sm font-medium text-right leading-5 min-w-0 break-words", // ✅ leading + break
+                        active
+                          ? "text-primary dark:text-titleText-dark"
+                          : "text-titleText dark:text-titleText-dark"
+                      )}
+                      dir="rtl"
+                    >
+                      {item.label}
+                    </span>
+                  </div>
+
+                  {/* ✅ فلش همیشه بالا بمونه */}
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    className={clsx(
+                      "transition mt-3 self-start shrink-0",
+                      active ? "opacity-100" : "opacity-40"
+                    )} // ✅ self-start
+                  >
+                    <path
+                      d="M9 18l6-6-6-6"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </a>
+            );
+          })}
+          <div className="flex sm:hidden  items-center gap-2 mt-16">
             <button
               type="button"
               onClick={() => {
                 document.cookie = `token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-                window.location.assign('/');
+                window.location.assign("/");
               }}
               className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40 transition py-3"
             >
@@ -515,7 +594,61 @@ const Navbar = ({
               aria-label="close"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <path
+                  d="M6 6l12 12M18 6L6 18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </nav>
+
+        {/* Sticky bottom actions */}
+        <div
+          className="hidden sm:block fixed bottom-0 right-0 left-0 lg:left-auto lg:right-auto lg:bottom-0 lg:w-64
+             p-3 bg-boxColor/95 dark:bg-boxColor-dark/90 backdrop-blur
+             border-t border-boxBorderColor dark:border-boxBorderColor-dark"
+          style={{
+            paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
+          }}
+        >
+          {" "}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                document.cookie = `token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                window.location.assign("/");
+              }}
+              className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40 transition py-3"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M10 12H18M18 12L15.5 9.77778M18 12L15.5 14.2222M18 7.11111V5C18 4.44772 17.5523 4 17 4H7C6.44772 4 6 4.44772 6 5V19C6 19.5523 6.44772 20 7 20H17C17.5523 20 18 19.5523 18 19V16.8889"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                />
+              </svg>
+              <span className="text-sm font-semibold">خروج</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsMobileOpen(false)}
+              className="lg:hidden h-12 w-12 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center"
+              aria-label="close"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 6l12 12M18 6L6 18"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -534,20 +667,24 @@ const Navbar = ({
 
         <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4">
           <Modal.Panel
-            key={`${formVersion}-${open ? 'open' : 'closed'}`}
+            key={`${formVersion}-${open ? "open" : "closed"}`}
             className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-2xl text-titleText dark:text-titleText-dark w-full max-w-md p-6 border border-boxBorderColor dark:border-boxBorderColor-dark"
           >
             <div className="w-full">
               <Modal.Title>
-                <h3 className="text-lg font-semibold text-titleText dark:text-titleText-dark text-center">تغییر رمز عبور</h3>
+                <h3 className="text-lg font-semibold text-titleText dark:text-titleText-dark text-center">
+                  تغییر رمز عبور
+                </h3>
               </Modal.Title>
 
               <form onSubmit={submit} className="mt-4 space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">رمزعبور فعلی</label>
+                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
+                    رمزعبور فعلی
+                  </label>
                   <div className="relative mt-1">
                     <input
-                      type={showOld ? 'text' : 'password'}
+                      type={showOld ? "text" : "password"}
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
                       placeholder="رمزعبور فعلی"
@@ -560,16 +697,18 @@ const Navbar = ({
                       onClick={() => setShowOld((s) => !s)}
                       className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300"
                     >
-                      {showOld ? 'مخفی' : 'نمایش'}
+                      {showOld ? "مخفی" : "نمایش"}
                     </button>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">رمزعبور جدید</label>
+                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
+                    رمزعبور جدید
+                  </label>
                   <div className="relative mt-1">
                     <input
-                      type={showNew ? 'text' : 'password'}
+                      type={showNew ? "text" : "password"}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="رمزعبور جدید"
@@ -582,17 +721,21 @@ const Navbar = ({
                       onClick={() => setShowNew((s) => !s)}
                       className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300"
                     >
-                      {showNew ? 'مخفی' : 'نمایش'}
+                      {showNew ? "مخفی" : "نمایش"}
                     </button>
                   </div>
-                  <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">رمز جدید حداقل ۸ کاراکتر باشد.</p>
+                  <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
+                    رمز جدید حداقل ۸ کاراکتر باشد.
+                  </p>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">تکرار رمزعبور جدید</label>
+                  <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
+                    تکرار رمزعبور جدید
+                  </label>
                   <div className="relative mt-1">
                     <input
-                      type={showRetry ? 'text' : 'password'}
+                      type={showRetry ? "text" : "password"}
                       value={retryPassword}
                       onChange={(e) => setretryPassword(e.target.value)}
                       placeholder="تکرار رمزعبور جدید"
@@ -605,26 +748,32 @@ const Navbar = ({
                       onClick={() => setshowRetry((s) => !s)}
                       className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300"
                     >
-                      {showRetry ? 'مخفی' : 'نمایش'}
+                      {showRetry ? "مخفی" : "نمایش"}
                     </button>
                   </div>
                 </div>
 
-                {!!error && <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>}
+                {!!error && (
+                  <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                    {error}
+                  </div>
+                )}
                 {!!success && (
-                  <div className="rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">{success}</div>
+                  <div className="rounded-xl border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                    {success}
+                  </div>
                 )}
 
                 <div className="mt-2 flex items-center justify-end gap-3">
                   <button
                     type="submit"
                     className={clsx(
-                      'rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition',
-                      loading ? 'bg-primary/60' : 'bg-primary hover:opacity-90'
+                      "rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition",
+                      loading ? "bg-primary/60" : "bg-primary hover:opacity-90"
                     )}
                     disabled={loading}
                   >
-                    {loading ? 'در حال ارسال…' : 'تغییر رمز'}
+                    {loading ? "در حال ارسال…" : "تغییر رمز"}
                   </button>
                 </div>
               </form>

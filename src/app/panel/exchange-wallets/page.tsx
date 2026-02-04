@@ -347,7 +347,7 @@ const Page = () => {
                 header: 'آدرس',
                 accessorKey: 'address',
                 cell: (row: AddressRow) => (
-                    <span className="text-titleText dark:text-titleText-dark font-mono text-xs break-all">{row?.address || ''}</span>
+                    <span className="text-titleText dark:text-titleText-dark font-mono text-xs ">{row?.address || ''}</span>
                 ),
             },
             {

@@ -500,7 +500,7 @@ export default function Page() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 pb-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 pb-4">
         <div>
           <MemoCircleChart
             data={IRRtoUSDT}
@@ -512,6 +512,10 @@ export default function Page() {
         <div>
           <MemoCircleChart data={CryptoShare} title="حجم معاملات" unit="USDT" />
         </div>
+
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 pb-4">
 
         <div>
           <MemoCircleChart
