@@ -163,7 +163,6 @@ const AdminSchedulers = () => {
   );
 
   if (loading) return <div><LoadingComponent /></div>;
-  if (error) return <div>{error}</div>;
 
   const start = (page - 1) * size;
   const pageData = filteredJobs.slice(start, start + size);

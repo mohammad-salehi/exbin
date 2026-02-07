@@ -138,7 +138,6 @@ const AdminSimpleTriggers = () => {
   );
 
   if (loading) return <div><LoadingComponent /></div>;
-  if (error) return <div>{error}</div>;
 
   const start = (page - 1) * size;
   const pageData = filteredTriggers.slice(start, start + size);

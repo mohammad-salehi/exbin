@@ -116,7 +116,6 @@ const AdminSchedulerState = () => {
   );
 
   if (loading) return <div><LoadingComponent /></div>;
-  if (error) return <div>{error}</div>;
 
   const start = (page - 1) * size;
   const pageData = filteredStates.slice(start, start + size);
