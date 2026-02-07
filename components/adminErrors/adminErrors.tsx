@@ -185,7 +185,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
                   اطلاعات اصلی
                 </div>
 
-                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 ltr text-end">
                   {items.map((it) => (
                     <div
                       key={it.k}
@@ -206,7 +206,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
                   Root Cause
                 </div>
 
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 ltr text-end">
                   {/* ✅ rootCauseClass منتقل شد به مودال */}
                   <div className="rounded-xl border border-boxBorderColor/40 bg-white/70 px-3 py-2 dark:border-boxBorderColor-dark/40 dark:bg-black/10">
                     <div className="text-[11px] text-slate-500 dark:text-slate-400">rootCauseClass</div>
@@ -246,7 +246,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
               <div className="mb-3 text-sm font-semibold text-titleText dark:text-titleText-dark">
                 Stack Trace
               </div>
-              <pre className="max-h-[360px] overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-black/5 p-4 text-xs text-slate-700 dark:bg-black/30 dark:text-slate-200">
+              <pre className="max-h-[360px] overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-black/5 p-4 text-xs text-slate-700 dark:bg-black/30 dark:text-slate-200 ltr text-end">
                 {row.stackTrace || '-'}
               </pre>
             </div>
