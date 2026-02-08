@@ -625,8 +625,7 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <Pill tone="info">دارایی‌ها</Pill>
                         <div className="flex flex-wrap items-center gap-2">
-                            <Pill tone="default">{formatIntFa(PAGE_SIZE)} مورد در هر صفحه</Pill>
-                            <Pill tone="info">کل: {formatIntFa(assets.length)}</Pill>
+                            <Pill tone="info">کل: {formatIntFa(assets.length)} ارز</Pill>
                         </div>
                     </div>
 
