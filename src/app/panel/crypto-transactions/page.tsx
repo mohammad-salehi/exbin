@@ -225,11 +225,7 @@ const Page = () => {
 
         params.set('page', String(Math.max(0, currentPage - 1)));
         params.set('size', String(pageSize));
-
-        // exchange dropdown بیرون صفحه
         if (exchangeSelected) params.set('exchangeId', exchanges.find(item => item.name === exchangeSelected)?.id ?? '');
-
-        // modal filters
         if (appliedFilters.userId) params.set('userId', appliedFilters.userId);
         if (appliedFilters.tradeId) params.set('tradeId', appliedFilters.tradeId);
         if (appliedFilters.userIdentity) params.set('userIdentity', appliedFilters.userIdentity);
@@ -291,7 +287,13 @@ const Page = () => {
     };
 
     useEffect(() => {
-        fetchData();
+        if (sp.get('exchange')) {
+            if (exchanges.length > 0) {
+                fetchData();
+            }
+        } else {
+            fetchData();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         exchangeSelected,
@@ -304,6 +306,7 @@ const Page = () => {
         appliedFilters.transactionType,
         currentPage,
         pageSize,
+        exchanges
     ]);
 
     // ✅ badges
@@ -313,7 +316,7 @@ const Page = () => {
         if (exchangeSelected) {
             badges.push({
                 key: 'exchangeId',
-                label: `کارگزاری ${exchanges.find(item => item.name === exchangeSelected)?.name}`,
+                label: `کارگزاری ${exchangeSelected}`,
                 onRemove: () => {
                     setExchangeSelected('');
                     setCurrentPage(1);

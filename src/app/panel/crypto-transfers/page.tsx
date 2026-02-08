@@ -290,7 +290,13 @@ const Page = () => {
     };
 
     useEffect(() => {
-        fetchData();
+        if (sp.get('exchange')) {
+            if (exchanges.length > 0) {
+                fetchData();
+            }
+        } else {
+            fetchData();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         txKind,
@@ -302,7 +308,7 @@ const Page = () => {
         appliedFilters.transactionDestination,
         appliedFilters.transactionSource,
         appliedFilters.transactionId,
-
+        exchanges,
         currentPage,
         pageSize,
     ]);

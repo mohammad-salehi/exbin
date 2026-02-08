@@ -252,7 +252,13 @@ const Page = () => {
     };
 
     useEffect(() => {
-        fetchData();
+        if (sp.get('exchange')) {
+            if (exchanges.length > 0) {
+                fetchData();
+            }
+        } else {
+            fetchData();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         exchangeSelected,
@@ -261,6 +267,7 @@ const Page = () => {
         appliedFilters.currency,
         currentPage,
         pageSize,
+        exchanges
     ]);
 
     // ✅ badges

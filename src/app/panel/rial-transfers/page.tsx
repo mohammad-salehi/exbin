@@ -312,8 +312,6 @@ const Page = () => {
                 }));
 
                 setRows(mapped);
-                console.log('mapped')
-                console.log(mapped)
                 setTotalItems(total);
             })
             .catch(() => { })
@@ -322,7 +320,13 @@ const Page = () => {
 
     // ✅ هر تغییری در فیلترها/صفحه => دوباره گرفتن دیتا
     useEffect(() => {
-        fetchData();
+        if (sp.get('exchange')) {
+            if (exchanges.length > 0) {
+                fetchData();
+            }
+        } else {
+            fetchData();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         transactionType,
@@ -332,6 +336,7 @@ const Page = () => {
         filterIrrTransactionId,
         currentPage,
         pageSize,
+        exchanges
     ]);
 
     // ✅ بَج‌ها (بدون badge برای transactionType)
