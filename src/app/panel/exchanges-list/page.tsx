@@ -69,7 +69,6 @@ const Page = () => {
   const [Loading, SetLoading] = useState(false);
   const [data, Setdata] = useState<Person[]>([]);
 
-  const [First, SetFirst] = useState<number>(0)
   const [isOpen, SetisOpen] = useState<boolean>(false)
   const [DeleteLoading, SetDeleteLoading] = useState<boolean>(false)
   const [Deletedata, SetDeletedata] = useState<Person>();
@@ -82,13 +81,10 @@ const Page = () => {
   // دیتای فیلترشده برای جدول
   const filteredData = useMemo(() => filterTree(data, q, searchKeys), [data, q]);
 
-
-
   useEffect(() => {
     SetLoading(true)
-    GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges?page=0&size=1000`)
+    GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges?page=0&size=10000`)
       .then((response) => {
-        console.log(response)
         const people: Person[] = response.result.content.map((item: Company) => ({
           id: String(item.id),
           name: item.name,
@@ -161,8 +157,9 @@ const Page = () => {
         }
         <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-0">
           {filteredData.map((item, index) => {
-            const risk = Math.floor(Math.random() * 140);
-
+            const risk = item.reserveRatio;
+            console.log('item.reserveRatio')
+            console.log(item.reserveRatio)
             const show =
               filter === "all" ||
               (filter === "low" && risk >= 100) ||
