@@ -158,8 +158,6 @@ const Page = () => {
         <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-0">
           {filteredData.map((item, index) => {
             const risk = item.reserveRatio;
-            console.log('item.reserveRatio')
-            console.log(item.reserveRatio)
             const show =
               filter === "all" ||
               (filter === "low" && risk >= 100) ||
