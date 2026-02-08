@@ -202,7 +202,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       .then((response) => {
         SetHeaderData((prev) => {
           const item: CryptoTradingValueUsers = {
-            label: "کل دارایی کاربران(USD)",
+            label: "کل دارایی کارگزاری(USD)",
             value: Number(response.result.totalAssetsUsd ?? 0),
           };
           const next = prev.filter((x) => x.label !== item.label);
@@ -309,8 +309,8 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
     GetRequest(`${process.env.NEXT_PUBLIC_API_URL}/api/analytics/valid-currencies?exchangeId=${id}`)
       .then((response) => {
         SetCryptoList(response.result);
-        SetCryptoSelected1(response.result?.[0]?.cryptocurrency ?? "");
-        SetCryptoSelected2(response.result?.[0]?.cryptocurrency ?? "");
+        SetCryptoSelected1(response.result.find((item: { cryptocurrency: string; }) => item.cryptocurrency === 'BTC').cryptocurrency ?? response.result[0].cryptocurrency)
+        SetCryptoSelected2(response.result.find((item: { cryptocurrency: string; }) => item.cryptocurrency === 'BTC').cryptocurrency ?? response.result[0].cryptocurrency)
         SetC9(true);
       })
       .catch((err) => {
@@ -986,10 +986,10 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         <div className={cx(cardStretch, "xl:col-span-3")}>
           <MemoDoubleLinearChart
             data={PORHistory}
-            title="تاریخچه نسبت دارایی به بعهد کارگزاری"
+            title="تاریخچه نسبت دارایی به تعهد کارگزاری"
             unitSuffix="M"
             assetLabel="دارایی"
-            liabilityLabel="بدهی"
+            liabilityLabel="تعهد"
             ShowSummary={false}
           />
         </div>

@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { GetRequest } from '../../../../functions/GetRequest';
 import { useParams } from 'next/navigation';
+import { toJalaliDate } from '../../../../functions/toJalaliDate';
 
 type ExchangeInfoProps = {
     SetLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -234,7 +235,7 @@ function AssetPorCard({ row }: { row: AssetRow }) {
                 <div className="mt-4 grid grid-cols-1 gap-3">
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
                         <div className="rounded-3xl border p-4 border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur">
-                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">موجودی کارگزاری</div>
+                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">دارایی کارگزاری</div>
                             <div className="mt-2 font-mono text-sm font-extrabold text-titleText dark:text-titleText-dark">
                                 {row.exchangeBalance.toLocaleString()}
                             </div>
@@ -243,7 +244,7 @@ function AssetPorCard({ row }: { row: AssetRow }) {
 
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
                         <div className="rounded-3xl border p-4 border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur">
-                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">خالص دارایی کاربران</div>
+                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">بدهی به کاربران</div>
                             <div className="mt-2 font-mono text-sm font-extrabold text-titleText dark:text-titleText-dark">
                                 {row.customerNetBalance.toLocaleString()}
                             </div>
@@ -348,14 +349,14 @@ function Pagination({
 const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
     const staticMeta = useMemo(
         () => ({
-            auditTime: '۲۰۲۶/۰۱/۰۶ - ۱۲:۳۰',
-            verifier: 'Third-Party Auditor (Demo)',
-            verificationMechanism: 'گزارش درصد پوشش دارایی‌های کارگزاری',
-            scope: 'موجودی کیف پول‌های نگه‌داری (Custody) + خالص دارایی کاربران',
-            riskNote: 'درصد ضریب پوشش به‌تنهایی جایگزین حسابرسی کامل بدهی‌ها و ریسک‌های خارج از زنجیره نیست.',
+          auditTime: toJalaliDate(new Date().toISOString()),  // تبدیل تاریخ میلادی به شمسی
+          verifier: 'Third-Party Auditor (Demo)',
+          verificationMechanism: 'گزارش درصد پوشش دارایی‌های کارگزاری',
+          scope: 'موجودی کیف پول‌های نگه‌داری (Custody) + خالص دارایی کاربران',
+          riskNote: 'درصد ضریب پوشش به‌تنهایی جایگزین حسابرسی کامل بدهی‌ها و ریسک‌های خارج از زنجیره نیست.',
         }),
         []
-    );
+      );
 
     const [assets, setAssets] = useState<AssetRow[]>([]);
     const [porLoaded, setPorLoaded] = useState(false);
