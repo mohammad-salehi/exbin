@@ -6,13 +6,7 @@ import ExpandableTable, {
   Column,
 } from "../../components/ExpandableTable/ExpandableTable";
 import Pagination from "../../components/Pagination/Pagination";
-import {
-  Modal,
-  Input,
-  Dropdown,
-  Button,
-  MenuItem,
-} from "@heathmont/moon-core-tw";
+import { Modal, Input, Button } from "@heathmont/moon-core-tw";
 import { GetRequest } from "../../functions/GetRequest";
 import toast from "react-hot-toast";
 import { LoaderCircle } from "../../components/Loader/Loader";
@@ -73,9 +67,9 @@ const AdminPanel: React.FC = () => {
 
   const onFormInputChange =
     (key: Exclude<keyof Person, "id">) =>
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm((prev) => (prev ? { ...prev, [key]: e.target.value } : prev));
-      };
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setForm((prev) => (prev ? { ...prev, [key]: e.target.value } : prev));
+    };
 
   const getTokenFromCookie = () =>
     document.cookie
@@ -102,10 +96,12 @@ const AdminPanel: React.FC = () => {
   const onEditSave = async () => {
     if (!form) return;
 
+    // ✅ فقط ADMIN
     const memberInfo = {
       firstName: form.firstName,
       lastName: form.lastName,
-      role: form.role as Role,
+      role: "ADMIN" as Role,
+      username: form.username,
     };
 
     try {
@@ -147,7 +143,12 @@ const AdminPanel: React.FC = () => {
         return;
       }
 
-      setRows((prev) => prev.map((r) => (r.id === form.id ? form : r)));
+      // ✅ استیت هم همیشه ADMIN بماند
+      const updatedForm: Person = { ...form, role: "ADMIN" };
+
+      setRows((prev) =>
+        prev.map((r) => (r.id === form.id ? updatedForm : r))
+      );
       onEditClose();
       toast.success("کاربر با موفقیت ویرایش شد.", { position: "bottom-left" });
     } catch (err: any) {
@@ -243,7 +244,7 @@ const AdminPanel: React.FC = () => {
     id: "",
     firstName: "",
     lastName: "",
-    role: "USER",
+    role: "ADMIN", // ✅ دستی ADMIN
     username: "",
     password: "", // 👈
   });
@@ -253,7 +254,7 @@ const AdminPanel: React.FC = () => {
       id: "",
       firstName: "",
       lastName: "",
-      role: "USER",
+      role: "ADMIN", // ✅ دستی ADMIN
       username: "",
       password: "",
     });
@@ -263,9 +264,9 @@ const AdminPanel: React.FC = () => {
 
   const onAddInputChange =
     (key: Exclude<keyof Person, "role" | "id">) =>
-      (e: React.ChangeEvent<HTMLInputElement>) => {
-        setAddForm((prev) => ({ ...prev, [key]: e.target.value }));
-      };
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setAddForm((prev) => ({ ...prev, [key]: e.target.value }));
+    };
 
   const onAddSave = async () => {
     try {
@@ -295,7 +296,7 @@ const AdminPanel: React.FC = () => {
         firstName: addForm.firstName,
         lastName: addForm.lastName ?? "",
         username: addForm.username,
-        role: addForm.role as Role,
+        role: "ADMIN" as Role, // ✅ دستی ADMIN
         password: addForm.password, // 👈 ارسال پسورد
       };
 
@@ -317,7 +318,7 @@ const AdminPanel: React.FC = () => {
         firstName: addForm.firstName,
         lastName: addForm.lastName,
         username: addForm.username,
-        role: addForm.role,
+        role: "ADMIN", // ✅ دستی ADMIN
       };
 
       setRows((prev) => [...prev, { ...newItem, id: res.result.id }]);
@@ -343,11 +344,17 @@ const AdminPanel: React.FC = () => {
         header: "عملیات",
         cell: (row: Person): React.ReactNode => (
           <div className="flex items-center gap-2">
-            <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => onEdit(row)}>
+            <button
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]"
+              onClick={() => onEdit(row)}
+            >
               ویرایش
             </button>
 
-            <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => openDeleteConfirm(row)}>
+            <button
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]"
+              onClick={() => openDeleteConfirm(row)}
+            >
               حذف
             </button>
 
@@ -357,9 +364,12 @@ const AdminPanel: React.FC = () => {
               </button>
             </a>
 
-            <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]" onClick={() => {
-              setchangePasswordId(row.id), setChangePassword(true);
-            }}>
+            <button
+              className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]"
+              onClick={() => {
+                setchangePasswordId(row.id), setChangePassword(true);
+              }}
+            >
               تغییر رمزعبور
             </button>
           </div>
@@ -373,6 +383,7 @@ const AdminPanel: React.FC = () => {
     setLoading(true);
     GetRequest(process.env.NEXT_PUBLIC_API_URL + `/api/users`)
       .then((response) => {
+        // ✅ اگر از بک USER هم بیاد، اینجا می‌تونی force کنی ADMIN بمونه (اگه نمی‌خوای، حذفش کن)
         setRows(response.result);
         setLoading(false);
       })
@@ -429,7 +440,7 @@ const AdminPanel: React.FC = () => {
         try {
           const j = await res.json();
           msg = j?.message || j?.error || msg;
-        } catch { }
+        } catch {}
         throw new Error(msg);
       }
 
@@ -485,7 +496,7 @@ const AdminPanel: React.FC = () => {
           <LoadingComponent />
         ) : (
           <ExpandableTable<Person>
-            data={pagedData}  // 👈 فقط داده‌های صفحه فعلی
+            data={pagedData} // 👈 فقط داده‌های صفحه فعلی
             columns={columns}
             rowDetailsMode="row"
             rowDetailsClassName="rounded-xl p-3"
@@ -494,10 +505,10 @@ const AdminPanel: React.FC = () => {
 
         <Pagination
           rtl
-          totalItems={filtered.length}   // کل تعداد رکوردها
+          totalItems={filtered.length} // کل تعداد رکوردها
           pageSize={pageSize}
-          currentPage={currentPage}     // 👈 استیت واقعی صفحه
-          onPageChange={(page) => setCurrentPage(page)}  // 👈 صفحه عوض شد
+          currentPage={currentPage} // 👈 استیت واقعی صفحه
+          onPageChange={(page) => setCurrentPage(page)} // 👈 صفحه عوض شد
         />
       </div>
 
@@ -545,81 +556,31 @@ const AdminPanel: React.FC = () => {
                     onChange={onFormInputChange("lastName")}
                   />
                 </div>
+
                 <div className="mt-4">
                   <label className="">نام کاربری</label>
                   <Input
                     className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
                     placeholder="نام کاربری"
-                    value={addForm.username}
+                    value={form.username}
                     onChange={(e) => {
                       const val = e.target.value;
-                      // فقط حروف انگلیسی و عدد و _ و . و - (اگه نمی‌خوای، میشه حذفشون کرد)
                       const allowed = val.replace(/[^A-Za-z0-9._-]/g, "");
-                      setAddForm((prev) => ({ ...prev, username: allowed }));
+                      setForm((prev) =>
+                        prev ? { ...prev, username: allowed } : prev
+                      );
                     }}
                   />
                 </div>
 
-                <div className="relative w-full mt-4">
-                  <label className="mt-2">نقش</label>
-                  <Dropdown
-                    onChange={(val: Role) =>
-                      setForm((prev) => (prev ? { ...prev, role: val } : prev))
-                    }
-                    value={form.role}
-                  >
-                    <Dropdown.Trigger className="w-full">
-                      <Button
-                        as="span"
-                        role="button"
-                        variant="ghost"
-                        className="flex items-center justify-between w-full pl-10 py-2
-        text-gray-700 border border-gray-300 rounded-lg
-        dark:border-buttonBorderColor-dark focus:outline-none
-        dark:text-gray-100 bg-boxColor dark:bg-boxColor-dark"
-                      >
-                        <span>{form.role}</span>
-                      </Button>
-                    </Dropdown.Trigger>
-
-                    <Dropdown.Options
-                      className="absolute left-0 mt-2 w-72 pl-2 pr-2
-      text-gray-700 bg-white dark:bg-buttonColor-dark
-      border border-gray-300 dark:border-buttonBorderColor-dark
-      rounded-lg dark:text-gray-100 z-50 max-h-60 overflow-y-auto"
-                    >
-                      <Dropdown.Option value="ADMIN" key="opt-admin">
-                        {({ selected, active }) => (
-                          <MenuItem
-                            isActive={active}
-                            isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark
-            ${form.role === "ADMIN"
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
-                              }`}
-                          >
-                            <MenuItem.Title>ADMIN</MenuItem.Title>
-                          </MenuItem>
-                        )}
-                      </Dropdown.Option>
-                      <Dropdown.Option value="USER" key="opt-user">
-                        {({ selected, active }) => (
-                          <MenuItem
-                            isActive={active}
-                            isSelected={selected}
-                            className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark
-            ${form.role === "USER"
-                                ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                                : ""
-                              }`}
-                          >
-                            <MenuItem.Title>USER</MenuItem.Title>
-                          </MenuItem>
-                        )}
-                      </Dropdown.Option>
-                    </Dropdown.Options>
-                  </Dropdown>
+                {/* ✅ نقش به صورت دستی ADMIN (بدون Dropdown) */}
+                <div className="mt-4">
+                  <label className="">نقش</label>
+                  <Input
+                    className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                    value={"ADMIN"}
+                    disabled
+                  />
                 </div>
 
                 <div className="relative w-full mt-6">
@@ -658,8 +619,9 @@ const AdminPanel: React.FC = () => {
             </h3>
 
             <p className="text-sm mb-6 text-center leading-relaxed">
-              {`آیا از حذف ${target?.firstName ?? ""} ${target?.lastName ?? ""
-                } مطمئن هستید؟`}
+              {`آیا از حذف ${target?.firstName ?? ""} ${
+                target?.lastName ?? ""
+              } مطمئن هستید؟`}
             </p>
 
             <div className="flex justify-center gap-4 w-full">
@@ -716,7 +678,6 @@ const AdminPanel: React.FC = () => {
                   value={addForm.username}
                   onChange={(e) => {
                     const val = e.target.value;
-                    // فقط حروف انگلیسی و عدد و _ و . و - (اگه نمی‌خوای، میشه حذفشون کرد)
                     const allowed = val.replace(/[^A-Za-z0-9._-]/g, "");
                     setAddForm((prev) => ({ ...prev, username: allowed }));
                   }}
@@ -742,67 +703,17 @@ const AdminPanel: React.FC = () => {
                   حداقل ۸ کاراکتر.
                 </p>
               </div>
-              <div className="relative w-full mt-4">
-                <label className="mt-2">نقش</label>
-                <Dropdown
-                  onChange={(val: Role) =>
-                    setAddForm((prev) => ({ ...prev, role: val }))
-                  }
-                  value={addForm.role}
-                >
-                  <Dropdown.Trigger className="w-full">
-                    <Button
-                      as="span"
-                      role="button"
-                      variant="ghost"
-                      className="flex items-center justify-between w-full pl-10 py-2
-        text-gray-700 border border-gray-300 rounded-lg
-        dark:border-buttonBorderColor-dark focus:outline-none
-        dark:text-gray-100 bg-boxColor dark:bg-boxColor-dark"
-                    >
-                      <span>{addForm.role}</span>
-                    </Button>
-                  </Dropdown.Trigger>
 
-                  <Dropdown.Options
-                    className="absolute left-0 mt-2 w-72 pl-2 pr-2
-      text-gray-700 bg-white dark:bg-buttonColor-dark
-      border border-gray-300 dark:border-buttonBorderColor-dark
-      rounded-lg dark:text-gray-100 z-50 max-h-60 overflow-y-auto"
-                  >
-                    <Dropdown.Option value="ADMIN" key="add-opt-admin">
-                      {({ selected, active }) => (
-                        <MenuItem
-                          isActive={active}
-                          isSelected={selected}
-                          className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark
-            ${addForm.role === "ADMIN"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                            }`}
-                        >
-                          <MenuItem.Title>ADMIN</MenuItem.Title>
-                        </MenuItem>
-                      )}
-                    </Dropdown.Option>
-                    <Dropdown.Option value="USER" key="add-opt-user">
-                      {({ selected, active }) => (
-                        <MenuItem
-                          isActive={active}
-                          isSelected={selected}
-                          className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark
-            ${addForm.role === "USER"
-                              ? "bg-gray-100 border-gray-200 dark:bg-gray-700"
-                              : ""
-                            }`}
-                        >
-                          <MenuItem.Title>USER</MenuItem.Title>
-                        </MenuItem>
-                      )}
-                    </Dropdown.Option>
-                  </Dropdown.Options>
-                </Dropdown>
+              {/* ✅ نقش به صورت دستی ADMIN (بدون Dropdown) */}
+              <div className="mt-4">
+                <label className="">نقش</label>
+                <Input
+                  className=" p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark"
+                  value={"ADMIN"}
+                  disabled
+                />
               </div>
+
               <div className="relative w-full mt-6">
                 <div className=" justify-between items-center w-full">
                   <div className="text-sm text-titleText dark:text-titleText-dark"></div>
