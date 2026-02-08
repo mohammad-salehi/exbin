@@ -20,6 +20,17 @@ type AssetRow = {
     note?: string;
 };
 
+type PorApiRow = {
+    exchangeId: number;
+    currency: string;
+    totalAssetAmount: number;
+    totalAssetAmountUsd?: number;
+    totalLiability: number;
+    totalLiabilityUsd?: number;
+    updatedAt: string;
+};
+
+
 function cn(...classes: Array<string | false | null | undefined>) {
     return classes.filter(Boolean).join(' ');
 }
@@ -346,132 +357,22 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
         []
     );
 
-    const assets: AssetRow[] = useMemo(
-        () => [
-            {
-                asset: 'BTC',
-                fullName: 'Bitcoin',
-                reserveRatio: 102.11,
-                customerNetBalance: 617_620.1234,
-                exchangeBalance: 630_650.8821,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-                note: 'Cold + Hot wallets (demo)',
-            },
-            {
-                asset: 'LTC',
-                fullName: 'litecoin',
-                reserveRatio: 100.02,
-                customerNetBalance: 4_012_340.5123,
-                exchangeBalance: 4_013_143.0812,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'BCH',
-                fullName: 'bitcoin cash',
-                network: 'ERC20 / TRC20',
-                reserveRatio: 109.16,
-                customerNetBalance: 9_804_120_345.22,
-                exchangeBalance: 10_703_560_432.11,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'DOGE',
-                fullName: 'dogecoin',
-                reserveRatio: 137.7,
-                customerNetBalance: 1_243_120_000.0,
-                exchangeBalance: 1_711_200_000.0,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'ETH',
-                fullName: 'ethereum',
-                reserveRatio: 112.32,
-                customerNetBalance: 36_402_120.55,
-                exchangeBalance: 40_890_112.88,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'BNB',
-                fullName: 'binance coin',
-                reserveRatio: 99.4,
-                customerNetBalance: 920_000_000,
-                exchangeBalance: 914_480_000,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-                note: 'کمی پایین‌تر از ۱:۱ (دمو)',
-            },
-            // extras for pagination demo
-            {
-                asset: 'TRX',
-                fullName: 'tron',
-                reserveRatio: 104.22,
-                customerNetBalance: 88_120_000.12,
-                exchangeBalance: 91_843_210.8,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'USDT',
-                fullName: 'USD tether',
-                reserveRatio: 101.08,
-                customerNetBalance: 1_204_000_000,
-                exchangeBalance: 1_217_000_000,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'DOGE',
-                fullName: 'Dogecoin',
-                reserveRatio: 111.5,
-                customerNetBalance: 6_120_000_000,
-                exchangeBalance: 6_820_000_000,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'TRX',
-                fullName: 'TRON',
-                reserveRatio: 98.2,
-                customerNetBalance: 3_540_000_000,
-                exchangeBalance: 3_476_000_000,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'MATIC',
-                fullName: 'Polygon',
-                reserveRatio: 120.1,
-                customerNetBalance: 560_000_000,
-                exchangeBalance: 672_560_000,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-            {
-                asset: 'AVAX',
-                fullName: 'Avalanche',
-                reserveRatio: 106.9,
-                customerNetBalance: 42_000_000,
-                exchangeBalance: 44_898_000,
-                includedInPoR: true,
-                updatedAt: '2026-01-06T12:30:00Z',
-            },
-        ],
-        []
-    );
+    const [assets, setAssets] = useState<AssetRow[]>([]);
+    const [porLoaded, setPorLoaded] = useState(false);
 
     const headlineRatios = useMemo(() => {
+        if (!assets.length) return { min: 0, max: 0, avg: 0, includedCount: 0 };
+      
         const min = Math.min(...assets.map((a) => a.reserveRatio));
         const max = Math.max(...assets.map((a) => a.reserveRatio));
-        const avg = assets.reduce((s, a) => s + a.reserveRatio, 0) / Math.max(assets.length, 1);
+        const avg = assets.reduce((s, a) => s + a.reserveRatio, 0) / assets.length;
         const includedCount = assets.filter((a) => a.includedInPoR).length;
-
+      
         return { min, max, avg, includedCount };
-    }, [assets]);
+      }, [assets]);
+
+
+      
 
     // pagination
     const PAGE_SIZE = 8;
@@ -491,11 +392,7 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
     const id = params.id;
     const [C1, SetC1] = useState(false);
     const [IsLoading, SetIsLoading] = useState(true);
-    useEffect(() => {
-        if (C1) {
-            SetIsLoading(false);
-        }
-    }, [C1]);
+
     useEffect(() => {
         SetLoading(IsLoading);
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -545,9 +442,59 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
         );
     }, [logo]);
 
+    useEffect(() => {
+        setPorLoaded(false);
+      
+        GetRequest(
+          process.env.NEXT_PUBLIC_API_URL +
+            `/api/analytics/exchange/${params.id}/latest-por-for-cryptos`
+        )
+          .then((response) => {
+            const rows: PorApiRow[] = response?.result ?? [];
+      
+            const mapped: AssetRow[] = rows
+              .filter((r) => r?.currency)
+              .map((r) => {
+                const exchangeBalance = Number(r.totalAssetAmount ?? 0); // ✅ مقدار خود ارز
+                const customerNetBalance = Number(r.totalLiability ?? 0); // ✅ مقدار خود ارز
+      
+                const reserveRatio =
+                  customerNetBalance > 0
+                    ? (exchangeBalance / customerNetBalance) * 100
+                    : 0;
+      
+                return {
+                  asset: String(r.currency).toUpperCase(),
+                  reserveRatio,
+                  customerNetBalance,
+                  exchangeBalance,
+                  includedInPoR: true,
+                  updatedAt: r.updatedAt,
+                };
+              });
+      
+            setAssets(mapped);
+            setPage(1);
+            setPorLoaded(true);
+          })
+          .catch((err) => {
+            console.log(err);
+            setAssets([]);
+            setPorLoaded(true);
+          });
+      
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [params.id]);
+      
+
+      useEffect(() => {
+        // وقتی هم اطلاعات صرافی (C1) اومد هم porLoaded true شد، لودینگ false
+        if (C1 && porLoaded) SetIsLoading(false);
+      }, [C1, porLoaded]);
+      
+
     return (
         <section dir="rtl" className="w-full text-titleText dark:text-titleText-dark">
-            {/* SINGLE PAGE BOX */}
 
             <div className={cx(panelBase, "p-5")}>
                 <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
@@ -561,52 +508,35 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                     </div>
                 </div>
             </div>
-            {/* HERO (polished, same shapes in both themes) */}
             <div className="relative w-full overflow-hidden rounded-[28px] border border-boxBorderColor dark:border-none mt-4">
-                {/* Base background */}
                 <div className="absolute inset-0 bg-white dark:bg-[#121822]" />
 
-                {/* Glows (behind shapes) */}
                 <div className="pointer-events-none absolute inset-0">
-                    {/* light glows */}
                     <div className="absolute -top-24 -left-24 h-[520px] w-[520px] rounded-full bg-primary/16 blur-3xl dark:hidden" />
                     <div className="absolute -bottom-28 -right-28 h-[560px] w-[560px] rounded-full bg-emerald-500/14 blur-3xl dark:hidden" />
                     <div className="absolute inset-0 bg-gradient-to-l from-primary/8 via-transparent to-emerald-500/6 dark:hidden" />
-
-                    {/* dark glows */}
                     <div className="hidden dark:block absolute -top-28 -left-28 h-[560px] w-[560px] rounded-full bg-primary/14 blur-3xl" />
                     <div className="hidden dark:block absolute -bottom-32 -right-32 h-[620px] w-[620px] rounded-full bg-emerald-500/12 blur-3xl" />
                     <div className="hidden dark:block absolute inset-0 bg-gradient-to-l from-primary/12 via-transparent to-emerald-500/10" />
-
-                    {/* subtle lines */}
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-boxBorderColor/70 to-transparent dark:via-white/10" />
                     <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-boxBorderColor/50 to-transparent dark:via-white/10" />
                 </div>
 
-                {/* Shapes (same positions always; only colors change) */}
                 <div className="pointer-events-none absolute inset-0">
-                    {/* Big panel */}
                     <div className="absolute -right-28 top-6 h-80 w-80 rotate-[14deg] rounded-[36px] bg-primary/14 dark:bg-white/7" />
-                    {/* Mid panel */}
                     <div className="absolute right-16 top-20 h-72 w-72 rotate-[14deg] rounded-[34px] bg-emerald-500/14 dark:bg-white/6" />
-                    {/* Large back panel */}
                     <div className="absolute right-52 top-24 h-[420px] w-[420px] rotate-[14deg] rounded-[40px] bg-primary/10 dark:bg-white/5" />
-                    {/* Bottom long panel */}
                     <div className="absolute -right-10 top-72 h-56 w-[520px] rotate-[14deg] rounded-[40px] bg-emerald-500/10 dark:bg-white/6" />
 
-                    {/* Outline strokes to keep shapes visible in light too */}
                     <div className="absolute -right-28 top-6 h-80 w-80 rotate-[14deg] rounded-[36px] ring-1 ring-titleText/10 dark:ring-white/10" />
                     <div className="absolute right-16 top-20 h-72 w-72 rotate-[14deg] rounded-[34px] ring-1 ring-titleText/10 dark:ring-white/10" />
                     <div className="absolute right-52 top-24 h-[420px] w-[420px] rotate-[14deg] rounded-[40px] ring-1 ring-titleText/10 dark:ring-white/10" />
                     <div className="absolute -right-10 top-72 h-56 w-[520px] rotate-[14deg] rounded-[40px] ring-1 ring-titleText/10 dark:ring-white/10" />
 
-                    {/* Very subtle diagonal highlight */}
                     <div className="absolute inset-0 bg-[linear-gradient(115deg,transparent_0%,rgba(255,255,255,0.08)_32%,transparent_60%)] opacity-30 dark:opacity-20" />
                 </div>
 
-                {/* Content */}
                 <div className="relative grid grid-cols-1 items-center gap-10 px-6 py-9 md:px-10 md:py-12 lg:grid-cols-12">
-                    {/* LEFT */}
                     <div className="lg:col-span-7">
                         <div className="flex flex-wrap items-center gap-2">
                             <Pill tone="info">Proof of Reserves</Pill>
@@ -621,12 +551,7 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                             <span className="text-primary dark:text-primary-dark">اثبات ذخیره دارایی‌ها</span>
                         </h1>
 
-                        <p className="mt-4 max-w-2xl text-sm md:text-base leading-7 text-titleText/70 dark:text-white/70">
-                            وضعیت پشتوانه دارایی‌های کارگزاری در قالب یک اسنپ‌شات نمایش داده می‌شود. این صفحه صرفاً نمایشی است و آدرس کیف پول‌ها ارائه نمی‌گردد.
-                        </p>
-
-                        {/* CTA row (optional but makes it look premium) */}
-                        <div className="mt-6 flex flex-wrap items-center gap-3">
+                        {/* <div className="mt-8 flex flex-wrap items-center gap-3">
                             <button
                                 type="button"
                                 className={cn(
@@ -638,23 +563,21 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                                 مشاهده گزارش
                             </button>
                             <span className="text-xs text-titleText/55 dark:text-white/55">{staticMeta.verificationMechanism}</span>
-                        </div>
+                        </div> */}
                     </div>
 
-                    {/* RIGHT (logo, slightly lower for composition) */}
                     <div className="lg:col-span-5 flex justify-center lg:justify-end">
                         <div className="relative translate-y-2 md:translate-y-4">
                             <img
                                 src="/images/pantaLogo.png"
                                 alt="Panta"
-                                className="w-[150px] h-auto md:w-[220px] lg:w-[260px] select-none drop-shadow-[0_18px_60px_rgba(0,0,0,0.28)] dark:drop-shadow-[0_22px_70px_rgba(0,0,0,0.55)]"
+                                className="w-[130px] h-auto md:w-[200px] lg:w-[240px] select-none drop-shadow-[0_18px_60px_rgba(0,0,0,0.28)] dark:drop-shadow-[0_22px_70px_rgba(0,0,0,0.55)]"
                                 draggable={false}
                             />
                         </div>
                     </div>
                 </div>
 
-                {/* OVERVIEW (borderless summary) */}
                 <div className="relative px-6 pb-8 md:px-10 md:pb-10">
                     {/* metrics row */}
                     <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -698,7 +621,6 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                 }
             >
 
-                {/* Assets */}
                 <div className="">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                         <Pill tone="info">دارایی‌ها</Pill>
