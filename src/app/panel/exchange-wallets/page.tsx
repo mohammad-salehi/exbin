@@ -178,7 +178,7 @@ const Page = () => {
             second: '2-digit',
         }).format(d);
 
-        return `${dateFa} ${timeFa}`;
+        return `${timeFa} ${dateFa} `;
     };
 
 

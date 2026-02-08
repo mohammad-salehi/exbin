@@ -157,7 +157,7 @@ const Page = () => {
             second: '2-digit',
         }).format(d);
 
-        return `${fa} ${time}`;
+        return `${time} ${fa}   `;
     };
 
     // ✅ fetch exchanges (مثل صفحه قبلی)

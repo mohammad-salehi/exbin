@@ -27,7 +27,7 @@ type TableRow = {
     violationMessage?: string;
     endpointPath?: string;
     endpointIp?: string;
-    timestampFa?: string;
+    timestampFa?: string | null;
 
     // expanded (قدیمی) - می‌تونی بعداً حذفش کنی
     isExpandedContent?: boolean;
@@ -53,21 +53,43 @@ const safeParse = (s?: string) => {
     }
 };
 
-const toFa = (iso?: string) => {
-    try {
-        return iso
-            ? new Date(iso).toLocaleString("fa-IR", {
-                year: "numeric",
-                month: "2-digit",
-                day: "2-digit",
-                hour: "2-digit",
-                minute: "2-digit",
-            })
-            : "—";
-    } catch {
-        return iso ?? "—";
-    }
-};
+export const toFa = (iso: string): string | null => {
+    if (!iso) return null;
+  
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return null;
+  
+    const dateFa = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).format(d);
+  
+    const timeFa = new Intl.DateTimeFormat('fa-IR', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    }).format(d);
+  
+    return `${timeFa} ${dateFa} `;
+  };
+
+// const toFa = (iso?: string) => {
+//     console.log(iso)
+//     try {
+//         return iso
+//             ? new Date(iso).toLocaleString("fa-IR", {
+//                 year: "numeric",
+//                 month: "2-digit",
+//                 day: "2-digit",
+//                 hour: "2-digit",
+//                 minute: "2-digit",
+//             })
+//             : "—";
+//     } catch {
+//         return iso ?? "—";
+//     }
+// };
 
 /* ================= Small UI bits ================= */
 
@@ -199,7 +221,7 @@ const ExchangeValidation = ({ SetLoading }: ExchangeInfoProps) => {
         meta?: {
             endpointPath?: string;
             endpointIp?: string;
-            timestampFa?: string;
+            timestampFa?: string | null;
             validator?: string;
         };
     } | null>(null);
@@ -459,22 +481,28 @@ const ExchangeValidation = ({ SetLoading }: ExchangeInfoProps) => {
                 </div>
 
                 {/* meta */}
-                <div className="mt-4 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-black/5 dark:border-white/10 p-3 text-xs">
+                <div
+                    dir="ltr"
+                    className="mt-4 rounded-xl bg-slate-50 dark:bg-slate-900/40 border border-black/5 dark:border-white/10 p-3 text-xs text-left"
+                >
                     <div className="flex flex-wrap gap-x-6 gap-y-2 text-slate-600 dark:text-slate-300">
                         <span>
                             <span className="text-slate-400">Endpoint:</span>{" "}
-                            <span dir="ltr">{selected?.meta?.endpointPath ?? "—"}</span>
+                            <span>{selected?.meta?.endpointPath ?? "—"}</span>
                         </span>
+
                         <span>
                             <span className="text-slate-400">IP:</span>{" "}
-                            <span dir="ltr">{selected?.meta?.endpointIp ?? "—"}</span>
+                            <span>{selected?.meta?.endpointIp ?? "—"}</span>
                         </span>
+
                         <span>
                             <span className="text-slate-400">Time:</span>{" "}
-                            <span dir="ltr">{selected?.meta?.timestampFa ?? "—"}</span>
+                            <span>{selected?.meta?.timestampFa ?? "—"}</span>
                         </span>
                     </div>
                 </div>
+
             </Modal>
         </section>
     );

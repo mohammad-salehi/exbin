@@ -83,9 +83,51 @@ const truncate = (s: unknown, n = 90) => {
   return str.slice(0, n) + '…';
 };
 
-const formatTs = (s?: string) => {
-  if (!s) return '-';
-  return String(s).replace('T', ' ').slice(0, 23);
+// ✅ قبلی (میلادی)
+// const formatTs = (s?: string) => {
+//   if (!s) return '-';
+//   return String(s).replace('T', ' ').slice(0, 23);
+// };
+
+// ✅ جدید: تبدیل تاریخ به شمسی (با ساعت)
+// ورودی می‌تونه ISO string یا timestamp عددی (sec/ms) یا string عددی باشه
+const formatJalaliDateTime = (value?: string | number) => {
+  if (value === null || value === undefined || value === '') return '-';
+
+  let d: Date | null = null;
+
+  if (typeof value === 'number') {
+    const ms = value < 10_000_000_000 ? value * 1000 : value;
+    d = new Date(ms);
+  } else {
+    const trimmed = String(value).trim();
+    const asNum = Number(trimmed);
+
+    // اگر رشته عددی بود و طولش معقول بود، به عنوان timestamp بگیر
+    if (!Number.isNaN(asNum) && trimmed.length >= 10) {
+      const ms = asNum < 10_000_000_000 ? asNum * 1000 : asNum;
+      d = new Date(ms);
+    } else {
+      const parsed = new Date(trimmed);
+      if (!Number.isNaN(parsed.getTime())) d = parsed;
+    }
+  }
+
+  if (!d || Number.isNaN(d.getTime())) return String(value);
+
+  const faDate = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(d);
+
+  const faTime = new Intl.DateTimeFormat('fa-IR', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }).format(d);
+
+  return `${faTime} ${faDate}`;
 };
 
 type PillTone = 'neutral' | 'danger' | 'warn' | 'ok';
@@ -171,7 +213,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
                 <Pill tone={severityTone(row.severity)}>{row.severity || '-'}</Pill>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400">
-                {row.exceptionClass || '-'} • {formatTs(row.timestamp)}
+                {row.exceptionClass || '-'} • {formatJalaliDateTime(row.timestamp)}
               </p>
             </div>
           </div>
@@ -255,7 +297,7 @@ const DetailsModal: React.FC<DetailsModalProps> = ({ open, onClose, row }) => {
           {/* footer */}
           <div className="flex items-center justify-end gap-2 border-t border-boxBorderColor/60 px-5 py-4 dark:border-boxBorderColor-dark/60">
             {/* دکمه اصلی با تم سایت */}
-            <Button className='text-titleText dark:text-titleText-dark' onClick={onClose}>
+            <Button className="text-titleText dark:text-titleText-dark" onClick={onClose}>
               بستن
             </Button>
           </div>
@@ -316,13 +358,7 @@ export default function ProjectExceptionsPage(): JSX.Element {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
-  const IconButton = ({
-    onClick,
-    title,
-  }: {
-    onClick: () => void;
-    title?: string;
-  }) => (
+  const IconButton = ({ onClick, title }: { onClick: () => void; title?: string }) => (
     <button
       type="button"
       onClick={onClick}
@@ -335,18 +371,8 @@ export default function ProjectExceptionsPage(): JSX.Element {
     >
       {/* آیکون info */}
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M12 17v-6"
-          stroke="currentColor"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-        />
-        <path
-          d="M12 7.5h.01"
-          stroke="currentColor"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-        />
+        <path d="M12 17v-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        <path d="M12 7.5h.01" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" />
         <path
           d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
           stroke="currentColor"
@@ -360,7 +386,8 @@ export default function ProjectExceptionsPage(): JSX.Element {
     () => [
       {
         header: 'زمان',
-        cell: (r) => <span className="text-xs">{formatTs(r.timestamp)}</span>,
+        // ✅ شمسی
+        cell: (r) => <span className="text-xs">{formatJalaliDateTime(r.timestamp)}</span>,
       },
       {
         header: 'شدت',
@@ -373,7 +400,6 @@ export default function ProjectExceptionsPage(): JSX.Element {
             <span className="text-sm text-titleText dark:text-titleText-dark">
               {truncate(r.exceptionClass, 70)}
             </span>
-            {/* ✅ rootCauseClass از جدول حذف شد */}
           </div>
         ),
       },
@@ -392,7 +418,6 @@ export default function ProjectExceptionsPage(): JSX.Element {
       {
         header: 'جزئیات',
         cell: (r) => (
-
           <div className="flex justify-center">
             <IconButton
               title="نمایش requestParams و item"
@@ -410,11 +435,7 @@ export default function ProjectExceptionsPage(): JSX.Element {
 
   return (
     <div className="flex flex-col gap-5">
-      <div
-        className={cx(
-        )}
-      >
-
+      <div className={cx()}>
         {error ? (
           <div className="rounded-2xl border border-red-500/30 bg-red-500/5 p-4 text-sm text-red-600 dark:text-red-400">
             {error}
@@ -427,8 +448,8 @@ export default function ProjectExceptionsPage(): JSX.Element {
 
         <Pagination
           totalItems={totalElements}
-          pageSize={size}          // ✅ همیشه 10
-          currentPage={page + 1}   // 1-based
+          pageSize={size} // ✅ همیشه 10
+          currentPage={page + 1} // 1-based
           rtl
           onPageChange={(p) => setPage(Math.max(0, p - 1))}
         />
