@@ -52,17 +52,17 @@ function formatIntFa(n: number) {
 }
 
 function ratioTone(ratio: number) {
-    if (ratio >= 110) return 'text-emerald-700 dark:text-emerald-300';
-    if (ratio >= 100) return 'text-teal-700 dark:text-teal-300';
-    if (ratio >= 95) return 'text-amber-700 dark:text-amber-300';
-    return 'text-rose-700 dark:text-rose-300';
+    if (ratio >= 100) return 'text-emerald-700 dark:text-emerald-300';  // تغییر رنگ برای >= 100%
+    if (ratio >= 95) return 'text-teal-700 dark:text-teal-300';  // تغییر رنگ برای 95-100%
+    if (ratio >= 90) return 'text-amber-700 dark:text-amber-300';  // تغییر رنگ برای 90-95%
+    return 'text-rose-700 dark:text-rose-300';  // تغییر رنگ برای < 90%
 }
 
 function ratioBarTone(ratio: number) {
-    if (ratio >= 110) return 'bg-emerald-500';
-    if (ratio >= 100) return 'bg-teal-500';
-    if (ratio >= 95) return 'bg-amber-500';
-    return 'bg-rose-500';
+    if (ratio >= 100) return 'bg-emerald-500'; // سبز برای >= 100%
+    if (ratio >= 95) return 'bg-teal-500'; // سبز روشن برای 95-100%
+    if (ratio >= 90) return 'bg-amber-500'; // نارنجی برای 90-95%
+    return 'bg-rose-500'; // قرمز برای < 90%
 }
 
 function Pill({
@@ -169,18 +169,11 @@ function MetricText({
 function AssetPorCard({ row }: { row: AssetRow }) {
     const ratio = row.reserveRatio;
 
-    const pct = clamp(ratio, 0, 140);
-    const fill = (pct / 140) * 100;
+    const pct = clamp(ratio, 0, 100);  // تنظیم پروگرس بار از 0 تا 100 درصد
+    const fill = (pct / 100) * 100;  // پر کردن پروگرس بار بر اساس درصد 0 تا 100
 
     return (
-        <div
-            className={cn(
-                'group relative overflow-hidden rounded-[28px] border bg-white dark:bg-boxColor-dark',
-                'border-boxBorderColor dark:border-boxBorderColor-dark',
-                'p-5 shadow-sm transition',
-                'hover:-translate-y-0.5 hover:shadow-md'
-            )}
-        >
+        <div className={cn('group relative overflow-hidden rounded-[28px] border bg-white dark:bg-boxColor-dark', 'border-boxBorderColor dark:border-boxBorderColor-dark', 'p-5 shadow-sm transition', 'hover:-translate-y-0.5 hover:shadow-md')}>
             {/* glow + gradient edge */}
             <div className="pointer-events-none absolute inset-0">
                 <div className="absolute -top-20 -left-20 h-52 w-52 rounded-full bg-primary/12 blur-3xl opacity-80" />
@@ -224,7 +217,7 @@ function AssetPorCard({ row }: { row: AssetRow }) {
             <div className="relative mt-5">
                 <div className="flex items-center justify-between text-[11px] text-titleText/55 dark:text-titleText-dark/55">
                     <span>۰٪</span>
-                    <span>۱۴۰٪</span>
+                    <span>۱۰۰٪</span>
                 </div>
 
                 <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-boxBorderColor/40 dark:bg-boxBorderColor-dark/40">
@@ -255,7 +248,6 @@ function AssetPorCard({ row }: { row: AssetRow }) {
         </div>
     );
 }
-
 function Pagination({
     page,
     totalPages,
