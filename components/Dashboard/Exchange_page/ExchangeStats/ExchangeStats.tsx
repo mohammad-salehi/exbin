@@ -1000,7 +1000,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         <div className={cx(cardStretch, "xl:col-span-2")}>
           <MemoDoubleLinearChart
             data={DepWithHistory}
-            title="واریز و برداشت رمزارزی روزانه"
+            title="واریز و برداشت روزانه"
             unitSuffix="M"
             assetLabel="واریز"
             liabilityLabel="برداشت"
@@ -1016,7 +1016,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       </div>
 
       {/* Row 4 */}
-      <div className={rowGrid3}>
+{/* <div className={rowGrid3}>
         <div className={cx(cardStretch, "xl:col-span-2")}>
           <MemoDoubleLinearChart
             data={IRRDepWithHistory}
@@ -1029,7 +1029,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
             ShowSummary={false}
           />
         </div>
-      </div>
+      </div>*/}
 
       {/* Full width charts */}
       <div className={cx(cardStretch, panelBase, "p-0 overflow-hidden")}>
