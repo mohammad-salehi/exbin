@@ -190,7 +190,7 @@ export default function Page() {
       .then((response) => {
         SetDashboardData((prev) => {
           const item1: DashboardItem = {
-            label: "ارزش دلاری معاملات انجام‌شده طی 24 ساعت اخیر",
+            label: "مجموع ارزش معاملات مبتنی بر تتر طی 24 ساعت اخیر",
             value: Number(response?.result?.totalVolumeUsdt ?? 0),
           };
           const item2: DashboardItem = {
