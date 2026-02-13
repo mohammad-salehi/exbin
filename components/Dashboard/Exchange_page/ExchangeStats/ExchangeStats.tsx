@@ -181,7 +181,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
       .then((response) => {
         SetHeaderData((prev) => {
           const item: CryptoTradingValueUsers = {
-            label: "میانگین زمان تسویه با کاربران طی 24 ساعت گذشته(میلی‌ثانیه)",
+            label: "میانگین زمان تسویه با کاربران طی 24 ساعت گذشته",
             value: Number(response.result.avgWithdrawalDurationMs ?? 0),
           };
           const next = prev.filter((x) => x.label !== item.label);
@@ -977,7 +977,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           />
         </div>
         <div className={cx(cardStretch, "xl:col-span-2")}>
-          <MemoTreeMap data={Topcryptocurrencies} title="سهم هر رمزارز از کل حجم معاملات ثبت‌شده" />
+          <MemoTreeMap data={Topcryptocurrencies} title="سبد دارایی کارگزاری" />
         </div>
       </div>
 
