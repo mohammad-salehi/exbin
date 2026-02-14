@@ -236,15 +236,15 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3 min-w-0">
             <div
-              className="
+              className={`
                 relative
                 flex h-11 w-11 items-center justify-center
                 rounded-2xl
-                border border-boxBorderColor/80 dark:border-boxBorderColor-dark/80
+                ${logo ?? "border border-boxBorderColor/80 dark:border-boxBorderColor-dark/80"}
                 bg-white/70 dark:bg-bgColor-dark/40
                 overflow-hidden shrink-0
                 shadow-sm
-              "
+              `}
             >
               {/* logo glow */}
               <div className="pointer-events-none absolute inset-0 opacity-60">
