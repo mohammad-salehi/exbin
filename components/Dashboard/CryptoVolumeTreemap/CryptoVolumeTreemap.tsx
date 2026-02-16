@@ -168,9 +168,6 @@ export const CryptoVolumeTreemap: React.FC<Props> = ({ data, title, height = 340
 
           <div className="min-w-0">
             <h2 className="text-moon-18 md:text-moon-20 font-bold truncate">{title}</h2>
-            <p className="mt-0.5 text-[12px] text-titleText/60 dark:text-titleText-dark/60">
-              نمایش سهم حجمی دارایی‌ها در قالب Treemap
-            </p>
           </div>
         </div>
 

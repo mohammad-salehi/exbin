@@ -987,7 +987,7 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           <MemoDoubleLinearChart
             data={PORHistory}
             title="تاریخچه نسبت دارایی به تعهد کارگزاری"
-            unitSuffix="M"
+            unitSuffix=""
             assetLabel="دارایی"
             liabilityLabel="تعهد"
             ShowSummary={false}
@@ -1001,10 +1001,9 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           <MemoDoubleLinearChart
             data={DepWithHistory}
             title="واریز و برداشت روزانه"
-            unitSuffix="M"
+            unitSuffix=""
             assetLabel="واریز"
             liabilityLabel="برداشت"
-            useLastItemForNet
             List={CryptoList}
             CryptoSelected={CryptoSelected2}
             SetCryptoSelected={SetCryptoSelected2}
@@ -1015,29 +1014,13 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
         </div>
       </div>
 
-      {/* Row 4 */}
-{/* <div className={rowGrid3}>
-        <div className={cx(cardStretch, "xl:col-span-2")}>
-          <MemoDoubleLinearChart
-            data={IRRDepWithHistory}
-            title="واریز و برداشت ریالی روزانه"
-            unitSuffix="M"
-            assetLabel="واریز"
-            liabilityLabel="برداشت"
-            useLastItemForNet
-            headerLink={{ href: `/panel/rial-transfers?exchange=${name}`, title: "جزئیات واریز و برداشت های ریالی کارگزاری" }}
-            ShowSummary={false}
-          />
-        </div>
-      </div>*/}
-
       {/* Full width charts */}
       <div className={cx(cardStretch, panelBase, "p-0 overflow-hidden")}>
         <MemoSingleLinearChart
           data={TradingVolume}
           title="حجم معاملات روزانه"
           seriesLabel="حجم"
-          unitSuffix="M"
+          unitSuffix=""
           List={CryptoList}
           CryptoSelected={CryptoSelected1}
           SetCryptoSelected={SetCryptoSelected1}
@@ -1051,9 +1034,8 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
           data={DailyActiveUsers}
           title="کاربران فعال روزانه"
           seriesLabel="کاربر"
-          unitSuffix="M"
+          unitSuffix=""
           topLeftLink={{ href: `/panel/exchange-users?exchange=${name}`, label: "جزئیات دارایی کاربران" }}
-          ShowSummary={false}
         />
       </div>
     </div>

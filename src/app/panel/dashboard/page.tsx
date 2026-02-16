@@ -448,7 +448,7 @@ export default function Page() {
           <MemoCircleChart
             data={ProofOfReserve}
             title="نسبت دارایی به بدهی"
-            unit="USDT"
+            unit="USD"
             description="برایند دارایی‌ها و بدهی‌ها محاسبه شده است!"
             value={
               ProofOfReserve.length !== 0
@@ -504,13 +504,13 @@ export default function Page() {
         <div>
           <MemoCircleChart
             data={IRRtoUSDT}
-            title="نسبت معاملات تومان به تتر"
-            unit="USDT"
+            title="نسبت معاملات ریال به تتر"
+            unit="USD"
           />
         </div>
 
         <div>
-          <MemoCircleChart data={CryptoShare} title="حجم معاملات" unit="USDT" />
+          <MemoCircleChart data={CryptoShare} title="حجم معاملات" unit="USD" />
         </div>
 
       </div>

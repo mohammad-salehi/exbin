@@ -169,7 +169,7 @@ const DoubleLinearChart: React.FC<ProofOfReserveChartProps> = ({
                 {title}
               </h2>
               <p className="mt-0.5 text-[12px] text-titleText/60 dark:text-titleText-dark/60">
-                مجموع {assetLabel}: {totalX.toLocaleString()} {unitSuffix} • مجموع {liabilityLabel}: {totalY.toLocaleString()} {unitSuffix}
+                مجموع {assetLabel}: {totalX.toLocaleString()} {unitSuffix} , مجموع {liabilityLabel}: {totalY.toLocaleString()} {unitSuffix}
               </p>
             </div>
           </div>
