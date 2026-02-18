@@ -55,41 +55,24 @@ const safeParse = (s?: string) => {
 
 export const toFa = (iso: string): string | null => {
     if (!iso) return null;
-  
+
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return null;
-  
-    const dateFa = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).format(d);
-  
-    const timeFa = new Intl.DateTimeFormat('fa-IR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-    }).format(d);
-  
-    return `${timeFa} ${dateFa} `;
-  };
 
-// const toFa = (iso?: string) => {
-//     console.log(iso)
-//     try {
-//         return iso
-//             ? new Date(iso).toLocaleString("fa-IR", {
-//                 year: "numeric",
-//                 month: "2-digit",
-//                 day: "2-digit",
-//                 hour: "2-digit",
-//                 minute: "2-digit",
-//             })
-//             : "—";
-//     } catch {
-//         return iso ?? "—";
-//     }
-// };
+    const dateFa = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    }).format(d);
+
+    const timeFa = new Intl.DateTimeFormat('fa-IR', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+    }).format(d);
+
+    return `${timeFa} ${dateFa} `;
+};
 
 /* ================= Small UI bits ================= */
 
@@ -219,6 +202,7 @@ const ExchangeValidation = ({ SetLoading }: ExchangeInfoProps) => {
         req: any;
         item: any;
         meta?: {
+            violationMessage?: string;   // ✅ اضافه شد
             endpointPath?: string;
             endpointIp?: string;
             timestampFa?: string | null;
@@ -226,11 +210,13 @@ const ExchangeValidation = ({ SetLoading }: ExchangeInfoProps) => {
         };
     } | null>(null);
 
+
     const openDetails = (row: TableRow) => {
         setSelected({
             req: row.modalReqObj,
             item: row.modalItemObj,
             meta: {
+                violationMessage: row.violationMessage,
                 endpointPath: row.endpointPath,
                 endpointIp: row.endpointIp,
                 timestampFa: row.timestampFa,
@@ -239,6 +225,7 @@ const ExchangeValidation = ({ SetLoading }: ExchangeInfoProps) => {
         });
         setDetailsOpen(true);
     };
+
 
     const fetchData = () => {
         setLoading(true);
@@ -460,26 +447,31 @@ const ExchangeValidation = ({ SetLoading }: ExchangeInfoProps) => {
             <Modal
                 open={detailsOpen}
                 onClose={() => setDetailsOpen(false)}
-                title="جزئیات درخواست و آیتم"
+                title="جزئیات خطا"
             >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
                     <div dir="ltr">
                         <div className="text-slate-500 mb-2 text-[11px] uppercase">
-                            Item (returned item)
+                            Item
                         </div>
                         <JsonBox value={selected?.item} />
                     </div>
 
                     <div dir="ltr">
                         <div className="text-slate-500 mb-2 text-[11px] uppercase">
-                            Request Params (sent to server)
+                            Request Params
                         </div>
                         <JsonBox value={selected?.req} />
                     </div>
 
                 </div>
-
+                <div  dir="ltr" className="mb-4 rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200/70 dark:border-red-900/40 p-3 mt-4">
+                        <div className="text-[11px] uppercase text-red-500 mb-1">Violation Message</div>
+                        <div className="text-sm font-semibold text-red-700 dark:text-red-200">
+                            {selected?.meta?.violationMessage ?? "—"}
+                        </div>
+                    </div>
                 {/* meta */}
                 <div
                     dir="ltr"
