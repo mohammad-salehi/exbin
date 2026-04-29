@@ -109,53 +109,123 @@ const Page = () => {
   }, [])
 
   return (
-    <div className=" lg:p-0">
-      {/* Search box */}
+    <div className="lg:p-0">
+
+      {/* --------------------------- Search + Filters --------------------------- */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 m-4 lg:m-0">
+
+        {/* Search Box */}
         <div className="relative w-full h-[48px] mb-4 mt-8">
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            className="flex w-full h-full p-0 flex-col justify-center items-center gap-0 flex-shrink-0 rounded-md bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark pl-4 pr-10 focus:outline-none focus:ring-0"
-            placeholder="جست‌وجو"
-          />
-          <GenericSearch className="absolute right-2 top-1/2 transform -translate-y-1/2 text-titleText dark:text-titleText-dark text-xl" />
+        <input
+  value={q}
+  onChange={(e) => setQ(e.target.value)}
+  placeholder="جست‌وجو"
+  className="
+    w-full h-full pl-4 pr-10
+    rounded-xl
+
+    appearance-none
+
+    bg-white/70
+    dark:bg-slate-900/60
+
+    border border-slate-200
+    dark:border-slate-700
+
+    backdrop-blur-md
+    shadow-sm
+
+    text-slate-700
+    dark:text-slate-200
+
+    outline-none
+    focus:outline-none
+    focus:ring-0
+    focus:border-slate-200
+    dark:focus:border-slate-700
+
+    transition-colors
+  "
+/>
+
+
+
+          <GenericSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-300 text-xl" />
         </div>
+
         <div className="hidden xl:inline-block"></div>
-        <div className=" mb-4 mt-8">
+
+        {/* Risk Filter */}
+        <div className="mb-4 mt-8">
           <RiskSwitch value={filter} onChange={setFilter} />
         </div>
       </div>
 
-      {/* Add exchange button (top) */}
+      {/* ------------------------ Add New Exchange Button ------------------------ */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 m-4 lg:m-0 -mt-2 mb-4 items-end">
+
         <div></div>
         <div></div>
+
         <div className="flex justify-start xl:justify-end">
           <Link href={`/panel/add-new-exchange`}>
             <button
-              className="w-full sm:w-72 bg-primary h-[48px] rounded-lg text-white shadow-lg"
               id="addExchangeButton"
+              className="
+                group w-full sm:w-72 h-[52px]
+                rounded-xl
+                bg-gradient-to-r from-primary to-primary/80
+                text-white text-[15px] font-bold
+                shadow-[0_10px_30px_-10px_rgba(0,150,255,0.5)]
+                transition-all duration-300 ease-out
+  
+                hover:-translate-y-0.5 hover:brightness-110
+                hover:shadow-[0_18px_40px_-8px_rgba(0,150,255,0.7)]
+  
+                active:translate-y-0 active:shadow-[0_6px_20px_-10px_rgba(0,150,255,0.4)]
+  
+                focus:outline-none focus:ring-2 focus:ring-primary/60 focus:ring-offset-2
+              "
             >
-              افزودن کارگزاری جدید
+              <span className="relative flex items-center justify-center gap-2">
+                افزودن کارگزاری جدید
+
+                <svg
+                  className="w-4 h-4 transition-transform group-hover:translate-x-1"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+
+              </span>
             </button>
           </Link>
         </div>
       </div>
 
-
-
-      {/* Table with filtered data */}
+      {/* --------------------------- Table + Results --------------------------- */}
       <div className="mb-4 mt-4">
-        {
-          Loading && (
-            <div className="fixed inset-0 z-50 grid place-items-center bg-white/70 dark:bg-bgColor-dark/70 backdrop-blur-sm">
-              <div className="pointer-events-none">
-                <AnimatedText />
-              </div>
-            </div>)
-        }
-        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-0">
+
+        {/* Loading Layer */}
+        {Loading && (
+          <div className="fixed inset-0 z-50 grid place-items-center 
+            bg-white/70 dark:bg-slate-900/60 backdrop-blur-md">
+            <div className="pointer-events-none">
+              <AnimatedText />
+            </div>
+          </div>
+        )}
+
+        {/* Data Cards Grid */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 2xl:grid-cols-3 gap-6">
+
           {filteredData.map((item, index) => {
             const risk = item.reserveRatio;
             const show =
@@ -185,81 +255,100 @@ const Page = () => {
         </div>
       </div>
 
-      {/* -------- مودال تأیید حذف -------- */}
-      <Modal open={isOpen} onClose={() => { SetisOpen(false) }}>
-        {/* بک‌دراپ، تمام صفحه، یک لایه پایین‌تر از پنل */}
-        <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
+      {/* ---------------------------- Delete Modal ---------------------------- */}
+      <Modal open={isOpen} onClose={() => SetisOpen(false)}>
 
-        {/* کانتینر مرکزی پنل، بالاتر از بک‌دراپ */}
+        {/* Glassy Backdrop */}
+        <Modal.Backdrop className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2147483646]" />
+
+        {/* Modal Center Container */}
         <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
-          <Modal.Panel className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6">
-            <h3 className="text-lg font-semibold mb-3 text-center">
+
+          <Modal.Panel
+            className="
+              w-full max-w-md p-6
+              rounded-2xl shadow-2xl
+              bg-white/80 dark:bg-slate-900/80 
+              backdrop-blur-xl
+              border border-white/20 dark:border-slate-700
+              text-slate-800 dark:text-slate-200
+              animate-[fadeIn_0.25s_ease-out]
+            "
+          >
+            <h3 className="text-xl font-bold text-center mb-4">
               حذف کارگزاری
             </h3>
-            <p className="text-sm mb-6 text-center leading-relaxed mt-3">
+
+            <p className="text-sm text-center mb-6 leading-relaxed">
               آیا از حذف کارگزاری {Deletedata?.name} مطمئن هستید؟
             </p>
 
-            <div className="flex justify-center gap-4 w-full">
-
+            <div className="flex justify-center">
               <button
                 onClick={async () => {
                   try {
                     const token = document.cookie
                       .split('; ')
-                      .find(Deletedata => Deletedata.startsWith('token='))
+                      .find(c => c.startsWith('token='))
                       ?.split('=')[1];
-                    if (Deletedata !== undefined) {
-                      SetDeleteLoading(true)
-                      const response = await fetch(process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${Deletedata.id}`, {
-                        method: 'DELETE',
-                        headers: {
-                          'Authorization': `Bearer ${token}`,
-                          'Content-Type': 'application/json',
+
+                    if (Deletedata) {
+                      SetDeleteLoading(true);
+                      const response = await fetch(
+                        process.env.NEXT_PUBLIC_API_URL + `/api/exchanges/${Deletedata.id}`,
+                        {
+                          method: 'DELETE',
+                          headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json',
+                          }
                         }
-                      });
+                      );
+
                       if (!response.ok) {
-                        SetDeleteLoading(false)
+                        SetDeleteLoading(false);
                         toast.error("خطا در حذف کارگزاری.", { position: "bottom-left" });
+
                         if (response.status === 403) {
-                          document.cookie = `${'token'}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-                          window.location.assign('/')
+                          document.cookie = `token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+                          window.location.assign('/');
                         }
-                        throw new Error('Failed to fetch data');
+
+                        throw new Error('Failed');
                       } else {
-                        if (response.status === 200) {
-                          SetDeleteLoading(false)
-                          toast.success("کارگزاری با موفقیت حذف شد.", { position: "bottom-left" });
-                          window.location.reload();
-                        }
+                        SetDeleteLoading(false);
+                        toast.success("کارگزاری با موفقیت حذف شد.", { position: "bottom-left" });
+                        window.location.reload();
                       }
                     } else {
-                      SetDeleteLoading(false)
+                      SetDeleteLoading(false);
                       toast.error("خطا در حذف کارگزاری.", { position: "bottom-left" });
                     }
-                  } catch (error) {
-                    SetDeleteLoading(false)
+
+                  } catch {
+                    SetDeleteLoading(false);
                     toast.error("خطا در حذف کارگزاری.", { position: "bottom-left" });
                   }
-
-
                 }}
-                className="px-6 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 shadow-lg transition"
+                className="
+                  px-6 py-2 rounded-xl
+                  bg-red-600 hover:bg-red-700
+                  text-white font-semibold
+                  shadow-lg hover:shadow-red-700/30
+                  transition-all duration-300
+                "
               >
-                {
-                  DeleteLoading ?
-                    'درحال حذف...'
-                    :
-                    'حذف'
-                }
-
+                {DeleteLoading ? "درحال حذف..." : "حذف"}
               </button>
             </div>
           </Modal.Panel>
+
         </div>
       </Modal>
+
     </div>
   );
+
 };
 
 export default Page;

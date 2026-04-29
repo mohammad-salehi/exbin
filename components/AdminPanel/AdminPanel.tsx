@@ -336,38 +336,75 @@ const AdminPanel: React.FC = () => {
   // -------- ستون‌ها --------
   const columns: Column<Person>[] = useMemo<Column<Person>[]>(
     () => [
-      { header: "نام", accessorKey: "firstName" },
-      { header: "نام خانوادگی", accessorKey: "lastName" },
-      { header: "نام کاربری", accessorKey: "username" },
-      { header: "نقش", accessorKey: "role" },
+      {
+        header: "نام",
+        accessorKey: "firstName",
+        cell: (row: Person) => (
+          <span className="font-medium text-gray-800 dark:text-gray-100">
+            {row.firstName || "—"}
+          </span>
+        ),
+      },
+  
+      {
+        header: "نام خانوادگی",
+        accessorKey: "lastName",
+        cell: (row: Person) => (
+          <span className="font-medium text-gray-700 dark:text-gray-200">
+            {row.lastName || "—"}
+          </span>
+        ),
+      },
+  
+      {
+        header: "نام کاربری",
+        accessorKey: "username",
+        cell: (row: Person) => (
+          <span className="px-2 py-1 rounded-md bg-gray-100 dark:bg-white/10 text-sm font-mono text-gray-700 dark:text-gray-200">
+            {row.username}
+          </span>
+        ),
+      },
+  
+      {
+        header: "نقش",
+        accessorKey: "role",
+        cell: (row: Person) => (
+          <span className="px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-600 dark:bg-blue-500/15 dark:text-blue-300">
+            {row.role}
+          </span>
+        ),
+      },
+  
       {
         header: "عملیات",
         cell: (row: Person): React.ReactNode => (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
-              className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]"
+              className="px-3 py-1.5 rounded-lg text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:bg-primary/20 hover:text-primary transition"
               onClick={() => onEdit(row)}
             >
               ویرایش
             </button>
-
+  
             <button
-              className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]"
+              className="px-3 py-1.5 rounded-lg text-sm bg-red-50 text-red-600 border border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20 hover:bg-red-100 dark:hover:bg-red-500/20 transition"
               onClick={() => openDeleteConfirm(row)}
             >
               حذف
             </button>
-
-            <a href={`/panel/admin-panel/timeline/${row.username}`} className="">
-              <button className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]">
+  
+            <a href={`/panel/admin-panel/timeline/${row.username}`}>
+              <button className="px-3 py-1.5 rounded-lg text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:bg-primary/20 hover:text-primary transition">
                 خط زمانی
               </button>
             </a>
-
+  
             <button
-              className="bg-gray-100 hover:bg-gray-200 dark:bg-boxColor-dark dark:hover:bg-gray-700 transition-colors px-2 py-1 rounded-md min-w-[100px]"
+              className="px-3 py-1.5 rounded-lg text-sm bg-white dark:bg-white/10 border border-gray-200 dark:border-white/10 hover:bg-primary/20 hover:text-primary transition"
               onClick={() => {
-                setchangePasswordId(row.id), setChangePassword(true);
+                setchangePasswordId(row.id);
+                setChangePassword(true);
               }}
             >
               تغییر رمزعبور
@@ -378,6 +415,7 @@ const AdminPanel: React.FC = () => {
     ],
     []
   );
+  
 
   useEffect(() => {
     setLoading(true);

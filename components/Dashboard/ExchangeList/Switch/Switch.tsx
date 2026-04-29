@@ -41,11 +41,37 @@ const RiskSwitch: React.FC<RiskSwitchProps> = ({
             type="button"
             onClick={() => onChange(opt.value)}
             className={
-              "w-full py-1.5 text-sm rounded-md transition-colors " +
+              `
+              w-full
+              py-2
+              px-3
+              text-sm font-medium
+              rounded-xl
+              border
+              transition-all
+              duration-200
+              focus:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-offset-2
+              focus-visible:ring-[#63C3FF]
+              shadow-sm
+              ` +
               (isActive
-                ? "bg-[#63C3FF] text-[#0F172A] border border-boxBorderColor dark:border-boxBorderColor-dark"
-                : "bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark border border-boxBorderColor dark:border-boxBorderColor-dark")
+                ? `
+                  bg-gradient-to-r from-[#63C3FF] to-[#4BA5FF]
+                  text-slate-900
+                  border-transparent
+                  shadow-md
+                `
+                : `
+                  bg-boxColor dark:bg-boxColor-dark
+                  text-titleText dark:text-titleText-dark
+                  border-boxBorderColor dark:border-boxBorderColor-dark
+                  hover:bg-slate-50/70 dark:hover:bg-slate-700/60
+                  hover:border-[#63C3FF]
+                `)
             }
+
           >
             {opt.label}
           </button>

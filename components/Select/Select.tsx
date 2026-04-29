@@ -12,21 +12,18 @@ type Option = {
 };
 
 type Props = {
-  label?: string;                 // عنوان بالا (مثلاً "صرافی")
-  value: string;                  // مقدار انتخاب‌شده
+  label?: string;
+  value: string;
   onChange: (value: string) => void;
-
   options: Option[];
   loading?: boolean;
-
-  placeholder?: string;           // وقتی چیزی انتخاب نشده
-  allLabel?: string;              // متن گزینه‌ی خالی
-  searchable?: boolean;           // سرچ داشته باشه؟
+  placeholder?: string;
+  allLabel?: string;
+  searchable?: boolean;
   searchPlaceholder?: string;
-
-  className?: string;             // wrapper
-  buttonClassName?: string;       // دکمه
-  optionsClassName?: string;      // پنل گزینه‌ها
+  className?: string;
+  buttonClassName?: string;
+  optionsClassName?: string;
   direction?: 'rtl' | 'ltr';
 };
 
@@ -45,6 +42,7 @@ export default function SearchableSelect({
   optionsClassName = '',
   direction = 'rtl',
 }: Props) {
+
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState('');
 
@@ -63,7 +61,6 @@ export default function SearchableSelect({
     return options.filter((o) => (o.label ?? '').toLowerCase().includes(s));
   }, [options, q, searchable]);
 
-  // close on outside click
   useEffect(() => {
     if (!open) return;
 
@@ -76,7 +73,6 @@ export default function SearchableSelect({
     return () => document.removeEventListener('mousedown', handler, true);
   }, [open]);
 
-  // close on ESC + focus search input when opened
   useEffect(() => {
     if (!open) return;
 
@@ -86,7 +82,6 @@ export default function SearchableSelect({
 
     document.addEventListener('keydown', onKeyDown, true);
 
-    // فوکوس روی سرچ
     if (searchable) {
       setTimeout(() => inputRef.current?.focus(), 0);
     }
@@ -102,55 +97,91 @@ export default function SearchableSelect({
 
   return (
     <div ref={rootRef} className={`relative w-full ${className}`} dir={direction}>
-      {label ? <div className="mb-1 text-sm text-titleText dark:text-titleText-dark">{label}</div> : null}
+      
+      {label && (
+        <div className="mb-1 text-sm font-medium text-titleText dark:text-titleText-dark">
+          {label}
+        </div>
+      )}
 
       <Button
         type="button"
-        as="button"
-        role="button"
         variant="ghost"
         onClick={() => setOpen((p) => !p)}
-        className={
-          `flex items-center justify-between w-full pl-10 py-2
-           bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark
-           border border-gray-300 rounded-lg dark:border-buttonBorderColor-dark
-           focus:outline-none appearance-none relative outline-none shadow-none ` + buttonClassName
-        }
+        className={`
+          flex items-center justify-between w-full pl-10 py-2.5
+          rounded-xl border
+          bg-boxColor dark:bg-boxColor-dark
+          border-gray-300 dark:border-buttonBorderColor-dark
+          text-titleText dark:text-titleText-dark
+          transition-all duration-200
+          hover:border-[#63C3FF]
+          hover:bg-slate-50 dark:hover:bg-slate-800
+          focus:ring-2 focus:ring-[#63C3FF]/40
+          ${buttonClassName}
+        `}
       >
         <span className="truncate">{selectedLabel}</span>
       </Button>
 
-      <ControlsChevronDown className="absolute left-3 top-[38px] text-titleText dark:text-titleText-dark pointer-events-none" />
+      <ControlsChevronDown
+        className={`
+          absolute left-3 top-[40px]
+          transition-transform duration-200
+          text-titleText dark:text-titleText-dark
+          pointer-events-none
+          ${open ? 'rotate-180' : ''}
+        `}
+      />
 
       {open && (
         <div
-          className={
-            `absolute left-0 mt-2 w-72 pl-2 pr-2 text-gray-700 bg-white dark:bg-buttonColor-dark
-             border border-gray-300 dark:border-buttonBorderColor-dark rounded-lg dark:text-gray-100
-             appearance-none z-50 max-h-60 overflow-y-auto ` + optionsClassName
-          }
+          className={`
+            absolute left-0 mt-2 w-72
+            rounded-xl border
+            bg-white dark:bg-buttonColor-dark
+            border-gray-200 dark:border-buttonBorderColor-dark
+            shadow-lg shadow-black/10
+            backdrop-blur-sm
+            z-50
+            max-h-64 overflow-y-auto
+            animate-in fade-in zoom-in-95
+            text-titleText dark:text-titleText-dark
+            ${optionsClassName}
+          `}
         >
+
           {searchable && (
-            <div className="sticky top-0 z-10 bg-white dark:bg-buttonColor-dark pt-2 pb-2">
+            <div className="sticky top-0 bg-white dark:bg-buttonColor-dark p-2 border-b border-gray-100 dark:border-buttonBorderColor-dark">
               <input
                 ref={inputRef}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder={searchPlaceholder}
-                className="w-full px-3 py-2 rounded-lg border border-gray-200 dark:border-buttonBorderColor-dark
-                           bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark outline-none"
+                className="
+                  w-full px-3 py-2
+                  text-sm
+                  rounded-lg
+                  border
+                  border-gray-200
+                  dark:border-buttonBorderColor-dark
+                  bg-boxColor dark:bg-boxColor-dark
+                  text-titleText dark:text-titleText-dark
+                  outline-none
+                  focus:border-[#63C3FF]
+                "
               />
             </div>
           )}
 
-          {/* گزینه‌ی خالی/همه */}
-          <button type="button" className="w-full text-right" onClick={() => pick('')}>
+          <button type="button" className="w-full text-right px-2 pt-2" onClick={() => pick('')}>
             <MenuItem
-              isActive={false}
               isSelected={!value}
-              className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                !value ? 'bg-gray-100 border-gray-200 dark:bg-gray-700' : ''
-              }`}
+              className={`
+                rounded-lg
+                transition-colors
+                ${!value ? 'bg-[#63C3FF]/15' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
+              `}
             >
               <MenuItem.Title>{allLabel}</MenuItem.Title>
             </MenuItem>
@@ -158,14 +189,23 @@ export default function SearchableSelect({
 
           {filtered.map((o) => {
             const selected = o.value === value;
+
             return (
-              <button key={o.id ?? o.value} type="button" className="w-full text-right" onClick={() => pick(o.value)}>
+              <button
+                key={o.id ?? o.value}
+                type="button"
+                className="w-full text-right px-2"
+                onClick={() => pick(o.value)}
+              >
                 <MenuItem
-                  isActive={false}
                   isSelected={selected}
-                  className={`border mt-2 mb-1 rounded-md border-gray-100 dark:border-buttonBorderColor-dark ${
-                    selected ? 'bg-gray-100 border-gray-200 dark:bg-gray-700' : ''
-                  }`}
+                  className={`
+                    rounded-lg
+                    transition-colors
+                    ${selected
+                      ? 'bg-[#63C3FF]/20'
+                      : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
                 >
                   <MenuItem.Title>{o.label}</MenuItem.Title>
                 </MenuItem>
@@ -174,8 +214,11 @@ export default function SearchableSelect({
           })}
 
           {!filtered.length && (
-            <div className="px-3 py-2 text-xs text-titleText dark:text-titleText-dark opacity-70">موردی پیدا نشد</div>
+            <div className="px-3 py-3 text-xs opacity-70 text-titleText dark:text-titleText-dark">
+              موردی پیدا نشد
+            </div>
           )}
+
         </div>
       )}
     </div>

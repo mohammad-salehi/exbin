@@ -212,111 +212,122 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
       ? 'border-y border-x border-boxBorderColor/80 dark:border-boxBorderColor-dark/80'
       : 'border-y border-boxBorderColor/80 dark:border-boxBorderColor-dark/80';
 
-  return (
-    <Link
-      href={`/panel/exchanges-list/exchange/${id}`}
-      dir="rtl"
-      id={name}
-      className={`
-        relative block w-full overflow-hidden
-        ${borderClass}
-        bg-transparent
-        transition
-        hover:bg-boxColor/70 hover:dark:bg-[#3e4044]
-        hover:shadow-[0_16px_40px_-30px_rgba(0,0,0,0.6)]
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2
-        focus-visible:ring-offset-white dark:focus-visible:ring-offset-bgColor-dark
-      `}
-    >
-      {/* soft top highlight */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/5 dark:from-white/5 to-transparent opacity-50" />
-
-      {/* Header */}
-      <div className="relative px-4 pt-4 pb-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-3 min-w-0">
-            <div
-              className={`
-                relative
-                flex h-11 w-11 items-center justify-center
-                rounded-2xl
-                ${logo ?? "border border-boxBorderColor/80 dark:border-boxBorderColor-dark/80"}
-                bg-white/70 dark:bg-bgColor-dark/40
-                overflow-hidden shrink-0
-                shadow-sm
-              `}
-            >
-              {/* logo glow */}
-              <div className="pointer-events-none absolute inset-0 opacity-60">
-                <div className="absolute -top-10 -right-10 h-24 w-24 rounded-full blur-2xl bg-primary/15" />
-              </div>
-
-              {logo ? (
-                <img src={logo} className="w-9 h-9 object-contain relative" alt={name} />
-              ) : (
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" className="relative">
-                  <path
-                    d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    className="text-titleText dark:text-titleText-dark"
-                  />
-                </svg>
-              )}
-            </div>
-
-            <div className="min-w-0">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="text-[18px] md:text-[18px] font-extrabold text-titleText dark:text-titleText-dark truncate">
-                  {name}
-                </span>
-                <span className="h-2 w-2 rounded-full bg-primary/80 shrink-0" />
-              </div>
-
-              <div className="mt-0.5 flex items-center gap-2 min-w-0">
-                <span className="text-[12px] md:text-[12px] font-extrabold text-[#6b6b6b] dark:text-[#bebebe] truncate">
-                  {legalName}
-                </span>
-              </div>
-
-            </div>
-          </div>
-
-          {/* small badge on right */}
+      return (
+        <Link
+          href={`/panel/exchanges-list/exchange/${id}`}
+          dir="rtl"
+          id={name}
+          className={`
+            group relative block w-full overflow-hidden 
+            border border-white/10 dark:border-white/5
+            bg-white/60 dark:bg-bgColor-dark/30
+            backdrop-blur-xl
+            shadow-[0_4px_20px_rgba(0,0,0,0.04)]
+            transition-all duration-300 ease-out
+      
+            hover:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.25)]
+            hover:-translate-y-0.5
+            hover:bg-white/70 hover:dark:bg-bgColor-dark/40
+      
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60
+            focus-visible:ring-offset-2 focus-visible:ring-offset-white
+            dark:focus-visible:ring-offset-bgColor-dark
+          `}
+        >
+          {/* Glow subtle highlight */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-white/30 dark:from-white/10 to-transparent opacity-60" />
+      
+          {/* Blue aura on hover */}
           <div
             className="
-              shrink-0
-              rounded-2xl
-              border border-black/5 dark:border-white/10
-              bg-white/60 dark:bg-white/5
-              backdrop-blur
-              px-3 py-2
-              text-[11px] font-semibold
-              text-titleText/70 dark:text-titleText-dark/70
-              whitespace-nowrap
+              pointer-events-none absolute inset-0  opacity-0
+              group-hover:opacity-30 transition duration-300
+              bg-[radial-gradient(circle_at_top_right,rgba(99,195,255,0.35),transparent_60%)]
             "
-          >
-            {uniqueCoins ? `${uniqueCoins.toLocaleString()} کوین` : '—'}
+          />
+      
+          {/* Header */}
+          <div className="relative px-5 pt-5 pb-4">
+            <div className="flex items-start justify-between gap-4">
+      
+              {/* Left block (logo + names) */}
+              <div className="flex items-center gap-4 min-w-0">
+      
+                {/* Logo */}
+                <div
+                  className={`
+                    relative flex h-12 w-12 items-center justify-center shrink-0
+                    rounded-2xl
+                    bg-white/80 dark:bg-bgColor-dark/50 backdrop-blur-sm
+                    border border-white/40 dark:border-white/10
+                    shadow-md
+                    overflow-hidden
+                  `}
+                >
+                  {/* glow */}
+                  <div className="pointer-events-none absolute inset-0 opacity-50">
+                    <div className="absolute -top-8 -right-8 h-20 w-20 rounded-full blur-2xl bg-primary/20" />
+                  </div>
+      
+                  {logo ? (
+                    <img src={logo} className="w-10 h-10 object-contain relative" alt={name} />
+                  ) : (
+                    <svg width="24" height="24" viewBox="0 0 24 24" className="text-titleText dark:text-titleText-dark">
+                      <path
+                        d="M5 21C5 17.134 8.13401 14 12 14C15.866 14 19 17.134 19 21M16 7C16 9.20914 14.2091 11 12 11C9.79086 11 8 9.20914 8 7C8 4.79086 9.79086 3 12 3C14.2091 3 16 4.79086 16 7Z"
+                        stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                      />
+                    </svg>
+                  )}
+                </div>
+      
+                {/* Texts */}
+                <div className="min-w-0 flex flex-col">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-[18px] font-extrabold text-titleText dark:text-titleText-dark truncate">
+                      {name}
+                    </span>
+      
+                    {/* status dot */}
+                    <span className="h-2 w-2 rounded-full bg-primary/80 shrink-0" />
+                  </div>
+      
+                  <span className="mt-0.5 text-[12px] font-semibold text-[#6b6b6b] dark:text-[#cfcfcf] truncate">
+                    {legalName}
+                  </span>
+                </div>
+              </div>
+      
+              {/* right badge */}
+              <div
+                className="
+                  shrink-0 rounded-xl
+                  border border-white/20 dark:border-white/10
+                  bg-white/70 dark:bg-white/5 backdrop-blur-lg
+                  px-3 py-1.5
+                  text-[11px] font-semibold
+                  text-titleText/70 dark:text-titleText-dark/70
+                  shadow-sm
+                  group-hover:bg-primary/10 group-hover:text-primary transition
+                "
+              >
+                {uniqueCoins ? `${uniqueCoins.toLocaleString()} کوین` : '—'}
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Divider */}
-      <div className="mx-4 h-px bg-black/5 dark:bg-white/10" />
-
-      {/* Body */}
-      <div className="p-4">
-        <div className="items-stretch">
-          <div className="h-full flex flex-col gap-3">
-            <div className="grid grid-cols-1 gap-3 flex-1">
+      
+          {/* Divider */}
+          <div className="mx-5 h-px bg-black/5 dark:bg-white/10" />
+      
+          {/* Body */}
+          <div className="p-5">
+            <div className="flex flex-col">
               <RatioProgress value={reserveRatio} uniqueUserCount={uniqueUserCount} />
             </div>
           </div>
-        </div>
-      </div>
-    </Link>
-  );
+        </Link>
+      );
+      
 };
 
 export default ExchangeCard;
