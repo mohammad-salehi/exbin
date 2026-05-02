@@ -116,37 +116,26 @@ const Page = () => {
 
         {/* Search Box */}
         <div className="relative w-full h-[48px] mb-4 mt-8">
-        <input
-  value={q}
-  onChange={(e) => setQ(e.target.value)}
-  placeholder="جست‌وجو"
-  className="
-    w-full h-full pl-4 pr-10
-    rounded-xl
-
-    appearance-none
-
-    bg-white/70
-    dark:bg-slate-900/60
-
-    border border-slate-200
-    dark:border-slate-700
-
-    backdrop-blur-md
-    shadow-sm
-
-    text-slate-700
-    dark:text-slate-200
-
-    outline-none
-    focus:outline-none
-    focus:ring-0
-    focus:border-slate-200
-    dark:focus:border-slate-700
-
-    transition-colors
-  "
-/>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="جست‌وجو"
+            className="
+                w-full h-full pl-4 pr-10
+                rounded-xl
+                appearance-none
+              bg-boxColor dark:bg-boxColor-dark
+              border-boxBorderColor dark:border-boxBorderColor-dark
+                backdrop-blur-md
+                shadow-sm
+                text-slate-700
+                dark:text-slate-200
+                outline-none
+                focus:outline-none
+                focus:ring-0
+                transition-colors
+            "
+          />
 
 
 
