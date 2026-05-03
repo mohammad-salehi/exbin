@@ -126,7 +126,7 @@ export default function SearchableSelect({
 
       <ControlsChevronDown
         className={`
-          absolute left-3 top-[40px]
+          absolute left-3 top-[38px]
           transition-transform duration-200
           text-titleText dark:text-titleText-dark
           pointer-events-none
