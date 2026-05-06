@@ -328,12 +328,12 @@ const Navbar = ({
     <div className="flex">
       {/* ===== Mobile top bar ===== */}
       <div className="fixed top-0 left-0 right-0 z-40 lg:hidden">
-        <div className="bg-boxColor/90 dark:bg-boxColor-dark/80 backdrop-blur border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+        <div className="bg-boxColor/90 dark:bg-boxColor-dark/80 backdrop-blur border-b border-boxBorderColor dark:border-boxBorderColor-dark lux-panel rounded-none">
           <div className="h-14 px-4 flex items-center justify-between">
             <button
               type="button"
               onClick={() => setIsMobileOpen(true)}
-              className="h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark"
+              className="h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark lux-btn"
               aria-label="open menu"
             >
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -345,11 +345,11 @@ const Navbar = ({
                 />
               </svg>
             </button>
-
+  
             <button
               type="button"
               onClick={toggleDarkMode}
-              className="h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark"
+              className="h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark lux-btn"
               aria-label="toggle theme"
             >
               {isDarkMode ? (
@@ -382,17 +382,17 @@ const Navbar = ({
           </div>
         </div>
       </div>
-
+  
       {/* ===== Mobile overlay ===== */}
       {isMobileOpen && (
         <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" />
       )}
-
+  
       {/* ===== Sidebar ===== */}
       <aside
         ref={asideRef}
         className={clsx(
-          "fixed top-0 right-0 h-screen w-[82vw] max-w-[320px] lg:w-64 shadow-[0_10px_40px_rgba(0,0,0,0.18)] transition-transform duration-300 z-50 bg-boxColor dark:bg-boxColor-dark dark:text-titleText-dark",
+          "fixed top-0 right-0 h-screen w-[82vw] max-w-[320px] lg:w-64 shadow-[0_10px_40px_rgba(0,0,0,0.18)] transition-transform duration-300 z-50 bg-boxColor dark:bg-boxColor-dark dark:text-titleText-dark lux-panel rounded-none",
           {
             "translate-x-full lg:translate-x-0": !isOpen && !isMobileOpen,
             "translate-x-0": isOpen || isMobileOpen,
@@ -400,7 +400,7 @@ const Navbar = ({
         )}
       >
         {/* Sticky header inside sidebar */}
-        <div className="sticky top-0 z-10 bg-boxColor/95 dark:bg-boxColor-dark/90 backdrop-blur border-b border-boxBorderColor dark:border-boxBorderColor-dark">
+        <div className=" top-0 z-10 lux-panel rounded-none border-none ">
           <div className="p-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -413,10 +413,10 @@ const Navbar = ({
                   <AnimatedHeadingText />
                 </div>
               </div>
-
+  
               <button
                 type="button"
-                className="lg:hidden h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark"
+                className="lg:hidden h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark lux-btn"
                 onClick={() => setIsMobileOpen(false)}
                 aria-label="close menu"
               >
@@ -430,8 +430,8 @@ const Navbar = ({
                 </svg>
               </button>
             </div>
-
-            <div className="mt-3 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/50 p-3">
+  
+            <div className="mt-3 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/50 p-3 lux-panel">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-gray-100 dark:bg-boxColor-dark border border-boxBorderColor dark:border-boxBorderColor-dark flex items-center justify-center text-titleText dark:text-titleText-dark">
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -443,7 +443,7 @@ const Navbar = ({
                     />
                   </svg>
                 </div>
-
+  
                 <div className="min-w-0 flex-1" dir="rtl">
                   <div className="text-sm font-semibold text-titleText dark:text-titleText-dark truncate">
                     {fullName || "کاربر"}
@@ -452,11 +452,11 @@ const Navbar = ({
                     {role || "—"}
                   </div>
                 </div>
-
+  
                 <button
                   type="button"
                   onClick={openChangePassword}
-                  className="shrink-0 h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark"
+                  className="shrink-0 h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark lux-btn"
                   aria-label="change password"
                 >
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -486,7 +486,7 @@ const Navbar = ({
             </div>
           </div>
         </div>
-
+  
         {/* Nav */}
         <nav
           className="px-3 pt-4 space-y-2 overflow-y-auto h-full"
@@ -496,7 +496,7 @@ const Navbar = ({
           {navItems.map((item) => {
             if (item.access !== "" && item.access !== role) return null;
             const active = item.link === activeLink;
-
+  
             return (
               <a
                 href={`/panel/${item.link}`}
@@ -510,7 +510,7 @@ const Navbar = ({
                 <button
                   type="button"
                   className={clsx(
-                    "w-full flex items-center justify-between gap-1 px-1 py-1 rounded-xl transition border", // ✅ items-center
+                    "w-full flex items-center justify-between gap-1 px-1 py-1 rounded-xl transition border lux-btn", // ✅ items-center
                     active
                       ? "bg-BgPrimary dark:bg-BgPrimary-dark border-transparent"
                       : "bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800 border-transparent"
@@ -528,7 +528,7 @@ const Navbar = ({
                     >
                       {item.icon}
                     </span>
-
+  
                     {/* ✅ متن چندخطی: چپ/راست نشه و وسط‌چین نشه */}
                     <span
                       className={clsx(
@@ -542,7 +542,7 @@ const Navbar = ({
                       {item.label}
                     </span>
                   </div>
-
+  
                   {/* ✅ فلش همیشه بالا بمونه */}
                   <svg
                     width="18"
@@ -573,7 +573,7 @@ const Navbar = ({
                 document.cookie = `token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
                 window.location.assign("/");
               }}
-              className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40 transition py-3"
+              className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40 transition py-3 lux-btn"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
@@ -586,11 +586,11 @@ const Navbar = ({
               </svg>
               <span className="text-sm font-semibold">خروج</span>
             </button>
-
+  
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden h-12 w-12 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center"
+              className="lg:hidden h-12 w-12 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center lux-btn"
               aria-label="close"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -604,12 +604,12 @@ const Navbar = ({
             </button>
           </div>
         </nav>
-
+  
         {/* Sticky bottom actions */}
         <div
           className="hidden sm:block fixed bottom-0 right-0 left-0 lg:left-auto lg:right-auto lg:bottom-0 lg:w-64
-             p-3 bg-boxColor/95 dark:bg-boxColor-dark/90 backdrop-blur
-             border-t border-boxBorderColor dark:border-boxBorderColor-dark"
+             p-3  
+               "
           style={{
             paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
           }}
@@ -622,7 +622,7 @@ const Navbar = ({
                 document.cookie = `token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
                 window.location.assign("/");
               }}
-              className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40 transition py-3"
+              className="flex-1 flex items-center justify-center gap-2 rounded-2xl border border-red-200 dark:border-red-900/40 bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-950/40 transition py-3 lux-btn"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                 <path
@@ -635,11 +635,11 @@ const Navbar = ({
               </svg>
               <span className="text-sm font-semibold">خروج</span>
             </button>
-
+  
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
-              className="lg:hidden h-12 w-12 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center"
+              className="lg:hidden h-12 w-12 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center lux-btn"
               aria-label="close"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -654,7 +654,7 @@ const Navbar = ({
           </div>
         </div>
       </aside>
-
+  
       {/* ===== Change password modal ===== */}
       <Modal
         open={open}
@@ -664,11 +664,11 @@ const Navbar = ({
         }}
       >
         <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
-
+  
         <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4">
           <Modal.Panel
             key={`${formVersion}-${open ? "open" : "closed"}`}
-            className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-2xl text-titleText dark:text-titleText-dark w-full max-w-md p-6 border border-boxBorderColor dark:border-boxBorderColor-dark"
+            className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-2xl text-titleText dark:text-titleText-dark w-full max-w-md p-6 border border-boxBorderColor dark:border-boxBorderColor-dark lux-panel"
           >
             <div className="w-full">
               <Modal.Title>
@@ -676,7 +676,7 @@ const Navbar = ({
                   تغییر رمز عبور
                 </h3>
               </Modal.Title>
-
+  
               <form onSubmit={submit} className="mt-4 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
@@ -695,13 +695,13 @@ const Navbar = ({
                     <button
                       type="button"
                       onClick={() => setShowOld((s) => !s)}
-                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300"
+                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300 lux-btn"
                     >
                       {showOld ? "مخفی" : "نمایش"}
                     </button>
                   </div>
                 </div>
-
+  
                 <div>
                   <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
                     رمزعبور جدید
@@ -719,7 +719,7 @@ const Navbar = ({
                     <button
                       type="button"
                       onClick={() => setShowNew((s) => !s)}
-                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300"
+                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300 lux-btn"
                     >
                       {showNew ? "مخفی" : "نمایش"}
                     </button>
@@ -728,7 +728,7 @@ const Navbar = ({
                     رمز جدید حداقل ۸ کاراکتر باشد.
                   </p>
                 </div>
-
+  
                 <div>
                   <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
                     تکرار رمزعبور جدید
@@ -746,13 +746,13 @@ const Navbar = ({
                     <button
                       type="button"
                       onClick={() => setshowRetry((s) => !s)}
-                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300"
+                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-gray-600 dark:text-gray-300 lux-btn"
                     >
                       {showRetry ? "مخفی" : "نمایش"}
                     </button>
                   </div>
                 </div>
-
+  
                 {!!error && (
                   <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                     {error}
@@ -763,12 +763,12 @@ const Navbar = ({
                     {success}
                   </div>
                 )}
-
+  
                 <div className="mt-2 flex items-center justify-end gap-3">
                   <button
                     type="submit"
                     className={clsx(
-                      "rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition",
+                      "rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition lux-btn",
                       loading ? "bg-primary/60" : "bg-primary hover:opacity-90"
                     )}
                     disabled={loading}
@@ -783,6 +783,7 @@ const Navbar = ({
       </Modal>
     </div>
   );
+  
 };
 
 export default Navbar;

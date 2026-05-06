@@ -204,3 +204,168 @@
 .animate-fadeInUp {
   animation: fadeInUp 0.4s ease-out forwards;
 }
+
+@layer components {
+  .lux-panel {
+    @apply rounded-[32px] border border-white/30 dark:border-white/10
+           bg-gradient-to-br from-white/90 via-white/70 to-white/60
+           dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90
+           backdrop-blur-2xl
+           shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)]
+           transition hover:shadow-[0_35px_90px_-40px_rgba(0,0,0,0.6)];
+  }
+
+  .lux-title {
+    @apply rounded-2xl border border-white/40 dark:border-white/10
+           bg-white/70 dark:bg-white/5
+           backdrop-blur-xl
+           shadow-[0_10px_28px_-18px_rgba(0,0,0,0.6)];
+  }
+
+  .lux-chip {
+    @apply rounded-full border border-white/40 dark:border-white/10
+           bg-white/70 dark:bg-white/5
+           backdrop-blur-xl
+           shadow-[0_8px_20px_-14px_rgba(0,0,0,0.6)];
+  }
+
+  .lux-card {
+    @apply rounded-[28px] border border-white/40 dark:border-white/10
+           bg-white/60 dark:bg-white/5
+           backdrop-blur-xl
+           shadow-[0_20px_50px_-30px_rgba(0,0,0,0.6)];
+  }
+
+  .lux-btn {
+    @apply rounded-lg border border-white/40 dark:border-white/10
+           bg-white/70 dark:bg-white/5
+           backdrop-blur-xl
+           shadow-[0_8px_20px_-14px_rgba(0,0,0,0.6)]
+           hover:bg-white/90 dark:hover:bg-white/10
+           transition;
+  }
+
+  .lux-menu {
+    @apply rounded-2xl border border-white/40 dark:border-white/10
+           bg-white/95 dark:bg-[#0b0f15]/95
+           backdrop-blur-2xl
+           shadow-[0_20px_60px_-35px_rgba(0,0,0,0.7)];
+  }
+  .lux-table-wrap {
+    @apply overflow-x-auto rounded-2xl border border-gray-200/70 dark:border-boxColor-dark/70
+      bg-gradient-to-b from-gray-50/80 via-gray-100/80 to-white/80
+      dark:from-boxColor-dark/80 dark:via-bgColor-dark/70 dark:to-boxColor-dark/80
+      shadow-[0_18px_60px_-30px_rgba(0,0,0,0.45)]
+      px-2 backdrop-blur-2xl;
+  }
+
+  .lux-table {
+    @apply min-w-[720px] w-full text-sm border-separate border-spacing-y-2 text-titleText dark:text-titleText-dark;
+  }
+
+  .lux-table-head {
+    @apply sticky top-0 text-gray-700 dark:text-gray-200
+      bg-gray-100/80 dark:bg-boxColor-dark/80 backdrop-blur;
+  }
+
+  .lux-th {
+    @apply px-6 py-5 font-semibold text-titleText dark:text-titleText-dark;
+  }
+
+  .lux-row {
+    @apply text-titleText dark:text-titleText-dark;
+  }
+
+  .lux-td {
+    @apply px-6 py-6 align-middle bg-white/80 dark:bg-bgColor-dark/70
+      !border-0 ring-0 shadow-none backdrop-blur;
+  }
+
+  .lux-details {
+    @apply bg-white/70 dark:bg-bgColor-dark/60 rounded-2xl
+      border border-gray-200/60 dark:border-boxColor-dark/60
+      shadow-[0_12px_40px_-30px_rgba(0,0,0,0.45)] backdrop-blur-xl;
+  }
+
+  .lux-empty {
+    @apply px-6 py-8 text-center text-titleText dark:text-titleText-dark
+      bg-transparent rounded-xl align-middle;
+  }
+
+  .lux-icon-btn {
+    @apply inline-flex items-center justify-center rounded-md p-1
+      text-titleText/80 dark:text-titleText-dark/80
+      hover:bg-gray-100/70 hover:dark:bg-gray-800/60
+      transition;
+  }
+  .lux-table-wrap {
+    @apply overflow-x-auto rounded-3xl border border-gray-200/70 dark:border-boxColor-dark/70
+      bg-gradient-to-b from-white/90 via-gray-50/80 to-white/80
+      dark:from-[#151a24]/90 dark:via-[#101521]/80 dark:to-[#151a24]/90
+      shadow-[0_18px_55px_-28px_rgba(15,23,42,0.45)]
+      backdrop-blur-2xl px-2;
+  }
+
+  .lux-table {
+    @apply min-w-[720px] w-full text-sm border-separate border-spacing-y-2 text-titleText dark:text-titleText-dark;
+  }
+
+  /* هدر مدرن با خط جداکننده و شفافیت */
+  .lux-table-head {
+    @apply sticky top-0 z-10
+      bg-white/90 dark:bg-[#0f1420]/90
+      backdrop-blur
+      shadow-[0_6px_20px_-12px_rgba(15,23,42,0.35)]
+      border-b border-gray-200/70 dark:border-[#2a3242]/70;
+  }
+
+  .lux-th {
+    @apply px-6 py-4 font-semibold text-gray-700 dark:text-gray-200
+      tracking-wide;
+  }
+
+  /* ردیف‌ها: کارت‌مانند با لبه نرم + hover */
+  .lux-row {
+    @apply transition;
+  }
+
+  .lux-row:nth-child(odd) .lux-td {
+    @apply bg-white/85 dark:bg-[#111827]/80;
+  }
+  .lux-row:nth-child(even) .lux-td {
+    @apply bg-gray-50/85 dark:bg-[#0f172a]/85;
+  }
+
+  .lux-row:hover .lux-td {
+    @apply bg-primary/5 dark:bg-primary/10;
+  }
+
+  /* سلول‌ها */
+  .lux-td {
+    @apply px-6 py-4 align-middle !border-0
+      border-b border-gray-200/60 dark:border-[#2a3242]/60
+      text-gray-800 dark:text-gray-100;
+  }
+
+  /* ردیف جزئیات */
+  .lux-details {
+    @apply bg-white/85 dark:bg-[#0f172a]/80 rounded-2xl
+      border border-gray-200/60 dark:border-[#2a3242]/70
+      shadow-[0_12px_40px_-30px_rgba(15,23,42,0.45)] backdrop-blur-xl;
+  }
+
+  /* حالت خالی */
+  .lux-empty {
+    @apply px-6 py-10 text-center text-gray-600 dark:text-gray-300;
+  }
+
+  /* آیکن‌ها: حس DataGrid */
+  .lux-icon-btn {
+    @apply inline-flex items-center justify-center rounded-lg p-1.5
+      text-gray-600 dark:text-gray-300
+      hover:bg-gray-100/80 hover:dark:bg-[#1f2937]/80
+      focus:outline-none focus:ring-2 focus:ring-primary/40
+      transition;
+  }
+}
+

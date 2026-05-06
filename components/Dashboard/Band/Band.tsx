@@ -22,13 +22,13 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
   return (
     <section
       dir="rtl"
-      className="w-full rounded-xl border bg-boxColor dark:bg-boxColor-dark p-6 shadow-sm text-titleText dark:text-titleText-dark border-boxBorderColor dark:border-boxBorderColor-dark"
+      className="w-full rounded-[32px] border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/90 via-white/70 to-white/60 dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90 backdrop-blur-2xl p-7 md:p-8 shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)] text-titleText dark:text-titleText-dark"
     >
-      {/* Header line (optional but looks nice) */}
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span className="h-2.5 w-2.5 rounded-full bg-primary/90 shadow-[0_0_0_6px_rgba(0,0,0,0.03)] dark:shadow-[0_0_0_6px_rgba(255,255,255,0.03)]" />
-          <h3 className="text-sm sm:text-base font-semibold text-titleText dark:text-titleText-dark">
+      {/* Header line */}
+      <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="h-2.5 w-2.5 rounded-full bg-primary/90 shadow-[0_0_0_8px_rgba(0,0,0,0.04)] dark:shadow-[0_0_0_8px_rgba(255,255,255,0.04)]" />
+          <h3 className="text-sm sm:text-base font-semibold tracking-tight">
             آمار کلی
           </h3>
         </div>
@@ -39,7 +39,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
 
       <div
         className="
-          grid gap-3
+          grid gap-4
           grid-cols-1
           lg:grid-cols-2
           xl:grid-cols-3
@@ -50,36 +50,25 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
           <div
             key={`${item.label}-${index}`}
             className="
-              group
-              relative overflow-hidden
-              rounded-2xl
-              bg-white dark:bg-white/5
-              border border-[#eeeeee] dark:border-white/10
-              p-4
-              shadow-[0_1px_0_rgba(0,0,0,0.04)]
+              group relative overflow-hidden
+              rounded-[28px]
+              border border-white/40 dark:border-white/10
+              bg-white/75 dark:bg-white/[0.04]
+              p-5
+              backdrop-blur-xl
+              shadow-[0_12px_30px_-20px_rgba(0,0,0,0.6)]
               transition
-              hover:-translate-y-0.5 hover:shadow-md
+              hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-22px_rgba(0,0,0,0.7)]
             "
           >
             {/* subtle glow */}
-            <div
-              className="
-                pointer-events-none
-                absolute -top-20 -left-20 h-40 w-40 rounded-full
-                bg-primary/10 blur-2xl opacity-0
-                transition
-                group-hover:opacity-100
-              "
-            />
+            <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-primary/15 blur-[70px] opacity-0 transition group-hover:opacity-100" />
+            <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
 
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-full">
                 <div
-                  className="
-                    text-[12px] sm:text-[13px]
-                    text-titleText/70 dark:text-titleText-dark/70
-                    
-                  "
+                  className="text-[12px] sm:text-[13px] text-titleText/70 dark:text-titleText-dark/70"
                   title={item.label}
                 >
                   {item.label}
@@ -87,14 +76,13 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
 
                 <div
                   className="
-    mt-2
-    text-xl sm:text-2xl
-    font-bold
-    text-titleText dark:text-titleText-dark
-    tracking-tight
-    [font-variant-numeric:tabular-nums]
-    text-center min-w-full
-  "
+                    mt-2
+                    text-xl sm:text-2xl
+                    font-bold
+                    tracking-tight
+                    [font-variant-numeric:tabular-nums]
+                    text-center min-w-full
+                  "
                   style={{ direction: "ltr" }}
                 >
                   {formatNumber(item.value)}
@@ -103,7 +91,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
             </div>
 
             {/* bottom divider accent */}
-            <div className="mt-3 h-px w-full bg-[#f2f2f2] dark:bg-white/10" />
+            <div className="mt-4 h-px w-full bg-white/60 dark:bg-white/10" />
 
             <div className="mt-3 flex items-center justify-between text-[11px] text-titleText/55 dark:text-titleText-dark/55">
               <span className="flex items-center gap-1.5">
@@ -117,6 +105,7 @@ const StatsGrid: React.FC<StatsGridProps> = ({ data }) => {
       </div>
     </section>
   );
+
 };
 
 export default StatsGrid;

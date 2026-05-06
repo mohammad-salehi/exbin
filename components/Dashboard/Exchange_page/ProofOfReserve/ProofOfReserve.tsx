@@ -486,153 +486,150 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
       }, [C1, porLoaded]);
       
 
-    return (
-        <section dir="rtl" className="w-full text-titleText dark:text-titleText-dark">
-
-            <div className={cx(panelBase, "p-5")}>
-                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                    <div className="min-w-0">
-                        <div className="flex items-center gap-2 min-w-0">
-                            {logoNode}
-                            <h3 className="text-2xl font-extrabold text-titleText dark:text-titleText-dark truncate mb-0">
-                                {name}
-                            </h3>
-                        </div>
-                    </div>
-                </div>
+      return (
+        <section dir="rtl" className="w-full text-titleText dark:text-white space-y-10">
+          {/* Header */}
+          <div className="relative overflow-hidden rounded-[36px] border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/90 via-white/70 to-white/60 dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90 backdrop-blur-2xl shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)]">
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+              <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+              <div className="absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+              <div className="absolute inset-0 bg-[radial-gradient(1200px_400px_at_top,rgba(255,255,255,0.35),transparent)] dark:bg-[radial-gradient(1200px_400px_at_top,rgba(255,255,255,0.08),transparent)]" />
             </div>
-            <div className="relative w-full overflow-hidden rounded-[28px] border border-boxBorderColor dark:border-none mt-4">
-                <div className="absolute inset-0 bg-white dark:bg-[#121822]" />
-
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -top-24 -left-24 h-[520px] w-[520px] rounded-full bg-primary/16 blur-3xl dark:hidden" />
-                    <div className="absolute -bottom-28 -right-28 h-[560px] w-[560px] rounded-full bg-emerald-500/14 blur-3xl dark:hidden" />
-                    <div className="absolute inset-0 bg-gradient-to-l from-primary/8 via-transparent to-emerald-500/6 dark:hidden" />
-                    <div className="hidden dark:block absolute -top-28 -left-28 h-[560px] w-[560px] rounded-full bg-primary/14 blur-3xl" />
-                    <div className="hidden dark:block absolute -bottom-32 -right-32 h-[620px] w-[620px] rounded-full bg-emerald-500/12 blur-3xl" />
-                    <div className="hidden dark:block absolute inset-0 bg-gradient-to-l from-primary/12 via-transparent to-emerald-500/10" />
-                    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-boxBorderColor/70 to-transparent dark:via-white/10" />
-                    <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-boxBorderColor/50 to-transparent dark:via-white/10" />
+    
+            <div className="relative flex items-center gap-5 p-7 md:p-8">
+              <div className="h-14 w-14 rounded-2xl bg-white/70 dark:bg-white/5 border border-white/40 dark:border-white/10 shadow-[0_8px_25px_-15px_rgba(0,0,0,0.7)] flex items-center justify-center">
+                {logo ? (
+                  <img src={logo} className="w-10 h-10 object-contain" />
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-boxColor dark:bg-boxColor-dark" />
+                )}
+              </div>
+    
+              <div className="min-w-0">
+                <div className="text-[11px] tracking-wider uppercase text-titleText/50 dark:text-titleText-dark/50">
+                  Proof of Reserves
                 </div>
-
-                <div className="pointer-events-none absolute inset-0">
-                    <div className="absolute -right-28 top-6 h-80 w-80 rotate-[14deg] rounded-[36px] bg-primary/14 dark:bg-white/7" />
-                    <div className="absolute right-16 top-20 h-72 w-72 rotate-[14deg] rounded-[34px] bg-emerald-500/14 dark:bg-white/6" />
-                    <div className="absolute right-52 top-24 h-[420px] w-[420px] rotate-[14deg] rounded-[40px] bg-primary/10 dark:bg-white/5" />
-                    <div className="absolute -right-10 top-72 h-56 w-[520px] rotate-[14deg] rounded-[40px] bg-emerald-500/10 dark:bg-white/6" />
-
-                    <div className="absolute -right-28 top-6 h-80 w-80 rotate-[14deg] rounded-[36px] ring-1 ring-titleText/10 dark:ring-white/10" />
-                    <div className="absolute right-16 top-20 h-72 w-72 rotate-[14deg] rounded-[34px] ring-1 ring-titleText/10 dark:ring-white/10" />
-                    <div className="absolute right-52 top-24 h-[420px] w-[420px] rotate-[14deg] rounded-[40px] ring-1 ring-titleText/10 dark:ring-white/10" />
-                    <div className="absolute -right-10 top-72 h-56 w-[520px] rotate-[14deg] rounded-[40px] ring-1 ring-titleText/10 dark:ring-white/10" />
-
-                    <div className="absolute inset-0 bg-[linear-gradient(115deg,transparent_0%,rgba(255,255,255,0.08)_32%,transparent_60%)] opacity-30 dark:opacity-20" />
-                </div>
-
-                <div className="relative grid grid-cols-1 items-center gap-10 px-6 py-9 md:px-10 md:py-12 lg:grid-cols-12">
-                    <div className="lg:col-span-7">
-                        <div className="flex flex-wrap items-center gap-2">
-                            <Pill tone="info">Proof of Reserves</Pill>
-                            <Pill tone="info">تاریخ: {staticMeta.auditTime}</Pill>
-                            <Pill tone={headlineRatios.min >= 100 ? 'success' : 'warning'}>
-                                {headlineRatios.min >= 100 ? 'امنیت مناسب' : 'نیاز به بررسی'}
-                            </Pill>
-                        </div>
-
-                        <h1 className="mt-6 text-3xl md:text-5xl font-extrabold tracking-tight leading-[1.12] text-titleText dark:text-white">
-                            امنیت دارایی کاربران با سرویس{' '}
-                            <span className="text-primary dark:text-primary-dark">اثبات ذخیره دارایی‌ها</span>
-                        </h1>
-
-                        {/* <div className="mt-8 flex flex-wrap items-center gap-3">
-                            <button
-                                type="button"
-                                className={cn(
-                                    'h-11 rounded-2xl px-6 text-sm font-extrabold transition',
-                                    'bg-primary text-white hover:opacity-95',
-                                    'focus:outline-none focus:ring-2 focus:ring-primary/50'
-                                )}
-                            >
-                                مشاهده گزارش
-                            </button>
-                            <span className="text-xs text-titleText/55 dark:text-white/55">{staticMeta.verificationMechanism}</span>
-                        </div> */}
-                    </div>
-
-                    <div className="lg:col-span-5 flex justify-center lg:justify-end">
-                        <div className="relative translate-y-2 md:translate-y-4">
-                            <img
-                                src="/images/pantaLogo.png"
-                                alt="Panta"
-                                className="w-[130px] h-auto md:w-[200px] lg:w-[240px] select-none drop-shadow-[0_18px_60px_rgba(0,0,0,0.28)] dark:drop-shadow-[0_22px_70px_rgba(0,0,0,0.55)]"
-                                draggable={false}
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                <div className="relative px-6 pb-8 md:px-10 md:pb-10">
-                    {/* metrics row */}
-                    <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-                        <MetricText
-                            label="میانگین ضریب پوشش"
-                            value={
-                                <span className={ratioTone(headlineRatios.avg)}>
-                                    {formatNumberFa(headlineRatios.avg)}٪
-                                </span>
-                            }
-                        />
-                        <MetricText
-                            label="کمترین ضریب پوشش"
-                            value={
-                                <span className={ratioTone(headlineRatios.min)}>
-                                    {formatNumberFa(headlineRatios.min)}٪
-                                </span>
-                            }
-                            tone={headlineRatios.min >= 100 ? 'success' : 'warning'}
-                        />
-                        <MetricText
-                            label="بیشترین ضریب پوشش"
-                            value={
-                                <span className={ratioTone(headlineRatios.max)}>
-                                    {formatNumberFa(headlineRatios.max)}٪
-                                </span>
-                            }
-                        />
-                        <MetricText
-                            label="تعداد دارایی‌های پوشش‌داده‌شده"
-                            value={formatIntFa(headlineRatios.includedCount)}
-                        />
-                    </div>
-                </div>
+                <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight truncate">
+                  {name}
+                </h3>
+              </div>
+    
             </div>
-
-            <Card
-                className="bg-white dark:bg-boxColor-dark w-full mt-4"
-                title={
-                    <div></div>
-                }
-            >
-
-                <div className="">
-                    <div className="flex flex-wrap items-center justify-between gap-3">
-                        <Pill tone="info">دارایی‌ها</Pill>
-                        <div className="flex flex-wrap items-center gap-2">
-                            <Pill tone="info">کل: {formatIntFa(assets.length)} ارز</Pill>
-                        </div>
-                    </div>
-
-                    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-                        {currentItems.map((row, idx) => (
-                            <AssetPorCard key={`${row.asset}-${idx}`} row={row} />
-                        ))}
-                    </div>
-
-                    <Pagination page={safePage} totalPages={totalPages} onPage={(p) => setPage(clamp(p, 1, totalPages))} />
+          </div>
+    
+          {/* Hero */}
+          <div className="relative overflow-hidden rounded-[40px] border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/95 via-white/75 to-white/60 dark:from-[#0a0f15]/95 dark:via-[#0d121b]/90 dark:to-[#0a0f15]/95 backdrop-blur-2xl shadow-[0_30px_90px_-45px_rgba(0,0,0,0.6)]">
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-primary/18 blur-[90px]" />
+              <div className="absolute -bottom-28 -left-24 h-96 w-96 rounded-full bg-emerald-400/12 blur-[100px]" />
+              <div className="absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
+              <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_top,rgba(255,255,255,0.35),transparent)] dark:bg-[radial-gradient(1200px_500px_at_top,rgba(255,255,255,0.08),transparent)]" />
+            </div>
+    
+            <div className="relative p-9 md:p-11 grid lg:grid-cols-12 gap-10">
+              <div className="lg:col-span-7">
+                <div className="flex flex-wrap gap-2">
+                  <Pill tone="info">Proof of Reserves</Pill>
+                  <Pill tone="info">تاریخ: {staticMeta.auditTime}</Pill>
+                  <Pill tone={headlineRatios.min >= 100 ? 'success' : 'warning'}>
+                    {headlineRatios.min >= 100 ? 'امنیت مناسب' : 'نیاز به بررسی'}
+                  </Pill>
                 </div>
-            </Card>
+    
+                <h1 className="mt-6 text-3xl md:text-5xl font-extrabold leading-[1.2]">
+                  امنیت دارایی کاربران با سرویس{" "}
+                  <span className="text-primary">اثبات ذخیره دارایی‌ها</span>
+                </h1>
+    
+                <p className="mt-4 text-sm md:text-base text-titleText/60 dark:text-titleText-dark/60 leading-relaxed">
+                  گزارش شفاف، دقیق و قابل اتکا از نسبت پوشش دارایی‌ها و بدهی کاربران در دارایی‌های منتخب.
+                </p>
+              </div>
+    
+              <div className="lg:col-span-5 flex justify-center lg:justify-end">
+                <div className="relative">
+                  <div className="absolute -inset-8 rounded-full bg-primary/15 blur-3xl" />
+                  <img
+                    src="/images/pantaLogo.png"
+                    className="relative w-[200px] md:w-[220px] drop-shadow-2xl"
+                  />
+                </div>
+              </div>
+            </div>
+    
+            {/* KPI Row */}
+            <div className="relative px-8 md:px-11 pb-10 grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
+              {[
+                {
+                  label: 'میانگین ضریب پوشش',
+                  value: (
+                    <span className={ratioTone(headlineRatios.avg)}>
+                      {formatNumberFa(headlineRatios.avg)}٪
+                    </span>
+                  ),
+                },
+                {
+                  label: 'کمترین ضریب پوشش',
+                  value: (
+                    <span className={ratioTone(headlineRatios.min)}>
+                      {formatNumberFa(headlineRatios.min)}٪
+                    </span>
+                  ),
+                },
+                {
+                  label: 'بیشترین ضریب پوشش',
+                  value: (
+                    <span className={ratioTone(headlineRatios.max)}>
+                      {formatNumberFa(headlineRatios.max)}٪
+                    </span>
+                  ),
+                },
+                {
+                  label: 'تعداد دارایی‌های پوشش داده شده',
+                  value: formatIntFa(headlineRatios.includedCount),
+                },
+              ].map((k, i) => (
+                <div
+                  key={i}
+                  className="rounded-[28px] border border-white/40 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] p-5 backdrop-blur-xl shadow-[0_12px_30px_-20px_rgba(0,0,0,0.6)]"
+                >
+                  <MetricText label={k.label} value={k.value} />
+                </div>
+              ))}
+            </div>
+          </div>
+    
+          {/* Assets */}
+          <Card
+            className="mt-2"
+            title={
+              <div className="flex items-center gap-3">
+                <span>دارایی‌ها</span>
+                <span className="text-xs text-titleText/50 dark:text-titleText-dark/50">
+                  لیست آخرین وضعیت
+                </span>
+              </div>
+            }
+            right={<Pill tone="info">کل: {formatIntFa(assets.length)}</Pill>}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {currentItems.map((row, idx) => (
+                <AssetPorCard key={idx} row={row} />
+              ))}
+            </div>
+    
+            <Pagination
+              page={safePage}
+              totalPages={totalPages}
+              onPage={(p) => setPage(clamp(p, 1, totalPages))}
+            />
+          </Card>
         </section>
-    );
+      );
+    
+    
+
 };
 
 export default ProofOfReserve;

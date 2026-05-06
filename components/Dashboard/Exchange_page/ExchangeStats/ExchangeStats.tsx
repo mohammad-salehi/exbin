@@ -903,61 +903,34 @@ const ExchangeStats = ({ SetLoading }: ExchangeInfoProps) => {
   return (
     <div className="space-y-4">
       {/* Top header card */}
-      <div className={cx(panelBase, "p-5")}>
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 min-w-0">
-              {logoNode}
-              <h3 className="text-2xl font-extrabold text-titleText dark:text-titleText-dark truncate mb-0">
-                {name}
-              </h3>
+      <div className="relative overflow-hidden rounded-[36px] border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/90 via-white/70 to-white/60 dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90 backdrop-blur-2xl shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)]">
+            <div className="pointer-events-none absolute inset-0">
+              <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+              <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+              <div className="absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+              <div className="absolute inset-0 bg-[radial-gradient(1200px_400px_at_top,rgba(255,255,255,0.35),transparent)] dark:bg-[radial-gradient(1200px_400px_at_top,rgba(255,255,255,0.08),transparent)]" />
+            </div>
+    
+            <div className="relative flex items-center gap-5 p-7 md:p-8">
+              <div className="h-14 w-14 rounded-2xl bg-white/70 dark:bg-white/5 border border-white/40 dark:border-white/10 shadow-[0_8px_25px_-15px_rgba(0,0,0,0.7)] flex items-center justify-center">
+                {logo ? (
+                  <img src={logo} className="w-10 h-10 object-contain" />
+                ) : (
+                  <div className="w-10 h-10 rounded-xl bg-boxColor dark:bg-boxColor-dark" />
+                )}
+              </div>
+    
+              <div className="min-w-0">
+                <div className="text-[11px] tracking-wider uppercase text-titleText/50 dark:text-titleText-dark/50">
+                  Exchange Stats
+                </div>
+                <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight truncate text-titleText dark:text-titleText-dark">
+                  {name}
+                </h3>
+              </div>
             </div>
           </div>
 
-          <div className="shrink-0 sm:self-start">
-            <button
-              onClick={handleDownloadPDF}
-              type="button"
-              disabled={IsDownloading}
-              className="
-          inline-flex items-center gap-2
-          rounded-xl px-4 py-2.5
-          text-sm font-semibold
-          text-white
-          bg-gradient-to-r from-sky-600 to-indigo-600
-          shadow-sm shadow-indigo-600/20
-          hover:from-sky-500 hover:to-indigo-500 hover:shadow-md hover:shadow-indigo-600/30
-          active:scale-[0.98]
-          transition-all duration-200
-          focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2
-          focus-visible:ring-offset-white dark:focus-visible:ring-offset-[#0B1220]
-          disabled:opacity-60 disabled:cursor-not-allowed
-
-          w-full sm:w-auto
-          justify-center
-        "
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="opacity-95"
-              >
-                <path
-                  d="M12 3v10m0 0 4-4m-4 4-4-4M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span>{IsDownloading ? "درحال دانلود..." : "دریافت PDF"}</span>
-            </button>
-          </div>
-        </div>
-      </div>
 
 
       <MemoStatsMarquee data={HeaderData} />

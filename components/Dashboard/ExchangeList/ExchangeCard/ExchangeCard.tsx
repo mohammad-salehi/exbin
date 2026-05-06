@@ -232,6 +232,8 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
             focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60
             focus-visible:ring-offset-2 focus-visible:ring-offset-white
             dark:focus-visible:ring-offset-bgColor-dark
+      
+            lux-panel
           `}
         >
           {/* Glow subtle highlight */}
@@ -327,6 +329,7 @@ const ExchangeCard: React.FC<ExchangeCardProps> = ({
           </div>
         </Link>
       );
+      
       
 };
 

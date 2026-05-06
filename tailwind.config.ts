@@ -34,8 +34,8 @@ const config: Config = {
           dark: "rgb(38,250,175)",
         },
         bgColor: {
-          DEFAULT: "#FBFAFA",
-          dark: "#343a3f",
+          DEFAULT: "#F4F3F2",
+          dark: "#2B3037",
         },
         boxColor: {
           DEFAULT: "#FFFFFF",

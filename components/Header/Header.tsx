@@ -186,9 +186,7 @@ export default function Header({
 
   return (
     <header
-      className={`w-full h-18 bg-boxColor dark:bg-boxColor-dark flex items-stretch justify-between ${
-        isOpen ? "rounded-bl-md rounded-br-md" : ""
-      } shadow-sm px-6`}
+      className={`w-full h-18 bg-boxColor dark:bg-boxColor-dark flex items-stretch justify-between shadow-sm px-6 lux-panel rounded-t-none`}
     >
       {isMobileOpen && (
         <div
@@ -196,11 +194,11 @@ export default function Header({
           onClick={closeSidebar}
         />
       )}
-
+  
       <div className="flex items-center gap-5">
         {isOpen ? (
           <div className="relative flex items-center gap-1 text-titleText dark:text-titleText-dark font-bold">
-              سامانه نظارت بر کارگزاری‌های مبادله رمزارز ایران
+            سامانه نظارت بر کارگزاری‌های مبادله رمزارز ایران
           </div>
         ) : (
           <div className="text-titleText dark:text-titleText-dark">
@@ -224,12 +222,12 @@ export default function Header({
           </div>
         )}
       </div>
-
+  
       {/* Dark mode button */}
       <div className="flex items-center p-4 pl-0">
         {isOpen ? (
           <button
-            className="flex items-center justify-center border border-gray-200 bg-gray-100 hover:bg-gray-200 transition ml-2 h-9 w-9 rounded-full dark:text-gray-200 dark:bg-bgColor-dark dark:hover:bg-gray-900 dark:border-gray-600"
+            className="flex items-center justify-center border border-gray-200 bg-gray-100 hover:bg-gray-200 transition ml-2 h-9 w-9 dark:text-gray-200 dark:bg-bgColor-dark dark:hover:bg-gray-900 dark:border-gray-600 lux-btn"
             onClick={toggleDarkMode}
           >
             {isDarkMode ? (
@@ -256,7 +254,7 @@ export default function Header({
           </button>
         ) : null}
       </div>
-
+  
       {/* ✅ Modal stays as you had */}
       <Modal
         open={open}
@@ -266,11 +264,11 @@ export default function Header({
         }}
       >
         <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
-
+  
         <div className="fixed inset-0 z-[2147483647] flex items-center justify-center">
           <Modal.Panel
             key={`${formVersion}-${open ? "open" : "closed"}`}
-            className="bg-boxColor dark:bg-bgColor-dark shadow-xl rounded-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6"
+            className="bg-boxColor dark:bg-bgColor-dark shadow-xl text-titleText dark:text-titleText-dark w-full max-w-md p-6 lux-panel"
           >
             <div className="w-full">
               <Modal.Title>
@@ -278,7 +276,7 @@ export default function Header({
                   تغییر رمز عبور
                 </h3>
               </Modal.Title>
-
+  
               <form onSubmit={submit} className="mt-4 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">رمز فعلی</label>
@@ -288,20 +286,20 @@ export default function Header({
                       value={oldPassword}
                       onChange={(e) => setOldPassword(e.target.value)}
                       placeholder="رمز فعلی"
-                      className="w-full rounded-md border border-boxBorderColor dark:border-boxBorderColor-dark px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark"
+                      className="w-full border border-boxBorderColor dark:border-boxBorderColor-dark px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark"
                       autoComplete="current-password"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowOld((s) => !s)}
-                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-titleText dark:text-titleText-dark"
+                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-titleText dark:text-titleText-dark lux-btn"
                     >
                       {showOld ? "مخفی" : "نمایش"}
                     </button>
                   </div>
                 </div>
-
+  
                 <div>
                   <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">رمز جدید</label>
                   <div className="relative mt-1">
@@ -310,37 +308,37 @@ export default function Header({
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="رمز جدید"
-                      className="w-full rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark"
+                      className="w-full px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 shadow-sm pl-4 pr-4 border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor dark:bg-boxColor-dark text-titleText dark:text-titleText-dark"
                       autoComplete="new-password"
                       required
                     />
                     <button
                       type="button"
                       onClick={() => setShowNew((s) => !s)}
-                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-titleText dark:text-titleText-dark"
+                      className="absolute inset-y-0 left-2 flex items-center px-2 text-xs text-titleText dark:text-titleText-dark lux-btn"
                     >
                       {showNew ? "مخفی" : "نمایش"}
                     </button>
                   </div>
                   <p className="mt-1 text-xs text-titleText dark:text-titleText-dark">رمز جدید حداقل ۸ کاراکتر باشد.</p>
                 </div>
-
+  
                 {!!error && (
-                  <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
+                  <div className="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
                 )}
-
+  
                 {!!success && (
-                  <div className="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+                  <div className="border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
                     {success}
                   </div>
                 )}
-
+  
                 <div className="mt-2 flex items-center justify-end gap-3">
                   <button
                     type="submit"
-                    className={`rounded-md px-4 py-2 text-sm font-medium text-white ${
+                    className={`px-4 py-2 text-sm font-medium text-white ${
                       loading ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
-                    }`}
+                    } lux-btn`}
                     disabled={loading}
                   >
                     {loading ? "در حال ارسال…" : "تغییر رمز"}
@@ -353,4 +351,5 @@ export default function Header({
       </Modal>
     </header>
   );
+  
 }

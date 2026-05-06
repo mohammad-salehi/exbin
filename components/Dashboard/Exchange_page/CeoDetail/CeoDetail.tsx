@@ -377,17 +377,19 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
 
   return (
     <div className="mt-4 space-y-4">
-      <div className={cx(panelBase, "p-5")}>
+      <div className={cx(panelBase, "p-5 lux-panel")}>
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
-            <h5 className="font-extrabold text-lg text-titleText dark:text-titleText-dark">
-              مشخصات مدیرعامل
-            </h5>
+            <h5 className="font-extrabold text-lg text-titleText dark:text-titleText-dark">مشخصات مدیرعامل</h5>
             <p className={cx(subtleText, "mt-1")}>اطلاعات هویتی و تماس مدیرعامل کارگزاری</p>
           </div>
 
           {data.length === 0 ? (
-            <Button variant="primary" onClick={openCreate} className="rounded-xl text-titleText dark:text-titleText-dark">
+            <Button
+              variant="primary"
+              onClick={openCreate}
+              className="lux-btn text-titleText dark:text-titleText-dark"
+            >
               افزودن مدیرعامل
             </Button>
           ) : null}
@@ -397,7 +399,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
           data={data}
           columns={columns}
           rowDetailsMode="row"
-          rowDetailsClassName="rounded-2xl p-4 border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/10 dark:bg-boxColor-dark/10"
+          rowDetailsClassName="lux-card p-4"
         />
       </div>
 
@@ -405,7 +407,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       <Modal open={isOpen} onClose={closeModal}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-2xl mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-2xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
                 {editingId ? "ویرایش مشخصات مدیرعامل" : "افزودن مدیرعامل"}
@@ -493,10 +495,18 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
             </div>
 
             <div className="px-5 py-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex flex-col sm:flex-row sm:justify-end gap-2 bg-white/80 dark:bg-bgColor-dark/80 backdrop-blur">
-              <Button variant="ghost" onClick={closeModal} className="rounded-xl text-titleText dark:text-titleText-dark">
+              <Button
+                variant="ghost"
+                onClick={closeModal}
+                className="lux-btn text-titleText dark:text-titleText-dark"
+              >
                 انصراف
               </Button>
-              <Button variant="primary" onClick={handleSave} className="rounded-xl text-titleText dark:text-titleText-dark">
+              <Button
+                variant="primary"
+                onClick={handleSave}
+                className="lux-btn text-titleText dark:text-titleText-dark"
+              >
                 {Loading ? <LoaderCircle size={8} color="border-white-500" /> : "ذخیره اطلاعات"}
               </Button>
             </div>
@@ -508,7 +518,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       <Modal open={isLogOpen} onClose={() => setisLogOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-3xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <h4 className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
                 تغییرات مشخصات مدیرعامل
@@ -538,7 +548,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
               <div className="mt-4 flex justify-end">
                 <Button
                   variant="ghost"
-                  className="rounded-xl text-titleText dark:text-titleText-dark"
+                  className="lux-btn text-titleText dark:text-titleText-dark"
                   onClick={() => setisLogOpen(false)}
                 >
                   بستن
@@ -550,6 +560,7 @@ const CeoDetail = ({ SetC2 }: ExchangeInfoProps) => {
       </Modal>
     </div>
   );
+
 };
 
 export default CeoDetail;

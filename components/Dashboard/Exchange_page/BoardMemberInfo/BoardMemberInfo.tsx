@@ -475,19 +475,24 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
   return (
     <div className="mt-4 space-y-4">
       {/* Header + Table */}
-      <div className={cx(panelBase, "p-5")}>
+      <div className={cx(panelBase, "p-5 lux-panel")}>
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
             <h5 className="font-extrabold text-lg text-titleText dark:text-titleText-dark">
               مشخصات اعضای هیئت‌مدیره و سهامداران
             </h5>
           </div>
-
-          <Button variant="primary" id="addNewBoardMember" onClick={openAddModal} className="rounded-xl text-titleText dark:text-titleText-dark">
+  
+          <Button
+            variant="primary"
+            id="addNewBoardMember"
+            onClick={openAddModal}
+            className="lux-btn text-titleText dark:text-titleText-dark"
+          >
             افزودن عضو جدید
           </Button>
         </div>
-
+  
         {tableLoading ? (
           <div className="py-8">
             <LoadingComponent />
@@ -497,10 +502,10 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
             data={data}
             columns={columns}
             rowDetailsMode="row"
-            rowDetailsClassName="rounded-2xl p-4 border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/10 dark:bg-boxColor-dark/10"
+            rowDetailsClassName="lux-details p-4 text-titleText dark:text-titleText-dark"
           />
         )}
-
+  
         {showPagination ? (
           <div className="mt-4">
             <Pagination
@@ -513,24 +518,28 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
           </div>
         ) : null}
       </div>
-
+  
       {/* -------- Modal Edit -------- */}
       <Modal open={isEditOpen} onClose={() => setIsEditOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-2xl mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-2xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
                 ویرایش عضو هیئت‌مدیره و سهامداران
               </Modal.Title>
               <p className={cx(subtleText, "mt-1")}>فیلدهای ستاره‌دار الزامی هستند.</p>
             </div>
-
+  
             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="نام و نام‌خانوادگی" required>
-                <Input className={inputBase} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input
+                  className={inputBase}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
               </Field>
-
+  
               <Field label="شماره همراه" required hint="۱۱ رقم و با ۰ شروع شود">
                 <Input
                   className={inputBase}
@@ -542,7 +551,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   placeholder="09xxxxxxxxx"
                 />
               </Field>
-
+  
               <Field label="کد ملی" required hint="۱۰ رقم">
                 <Input
                   className={inputBase}
@@ -553,7 +562,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   inputMode="numeric"
                 />
               </Field>
-
+  
               <Field label="نقش" required hint="از لیست انتخاب کنید">
                 <div className="relative w-full">
                   <Dropdown
@@ -578,7 +587,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                         <span>{form.role ? roleLabel(form.role) : "انتخاب"}</span>
                       </Button>
                     </Dropdown.Trigger>
-
+  
                     <Dropdown.Options
                       className={cx(
                         "absolute left-0 mt-2 w-72 p-2 z-50 max-h-60 overflow-y-auto rounded-xl",
@@ -609,7 +618,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
                 </div>
               </Field>
-
+  
               <Field label="درصد سهام" required hint="بین ۰ تا ۱۰۰">
                 <Input
                   className={inputBase}
@@ -625,7 +634,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   placeholder="مثلاً 25"
                 />
               </Field>
-
+  
               <Field label="سوابق تحصیلی" className="md:col-span-2">
                 <textarea
                   className={textareaBase}
@@ -633,7 +642,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })}
                 />
               </Field>
-
+  
               <Field label="سوابق شغلی" className="md:col-span-2">
                 <textarea
                   className={textareaBase}
@@ -641,7 +650,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   onChange={(e) => setForm({ ...form, careerHistory: e.target.value })}
                 />
               </Field>
-
+  
               <Field label="ایمیل" className="md:col-span-2" hint="اختیاری">
                 <Input
                   style={{ direction: "ltr" }}
@@ -652,40 +661,48 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 />
               </Field>
             </div>
-
+  
             <div className="px-5 py-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex flex-col sm:flex-row sm:justify-end gap-2 bg-white/80 dark:bg-bgColor-dark/80 backdrop-blur">
               <Button
                 variant="ghost"
                 onClick={() => setIsEditOpen(false)}
-                className="rounded-xl text-titleText dark:text-titleText-dark"
+                className="lux-btn text-titleText dark:text-titleText-dark"
               >
                 انصراف
               </Button>
-              <Button variant="primary" onClick={handleSaveEdit} className="rounded-xl text-titleText dark:text-titleText-dark">
+              <Button
+                variant="primary"
+                onClick={handleSaveEdit}
+                className="lux-btn text-titleText dark:text-titleText-dark"
+              >
                 {editLoading ? <LoaderCircle size={8} color="border-white-500" /> : "ذخیره اطلاعات"}
               </Button>
             </div>
           </Modal.Panel>
         </div>
       </Modal>
-
+  
       {/* -------- Modal Add -------- */}
       <Modal open={isAddOpen} onClose={() => setIsAddOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-2xl mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-2xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
                 افزودن عضو جدید هیئت‌مدیره و سهامداران
               </Modal.Title>
               <p className={cx(subtleText, "mt-1")}>فیلدهای ستاره‌دار الزامی هستند.</p>
             </div>
-
+  
             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="نام و نام‌خانوادگی" required>
-                <Input className={inputBase} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input
+                  className={inputBase}
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
               </Field>
-
+  
               <Field label="شماره همراه" required hint="۱۱ رقم و با ۰ شروع شود">
                 <Input
                   className={inputBase}
@@ -697,7 +714,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   placeholder="09xxxxxxxxx"
                 />
               </Field>
-
+  
               <Field label="کد ملی" required hint="۱۰ رقم">
                 <Input
                   className={inputBase}
@@ -708,7 +725,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   inputMode="numeric"
                 />
               </Field>
-
+  
               <Field label="نقش" required hint="از لیست انتخاب کنید">
                 <div className="relative w-full">
                   <Dropdown
@@ -733,7 +750,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                         <span>{form.role ? form.role : "انتخاب"}</span>
                       </Button>
                     </Dropdown.Trigger>
-
+  
                     <Dropdown.Options
                       className={cx(
                         "absolute left-0 mt-2 w-72 p-2 z-50 max-h-60 overflow-y-auto rounded-xl",
@@ -764,7 +781,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   <ControlsChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 text-titleText dark:text-titleText-dark pointer-events-none" />
                 </div>
               </Field>
-
+  
               <Field label="درصد سهام" required hint="بین ۰ تا ۱۰۰">
                 <Input
                   className={inputBase}
@@ -780,7 +797,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   placeholder="مثلاً 25"
                 />
               </Field>
-
+  
               <Field label="سوابق تحصیلی" className="md:col-span-2">
                 <textarea
                   className={textareaBase}
@@ -788,7 +805,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   onChange={(e) => setForm({ ...form, educationalHistory: e.target.value })}
                 />
               </Field>
-
+  
               <Field label="سوابق شغلی" className="md:col-span-2">
                 <textarea
                   className={textareaBase}
@@ -796,7 +813,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   onChange={(e) => setForm({ ...form, careerHistory: e.target.value })}
                 />
               </Field>
-
+  
               <Field label="ایمیل" className="md:col-span-2" hint="اختیاری">
                 <Input
                   style={{ direction: "ltr" }}
@@ -807,35 +824,39 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 />
               </Field>
             </div>
-
+  
             <div className="px-5 py-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex flex-col sm:flex-row sm:justify-end gap-2 bg-white/80 dark:bg-bgColor-dark/80 backdrop-blur">
               <Button
                 variant="ghost"
                 onClick={() => setIsAddOpen(false)}
-                className="rounded-xl text-titleText dark:text-titleText-dark"
+                className="lux-btn text-titleText dark:text-titleText-dark"
               >
                 انصراف
               </Button>
-              <Button variant="primary" onClick={handleAdd} className="rounded-xl text-titleText dark:text-titleText-dark">
+              <Button
+                variant="primary"
+                onClick={handleAdd}
+                className="lux-btn text-titleText dark:text-titleText-dark"
+              >
                 {addLoading ? <LoaderCircle size={8} color="border-white-500" /> : "ذخیره اطلاعات"}
               </Button>
             </div>
           </Modal.Panel>
         </div>
       </Modal>
-
+  
       {/* -------- Modal Logs -------- */}
       <Modal open={isLogOpen} onClose={() => setIsLogOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-3xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <h4 className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
                 تغییرات مشخصات عضو هیئت‌مدیره و سهامداران
               </h4>
               <p className={cx(subtleText, "mt-1")}>گزارش تغییرات ثبت‌شده نمایش داده می‌شود.</p>
             </div>
-
+  
             <div className="p-5">
               {LogLoading ? (
                 <div className="mt-2">
@@ -844,7 +865,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
               ) : (
                 <LogViewer logs={Changes} />
               )}
-
+  
               <div className="mt-4">
                 <Pagination
                   rtl
@@ -854,11 +875,11 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   onPageChange={(e) => setLogPage(e - 1)}
                 />
               </div>
-
+  
               <div className="mt-4 flex justify-end">
                 <Button
                   variant="ghost"
-                  className="rounded-xl text-titleText dark:text-titleText-dark"
+                  className="lux-btn text-titleText dark:text-titleText-dark"
                   onClick={() => setIsLogOpen(false)}
                 >
                   بستن
@@ -868,12 +889,12 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
           </Modal.Panel>
         </div>
       </Modal>
-
+  
       {/* -------- Modal Delete Confirm -------- */}
       <Modal open={deleteBox} onClose={() => !deleteLoading && setDeleteBox(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-md mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <h3 className="text-xl font-extrabold text-titleText dark:text-titleText-dark text-center">
                 حذف عضو هیئت‌مدیره و سهامداران
@@ -882,11 +903,13 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                 آیا از حذف این عضو مطمئن هستید؟ این عملیات قابل بازگشت نیست.
               </p>
             </div>
-
+  
             <div className="p-5">
-              <div className="rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/10 dark:bg-boxColor-dark/10 p-4">
+              <div className="lux-details p-4 text-titleText dark:text-titleText-dark">
                 <div className="flex flex-col gap-1">
-                  <div className="font-semibold text-titleText dark:text-titleText-dark">{deleteForm.name || "—"}</div>
+                  <div className="font-semibold text-titleText dark:text-titleText-dark">
+                    {deleteForm.name || "—"}
+                  </div>
                   <div className={subtleText}>
                     {deleteForm.phoneNumber ? `شماره: ${deleteForm.phoneNumber}` : ""}
                   </div>
@@ -895,17 +918,17 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
                   </div>
                 </div>
               </div>
-
+  
               <div className="mt-4 flex justify-end gap-2">
                 <Button
                   variant="ghost"
-                  className="rounded-xl text-titleText dark:text-titleText-dark"
+                  className="lux-btn text-titleText dark:text-titleText-dark"
                   disabled={deleteLoading}
                   onClick={() => setDeleteBox(false)}
                 >
                   انصراف
                 </Button>
-
+  
                 <Button
                   variant="primary"
                   className="rounded-xl bg-red-600 hover:bg-red-700 text-white"
@@ -921,6 +944,7 @@ const BoardMemberTable = ({ SetC3 }: ExchangeInfoProps) => {
       </Modal>
     </div>
   );
+  
 };
 
 export default BoardMemberTable;

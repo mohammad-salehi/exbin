@@ -456,19 +456,24 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
 
   return (
     <div className="mt-4 space-y-4">
-      <div className={cx(panelBase, "p-5")}>
+      <div className={cx(panelBase, "p-5 lux-panel")}>
         <div className="flex items-start justify-between gap-4 mb-3">
           <div>
             <h5 className="font-extrabold text-lg text-titleText dark:text-titleText-dark">
               مشخصات کارمندان
             </h5>
           </div>
-
-          <Button id="addNewEmployee" variant="primary" onClick={openAdd} className="rounded-xl text-titleText dark:text-titleText-dark">
+  
+          <Button
+            id="addNewEmployee"
+            variant="primary"
+            onClick={openAdd}
+            className="lux-btn text-titleText dark:text-titleText-dark"
+          >
             افزودن کارمند جدید
           </Button>
         </div>
-
+  
         {tableLoading ? (
           <div className="py-8">
             <LoadingComponent />
@@ -478,10 +483,10 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
             data={data}
             columns={columns}
             rowDetailsMode="row"
-            rowDetailsClassName="rounded-2xl p-4 border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/10 dark:bg-boxColor-dark/10"
+            rowDetailsClassName="lux-details p-4 text-titleText dark:text-titleText-dark"
           />
         )}
-
+  
         {showPagination ? (
           <div className="mt-4">
             <Pagination
@@ -494,19 +499,19 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
           </div>
         ) : null}
       </div>
-
+  
       {/* Modal Edit */}
       <Modal open={isEditOpen} onClose={closeEdit}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-3xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
                 ویرایش مشخصات کارمند
               </Modal.Title>
               <p className={cx(subtleText, "mt-1")}>فیلدهای ستاره‌دار الزامی هستند.</p>
             </div>
-
+  
             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="نام و نام‌خانوادگی" required>
                 <Input
@@ -516,7 +521,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   placeholder="نام و نام‌خانوادگی"
                 />
               </Field>
-
+  
               <Field label="سمت" required>
                 <Input
                   className={inputBase}
@@ -525,7 +530,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   placeholder="سمت"
                 />
               </Field>
-
+  
               <Field label="شماره همراه" required hint="۱۱ رقم و با ۰ شروع شود">
                 <Input
                   className={inputBase}
@@ -537,7 +542,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   inputMode="numeric"
                 />
               </Field>
-
+  
               <Field label="کد ملی" required hint="۱۰ رقم">
                 <Input
                   className={inputBase}
@@ -549,40 +554,40 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   inputMode="numeric"
                 />
               </Field>
-
+  
               <Field label="تاریخ شروع کار" hint="اختیاری">
-                  <JalaliLocalDatePicker
-                    value={form.startDate}
-                    onChange={(val) => setForm((p) => ({ ...p, startDate: val !== null ? val : "" }))}
-                    placeholder=""
-                    clearable
-                    min="1900-01-01"
-                    max="2030-12-31"
-                  />
+                <JalaliLocalDatePicker
+                  value={form.startDate}
+                  onChange={(val) => setForm((p) => ({ ...p, startDate: val !== null ? val : "" }))}
+                  placeholder=""
+                  clearable
+                  min="1900-01-01"
+                  max="2030-12-31"
+                />
               </Field>
-
+  
               <Field label="تاریخ شروع بیمه" hint="اختیاری">
-                  <JalaliLocalDatePicker
-                    value={form.insuranceStartDate}
-                    onChange={(val) => setForm((p) => ({ ...p, insuranceStartDate: val !== null ? val : "" }))}
-                    placeholder=""
-                    clearable
-                    min="1900-01-01"
-                    max="2030-12-31"
-                  />
+                <JalaliLocalDatePicker
+                  value={form.insuranceStartDate}
+                  onChange={(val) => setForm((p) => ({ ...p, insuranceStartDate: val !== null ? val : "" }))}
+                  placeholder=""
+                  clearable
+                  min="1900-01-01"
+                  max="2030-12-31"
+                />
               </Field>
-
+  
               <Field label="تاریخ پایان بیمه" hint="اختیاری">
-                  <JalaliLocalDatePicker
-                    value={form.insuranceEndDate}
-                    onChange={(val) => setForm((p) => ({ ...p, insuranceEndDate: val !== null ? val : "" }))}
-                    placeholder=""
-                    clearable
-                    min="1900-01-01"
-                    max="2030-12-31"
-                  />
+                <JalaliLocalDatePicker
+                  value={form.insuranceEndDate}
+                  onChange={(val) => setForm((p) => ({ ...p, insuranceEndDate: val !== null ? val : "" }))}
+                  placeholder=""
+                  clearable
+                  min="1900-01-01"
+                  max="2030-12-31"
+                />
               </Field>
-
+  
               <Field label="سوابق تحصیلی" className="md:col-span-2" hint="اختیاری">
                 <textarea
                   className={textareaBase}
@@ -591,7 +596,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   placeholder="سوابق تحصیلی"
                 />
               </Field>
-
+  
               <Field label="سوابق شغلی" className="md:col-span-2" hint="اختیاری">
                 <textarea
                   className={textareaBase}
@@ -600,9 +605,9 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   placeholder="سوابق شغلی"
                 />
               </Field>
-
+  
               <div className="md:col-span-2">
-                <div className="flex items-center gap-3 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/10 dark:bg-boxColor-dark/10 px-4 py-3">
+                <div className="flex items-center gap-3 lux-details px-4 py-3">
                   <input
                     type="checkbox"
                     id="isSpecialAccess"
@@ -617,31 +622,31 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 </div>
               </div>
             </div>
-
+  
             <div className="px-5 py-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex flex-col sm:flex-row sm:justify-end gap-2 bg-white/80 dark:bg-bgColor-dark/80 backdrop-blur">
-              <Button variant="ghost" onClick={closeEdit} className="rounded-xl text-titleText dark:text-titleText-dark">
+              <Button variant="ghost" onClick={closeEdit} className="lux-btn text-titleText dark:text-titleText-dark">
                 انصراف
               </Button>
-              <Button variant="primary" onClick={handleSave} className="rounded-xl text-titleText dark:text-titleText-dark">
+              <Button variant="primary" onClick={handleSave} className="lux-btn text-titleText dark:text-titleText-dark">
                 {editLoading ? <LoaderCircle size={8} color="border-white-500" /> : "ذخیره اطلاعات"}
               </Button>
             </div>
           </Modal.Panel>
         </div>
       </Modal>
-
+  
       {/* Modal Add */}
       <Modal open={isAddOpen} onClose={closeAdd}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-3xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <Modal.Title className="text-xl font-extrabold text-titleText dark:text-titleText-dark">
                 افزودن کارمند جدید
               </Modal.Title>
               <p className={cx(subtleText, "mt-1")}>فیلدهای ستاره‌دار الزامی هستند.</p>
             </div>
-
+  
             <div className="p-5 grid grid-cols-1 md:grid-cols-2 gap-5">
               <Field label="نام و نام‌خانوادگی" required>
                 <Input
@@ -651,7 +656,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   placeholder="نام و نام‌خانوادگی"
                 />
               </Field>
-
+  
               <Field label="سمت" required>
                 <Input
                   className={inputBase}
@@ -660,7 +665,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   placeholder="سمت"
                 />
               </Field>
-
+  
               <Field label="شماره همراه" required hint="۱۱ رقم و با ۰ شروع شود">
                 <Input
                   className={inputBase}
@@ -672,7 +677,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   inputMode="numeric"
                 />
               </Field>
-
+  
               <Field label="کد ملی" required hint="۱۰ رقم">
                 <Input
                   className={inputBase}
@@ -684,7 +689,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   inputMode="numeric"
                 />
               </Field>
-
+  
               <Field label="تاریخ شروع کار" hint="اختیاری">
                 <div className="rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/40 dark:bg-boxColor-dark/40 px-3 py-2">
                   <JalaliLocalDatePicker
@@ -697,7 +702,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   />
                 </div>
               </Field>
-
+  
               <Field label="تاریخ شروع بیمه" hint="اختیاری">
                 <div className="rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/40 dark:bg-boxColor-dark/40 px-3 py-2">
                   <JalaliLocalDatePicker
@@ -710,7 +715,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   />
                 </div>
               </Field>
-
+  
               <Field label="تاریخ پایان بیمه" hint="اختیاری">
                 <div className="rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/40 dark:bg-boxColor-dark/40 px-3 py-2">
                   <JalaliLocalDatePicker
@@ -723,7 +728,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   />
                 </div>
               </Field>
-
+  
               <Field label="سوابق تحصیلی" className="md:col-span-2" hint="اختیاری">
                 <textarea
                   className={textareaBase}
@@ -732,7 +737,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   placeholder="سوابق تحصیلی"
                 />
               </Field>
-
+  
               <Field label="سوابق شغلی" className="md:col-span-2" hint="اختیاری">
                 <textarea
                   className={textareaBase}
@@ -741,9 +746,9 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   placeholder="سوابق شغلی"
                 />
               </Field>
-
+  
               <div className="md:col-span-2">
-                <div className="flex items-center gap-3 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/10 dark:bg-boxColor-dark/10 px-4 py-3">
+                <div className="flex items-center gap-3 lux-details px-4 py-3">
                   <input
                     type="checkbox"
                     id="isSpecialAccessAdd"
@@ -758,29 +763,29 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                 </div>
               </div>
             </div>
-
+  
             <div className="px-5 py-4 border-t border-boxBorderColor dark:border-boxBorderColor-dark flex flex-col sm:flex-row sm:justify-end gap-2 bg-white/80 dark:bg-bgColor-dark/80 backdrop-blur">
-              <Button variant="ghost" onClick={closeAdd} className="rounded-xl text-titleText dark:text-titleText-dark">
+              <Button variant="ghost" onClick={closeAdd} className="lux-btn text-titleText dark:text-titleText-dark">
                 انصراف
               </Button>
-              <Button variant="primary" onClick={handleAdd} className="rounded-xl text-titleText dark:text-titleText-dark">
+              <Button variant="primary" onClick={handleAdd} className="lux-btn text-titleText dark:text-titleText-dark">
                 {addLoading ? <LoaderCircle size={8} color="border-white-500" /> : "ذخیره اطلاعات"}
               </Button>
             </div>
           </Modal.Panel>
         </div>
       </Modal>
-
+  
       {/* Modal Logs */}
       <Modal open={isLogOpen} onClose={() => setIsLogOpen(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-3xl mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-3xl mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
               <h4 className="text-xl font-extrabold text-titleText dark:text-titleText-dark">تغییرات مشخصات کارمند</h4>
               <p className={cx(subtleText, "mt-1")}>گزارش تغییرات ثبت‌شده نمایش داده می‌شود.</p>
             </div>
-
+  
             <div className="p-5">
               {LogLoading ? (
                 <div className="mt-2">
@@ -789,7 +794,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
               ) : (
                 <LogViewer logs={Changes} />
               )}
-
+  
               <div className="mt-4">
                 <Pagination
                   rtl
@@ -799,11 +804,11 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
                   onPageChange={(e) => setLogPage(e - 1)}
                 />
               </div>
-
+  
               <div className="mt-4 flex justify-end">
                 <Button
                   variant="ghost"
-                  className="rounded-xl text-titleText dark:text-titleText-dark"
+                  className="lux-btn text-titleText dark:text-titleText-dark"
                   onClick={() => setIsLogOpen(false)}
                 >
                   بستن
@@ -813,34 +818,36 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
           </Modal.Panel>
         </div>
       </Modal>
-
+  
       {/* Delete confirm */}
       <Modal open={deleteBox} onClose={() => !deleteLoading && setDeleteBox(false)}>
         <Modal.Backdrop />
         <div className="fixed inset-0 flex z-50 backdrop-blur-sm bg-black/10 dark:bg-black/30 p-4">
-          <Modal.Panel className={cx(panelBase, "max-w-md mx-auto my-12 overflow-hidden")}>
+          <Modal.Panel className={cx(panelBase, "lux-panel max-w-md mx-auto my-12 overflow-hidden")}>
             <div className="px-5 py-4 border-b border-boxBorderColor dark:border-boxBorderColor-dark">
-              <h3 className="text-xl font-extrabold text-titleText dark:text-titleText-dark text-center">حذف کارمند کارگزاری</h3>
+              <h3 className="text-xl font-extrabold text-titleText dark:text-titleText-dark text-center">
+                حذف کارمند کارگزاری
+              </h3>
               <p className={cx(subtleText, "mt-2 text-center")}>آیا از حذف کارمند کارگزاری مطمئن هستید؟</p>
             </div>
-
+  
             <div className="p-5">
-              <div className="rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-boxColor/10 dark:bg-boxColor-dark/10 p-4">
+              <div className="lux-details p-4 text-titleText dark:text-titleText-dark">
                 <div className="font-semibold text-titleText dark:text-titleText-dark">{deleteForm.name || "—"}</div>
                 <div className={subtleText}>{deleteForm.phoneNumber ? `شماره: ${deleteForm.phoneNumber}` : ""}</div>
                 <div className={subtleText}>{deleteForm.nationalCode ? `کد ملی: ${deleteForm.nationalCode}` : ""}</div>
               </div>
-
+  
               <div className="mt-4 flex justify-end gap-2">
                 <Button
                   variant="ghost"
-                  className="rounded-xl text-titleText dark:text-titleText-dark"
+                  className="lux-btn text-titleText dark:text-titleText-dark"
                   disabled={deleteLoading}
                   onClick={() => setDeleteBox(false)}
                 >
                   انصراف
                 </Button>
-
+  
                 <Button
                   variant="primary"
                   className="rounded-xl bg-red-600 hover:bg-red-700 text-white"
@@ -854,10 +861,10 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
           </Modal.Panel>
         </div>
       </Modal>
-
+  
       {/* Bottom pagination (optional) */}
       {totalItems > PAGE_SIZE ? (
-        <div className={cx(panelBase, "p-4")}>
+        <div className={cx(panelBase, "p-4 lux-panel")}>
           <Pagination
             rtl
             totalItems={totalItems}
@@ -869,6 +876,7 @@ const EmployeeInfo = ({ SetC5 }: ExchangeInfoProps) => {
       ) : null}
     </div>
   );
+  
 };
 
 export default EmployeeInfo;

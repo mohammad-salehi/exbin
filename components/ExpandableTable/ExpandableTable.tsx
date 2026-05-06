@@ -176,16 +176,16 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
   );
 
   return (
-    <div className="">
-      <div className="overflow-x-auto rounded-2xl border border-gray-200 dark:border-boxColor-dark bg-gray-100 shadow-sm px-2 dark:bg-boxColor-dark">
-        <table className="min-w-[720px] w-full text-sm border-separate border-spacing-y-2">
-          <thead className="sticky top-0 bg-gray-100 dark:bg-boxColor-dark text-gray-700">
+    <div>
+      <div className="lux-table-wrap">
+        <table className="lux-table">
+          <thead className="lux-table-head">
             <tr className="text-right">
               {columns.map((c, i) => (
                 <th
                   key={i}
                   className={classNames(
-                    "px-6 py-5 font-semibold text-titleText dark:text-titleText-dark",
+                    "lux-th",
                     i === 0 ? "first:rounded-tr-2xl rtl:first:rounded-tr-2xl" : "",
                     i === columns.length - 1 ? "last:rounded-tl-2xl rtl:last:rounded-tl-2xl" : "",
                     getAlignClass(c.align)
@@ -197,44 +197,40 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
               ))}
             </tr>
           </thead>
-
+  
           <tbody>
             {paginated.map((f) => {
               const node = f;
               const kids = childrenOf(node.id);
               const hasChildren = kids.length > 0;
-
+  
               const detailNodes =
                 hasChildren && rowDetails
                   ? kids.flatMap((k) => {
-                    const raw = React.Children.toArray(rowDetails(k.row as T));
-                    return raw.map((child, i) => {
-                      const stableKey = `detail__p:${node.path}__c:${k.path}__i:${i}`;
-                      return React.isValidElement(child)
-                        ? React.cloneElement(child, { key: stableKey })
-                        : <React.Fragment key={stableKey}>{child}</React.Fragment>;
-                    });
-                  })
+                      const raw = React.Children.toArray(rowDetails(k.row as T));
+                      return raw.map((child, i) => {
+                        const stableKey = `detail__p:${node.path}__c:${k.path}__i:${i}`;
+                        return React.isValidElement(child)
+                          ? React.cloneElement(child, { key: stableKey })
+                          : <React.Fragment key={stableKey}>{child}</React.Fragment>;
+                      });
+                    })
                   : [];
-
+  
               const hasDetails = detailNodes.length > 0;
               const canExpand = hasChildren && hasDetails;
               const isOpen = expanded.has(node.id);
               const showDetails = isOpen && hasDetails;
-
-
+  
               return (
                 <React.Fragment key={`row-${node.path}`}>
                   {/* ردیف اصلی */}
-                  <tr
-                    className="text-titleText dark:text-titleText-dark"
-                    onClick={() => onRowClick?.(node.row)}
-                  >
+                  <tr className="lux-row" onClick={() => onRowClick?.(node.row)}>
                     {columns.map((c, ci) => (
                       <td
                         key={ci}
                         className={classNames(
-                          "px-6 py-6 align-middle  bg-white dark:bg-bgColor-dark !border-0 ring-0 shadow-none",
+                          "lux-td",
                           "first:rounded-r-xl last:rounded-l-xl",
                           getAlignClass(c.align),
                           c.className
@@ -242,24 +238,28 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                         style={c.width ? { width: c.width } : undefined}
                       >
                         {rowDetailsMode === "inline" && ci === detailsColumnIndex ? (
-                          <div className="flex flex-col gap-0" style={{ paddingInlineStart: `${node.level * 1.25}rem` }}>
+                          <div
+                            className="flex flex-col gap-0"
+                            style={{ paddingInlineStart: `${node.level * 1.25}rem` }}
+                          >
                             <div className="flex items-center gap-2">
                               {canExpand ? (
                                 <button
-                                  onClick={(e) => { e.stopPropagation(); toggle(node.id); }}
-                                  className="inline-flex items-center justify-center rounded  hover:bg-gray-100 hover:dark:bg-gray-800 p-1"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggle(node.id);
+                                  }}
+                                  className="lux-icon-btn"
                                   aria-label={isOpen ? "بستن" : "باز کردن"}
                                 >
                                   {isOpen ? <CaretDown /> : <CaretRight />}
                                 </button>
-                              ) : (
-                                null
-                              )}
+                              ) : null}
                               <span>{renderCell(c, node.row)}</span>
                             </div>
-
+  
                             {showDetails && (
-                              <div className={classNames("mt-3 pt-3 !border-0 !ring-0 shadow-none", rowDetailsClassName)}>
+                              <div className={classNames("lux-details mt-3 pt-3", rowDetailsClassName)}>
                                 <div className="flex flex-col gap-3">{detailNodes}</div>
                               </div>
                             )}
@@ -267,19 +267,25 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                         ) : (
                           <>
                             {ci === 0 && rowDetailsMode === "row" ? (
-                              <div className="flex items-center gap-2" style={{ paddingInlineStart: `${node.level * 1.25}rem` }}>
+                              <div
+                                className="flex items-center gap-2"
+                                style={{ paddingInlineStart: `${node.level * 1.25}rem` }}
+                              >
                                 {canExpand ? (
                                   <button
-                                    onClick={(e) => { e.stopPropagation(); toggle(node.id); }}
-                                    className="inline-flex items-center justify-center rounded hover:bg-gray-100 hover:dark:bg-gray-800 p-1"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      toggle(node.id);
+                                    }}
+                                    className="lux-icon-btn"
                                     aria-label={isOpen ? "بستن" : "باز کردن"}
                                   >
                                     {isOpen ? <CaretDown /> : <CaretRight />}
                                   </button>
-                                ) : (
-                                  null
-                                )}
-                                <span className="text-titleText dark:text-titleText-dark">{renderCell(c, node.row)}</span>
+                                ) : null}
+                                <span className="text-titleText dark:text-titleText-dark">
+                                  {renderCell(c, node.row)}
+                                </span>
                               </div>
                             ) : (
                               renderCell(c, node.row)
@@ -289,34 +295,36 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                       </td>
                     ))}
                   </tr>
-
+  
                   {/* ردیف جزئیات تمام‌عرض */}
                   {rowDetailsMode === "row" && showDetails && (
-                    <tr key={`detail-row-${node.path}`} >
-                      <td
-                        colSpan={columns.length}
-                        className="bg-white dark:bg-bgColor-dark p-0 first:rounded-r-xl last:rounded-l-xl !border-0 ring-0 shadow-none "
-                      >
-                        <div className={classNames("px-6 py-4  shadow-none", rowDetailsClassName)}>
-                          <div className="flex flex-col gap-3">
-                            {detailNodes}
-                          </div>
+                    <tr key={`detail-row-${node.path}`}>
+                      <td colSpan={columns.length} className="lux-td p-0 first:rounded-r-xl last:rounded-l-xl">
+                        <div className={classNames("lux-details px-6 py-4", rowDetailsClassName)}>
+                          <div className="flex flex-col gap-3">{detailNodes}</div>
                         </div>
                       </td>
                     </tr>
                   )}
                 </React.Fragment>
               );
-
             })}
-
+  
             {paginated.length === 0 && (
               <tr>
-                <td colSpan={columns.length} className="px-6 py-8 text-center text-titleText dark:text-titleText-dark bg-none rounded-xl align-middle">
-                  <div className="flex justify-center items-center" style={{ height: '100px' }}>
-                    <svg fill="currentColor" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
-                      width="50px" height="50px" viewBox="0 0 462.035 462.035"
-                      xmlSpace="preserve">
+                <td colSpan={columns.length} className="lux-empty">
+                  <div className="flex justify-center items-center" style={{ height: "100px" }}>
+                    <svg
+                      fill="currentColor"
+                      version="1.1"
+                      id="Capa_1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlnsXlink="http://www.w3.org/1999/xlink"
+                      width="50px"
+                      height="50px"
+                      viewBox="0 0 462.035 462.035"
+                      xmlSpace="preserve"
+                    >
                       <g>
                         <path d="M457.83,158.441c-0.021-0.028-0.033-0.058-0.057-0.087l-50.184-62.48c-0.564-0.701-1.201-1.305-1.879-1.845
                         c-2.16-2.562-5.355-4.225-8.967-4.225H65.292c-3.615,0-6.804,1.661-8.965,4.225c-0.678,0.54-1.316,1.138-1.885,1.845l-50.178,62.48
@@ -328,16 +336,14 @@ export default function ExpandableTable<T extends { id?: RowId; subRows?: T[] }>
                       </g>
                     </svg>
                   </div>
-                  <div style={{ textAlign: 'center' }}>
-                    نتیجه‌ای یافت نشد
-                  </div>
+                  <div style={{ textAlign: "center" }}>نتیجه‌ای یافت نشد</div>
                 </td>
               </tr>
-
             )}
           </tbody>
         </table>
       </div>
     </div>
   );
+  
 }

@@ -125,25 +125,28 @@ export const CryptoVolumeTreemap: React.FC<Props> = ({ data, title, height = 340
       dir="rtl"
       className="
         w-full h-full min-h-full
-        rounded-2xl
-        border border-boxBorderColor dark:border-boxBorderColor-dark
-        bg-boxColor dark:bg-boxColor-dark
-        shadow-sm
+        rounded-[32px]
+        border border-white/30 dark:border-white/10
+        bg-gradient-to-br from-white/90 via-white/70 to-white/60
+        dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90
+        backdrop-blur-2xl
+        shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)]
         p-5 md:p-6
         text-titleText dark:text-titleText-dark
         flex flex-col
         transition
-        hover:shadow-md
+        hover:shadow-[0_35px_90px_-40px_rgba(0,0,0,0.6)]
       "
     >
       {/* Header */}
-      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="flex items-center gap-3 min-w-0">
           <div
             className="
-              h-10 w-10 rounded-2xl
-              bg-white/60 dark:bg-white/10
-              border border-black/5 dark:border-white/10
+              h-11 w-11 rounded-2xl
+              bg-white/70 dark:bg-white/5
+              border border-white/40 dark:border-white/10
+              shadow-[0_8px_25px_-15px_rgba(0,0,0,0.6)]
               flex items-center justify-center
               shrink-0
             "
@@ -176,11 +179,13 @@ export const CryptoVolumeTreemap: React.FC<Props> = ({ data, title, height = 340
           className="
             inline-flex items-center gap-2
             rounded-full
-            border border-black/10 dark:border-white/10
-            bg-white/50 dark:bg-white/5
+            border border-white/40 dark:border-white/10
+            bg-white/70 dark:bg-white/5
             px-3 py-2
             text-xs
             self-start sm:self-auto
+            shadow-[0_8px_20px_-14px_rgba(0,0,0,0.6)]
+            backdrop-blur-xl
           "
         >
           <span className="opacity-70">مجموع</span>
@@ -194,67 +199,83 @@ export const CryptoVolumeTreemap: React.FC<Props> = ({ data, title, height = 340
       <div className="flex-1 min-h-[220px] w-full">
         <div
           className="
+            relative
             h-full w-full
-            rounded-2xl
-            border border-black/5 dark:border-white/10
-            bg-white/40 dark:bg-white/5
+            rounded-[28px]
+            border border-white/40 dark:border-white/10
+            bg-white/75 dark:bg-white/[0.04]
+            backdrop-blur-xl
             p-3 md:p-4
+            shadow-[0_12px_30px_-20px_rgba(0,0,0,0.6)]
           "
           style={{ height: Math.max(220, height) }}
         >
-          {currentData.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-sm text-titleText/70 dark:text-titleText-dark/70">
-              اطلاعاتی برای نمایش موجود نیست.
-            </div>
-          ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <Treemap
-                data={currentData}
-                dataKey="value"
-                nameKey="symbol"
-                stroke="rgba(255,255,255,0.9)"
-                aspectRatio={4 / 3}
-                content={(props) => <CustomTreemapCell {...props} total={totalValue} />}
-              >
-                <Tooltip
-                  content={({ active, payload }) => {
-                    if (!active || !payload || !payload[0]) return null;
-                    const d = payload[0].payload as any;
+          {/* soft glows */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
+            <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-primary/15 blur-[80px]" />
+            <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-cyan-500/12 blur-[80px]" />
+            <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent" />
+          </div>
 
-                    const v = Number(d.value || 0);
-                    const pct = totalValue > 0 ? (v / totalValue) * 100 : 0;
+          <div className="relative h-full w-full">
+            {currentData.length === 0 ? (
+              <div className="flex h-full items-center justify-center text-sm text-titleText/70 dark:text-titleText-dark/70">
+                اطلاعاتی برای نمایش موجود نیست.
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <Treemap
+                  data={currentData}
+                  dataKey="value"
+                  nameKey="symbol"
+                  stroke="rgba(255,255,255,0.9)"
+                  aspectRatio={4 / 3}
+                  content={(props) => <CustomTreemapCell {...props} total={totalValue} />}
+                >
+                  <Tooltip
+                    content={({ active, payload }) => {
+                      if (!active || !payload || !payload[0]) return null;
+                      const d = payload[0].payload as any;
 
-                    return (
-                      <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-buttonColor-dark px-3 py-2 text-xs text-titleText dark:text-titleText-dark shadow-lg">
-                        <div className="mb-1 font-semibold">
-                          {d.name} <span className="opacity-70">({d.symbol})</span>
+                      const v = Number(d.value || 0);
+                      const pct = totalValue > 0 ? (v / totalValue) * 100 : 0;
+
+                      return (
+                        <div className="rounded-2xl border border-white/40 dark:border-white/10 bg-white/95 dark:bg-[#0b0f15] px-3 py-2 text-xs text-titleText dark:text-titleText-dark shadow-[0_18px_40px_-22px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+                          <div className="mb-1 font-semibold">
+                            {d.name} <span className="opacity-70">({d.symbol})</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-4">
+                            <span className="opacity-80">حجم</span>
+                            <span dir="ltr" className="font-semibold">
+                              {formatEN(v)} USDT
+                            </span>
+                          </div>
+                          <div className="mt-1 flex items-center justify-between gap-4">
+                            <span className="opacity-80">سهم</span>
+                            <span dir="ltr" className="font-semibold">
+                              {pct.toFixed(1)}%
+                            </span>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between gap-4">
-                          <span className="opacity-80">حجم</span>
-                          <span dir="ltr" className="font-semibold">
-                            {formatEN(v)} USDT
-                          </span>
-                        </div>
-                        <div className="mt-1 flex items-center justify-between gap-4">
-                          <span className="opacity-80">سهم</span>
-                          <span dir="ltr" className="font-semibold">
-                            {pct.toFixed(1)}%
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  }}
-                />
-              </Treemap>
-            </ResponsiveContainer>
-          )}
+                      );
+                    }}
+                  />
+                </Treemap>
+              </ResponsiveContainer>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Footer (اختیاری: خیلی سبک) */}
-      <div className="mt-4 pt-4 border-t border-black/5 dark:border-white/10 text-[11px] sm:text-xs text-titleText/70 dark:text-titleText-dark/70">
-        تعداد آیتم‌ها: <span className="font-semibold text-titleText dark:text-titleText-dark">{formatFA(currentData.length)}</span>
+      <div className="mt-5 pt-4 border-t border-white/30 dark:border-white/10 text-[11px] sm:text-xs text-titleText/70 dark:text-titleText-dark/70">
+        تعداد آیتم‌ها:{" "}
+        <span className="font-semibold text-titleText dark:text-titleText-dark">
+          {formatFA(currentData.length)}
+        </span>
       </div>
     </div>
   );
+
 };

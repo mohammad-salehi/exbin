@@ -122,8 +122,9 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
         w-full max-w-[620px]
         rounded-xl sm:border sm:border-boxBorderColor sm:dark:border-boxBorderColor-dark
         sm:bg-boxColor/40 sm:dark:bg-boxColor-dark/30
-         sm:p-5
+        sm:p-5
         shadow-sm
+        lux-panel
       "
     >
       {/* Header */}
@@ -137,7 +138,7 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
           </div>
         </div>
       </div>
-
+  
       {/* Domain (single line) */}
       <div className="space-y-2">
         <Label className={labelClass}>Domain</Label>
@@ -153,7 +154,7 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
           inputMode="url"
         />
       </div>
-
+  
       {/* Username + Password (same row) */}
       <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-2">
@@ -163,18 +164,16 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
             type="text"
             name="username"
             value={form.username}
-            onChange={(e) =>
-              setForm((p) => ({ ...p, username: e.target.value }))
-            }
+            onChange={(e) => setForm((p) => ({ ...p, username: e.target.value }))}
             placeholder="نام کاربری"
             autoComplete="off"
             spellCheck={false}
           />
         </div>
-
+  
         <div className="space-y-2">
           <Label className={labelClass}>رمزعبور</Label>
-
+  
           {/* ✅ NEW: wrapper to place icon inside password input */}
           <div className="relative">
             <Input
@@ -182,13 +181,11 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
               type={showPassword ? "text" : "password"}
               name="password"
               value={form.password}
-              onChange={(e) =>
-                setForm((p) => ({ ...p, password: e.target.value }))
-              }
+              onChange={(e) => setForm((p) => ({ ...p, password: e.target.value }))}
               placeholder="رمزعبور"
               autoComplete="new-password"
             />
-
+  
             <button
               type="button"
               onClick={() => setShowPassword((p) => !p)}
@@ -254,7 +251,7 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
           </div>
         </div>
       </div>
-
+  
       {/* Actions */}
       <div className="mt-5 flex flex-col sm:flex-row gap-2 sm:gap-3 sm:justify-end">
         <button
@@ -264,21 +261,14 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
             w-full sm:w-auto
             h-10 px-4 rounded-lg
             border border-gray-300 dark:border-gray-500
-            
             text-gray-700 dark:text-gray-300
-            
             transition
+            lux-btn
           "
-
         >
-          {
-            DeleteLoading ?
-              'درحال حذف...'
-              :
-              'حذف'
-          }
+          {DeleteLoading ? "درحال حذف..." : "حذف"}
         </button>
-
+  
         <button
           type="submit"
           className="
@@ -289,21 +279,18 @@ const ExchangeSetting = ({ SetLoading }: ExchangeInfoProps) => {
             active:opacity-80
             shadow-sm
             transition
+            lux-btn
           "
           onClick={() => {
-            AddData()
+            AddData();
           }}
         >
-          {
-            AddLoading ?
-              'درحال ثبت...'
-              :
-              'ثبت'
-          }
+          {AddLoading ? "درحال ثبت..." : "ثبت"}
         </button>
       </div>
     </form>
   );
+  
 };
 
 export default ExchangeSetting;

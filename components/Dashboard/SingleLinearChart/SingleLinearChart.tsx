@@ -105,27 +105,30 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
       dir="rtl"
       className="
         w-full h-full min-h-full
-        rounded-2xl
-        border border-boxBorderColor dark:border-boxBorderColor-dark
-        bg-boxColor dark:bg-boxColor-dark
-        shadow-sm
+        rounded-[32px]
+        border border-white/30 dark:border-white/10
+        bg-gradient-to-br from-white/90 via-white/70 to-white/60
+        dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90
+        backdrop-blur-2xl
+        shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)]
         p-5 md:p-6
         text-titleText dark:text-titleText-dark
         flex flex-col
         transition
-        hover:shadow-md
+        hover:shadow-[0_35px_90px_-40px_rgba(0,0,0,0.6)]
       "
     >
       {/* Header */}
-      <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
           <div className="flex items-center gap-3">
             {/* Icon chip */}
             <div
               className="
-                h-10 w-10 rounded-2xl
-                bg-white/60 dark:bg-white/10
-                border border-black/5 dark:border-white/10
+                h-11 w-11 rounded-2xl
+                bg-white/70 dark:bg-white/5
+                border border-white/40 dark:border-white/10
+                shadow-[0_8px_25px_-15px_rgba(0,0,0,0.6)]
                 flex items-center justify-center
                 shrink-0
               "
@@ -149,7 +152,7 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
             </div>
 
             <div className="min-w-0">
-              <h2 className="text-moon-18 md:text-moon-20 font-bold truncate">
+              <h2 className="text-moon-18 md:text-moon-20 font-bold tracking-tight truncate">
                 {title}
               </h2>
               <p className="mt-0.5 text-[12px] text-titleText/60 dark:text-titleText-dark/60">
@@ -176,30 +179,31 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                     variant="ghost"
                     onClick={() => setOpen((v) => !v)}
                     className="
-    w-full
-    flex items-center justify-between
-    rounded-xl
-    px-3 py-2
-    border border-black/10 dark:border-white/10
-    bg-white/50 dark:bg-white/5
-    hover:bg-white/70 dark:hover:bg-white/10
-    transition
-    min-w-0
-  "
+                      w-full
+                      flex items-center justify-between
+                      rounded-2xl
+                      px-3.5 py-2
+                      border border-white/40 dark:border-white/10
+                      bg-white/70 dark:bg-white/5
+                      shadow-[0_10px_28px_-18px_rgba(0,0,0,0.6)]
+                      hover:bg-white/90 dark:hover:bg-white/10
+                      transition
+                      min-w-0
+                    "
                   >
                     {/* RIGHT: badge + text */}
                     <span className="flex items-center gap-2 min-w-0">
                       {/* عدد */}
                       <span
                         className="
-        shrink-0
-        text-[10px]
-        px-2 py-1
-        rounded-full
-        border border-black/10 dark:border-white/10
-        bg-white/60 dark:bg-white/5
-        text-titleText/60 dark:text-titleText-dark/60
-      "
+                          shrink-0
+                          text-[10px]
+                          px-2 py-1
+                          rounded-full
+                          border border-white/40 dark:border-white/10
+                          bg-white/70 dark:bg-white/5
+                          text-titleText/60 dark:text-titleText-dark/60
+                        "
                       >
                         {List.length}
                       </span>
@@ -215,30 +219,25 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                     </span>
 
                     {/* LEFT: chevron */}
-                    <ControlsChevronDown
-                      className="
-      shrink-0
-      text-titleText/70 dark:text-titleText-dark/70
-    "
-                    />
-                  </Button>
 
+                  </Button>
                 </Dropdown.Trigger>
 
                 {open && (
                   <div
                     className="
                       absolute left-0 mt-2 w-full lg:w-[320px]
-                      rounded-2xl
-                      border border-black/10 dark:border-white/10
-                      bg-white dark:bg-buttonColor-dark
-                      shadow-lg
+                      rounded-[24px]
+                      border border-white/40 dark:border-white/10
+                      bg-white/95 dark:bg-[#0b0f15]
+                      backdrop-blur-2xl
+                      shadow-[0_20px_60px_-35px_rgba(0,0,0,0.7)]
                       z-50
                       max-h-72 overflow-y-auto
                       p-2
                     "
                   >
-                    <div className="sticky top-0 z-50 bg-white dark:bg-buttonColor-dark pb-2">
+                    <div className="sticky top-0 z-50 bg-white/95 dark:bg-[#0b0f15] pb-2">
                       <div className="relative">
                         <input
                           value={search}
@@ -249,8 +248,8 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                             px-3 py-2
                             text-sm
                             rounded-xl
-                            border border-black/10 dark:border-white/10
-                            bg-bgColor dark:bg-boxColor-dark
+                            border border-white/40 dark:border-white/10
+                            bg-white/80 dark:bg-white/5
                             text-titleText dark:text-titleText-dark
                             outline-none
                             focus:ring-2 focus:ring-primary/40
@@ -274,10 +273,10 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                             isSelected={CryptoSelected === item.cryptocurrency}
                             className={`
                               rounded-xl
-                              border border-black/5 dark:border-white/10
+                              border border-white/40 dark:border-white/10
                               ${CryptoSelected === item.cryptocurrency
                                 ? "bg-black/5 dark:bg-white/10"
-                                : "bg-white dark:bg-white/0 hover:bg-black/5 dark:hover:bg-white/10"
+                                : "bg-white/80 dark:bg-white/[0.04] hover:bg-black/5 dark:hover:bg-white/10"
                               }
                             `}
                           >
@@ -304,13 +303,13 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
               target={topLeftLink.target ?? "_self"}
               className="
                 inline-flex items-center justify-center gap-2
-                rounded-xl
-                border border-black/10 dark:border-white/10
-                bg-white/50 dark:bg-white/5
-                px-3 py-2
+                rounded-2xl
+                border border-white/40 dark:border-white/10
+                bg-white/70 dark:bg-white/5
+                px-3.5 py-2
                 text-sm
-                text-titleText dark:text-titleText-dark
-                hover:bg-white/70 dark:hover:bg-white/10
+                shadow-[0_10px_28px_-18px_rgba(0,0,0,0.6)]
+                hover:bg-white/90 dark:hover:bg-white/10
                 transition
                 lg:self-end
               "
@@ -340,68 +339,80 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
       <div className="flex-1 min-h-[220px] w-full">
         <div
           className="
+            relative
             h-full w-full
-            rounded-2xl
-            border border-black/5 dark:border-white/10
-            bg-white/40 dark:bg-white/5
-            p-3 md:p-4
+            rounded-[28px]
+            border border-white/40 dark:border-white/10
+            bg-white/75 dark:bg-white/[0.04]
+            backdrop-blur-xl
+            p-4 md:p-5
+            shadow-[0_12px_30px_-20px_rgba(0,0,0,0.6)]
           "
           style={{ height: Math.max(220, height) }}
         >
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 12, right: 16, left: 0, bottom: 18 }}>
-              <CartesianGrid vertical={false} stroke="currentColor" opacity={0.08} />
+          {/* soft glows */}
+          <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[28px]">
+            <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full bg-primary/15 blur-[80px]" />
+            <div className="absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-cyan-500/12 blur-[80px]" />
+            <div className="absolute inset-x-10 top-0 h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent" />
+          </div>
 
-              <XAxis
-                dataKey="label"
-                tick={{ fontSize: 12, fill: "currentColor" }}
-                axisLine={{ stroke: "currentColor", strokeOpacity: 0.15 }}
-                tickLine={false}
-              />
+          <div className="relative h-full w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={data} margin={{ top: 12, right: 16, left: 0, bottom: 18 }}>
+                <CartesianGrid vertical={false} stroke="currentColor" opacity={0.08} />
 
-              <YAxis
-                orientation="left"
-                width={56}
-                tickFormatter={formatCompact}
-                tick={{ fontSize: 12, fill: "currentColor", dx: -18 }}
-                axisLine={{ stroke: "currentColor", strokeOpacity: 0.15 }}
-                tickLine={false}
-              />
+                <XAxis
+                  dataKey="label"
+                  tick={{ fontSize: 12, fill: "currentColor" }}
+                  axisLine={{ stroke: "currentColor", strokeOpacity: 0.15 }}
+                  tickLine={false}
+                />
 
-              <Tooltip
-                content={({ active, payload, label }) => {
-                  if (!active || !payload?.length) return null;
-                  const raw = payload[0]?.value ?? 0;
-                  const val = Number(raw) || 0;
+                <YAxis
+                  orientation="left"
+                  width={56}
+                  tickFormatter={formatCompact}
+                  tick={{ fontSize: 12, fill: "currentColor", dx: -18 }}
+                  axisLine={{ stroke: "currentColor", strokeOpacity: 0.15 }}
+                  tickLine={false}
+                />
 
-                  return (
-                    <div className="rounded-2xl border border-black/10 dark:border-white/10 bg-white dark:bg-buttonColor-dark px-3 py-2 text-xs text-titleText dark:text-titleText-dark shadow-lg">
-                      <div className="mb-2 font-semibold">{String(label)}</div>
-                      <div className="flex items-center justify-between gap-4">
-                        <span className="opacity-80">{seriesLabel}</span>
-                        <span dir="ltr" className="font-semibold">
-                          {formatCompact(val)}
-                        </span>
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (!active || !payload?.length) return null;
+                    const raw = payload[0]?.value ?? 0;
+                    const val = Number(raw) || 0;
+
+                    return (
+                      <div className="rounded-2xl border border-white/40 dark:border-white/10 bg-white/95 dark:bg-[#0b0f15] px-3 py-2 text-xs text-titleText dark:text-titleText-dark shadow-[0_18px_40px_-22px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+                        <div className="mb-2 font-semibold">{String(label)}</div>
+                        <div className="flex items-center justify-between gap-4">
+                          <span className="opacity-80">{seriesLabel}</span>
+                          <span dir="ltr" className="font-semibold">
+                            {formatCompact(val)}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  );
-                }}
-              />
+                    );
+                  }}
+                />
 
-              <Bar
-                dataKey="x"
-                name={seriesLabel}
-                radius={[10, 10, 4, 4]}
-                fill="currentColor"
-                className="fill-green-500"
-              />
-            </BarChart>
-          </ResponsiveContainer>
+                <Bar
+                  dataKey="x"
+                  name={seriesLabel}
+                  radius={[10, 10, 4, 4]}
+                  fill="currentColor"
+                  className="fill-green-500"
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
 
       {/* Footer */}
-      <div className="mt-4 pt-4 border-t border-black/5 dark:border-white/10">
+      <div className="mt-5 pt-4 border-t border-white/30 dark:border-white/10">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2 text-xs">
             <span className="h-2.5 w-2.5 rounded-full bg-green-500" />
@@ -414,9 +425,10 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
                 className="
                   inline-flex items-center gap-2
                   rounded-full
-                  border border-black/10 dark:border-white/10
-                  bg-white/50 dark:bg-white/5
+                  border border-white/40 dark:border-white/10
+                  bg-white/70 dark:bg-white/5
                   px-3 py-1.5
+                  shadow-[0_8px_20px_-14px_rgba(0,0,0,0.6)]
                   text-titleText/80 dark:text-titleText-dark/80
                 "
               >
@@ -432,6 +444,7 @@ const SingleLinearChart: React.FC<SingleLinearChartProps> = ({
       </div>
     </div>
   );
+
 };
 
 export default SingleLinearChart;

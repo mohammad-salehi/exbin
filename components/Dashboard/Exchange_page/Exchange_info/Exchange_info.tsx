@@ -615,9 +615,9 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
       prev.map((section) =>
         section.id === 3
           ? {
-              ...section,
-              content: [buildDocumentsBlock(association, financialStatement)],
-            }
+            ...section,
+            content: [buildDocumentsBlock(association, financialStatement)],
+          }
           : section
       )
     );
@@ -898,50 +898,41 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
   return (
     <div className="space-y-5">
       {/* Header Card */}
-      <div className={cx(panelBase, "p-5")}>
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 min-w-0">
-            {logo ? (
-              <img alt="logo" className="w-10 h-10 rounded-xl object-cover ring-1 ring-black/5" src={logo} />
-            ) : (
-              <div
-                className={cx(
-                  "w-10 h-10 rounded-xl grid place-items-center  text-titleText dark:text-titleText-dark",
-                  "bg-boxColor dark:bg-boxColor-dark",
-                  "border border-boxBorderColor dark:border-boxBorderColor-dark"
-                )}
-              >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                  <path
-                    d="M4 7.2C4 6.08 4 5.52 4.218 5.092c.192-.376.498-.682.874-.874C5.52 4 6.08 4 7.2 4h9.6c1.12 0 1.68 0 2.108.218.376.192.682.498.874.874C20 5.52 20 6.08 20 7.2v9.6c0 1.12 0 1.68-.218 2.108a2 2 0 0 1-.874.874C18.48 20 17.92 20 16.8 20H7.2c-1.12 0-1.68 0-2.108-.218a2 2 0 0 1-.874-.874C4 18.48 4 17.92 4 16.8V7.2Z"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                  />
-                  <path
-                    d="M8 14.5 10.2 12.3a1 1 0 0 1 1.4 0l1.6 1.6a1 1 0 0 0 1.4 0L18 11.5"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </div>
-            )}
+      <div className="relative overflow-hidden rounded-[36px] border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/90 via-white/70 to-white/60 dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90 backdrop-blur-2xl shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)]">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
+          <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+          <div className="absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(1200px_400px_at_top,rgba(255,255,255,0.35),transparent)] dark:bg-[radial-gradient(1200px_400px_at_top,rgba(255,255,255,0.08),transparent)]" />
+        </div>
 
-            <div className="min-w-0">
-              <h3 className="text-2xl font-extrabold truncate text-titleText dark:text-titleText-dark">
-                {name}
-              </h3>
+        <div className="relative flex items-center gap-5 p-7 md:p-8">
+          <div className="h-14 w-14 rounded-2xl bg-white/70 dark:bg-white/5 border border-white/40 dark:border-white/10 shadow-[0_8px_25px_-15px_rgba(0,0,0,0.7)] flex items-center justify-center">
+            {logo ? (
+              <img src={logo} className="w-10 h-10 object-contain" />
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-boxColor dark:bg-boxColor-dark" />
+            )}
+          </div>
+
+          <div className="min-w-0">
+            <div className="text-[11px] tracking-wider uppercase text-titleText/50 dark:text-titleText-dark/50">
+              Exchange Identify
             </div>
+            <h3 className="text-2xl md:text-3xl font-extrabold tracking-tight truncate text-titleText dark:text-titleText-dark">
+              {name}
+            </h3>
           </div>
 
         </div>
       </div>
 
       {/* Detail Box */}
-      <div className={cx(panelBase, "p-5")}>
-        <h5 className={cx(sectionTitle, "mb-4")}>مشخصات کارگزاری</h5>
 
+      <div className={cx(panelBase, "p-5 lux-panel")}>
+        <h5 className={cx(sectionTitle, "mb-4 px-3 py-2 lux-title")}>
+          مشخصات کارگزاری
+        </h5>
         <DetailBox
           data={invoiceData.map((section) => ({
             title: section.title,
@@ -951,13 +942,14 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                 typeof item.content === "string"
                   ? item.content
                   : React.isValidElement(item.content)
-                  ? item.content
-                  : "",
+                    ? item.content
+                    : "",
             })),
           }))}
           downloadLink="/path/to/pdf"
         />
       </div>
+
 
       {/* ویرایش کارگزاری */}
       <Modal open={isOpen} onClose={() => setIsOpen(false)}>
@@ -1128,7 +1120,7 @@ const Exchange_info = ({ SetC1 }: ExchangeInfoProps) => {
                                 "rounded-lg border mt-1 mb-1",
                                 "border-gray-100 dark:border-buttonBorderColor-dark",
                                 form.exchangeType === item.value &&
-                                  "bg-gray-100 border-gray-200 dark:bg-gray-700"
+                                "bg-gray-100 border-gray-200 dark:bg-gray-700"
                               )}
                             >
                               <MenuItem.Title>{item.label}</MenuItem.Title>
