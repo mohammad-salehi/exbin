@@ -166,88 +166,130 @@ function MetricText({
     );
 }
 
+import { Coins } from 'lucide-react';
+
 function AssetPorCard({ row }: { row: AssetRow }) {
-    const ratio = row.reserveRatio;
+  const ratio = row.reserveRatio;
+  const pct = clamp(ratio, 0, 100);
+  const fill = pct; // 0..100
 
-    const pct = clamp(ratio, 0, 100);  // تنظیم پروگرس بار از 0 تا 100 درصد
-    const fill = (pct / 100) * 100;  // پر کردن پروگرس بار بر اساس درصد 0 تا 100
+  const hasLogo = !!row.asset; // اگر اسم دارایی باشد تلاش برای لود لوگو می‌کنیم
 
-    return (
-        <div className={cn('group relative overflow-hidden rounded-[28px] border bg-white dark:bg-boxColor-dark', 'border-boxBorderColor dark:border-boxBorderColor-dark', 'p-5 shadow-sm transition', 'hover:-translate-y-0.5 hover:shadow-md')}>
-            {/* glow + gradient edge */}
-            <div className="pointer-events-none absolute inset-0">
-                <div className="absolute -top-20 -left-20 h-52 w-52 rounded-full bg-primary/12 blur-3xl opacity-80" />
-                <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl opacity-70" />
-                <div className="absolute inset-x-6 top-0 h-px bg-gradient-to-r from-transparent via-primary/35 to-transparent opacity-70" />
+  return (
+    <div
+      className={cn(
+        'group relative overflow-hidden rounded-3xl border',
+        'border-boxBorderColor/70 dark:border-boxBorderColor-dark/70',
+        'bg-white/85 dark:bg-[#0f141c]/85 backdrop-blur-xl',
+        'p-5 shadow-[0_10px_30px_-18px_rgba(0,0,0,0.35)]',
+        'transition-all duration-300',
+        'hover:-translate-y-1 hover:shadow-[0_20px_45px_-22px_rgba(0,0,0,0.45)]'
+      )}
+    >
+      {/* ambient lights */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-16 -left-16 h-44 w-44 rounded-full bg-primary/12 blur-3xl" />
+        <div className="absolute -bottom-20 -right-20 h-52 w-52 rounded-full bg-emerald-400/10 blur-3xl" />
+        <div className="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+      </div>
+
+      {/* Header */}
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="min-w-0 flex items-center gap-3">
+          {/* Logo / Fallback */}
+          <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl border border-boxBorderColor/70 dark:border-boxBorderColor-dark/70 bg-white/90 dark:bg-white/5 shadow-sm overflow-hidden">
+            {hasLogo ? (
+              <img
+                src={`/images/${row.asset}.png`}
+                alt={row.asset}
+                className="h-7 w-7 object-contain"
+                onError={(e) => {
+                  // fallback وقتی تصویر پیدا نشد
+                  const target = e.currentTarget;
+                  target.style.display = 'none';
+                  const fallback = target.nextElementSibling as HTMLElement | null;
+                  if (fallback) fallback.style.display = 'flex';
+                }}
+              />
+            ) : null}
+
+            <span
+              className={cn(
+                'absolute inset-0 items-center justify-center',
+                hasLogo ? 'hidden' : 'flex'
+              )}
+            >
+              <Coins className="h-5 w-5 text-titleText/55 dark:text-titleText-dark/55" />
+            </span>
+          </div>
+
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="truncate text-base font-extrabold tracking-tight text-titleText dark:text-titleText-dark">
+                {row.asset || 'Unknown Asset'}
+              </h4>
+              {row.fullName ? (
+                <span className="truncate text-xs text-titleText/60 dark:text-titleText-dark/60">
+                  {row.fullName}
+                </span>
+              ) : null}
             </div>
-
-            {/* header */}
-            <div className="relative flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                    <div className="flex items-center gap-3">
-                        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl  bg-white/70 dark:bg-boxColor-dark/70 shadow-sm border-boxBorderColor dark:border-boxBorderColor-dark">
-                            <span className="text-base font-extrabold tracking-tight"><img src={`/images/${row.asset}.png`} /></span>
-                            <span className="absolute -bottom-2 left-1/2 h-1.5 w-8 -translate-x-1/2 rounded-full bg-primary/40 blur-[1px]" />
-                        </div>
-
-                        <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <div className="text-base font-extrabold tracking-tight truncate text-titleText dark:text-titleText-dark">
-                                    {row.asset}
-                                </div>
-                                {row.fullName ? (
-                                    <span className="text-xs text-titleText/60 dark:text-titleText-dark/60 truncate">
-                                        {row.fullName}
-                                    </span>
-                                ) : null}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="shrink-0 text-left">
-                    <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">درصد ضریب پوشش</div>
-                    <div className={cn('mt-1 text-2xl font-extrabold tracking-tight', ratioTone(ratio))}>
-                        {formatNumberFa(ratio)}٪
-                    </div>
-                </div>
-            </div>
-
-            {/* bar */}
-            <div className="relative mt-5">
-                <div className="flex items-center justify-between text-[11px] text-titleText/55 dark:text-titleText-dark/55">
-                    <span>۰٪</span>
-                    <span>۱۰۰٪</span>
-                </div>
-
-                <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-boxBorderColor/40 dark:bg-boxBorderColor-dark/40">
-                    <div className={cn('h-full rounded-full', ratioBarTone(ratio))} style={{ width: `${fill}%` }} />
-                </div>
-
-                {/* numbers */}
-                <div className="mt-4 grid grid-cols-1 gap-3">
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
-                        <div className="rounded-3xl border p-4 border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur">
-                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">دارایی کارگزاری</div>
-                            <div className="mt-2 font-mono text-sm font-extrabold text-titleText dark:text-titleText-dark">
-                                {row.exchangeBalance.toLocaleString()}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-1">
-                        <div className="rounded-3xl border p-4 border-boxBorderColor dark:border-boxBorderColor-dark bg-white/60 dark:bg-boxColor-dark/60 backdrop-blur">
-                            <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">بدهی به کاربران</div>
-                            <div className="mt-2 font-mono text-sm font-extrabold text-titleText dark:text-titleText-dark">
-                                {row.customerNetBalance.toLocaleString()}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
-    );
+
+        <div className="shrink-0 text-left">
+          <div className="text-[11px] text-titleText/55 dark:text-titleText-dark/55">
+            درصد ضریب پوشش
+          </div>
+          <div className={cn('mt-1 text-2xl font-extrabold tracking-tight', ratioTone(ratio))}>
+            {formatNumberFa(ratio)}٪
+          </div>
+        </div>
+      </div>
+
+      {/* Progress */}
+      <div className="relative mt-5">
+        <div className="mb-2 flex items-center justify-between text-[11px] text-titleText/50 dark:text-titleText-dark/50">
+          <span>۰٪</span>
+          <span>۱۰۰٪</span>
+        </div>
+
+        <div className="h-2.5 w-full overflow-hidden rounded-full bg-boxBorderColor/45 dark:bg-boxBorderColor-dark/45">
+          <div
+            className={cn(
+              'h-full rounded-full transition-all duration-700 ease-out',
+              ratioBarTone(ratio)
+            )}
+            style={{ width: `${fill}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="relative mt-4 grid grid-cols-1 gap-3">
+        <div className="rounded-2xl border border-boxBorderColor/70 dark:border-boxBorderColor-dark/70 bg-white/75 dark:bg-white/[0.03] p-4 backdrop-blur-md">
+          <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">
+            دارایی کارگزاری
+          </div>
+          <div className="mt-1.5 font-mono text-sm font-bold text-titleText dark:text-titleText-dark">
+            {row.exchangeBalance.toLocaleString()}
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-boxBorderColor/70 dark:border-boxBorderColor-dark/70 bg-white/75 dark:bg-white/[0.03] p-4 backdrop-blur-md">
+          <div className="text-[11px] text-titleText/60 dark:text-titleText-dark/60">
+            بدهی به کاربران
+          </div>
+          <div className="mt-1.5 font-mono text-sm font-bold text-titleText dark:text-titleText-dark">
+            {row.customerNetBalance.toLocaleString()}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
+
+
 function Pagination({
     page,
     totalPages,
@@ -489,23 +531,23 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
       return (
         <section dir="rtl" className="w-full text-titleText dark:text-white space-y-10">
           {/* Header */}
-          <div className="relative overflow-hidden rounded-[36px] border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/90 via-white/70 to-white/60 dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90 backdrop-blur-2xl shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)]">
+          <div className="relative overflow-hidden border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/90 via-white/70 to-white/60 dark:from-[#0b0f15]/95 dark:via-[#0d131c]/85 dark:to-[#0a0f15]/90 backdrop-blur-2xl shadow-[0_25px_70px_-35px_rgba(0,0,0,0.55)] lux-panel">
             <div className="pointer-events-none absolute inset-0">
-              <div className="absolute -top-24 -right-16 h-72 w-72 rounded-full bg-primary/15 blur-3xl" />
-              <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-emerald-400/10 blur-3xl" />
+              <div className="absolute -top-24 -right-16 h-72 w-72 bg-primary/15 blur-3xl" />
+              <div className="absolute -bottom-28 -left-20 h-80 w-80 bg-emerald-400/10 blur-3xl" />
               <div className="absolute inset-x-12 top-0 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent" />
               <div className="absolute inset-0 bg-[radial-gradient(1200px_400px_at_top,rgba(255,255,255,0.35),transparent)] dark:bg-[radial-gradient(1200px_400px_at_top,rgba(255,255,255,0.08),transparent)]" />
             </div>
-    
+      
             <div className="relative flex items-center gap-5 p-7 md:p-8">
-              <div className="h-14 w-14 rounded-2xl bg-white/70 dark:bg-white/5 border border-white/40 dark:border-white/10 shadow-[0_8px_25px_-15px_rgba(0,0,0,0.7)] flex items-center justify-center">
+              <div className="h-14 w-14 bg-white/70 dark:bg-white/5 border border-white/40 dark:border-white/10 shadow-[0_8px_25px_-15px_rgba(0,0,0,0.7)] flex items-center justify-center">
                 {logo ? (
                   <img src={logo} className="w-10 h-10 object-contain" />
                 ) : (
-                  <div className="w-10 h-10 rounded-xl bg-boxColor dark:bg-boxColor-dark" />
+                  <div className="w-10 h-10 bg-boxColor dark:bg-boxColor-dark" />
                 )}
               </div>
-    
+      
               <div className="min-w-0">
                 <div className="text-[11px] tracking-wider uppercase text-titleText/50 dark:text-titleText-dark/50">
                   Proof of Reserves
@@ -514,19 +556,18 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                   {name}
                 </h3>
               </div>
-    
             </div>
           </div>
-    
+      
           {/* Hero */}
-          <div className="relative overflow-hidden rounded-[40px] border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/95 via-white/75 to-white/60 dark:from-[#0a0f15]/95 dark:via-[#0d121b]/90 dark:to-[#0a0f15]/95 backdrop-blur-2xl shadow-[0_30px_90px_-45px_rgba(0,0,0,0.6)]">
+          <div className="relative overflow-hidden border border-white/30 dark:border-white/10 bg-gradient-to-br from-white/95 via-white/75 to-white/60 dark:from-[#0a0f15]/95 dark:via-[#0d121b]/90 dark:to-[#0a0f15]/95 backdrop-blur-2xl shadow-[0_30px_90px_-45px_rgba(0,0,0,0.6)] lux-panel">
             <div className="pointer-events-none absolute inset-0">
-              <div className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-primary/18 blur-[90px]" />
-              <div className="absolute -bottom-28 -left-24 h-96 w-96 rounded-full bg-emerald-400/12 blur-[100px]" />
+              <div className="absolute -top-24 -right-24 h-80 w-80 bg-primary/18 blur-[90px]" />
+              <div className="absolute -bottom-28 -left-24 h-96 w-96 bg-emerald-400/12 blur-[100px]" />
               <div className="absolute inset-x-16 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
               <div className="absolute inset-0 bg-[radial-gradient(1200px_500px_at_top,rgba(255,255,255,0.35),transparent)] dark:bg-[radial-gradient(1200px_500px_at_top,rgba(255,255,255,0.08),transparent)]" />
             </div>
-    
+      
             <div className="relative p-9 md:p-11 grid lg:grid-cols-12 gap-10">
               <div className="lg:col-span-7">
                 <div className="flex flex-wrap gap-2">
@@ -536,20 +577,20 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                     {headlineRatios.min >= 100 ? 'امنیت مناسب' : 'نیاز به بررسی'}
                   </Pill>
                 </div>
-    
+      
                 <h1 className="mt-6 text-3xl md:text-5xl font-extrabold leading-[1.2]">
                   امنیت دارایی کاربران با سرویس{" "}
                   <span className="text-primary">اثبات ذخیره دارایی‌ها</span>
                 </h1>
-    
+      
                 <p className="mt-4 text-sm md:text-base text-titleText/60 dark:text-titleText-dark/60 leading-relaxed">
                   گزارش شفاف، دقیق و قابل اتکا از نسبت پوشش دارایی‌ها و بدهی کاربران در دارایی‌های منتخب.
                 </p>
               </div>
-    
+      
               <div className="lg:col-span-5 flex justify-center lg:justify-end">
                 <div className="relative">
-                  <div className="absolute -inset-8 rounded-full bg-primary/15 blur-3xl" />
+                  <div className="absolute -inset-8 bg-primary/15 blur-3xl" />
                   <img
                     src="/images/pantaLogo.png"
                     className="relative w-[200px] md:w-[220px] drop-shadow-2xl"
@@ -557,7 +598,7 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                 </div>
               </div>
             </div>
-    
+      
             {/* KPI Row */}
             <div className="relative px-8 md:px-11 pb-10 grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
               {[
@@ -592,17 +633,17 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
               ].map((k, i) => (
                 <div
                   key={i}
-                  className="rounded-[28px] border border-white/40 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] p-5 backdrop-blur-xl shadow-[0_12px_30px_-20px_rgba(0,0,0,0.6)]"
+                  className="border border-white/40 dark:border-white/10 bg-white/70 dark:bg-white/[0.03] p-5 backdrop-blur-xl shadow-[0_12px_30px_-20px_rgba(0,0,0,0.6)] lux-panel"
                 >
                   <MetricText label={k.label} value={k.value} />
                 </div>
               ))}
             </div>
           </div>
-    
+      
           {/* Assets */}
           <Card
-            className="mt-2"
+            className="mt-2 lux-panel"
             title={
               <div className="flex items-center gap-3">
                 <span>دارایی‌ها</span>
@@ -618,7 +659,7 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
                 <AssetPorCard key={idx} row={row} />
               ))}
             </div>
-    
+      
             <Pagination
               page={safePage}
               totalPages={totalPages}
@@ -627,6 +668,7 @@ const ProofOfReserve = ({ SetLoading }: ExchangeInfoProps) => {
           </Card>
         </section>
       );
+      
     
     
 
