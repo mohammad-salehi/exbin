@@ -345,7 +345,7 @@ const Navbar = ({
                 />
               </svg>
             </button>
-  
+
             <button
               type="button"
               onClick={toggleDarkMode}
@@ -382,17 +382,17 @@ const Navbar = ({
           </div>
         </div>
       </div>
-  
+
       {/* ===== Mobile overlay ===== */}
       {isMobileOpen && (
         <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" />
       )}
-  
+
       {/* ===== Sidebar ===== */}
       <aside
         ref={asideRef}
         className={clsx(
-          "fixed top-0 right-0 h-screen w-[82vw] max-w-[320px] lg:w-64 shadow-[0_10px_40px_rgba(0,0,0,0.18)] transition-transform duration-300 z-50 bg-boxColor dark:bg-boxColor-dark dark:text-titleText-dark lux-panel rounded-none",
+          "flex flex-col fixed top-0 right-0 h-screen w-[82vw] max-w-[320px] lg:w-64 shadow-[0_10px_40px_rgba(0,0,0,0.18)] transition-transform duration-300 z-50 bg-boxColor dark:bg-boxColor-dark dark:text-titleText-dark lux-panel rounded-none",
           {
             "translate-x-full lg:translate-x-0": !isOpen && !isMobileOpen,
             "translate-x-0": isOpen || isMobileOpen,
@@ -413,7 +413,7 @@ const Navbar = ({
                   <AnimatedHeadingText />
                 </div>
               </div>
-  
+
               <button
                 type="button"
                 className="lg:hidden h-10 w-10 rounded-xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/60 hover:bg-gray-100 dark:hover:bg-gray-900 transition flex items-center justify-center text-titleText dark:text-titleText-dark lux-btn"
@@ -430,7 +430,7 @@ const Navbar = ({
                 </svg>
               </button>
             </div>
-  
+
             <div className="mt-3 rounded-2xl border border-boxBorderColor dark:border-boxBorderColor-dark bg-white/70 dark:bg-bgColor-dark/50 p-3 lux-panel">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-gray-100 dark:bg-boxColor-dark border border-boxBorderColor dark:border-boxBorderColor-dark flex items-center justify-center text-titleText dark:text-titleText-dark">
@@ -443,7 +443,7 @@ const Navbar = ({
                     />
                   </svg>
                 </div>
-  
+
                 <div className="min-w-0 flex-1" dir="rtl">
                   <div className="text-sm font-semibold text-titleText dark:text-titleText-dark truncate">
                     {fullName || "کاربر"}
@@ -452,7 +452,7 @@ const Navbar = ({
                     {role || "—"}
                   </div>
                 </div>
-  
+
                 <button
                   type="button"
                   onClick={openChangePassword}
@@ -486,17 +486,16 @@ const Navbar = ({
             </div>
           </div>
         </div>
-  
+
         {/* Nav */}
         <nav
-          className="px-3 pt-4 space-y-2 overflow-y-auto h-full"
-          style={{ paddingBottom: "calc(160px + env(safe-area-inset-bottom))" }}
+          className="px-3 pt-4 space-y-2 overflow-y-auto flex-1 min-h-0"
         >
           {" "}
           {navItems.map((item) => {
             if (item.access !== "" && item.access !== role) return null;
             const active = item.link === activeLink;
-  
+
             return (
               <a
                 href={`/panel/${item.link}`}
@@ -528,7 +527,7 @@ const Navbar = ({
                     >
                       {item.icon}
                     </span>
-  
+
                     {/* ✅ متن چندخطی: چپ/راست نشه و وسط‌چین نشه */}
                     <span
                       className={clsx(
@@ -542,7 +541,7 @@ const Navbar = ({
                       {item.label}
                     </span>
                   </div>
-  
+
                   {/* ✅ فلش همیشه بالا بمونه */}
                   <svg
                     width="18"
@@ -586,7 +585,7 @@ const Navbar = ({
               </svg>
               <span className="text-sm font-semibold">خروج</span>
             </button>
-  
+
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
@@ -604,15 +603,11 @@ const Navbar = ({
             </button>
           </div>
         </nav>
-  
+
         {/* Sticky bottom actions */}
         <div
-          className="hidden sm:block fixed bottom-0 right-0 left-0 lg:left-auto lg:right-auto lg:bottom-0 lg:w-64
-             p-3  
-               "
-          style={{
-            paddingBottom: "calc(12px + env(safe-area-inset-bottom))",
-          }}
+          className="hidden sm:block mt-auto p-3 "
+          style={{ paddingBottom: "calc(12px + env(safe-area-inset-bottom))" }}
         >
           {" "}
           <div className="flex items-center gap-2">
@@ -635,7 +630,7 @@ const Navbar = ({
               </svg>
               <span className="text-sm font-semibold">خروج</span>
             </button>
-  
+
             <button
               type="button"
               onClick={() => setIsMobileOpen(false)}
@@ -654,7 +649,7 @@ const Navbar = ({
           </div>
         </div>
       </aside>
-  
+
       {/* ===== Change password modal ===== */}
       <Modal
         open={open}
@@ -664,7 +659,7 @@ const Navbar = ({
         }}
       >
         <Modal.Backdrop className="fixed inset-0 w-screen h-screen bg-black/50 z-[2147483646]" />
-  
+
         <div className="fixed inset-0 z-[2147483647] flex items-center justify-center p-4">
           <Modal.Panel
             key={`${formVersion}-${open ? "open" : "closed"}`}
@@ -676,7 +671,7 @@ const Navbar = ({
                   تغییر رمز عبور
                 </h3>
               </Modal.Title>
-  
+
               <form onSubmit={submit} className="mt-4 space-y-4">
                 <div>
                   <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
@@ -701,7 +696,7 @@ const Navbar = ({
                     </button>
                   </div>
                 </div>
-  
+
                 <div>
                   <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
                     رمزعبور جدید
@@ -728,7 +723,7 @@ const Navbar = ({
                     رمز جدید حداقل ۸ کاراکتر باشد.
                   </p>
                 </div>
-  
+
                 <div>
                   <label className="block text-sm font-medium text-titleText dark:text-titleText-dark">
                     تکرار رمزعبور جدید
@@ -752,7 +747,7 @@ const Navbar = ({
                     </button>
                   </div>
                 </div>
-  
+
                 {!!error && (
                   <div className="rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
                     {error}
@@ -763,7 +758,7 @@ const Navbar = ({
                     {success}
                   </div>
                 )}
-  
+
                 <div className="mt-2 flex items-center justify-end gap-3">
                   <button
                     type="submit"
@@ -783,7 +778,7 @@ const Navbar = ({
       </Modal>
     </div>
   );
-  
+
 };
 
 export default Navbar;
